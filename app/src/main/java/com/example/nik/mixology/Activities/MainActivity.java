@@ -1,5 +1,6 @@
 package com.example.nik.mixology.Activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -10,9 +11,12 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.nik.mixology.Adapters.MainAdapter;
+import com.example.nik.mixology.Fragments.ActivityDetailsFragment;
+import com.example.nik.mixology.Model.Cocktail;
 import com.example.nik.mixology.R;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MainAdapter.OnAdapterItemSelectedListener {
 
 
 
@@ -46,5 +50,17 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onItemSelected(Cocktail id) {
+        ActivityDetailsFragment detailsFragment = (ActivityDetailsFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_details);
+        if(detailsFragment == null){
+            Intent mCocktailDetailIntent = new Intent(this,ActivityDetails.class);
+            mCocktailDetailIntent.putExtra("Cocktail",id);
+            startActivity(mCocktailDetailIntent);
+        }
+
+
     }
 }

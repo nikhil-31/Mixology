@@ -29,11 +29,12 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
     private LayoutInflater inflater;
 
     private Activity mAct;
+    private OnAdapterItemSelectedListener mAdapterCallback;
 
     public MainAdapter(Context context, Activity activity) {
         this.context = context;
         this.mAct = activity;
-
+        mAdapterCallback = (OnAdapterItemSelectedListener) mAct;
         inflater = LayoutInflater.from(context);
     }
 
@@ -60,6 +61,14 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
                 .load(currentCocktail.getmDrinkThumb())
                 .error(R.drawable.empty_glass)
                 .into(holder.image);
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(mAdapterCallback != null){
+                    mAdapterCallback.onItemSelected(currentCocktail);
+                }
+            }
+        });
 
     }
 
@@ -80,5 +89,9 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
             image = (ImageView) itemView.findViewById(R.id.cocktail_image);
             textView = (TextView) itemView.findViewById(R.id.cocktail_text);
         }
+    }
+
+    public interface OnAdapterItemSelectedListener{
+        void onItemSelected(Cocktail id);
     }
 }

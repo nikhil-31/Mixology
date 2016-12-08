@@ -5,10 +5,12 @@ import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -136,12 +138,13 @@ public class MainActivityFragment extends Fragment {
 
                 cocktail.setmDrinkName(jsonObject.getString(COCKTAIL_NAME));
                 cocktail.setmDrinkThumb(jsonObject.getString(COCKTAIL_THUMBNAIL));
-                cocktail.setmDrinkId(Float.parseFloat(jsonObject.optString(COCKTAIL_ID)));
+                cocktail.setmDrinkId(jsonObject.getString(COCKTAIL_ID));
 
                 data.add(cocktail);
 
             }
 
+//            Toast.makeText(getActivity(),jsonObject.getString(COCKTAIL_ID),Toast.LENGTH_SHORT).show();
 //            Log.d("Name",jsonObject.getString(COCKTAIL_NAME));
 //            Log.d("Thumb",jsonObject.getString(COCKTAIL_THUMBNAIL));
 //            Log.d("ID",jsonObject.getString(COCKTAIL_ID));

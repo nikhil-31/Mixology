@@ -10,7 +10,7 @@ import android.os.Parcelable;
 public class Cocktail implements Parcelable {
     private String mDrinkName;
     private String mDrinkThumb;
-    private float mDrinkId;
+    private String mDrinkId;
 
     public Cocktail(){
 
@@ -32,20 +32,19 @@ public class Cocktail implements Parcelable {
         this.mDrinkThumb = mDrinkThumb;
     }
 
-    public float getmDrinkId() {
+    public String getmDrinkId() {
         return mDrinkId;
     }
 
-    public void setmDrinkId(float mDrinkId) {
+    public void setmDrinkId(String mDrinkId) {
         this.mDrinkId = mDrinkId;
     }
-
 
 
     private Cocktail(Parcel in) {
         mDrinkName = in.readString();
         mDrinkThumb = in.readString();
-        mDrinkId = in.readFloat();
+        mDrinkId = in.readString();
     }
 
     public static final Creator<Cocktail> CREATOR = new Creator<Cocktail>() {
@@ -69,8 +68,9 @@ public class Cocktail implements Parcelable {
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(mDrinkName);
         parcel.writeString(mDrinkThumb);
-        parcel.writeValue(mDrinkId);
+        parcel.writeString(mDrinkId);
     }
+
 
 
 }

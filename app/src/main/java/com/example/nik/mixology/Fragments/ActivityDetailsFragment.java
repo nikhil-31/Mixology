@@ -35,6 +35,8 @@ import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
+import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_BY_ID;
+
 /**
  * A placeholder fragment containing a simple view.
  */
@@ -78,7 +80,6 @@ public class ActivityDetailsFragment extends Fragment {
         cocktail = getActivity().getIntent().getParcelableExtra("Cocktail");
 
         mCocktailId = cocktail.getmDrinkId();
-
 
         Toolbar toolbar = (Toolbar) v.findViewById(R.id.toolbar);
 
@@ -124,7 +125,7 @@ public class ActivityDetailsFragment extends Fragment {
 
     private void sendJsonRequest() {
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET,
-                "http://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=" + mCocktailId,
+                COCKTAIL_SEARCH_URL_BY_ID + mCocktailId,
                 null,
                 new Response.Listener<JSONObject>() {
                     @Override
@@ -133,14 +134,13 @@ public class ActivityDetailsFragment extends Fragment {
                         try {
                             mCocktailDetails = parseJSONResponse(response);
                             mMeasuresArrayList = parseJSONResponseMeasure(response);
-
                             setUIData();
-
                             mIngredientsAdapter.setMeasuresList(mMeasuresArrayList);
                             Log.d("Instructions", mCocktailDetails.getmInstructions());
 
                         } catch (JSONException e) {
                             e.printStackTrace();
+                            Toast.makeText(getActivity(),"Check internet connection",Toast.LENGTH_LONG).show();
                         }
                     }
                 }, new Response.ErrorListener() {
@@ -163,7 +163,6 @@ public class ActivityDetailsFragment extends Fragment {
 
         CocktailDetails details = new CocktailDetails();
 
-
         if (response == null || response.length() == 0) {
             return details;
         }
@@ -172,19 +171,13 @@ public class ActivityDetailsFragment extends Fragment {
 
         for (int i = 0; i < results.length(); i++) {
 
-
             JSONObject jsonObject = results.getJSONObject(i);
 
             details.setmName(jsonObject.getString(NAME));
-
             details.setmCategory(jsonObject.getString(CATEGORY));
-
             details.setmAlcoholic(jsonObject.getString(ALC0HOLIC));
-
             details.setmGlass(jsonObject.getString(GLASS));
-
             details.setmInstructions(jsonObject.getString(INSTRUCTIONS));
-
 
         }
         return details;
@@ -192,6 +185,7 @@ public class ActivityDetailsFragment extends Fragment {
     }
 
     public ArrayList<Measures> parseJSONResponseMeasure(JSONObject response) throws JSONException {
+
         final String DRINKS = "drinks";
         final String INGREDIENT_1 = "strIngredient1";
         final String INGREDIENT_2 = "strIngredient2";

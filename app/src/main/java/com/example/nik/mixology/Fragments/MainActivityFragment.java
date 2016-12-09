@@ -28,6 +28,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_ALCOHOLIC;
+
 /**
  * A placeholder fragment containing a simple view.
  */
@@ -87,7 +89,7 @@ public class MainActivityFragment extends Fragment {
 
     private void sendJsonRequest(){
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET,
-                "http://www.thecocktaildb.com/api/json/v1/1/filter.php?a=Non_Alcoholic",
+                COCKTAIL_SEARCH_URL_ALCOHOLIC,
                 null,
                 new Response.Listener<JSONObject>() {
                     @Override
@@ -143,15 +145,6 @@ public class MainActivityFragment extends Fragment {
                 data.add(cocktail);
 
             }
-
-//            Toast.makeText(getActivity(),jsonObject.getString(COCKTAIL_ID),Toast.LENGTH_SHORT).show();
-//            Log.d("Name",jsonObject.getString(COCKTAIL_NAME));
-//            Log.d("Thumb",jsonObject.getString(COCKTAIL_THUMBNAIL));
-//            Log.d("ID",jsonObject.getString(COCKTAIL_ID));
-//
-//            String toast = "Name "+jsonObject.getString(COCKTAIL_NAME)+"\nThumb "+jsonObject.getString(COCKTAIL_THUMBNAIL)+"\nID "+jsonObject.getString(COCKTAIL_ID);
-//
-//            Toast.makeText(getActivity(), toast, Toast.LENGTH_SHORT).show();
 
 
         }

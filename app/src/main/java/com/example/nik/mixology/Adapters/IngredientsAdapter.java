@@ -15,6 +15,9 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
+import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_INGREDIENTS_URL;
+import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_INGREDIENT_PNG_SMALL;
+
 /**
  * Created by nik on 12/8/2016.
  */
@@ -57,7 +60,7 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
         String in = ingredient.replaceAll(" ","%20");
 
         Picasso.with(context)
-                .load("http://www.thecocktaildb.com/images/ingredients/" + in + "-Small.png")
+                .load(COCKTAIL_INGREDIENTS_URL + in + COCKTAIL_INGREDIENT_PNG_SMALL )
                 .error(R.drawable.vodka)
                 .into(holder.mIngredientsImage);
 

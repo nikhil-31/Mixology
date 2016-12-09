@@ -16,6 +16,8 @@ import com.squareup.picasso.Picasso;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
 
 /**
  * Created by nik on 12/7/2016.
@@ -39,6 +41,9 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
     }
 
     public void setCocktailList(ArrayList<Cocktail> cocktailList) {
+        long seed = System.nanoTime();
+        Collections.shuffle(cocktailList, new Random(seed));
+
         mCocktail = cocktailList;
 
         notifyDataSetChanged();

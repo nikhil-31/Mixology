@@ -2,7 +2,6 @@ package com.example.nik.mixology.Adapters;
 
 import android.app.Activity;
 import android.content.Context;
-import android.support.v4.view.ViewPager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -69,7 +68,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(mAdapterCallback != null){
+                if (mAdapterCallback != null) {
                     mAdapterCallback.onItemSelected(currentCocktail);
                 }
             }
@@ -96,7 +95,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
         }
     }
 
-    public interface OnAdapterItemSelectedListener{
+    public interface OnAdapterItemSelectedListener {
         void onItemSelected(Cocktail id);
     }
 }

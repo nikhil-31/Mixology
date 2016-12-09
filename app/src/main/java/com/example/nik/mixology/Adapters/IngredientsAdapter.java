@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.example.nik.mixology.Model.Measures;
 import com.example.nik.mixology.R;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -41,7 +42,7 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = inflater.inflate(R.layout.recycler_ingredient_item, parent, false);
+        View v = inflater.inflate(R.layout.recycler_ingredients_item, parent, false);
         MyViewHolder myViewHolder = new MyViewHolder(v);
         return myViewHolder;
     }
@@ -49,10 +50,16 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
 
-        Measures measures = mMeasuresArrayList.get(position);
+        final Measures measures = mMeasuresArrayList.get(position);
         holder.mIngredientText.setText(measures.getIngredient());
         holder.mMeasureText.setText(measures.getMeasure());
+        String ingredient = measures.getIngredient();
+        String in = ingredient.replaceAll(" ","%20");
 
+        Picasso.with(context)
+                .load("http://www.thecocktaildb.com/images/ingredients/" + in + "-Small.png")
+                .error(R.drawable.vodka)
+                .into(holder.mIngredientsImage);
 
     }
 

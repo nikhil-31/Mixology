@@ -93,15 +93,19 @@ public class ActivityDetailsFragment extends Fragment {
         mAlcoholicText = (TextView) v.findViewById(R.id.detail_alcoholic);
         mDrinkImage = (ImageView) v.findViewById(R.id.detail_imageView);
 
-
-//
-
         sendJsonRequest();
+
+        mIngredientsAdapter = new IngredientsAdapter(getActivity());
+        mIngredientsRecyclerView = (RecyclerView) v.findViewById(R.id.recycler_ingredients);
+        LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
+        mIngredientsRecyclerView.setLayoutManager(mLinearLayoutManager);
+        mIngredientsRecyclerView.setAdapter(mIngredientsAdapter);
+
 
         return v;
     }
 
-    private void setUIData(){
+    private void setUIData() {
 
         mInstructionsText.setText(mCocktailDetails.getmInstructions());
         mAlcoholicText.setText(mCocktailDetails.getmAlcoholic());
@@ -114,7 +118,7 @@ public class ActivityDetailsFragment extends Fragment {
 
     private void sendJsonRequest() {
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET,
-                "http://www.thecocktaildb.com/api/json/v1/1/lookup.php?i="+mCocktailId ,
+                "http://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=" + mCocktailId,
                 null,
                 new Response.Listener<JSONObject>() {
                     @Override
@@ -124,15 +128,10 @@ public class ActivityDetailsFragment extends Fragment {
                             mCocktailDetails = parseJSONResponse(response);
                             mMeasuresArrayList = parseJSONResponseMeasure(response);
 
-                            for(int i = 0 ; i<mMeasuresArrayList.size();i++){
-                                Measures measures = new Measures();
-                                measures = mMeasuresArrayList.get(i);
-                                Toast.makeText(getActivity(),measures.getMeasure()+measures.getIngredient(),Toast.LENGTH_SHORT).show();
-                            }
                             setUIData();
 
-//
-                            Log.d("Instructions",mCocktailDetails.getmInstructions());
+                            mIngredientsAdapter.setMeasuresList(mMeasuresArrayList);
+                            Log.d("Instructions", mCocktailDetails.getmInstructions());
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -186,7 +185,7 @@ public class ActivityDetailsFragment extends Fragment {
 
     }
 
-    public ArrayList<Measures> parseJSONResponseMeasure(JSONObject response) throws JSONException{
+    public ArrayList<Measures> parseJSONResponseMeasure(JSONObject response) throws JSONException {
         final String DRINKS = "drinks";
         final String INGREDIENT_1 = "strIngredient1";
         final String INGREDIENT_2 = "strIngredient2";
@@ -346,7 +345,6 @@ public class ActivityDetailsFragment extends Fragment {
         }
         return mMeasures;
     }
-
 
 
 }

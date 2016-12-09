@@ -13,8 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/AppTheme.AppBarOverlay"
-        app:elevation="4dp"
-        app:layout_scrollFlags="scroll|enterAlways">
+        app:elevation="4dp">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
@@ -22,7 +21,6 @@
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
             android:elevation="0dp"
-            app:layout_scrollFlags="scroll|enterAlways"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
     </android.support.design.widget.AppBarLayout>
@@ -74,15 +72,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="35dp"
-                    android:layout_marginTop="5dp"
                     android:layout_marginRight="20dp"
+                    android:layout_marginTop="5dp"
                     android:paddingBottom="20dp"
                     android:textSize="15sp" />
 
                 <android.support.v7.widget.RecyclerView
+                    android:id="@+id/recycler_ingredients"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/recycler_ingredients"/>
+                    android:layout_height="wrap_content" />
 
 
             </LinearLayout>

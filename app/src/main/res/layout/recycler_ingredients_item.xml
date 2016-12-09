@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical">
 
     <LinearLayout
@@ -27,7 +27,7 @@
             android:text="Gin"
             android:layout_weight="7"
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-            android:textSize="25sp"/>
+            android:textSize="20sp"/>
         <TextView
             android:id="@+id/list_measure_text"
             android:layout_width="wrap_content"
@@ -35,7 +35,7 @@
             android:text=" 2oz"
             android:fontFamily="sans-serif-light"
             android:textColor="@color/primary_text"
-            android:textSize="25sp"/>
+            android:textSize="20sp"/>
 
 
     </LinearLayout>

@@ -31,6 +31,7 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -50,6 +51,8 @@ public class ActivityDetailsFragment extends Fragment {
 
     private TextView mInstructionsText;
     private TextView mAlcoholicText;
+    private TextView mInstructionText;
+    private TextView mIngredientsText;
     private ImageView mDrinkImage;
 
     private RecyclerView mIngredientsRecyclerView;
@@ -92,6 +95,8 @@ public class ActivityDetailsFragment extends Fragment {
         mInstructionsText = (TextView) v.findViewById(R.id.detail_instructions);
         mAlcoholicText = (TextView) v.findViewById(R.id.detail_alcoholic);
         mDrinkImage = (ImageView) v.findViewById(R.id.detail_imageView);
+        mInstructionText = (TextView) v.findViewById(R.id.detail_instructions_text);
+        mIngredientsText = (TextView) v.findViewById(R.id.detail_ingredients_text);
 
         sendJsonRequest();
 
@@ -113,7 +118,8 @@ public class ActivityDetailsFragment extends Fragment {
                 .load(cocktail.getmDrinkThumb())
                 .error(R.drawable.empty_glass)
                 .into(mDrinkImage);
-
+        mInstructionText.setText(getResources().getString(R.string.Instructions));
+        mIngredientsText.setText(getResources().getString(R.string.Ingredients));
     }
 
     private void sendJsonRequest() {

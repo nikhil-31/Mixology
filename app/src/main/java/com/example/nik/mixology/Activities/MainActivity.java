@@ -2,7 +2,9 @@ package com.example.nik.mixology.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -16,7 +18,8 @@ import com.example.nik.mixology.Fragments.ActivityDetailsFragment;
 import com.example.nik.mixology.Model.Cocktail;
 import com.example.nik.mixology.R;
 
-public class MainActivity extends AppCompatActivity implements MainAdapter.OnAdapterItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements MainAdapter.OnAdapterItemSelectedListener,
+        NavigationView.OnNavigationItemSelectedListener  {
 
 
 
@@ -61,6 +64,10 @@ public class MainActivity extends AppCompatActivity implements MainAdapter.OnAda
             startActivity(mCocktailDetailIntent);
         }
 
+    }
 
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        return false;
     }
 }

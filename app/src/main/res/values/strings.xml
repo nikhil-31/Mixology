@@ -4,4 +4,7 @@
     <string name="title_activity_details">ActivityDetails</string>
     <string name="drink_image">Image of the cocktail</string>
     <string name="transition_name">Transition</string>
+
+    <string name="Instructions">Instructions</string>
+    <string name="Ingredients">Ingredients</string>
 </resources>

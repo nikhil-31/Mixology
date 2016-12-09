@@ -87,7 +87,7 @@ public class MainActivityFragment extends Fragment {
 
     private void sendJsonRequest(){
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET,
-                "http://www.thecocktaildb.com/api/json/v1/1/filter.php?a=Alcoholic",
+                "http://www.thecocktaildb.com/api/json/v1/1/filter.php?a=Non_Alcoholic",
                 null,
                 new Response.Listener<JSONObject>() {
                     @Override

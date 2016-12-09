@@ -47,7 +47,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="350dp"
                     android:contentDescription="@string/drink_image"
-                    android:scaleType="centerCrop" />
+                    android:scaleType="centerCrop"
+                    android:transitionName="@string/transition_name"/>
 
                 <TextView
                     android:id="@+id/detail_alcoholic"
@@ -55,13 +56,13 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="20dp"
                     android:layout_marginTop="20dp"
-                    android:text="Alcoholic"
                     android:textSize="21sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
                     android:layout_marginLeft="20dp"
                     android:layout_marginTop="15dp"
                     android:text="Instructions"
@@ -75,7 +76,17 @@
                     android:layout_marginRight="20dp"
                     android:layout_marginTop="5dp"
                     android:paddingBottom="20dp"
+                    android:textColor="@color/primary_text"
                     android:textSize="15sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="15dp"
+                    android:text="Ingredients"
+                    android:textSize="17sp" />
 
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/recycler_ingredients"

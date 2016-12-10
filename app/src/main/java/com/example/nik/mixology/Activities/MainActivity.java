@@ -15,6 +15,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.example.nik.mixology.Adapters.MainAdapter;
 import com.example.nik.mixology.Fragments.ActivityDetailsFragment;
@@ -22,8 +23,7 @@ import com.example.nik.mixology.Model.Cocktail;
 import com.example.nik.mixology.R;
 
 public class MainActivity extends AppCompatActivity implements MainAdapter.OnAdapterItemSelectedListener,
-        NavigationView.OnNavigationItemSelectedListener  {
-
+        NavigationView.OnNavigationItemSelectedListener {
 
 
     @Override
@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements MainAdapter.OnAda
         navigationView.setNavigationItemSelectedListener(this);
 
     }
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -79,13 +80,14 @@ public class MainActivity extends AppCompatActivity implements MainAdapter.OnAda
     @Override
     public void onItemSelected(Cocktail id) {
         ActivityDetailsFragment detailsFragment = (ActivityDetailsFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_details);
-        if(detailsFragment == null){
-            Intent mCocktailDetailIntent = new Intent(this,ActivityDetails.class);
-            mCocktailDetailIntent.putExtra("Cocktail",id);
+        if (detailsFragment == null) {
+            Intent mCocktailDetailIntent = new Intent(this, ActivityDetails.class);
+            mCocktailDetailIntent.putExtra("Cocktail", id);
             startActivity(mCocktailDetailIntent);
         }
 
     }
+
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -94,15 +96,15 @@ public class MainActivity extends AppCompatActivity implements MainAdapter.OnAda
         if (id == R.id.nav_camera) {
             // Handle the camera action
         } else if (id == R.id.nav_gallery) {
-
+            Toast.makeText(getApplicationContext(),"Gallery",Toast.LENGTH_LONG).show();
         } else if (id == R.id.nav_slideshow) {
-
+            Toast.makeText(getApplicationContext(),"slideshow",Toast.LENGTH_LONG).show();
         } else if (id == R.id.nav_manage) {
-
+            Toast.makeText(getApplicationContext(),"manage",Toast.LENGTH_LONG).show();
         } else if (id == R.id.nav_share) {
-
+            Toast.makeText(getApplicationContext(),"Share",Toast.LENGTH_LONG).show();
         } else if (id == R.id.nav_send) {
-
+            Toast.makeText(getApplicationContext(),"Send",Toast.LENGTH_LONG).show();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

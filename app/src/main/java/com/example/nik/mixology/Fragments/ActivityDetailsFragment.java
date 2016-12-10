@@ -56,6 +56,7 @@ public class ActivityDetailsFragment extends Fragment {
     private TextView mInstructionText;
     private TextView mIngredientsText;
     private ImageView mDrinkImage;
+    private TextView mDrinkName;
 
     private RecyclerView mIngredientsRecyclerView;
     private IngredientsAdapter mIngredientsAdapter;
@@ -98,6 +99,7 @@ public class ActivityDetailsFragment extends Fragment {
         mDrinkImage = (ImageView) v.findViewById(R.id.detail_imageView);
         mInstructionText = (TextView) v.findViewById(R.id.detail_instructions_text);
         mIngredientsText = (TextView) v.findViewById(R.id.detail_ingredients_text);
+        mDrinkName = (TextView) v.findViewById(R.id.detail_name);
 
         sendJsonRequest();
 
@@ -106,7 +108,6 @@ public class ActivityDetailsFragment extends Fragment {
         LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         mIngredientsRecyclerView.setLayoutManager(mLinearLayoutManager);
         mIngredientsRecyclerView.setAdapter(mIngredientsAdapter);
-
 
         return v;
     }
@@ -121,6 +122,8 @@ public class ActivityDetailsFragment extends Fragment {
                 .into(mDrinkImage);
         mInstructionText.setText(getResources().getString(R.string.Instructions));
         mIngredientsText.setText(getResources().getString(R.string.Ingredients));
+        mDrinkName.setText(cocktail.getmDrinkName());
+
     }
 
     private void sendJsonRequest() {

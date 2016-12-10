@@ -58,8 +58,7 @@
                     android:layout_marginStart="20dp"
                     android:layout_marginTop="20dp"
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
-                    android:textSize="22sp"
-                     />
+                    android:textSize="22sp" />
 
                 <TextView
                     android:id="@+id/detail_alcoholic"
@@ -68,8 +67,8 @@
                     android:layout_marginLeft="20dp"
                     android:layout_marginStart="20dp"
                     android:layout_marginTop="5dp"
-                    android:textSize="17sp"
-                    android:textColor="@color/colorPrimary"/>
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="17sp" />
 
                 <TextView
                     android:id="@+id/detail_instructions_text"
@@ -79,20 +78,20 @@
                     android:layout_marginLeft="20dp"
                     android:layout_marginStart="20dp"
                     android:layout_marginTop="15dp"
-                    android:text="Instructions"
                     android:textSize="17sp" />
 
                 <TextView
                     android:id="@+id/detail_instructions"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginEnd="20dp"
                     android:layout_marginLeft="35dp"
                     android:layout_marginRight="20dp"
                     android:layout_marginStart="20dp"
                     android:layout_marginTop="5dp"
                     android:paddingBottom="20dp"
                     android:textColor="@color/primary_text"
-                    android:textSize="20sp" />
+                    android:textSize="17sp" />
 
                 <TextView
                     android:id="@+id/detail_ingredients_text"
@@ -102,7 +101,6 @@
                     android:layout_marginLeft="20dp"
                     android:layout_marginStart="20dp"
                     android:layout_marginTop="15dp"
-                    android:text="Ingredients"
                     android:textSize="17sp" />
 
                 <android.support.v7.widget.RecyclerView

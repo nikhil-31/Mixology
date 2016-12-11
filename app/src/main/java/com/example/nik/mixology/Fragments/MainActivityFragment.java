@@ -61,19 +61,19 @@ public class MainActivityFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView =  inflater.inflate(R.layout.fragment_main, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_main);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(),2);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
         recyclerView.setLayoutManager(gridLayoutManager);
 
-        mAdapter = new MainAdapter(getActivity(),getActivity());
+        mAdapter = new MainAdapter(getActivity(), getActivity());
         recyclerView.setAdapter(mAdapter);
 
-        if(savedInstanceState != null){
+        if (savedInstanceState != null) {
             mCocktailArrayList = savedInstanceState.getParcelableArrayList(STATE_COCKTAIL);
             mAdapter.setCocktailList(mCocktailArrayList);
-        }else {
+        } else {
             sendJsonRequest();
         }
 
@@ -87,14 +87,14 @@ public class MainActivityFragment extends Fragment {
         outState.putParcelableArrayList(STATE_COCKTAIL, mCocktailArrayList);
     }
 
-    private void sendJsonRequest(){
+    private void sendJsonRequest() {
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET,
                 COCKTAIL_SEARCH_URL_ALCOHOLIC,
                 null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        Log.d("Response",response.toString());
+                        Log.d("Response", response.toString());
                         try {
 
                             mCocktailArrayList.addAll(parseJSONResponse(response));
@@ -114,7 +114,7 @@ public class MainActivityFragment extends Fragment {
         mRequestQueue.add(request);
     }
 
-    public ArrayList<Cocktail> parseJSONResponse(JSONObject response) throws JSONException{
+    public ArrayList<Cocktail> parseJSONResponse(JSONObject response) throws JSONException {
         final String DRINKS = "drinks";
         final String COCKTAIL_NAME = "strDrink";
         final String COCKTAIL_THUMBNAIL = "strDrinkThumb";
@@ -122,21 +122,22 @@ public class MainActivityFragment extends Fragment {
 
         ArrayList<Cocktail> data = new ArrayList<>();
 
-        if(response == null || response.length() == 0){
+        if (response == null || response.length() == 0) {
             return data;
         }
 
-        JSONArray results =response.getJSONArray(DRINKS);
 
-        for(int i=0; i<results.length(); i++){
+        JSONArray results = response.getJSONArray(DRINKS);
+
+        for (int i = 0; i < results.length(); i++) {
 
             Cocktail cocktail = new Cocktail();
 
             JSONObject jsonObject = results.getJSONObject(i);
 
-            String Thumb =  jsonObject.getString(COCKTAIL_THUMBNAIL);
+            String Thumb = jsonObject.getString(COCKTAIL_THUMBNAIL);
 
-            if(Thumb != STATE_NULL){
+            if (Thumb != STATE_NULL) {
 
                 cocktail.setmDrinkName(jsonObject.getString(COCKTAIL_NAME));
                 cocktail.setmDrinkThumb(jsonObject.getString(COCKTAIL_THUMBNAIL));
@@ -151,10 +152,6 @@ public class MainActivityFragment extends Fragment {
         return data;
 
     }
-
-
-
-
 
 
 }

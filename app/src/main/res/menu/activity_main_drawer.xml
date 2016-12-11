@@ -5,19 +5,12 @@
         <item
             android:id="@+id/nav_camera"
 
-            android:title="Import" />
+            android:title="Alcoholic" />
         <item
             android:id="@+id/nav_gallery"
 
-            android:title="Gallery" />
-        <item
-            android:id="@+id/nav_slideshow"
+            android:title="Non Alcoholic" />
 
-            android:title="Slideshow" />
-        <item
-            android:id="@+id/nav_manage"
-
-            android:title="Tools" />
     </group>
 
     <item android:title="Communicate">

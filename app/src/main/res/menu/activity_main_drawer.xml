@@ -3,26 +3,25 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_camera"
+            android:id="@+id/nav_Alcoholic"
 
             android:title="Alcoholic" />
         <item
-            android:id="@+id/nav_gallery"
+            android:id="@+id/nav_Non_Alcoholic"
 
             android:title="Non Alcoholic" />
 
     </group>
 
-    <item android:title="Communicate">
+    <item android:title="Favourite Ingredients">
         <menu>
             <item
-                android:id="@+id/nav_share"
+                android:id="@+id/nav_gin"
+                android:title="Gin" />
 
-                android:title="Share" />
             <item
-                android:id="@+id/nav_send"
-
-                android:title="Send" />
+                android:id="@+id/nav_vodka"
+                android:title="Vodka" />
         </menu>
     </item>
 

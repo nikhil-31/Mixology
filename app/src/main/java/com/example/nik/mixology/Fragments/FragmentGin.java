@@ -28,10 +28,14 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_ALCOHOLIC;
-import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_NON_ALCOHOLIC;
+import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_INGREDIENT_GIN;
+
+/**
+ * A simple {@link Fragment} subclass.
+ */
+public class FragmentGin extends Fragment {
 
 
-public class NonAlcholic extends Fragment {
     public String STATE_COCKTAIL = "state_cocktails";
     private String STATE_NULL = "null";
 
@@ -45,7 +49,7 @@ public class NonAlcholic extends Fragment {
     private VolleySingleton mVolleySingleton;
 
 
-    public NonAlcholic() {
+    public FragmentGin() {
     }
 
     @Override
@@ -86,7 +90,7 @@ public class NonAlcholic extends Fragment {
 
     private void sendJsonRequest() {
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET,
-                COCKTAIL_SEARCH_URL_NON_ALCOHOLIC,
+                COCKTAIL_SEARCH_URL_INGREDIENT_GIN,
                 null,
                 new Response.Listener<JSONObject>() {
                     @Override
@@ -149,6 +153,4 @@ public class NonAlcholic extends Fragment {
         return data;
 
     }
-
-
 }

@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.example.nik.mixology.Adapters.MainAdapter;
 import com.example.nik.mixology.Fragments.ActivityDetailsFragment;
 import com.example.nik.mixology.Fragments.FragmentGin;
+import com.example.nik.mixology.Fragments.FragmentVodka;
 import com.example.nik.mixology.Fragments.MainActivityFragment;
 import com.example.nik.mixology.Fragments.NonAlcholicFragment;
 import com.example.nik.mixology.Model.Cocktail;
@@ -120,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements MainAdapter.OnAda
             Toast.makeText(getApplicationContext(),"Non Alcoholic",Toast.LENGTH_LONG).show();
 
         }  else if (id == R.id.nav_gin) {
+
             FragmentGin fragment = new FragmentGin();
             android.support.v4.app.FragmentTransaction fragmentTransaction =
                     getSupportFragmentManager().beginTransaction();
@@ -130,7 +132,13 @@ public class MainActivity extends AppCompatActivity implements MainAdapter.OnAda
 
         } else if (id == R.id.nav_vodka) {
 
-            Toast.makeText(getApplicationContext(),"whiskey",Toast.LENGTH_LONG).show();
+            FragmentVodka fragment = new FragmentVodka();
+            android.support.v4.app.FragmentTransaction fragmentTransaction =
+                    getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.fragment_container,fragment);
+            fragmentTransaction.commit();
+
+            Toast.makeText(getApplicationContext(),"Vodka",Toast.LENGTH_LONG).show();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

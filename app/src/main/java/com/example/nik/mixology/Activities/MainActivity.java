@@ -106,18 +106,22 @@ public class MainActivity extends AppCompatActivity implements MainAdapter.OnAda
         int id = item.getItemId();
 
         if (id == R.id.nav_camera) {
+
             MainActivityFragment fragment = new MainActivityFragment();
             android.support.v4.app.FragmentTransaction fragmentTransaction =
                     getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container,fragment);
             fragmentTransaction.commit();
+
         } else if (id == R.id.nav_gallery) {
+
             NonAlcholic fragment = new NonAlcholic();
             android.support.v4.app.FragmentTransaction fragmentTransaction =
                     getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container,fragment);
             fragmentTransaction.commit();
-            Toast.makeText(getApplicationContext(),"Gallery",Toast.LENGTH_LONG).show();
+
+            Toast.makeText(getApplicationContext(),"Non Alcololic",Toast.LENGTH_LONG).show();
 
         }  else if (id == R.id.nav_share) {
 

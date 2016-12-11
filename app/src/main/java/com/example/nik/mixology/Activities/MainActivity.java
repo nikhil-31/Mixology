@@ -16,8 +16,10 @@ import android.widget.Toast;
 import com.example.nik.mixology.Adapters.MainAdapter;
 import com.example.nik.mixology.Fragments.ActivityDetailsFragment;
 import com.example.nik.mixology.Fragments.FragmentChampagne;
+import com.example.nik.mixology.Fragments.FragmentCocktail;
 import com.example.nik.mixology.Fragments.FragmentCocktailGlass;
 import com.example.nik.mixology.Fragments.FragmentGin;
+import com.example.nik.mixology.Fragments.FragmentOrdinaryDrink;
 import com.example.nik.mixology.Fragments.FragmentVodka;
 import com.example.nik.mixology.Fragments.MainActivityFragment;
 import com.example.nik.mixology.Fragments.NonAlcholicFragment;
@@ -157,6 +159,30 @@ public class MainActivity extends AppCompatActivity implements MainAdapter.OnAda
             fragmentTransaction.replace(R.id.fragment_container,fragment);
             fragmentTransaction.commit();
             Toast.makeText(getApplicationContext(),"Champagne Flute",Toast.LENGTH_LONG).show();
+        }
+
+        else if(id == R.id.nav_Ordinary_Drink){
+
+            FragmentOrdinaryDrink fragment = new FragmentOrdinaryDrink();
+            android.support.v4.app.FragmentTransaction fragmentTransaction =
+                    getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.fragment_container,fragment);
+            fragmentTransaction.commit();
+            Toast.makeText(getApplicationContext(),"Ordinary Drink",Toast.LENGTH_LONG).show();
+
+
+        }
+
+        else if(id == R.id.nav_Cocktail){
+            FragmentCocktail fragment = new FragmentCocktail();
+            android.support.v4.app.FragmentTransaction fragmentTransaction =
+                    getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.fragment_container,fragment);
+            fragmentTransaction.commit();
+            Toast.makeText(getApplicationContext(),"Cocktail",Toast.LENGTH_LONG).show();
+
+
+
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

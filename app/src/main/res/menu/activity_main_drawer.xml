@@ -13,6 +13,23 @@
 
     </group>
 
+    <item android:title="Category">
+        <menu>
+
+
+            <item
+                android:state_activated="true"
+                android:id="@+id/nav_Cocktail"
+                android:title="Cocktail" />
+
+            <item
+                android:state_activated="true"
+                android:id="@+id/nav_Ordinary_Drink"
+                android:title="Ordinary Drink" />
+        </menu>
+    </item>
+
+
 
     <item android:title="Favourite Ingredients">
         <menu>

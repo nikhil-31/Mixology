@@ -12,6 +12,8 @@ public class CocktailURLs {
     public static String COCKTAIL_SEARCH_URL_INGREDIENT_VODKA = "http://www.thecocktaildb.com/api/json/v1/1/filter.php?i=Vodka";
     public static String COCKTAIL_SEARCH_URL_ALCOHOLIC ="http://www.thecocktaildb.com/api/json/v1/1/filter.php?a=Alcoholic";
     public static String COCKTAIL_SEARCH_URL_NON_ALCOHOLIC = "http://www.thecocktaildb.com/api/json/v1/1/filter.php?a=Non_Alcoholic";
+    public static String COCKTAIL_SEARCH_URL_COCKTAIL_GLASS = "http://www.thecocktaildb.com/api/json/v1/1/filter.php?g=Cocktail_glass";
+    public static String COCKTAIL_SEARCH_URL_CHAMPAGNE_GLASS = "http://www.thecocktaildb.com/api/json/v1/1/filter.php?g=Champagne_flute";
     public static String COCKTAIL_SEARCH_URL_GLASS = "http://www.thecocktaildb.com/api/json/v1/1/filter.php?g=";
     public static String COCKTAIL_INGREDIENTS_URL = "http://www.thecocktaildb.com/images/ingredients/";
     public static String COCKTAIL_INGREDIENT_PNG_SMALL ="-Small.png";

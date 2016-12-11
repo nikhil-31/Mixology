@@ -15,6 +15,8 @@ import android.widget.Toast;
 
 import com.example.nik.mixology.Adapters.MainAdapter;
 import com.example.nik.mixology.Fragments.ActivityDetailsFragment;
+import com.example.nik.mixology.Fragments.FragmentChampagne;
+import com.example.nik.mixology.Fragments.FragmentCocktailGlass;
 import com.example.nik.mixology.Fragments.FragmentGin;
 import com.example.nik.mixology.Fragments.FragmentVodka;
 import com.example.nik.mixology.Fragments.MainActivityFragment;
@@ -139,6 +141,22 @@ public class MainActivity extends AppCompatActivity implements MainAdapter.OnAda
             fragmentTransaction.commit();
 
             Toast.makeText(getApplicationContext(),"Vodka",Toast.LENGTH_LONG).show();
+        } else if(id == R.id.nav_cocktail_glass){
+
+            FragmentCocktailGlass fragment = new FragmentCocktailGlass();
+            android.support.v4.app.FragmentTransaction fragmentTransaction =
+                    getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.fragment_container,fragment);
+            fragmentTransaction.commit();
+            Toast.makeText(getApplicationContext(),"Cocktail Glass",Toast.LENGTH_LONG).show();
+        }else if(id == R.id.nav_Champagne_flute){
+
+            FragmentChampagne fragment = new FragmentChampagne();
+            android.support.v4.app.FragmentTransaction fragmentTransaction =
+                    getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.fragment_container,fragment);
+            fragmentTransaction.commit();
+            Toast.makeText(getApplicationContext(),"Champagne Flute",Toast.LENGTH_LONG).show();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

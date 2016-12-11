@@ -4,11 +4,11 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_Alcoholic"
-
+            android:state_activated="true"
             android:title="Alcoholic" />
         <item
             android:id="@+id/nav_Non_Alcoholic"
-
+            android:state_activated="true"
             android:title="Non Alcoholic" />
 
     </group>
@@ -17,12 +17,28 @@
     <item android:title="Favourite Ingredients">
         <menu>
             <item
+                android:state_activated="true"
                 android:id="@+id/nav_gin"
                 android:title="Gin" />
 
             <item
+                android:state_activated="true"
                 android:id="@+id/nav_vodka"
                 android:title="Vodka" />
+        </menu>
+    </item>
+
+    <item android:title="Glass">
+        <menu>
+            <item
+                android:state_activated="true"
+                android:id="@+id/nav_cocktail_glass"
+                android:title="Cocktail Glass" />
+
+            <item
+                android:state_activated="true"
+                android:id="@+id/nav_Champagne_flute"
+                android:title="Champagne flute" />
         </menu>
     </item>
 

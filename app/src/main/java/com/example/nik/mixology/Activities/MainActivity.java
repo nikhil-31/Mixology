@@ -81,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements MainAdapter.OnAda
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                Toast.makeText(getApplicationContext(),query,Toast.LENGTH_LONG).show();
                 return false;
             }
 

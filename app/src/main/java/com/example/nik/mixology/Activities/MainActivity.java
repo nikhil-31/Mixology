@@ -82,6 +82,13 @@ public class MainActivity extends AppCompatActivity implements MainAdapter.OnAda
             @Override
             public boolean onQueryTextSubmit(String query) {
                 Toast.makeText(getApplicationContext(),query,Toast.LENGTH_LONG).show();
+//
+//                MainActivityFragment fragment = new MainActivityFragment();
+//                android.support.v4.app.FragmentTransaction fragmentTransaction =
+//                        getSupportFragmentManager().beginTransaction();
+//                fragmentTransaction.replace(R.id.fragment_container,fragment);
+//                fragmentTransaction.commit();
+
                 return false;
             }
 
@@ -106,8 +113,6 @@ public class MainActivity extends AppCompatActivity implements MainAdapter.OnAda
         if (id == R.id.action_settings) {
             return true;
         }
-
-
 
         return super.onOptionsItemSelected(item);
     }
@@ -137,7 +142,9 @@ public class MainActivity extends AppCompatActivity implements MainAdapter.OnAda
             fragmentTransaction.commit();
             toolbar.setTitle("#Alcoholic");
 
-        } else if (id == R.id.nav_Non_Alcoholic) {
+        }
+
+        else if (id == R.id.nav_Non_Alcoholic) {
 
             NonAlcholicFragment fragment = new NonAlcholicFragment();
             android.support.v4.app.FragmentTransaction fragmentTransaction =
@@ -147,7 +154,9 @@ public class MainActivity extends AppCompatActivity implements MainAdapter.OnAda
             toolbar.setTitle("#Non_Alcoholic");
 //            Toast.makeText(getApplicationContext(),"Non Alcoholic",Toast.LENGTH_LONG).show();
 
-        }  else if (id == R.id.nav_gin) {
+        }
+
+        else if (id == R.id.nav_gin) {
 
             FragmentGin fragment = new FragmentGin();
             android.support.v4.app.FragmentTransaction fragmentTransaction =
@@ -157,7 +166,9 @@ public class MainActivity extends AppCompatActivity implements MainAdapter.OnAda
             toolbar.setTitle("#Gin");
 //            Toast.makeText(getApplicationContext(),"Gin",Toast.LENGTH_LONG).show();
 
-        } else if (id == R.id.nav_vodka) {
+        }
+
+        else if (id == R.id.nav_vodka) {
 
             FragmentVodka fragment = new FragmentVodka();
             android.support.v4.app.FragmentTransaction fragmentTransaction =
@@ -166,7 +177,9 @@ public class MainActivity extends AppCompatActivity implements MainAdapter.OnAda
             fragmentTransaction.commit();
             toolbar.setTitle("#Vodka");
 //            Toast.makeText(getApplicationContext(),"Vodka",Toast.LENGTH_LONG).show();
-        } else if(id == R.id.nav_cocktail_glass){
+        }
+
+        else if(id == R.id.nav_cocktail_glass){
 
             FragmentCocktailGlass fragment = new FragmentCocktailGlass();
             android.support.v4.app.FragmentTransaction fragmentTransaction =
@@ -175,7 +188,10 @@ public class MainActivity extends AppCompatActivity implements MainAdapter.OnAda
             fragmentTransaction.commit();
             toolbar.setTitle("#Cocktail_Glass");
 //            Toast.makeText(getApplicationContext(),"Cocktail Glass",Toast.LENGTH_LONG).show();
-        }else if(id == R.id.nav_Champagne_flute){
+
+        }
+
+        else if(id == R.id.nav_Champagne_flute){
 
             FragmentChampagne fragment = new FragmentChampagne();
             android.support.v4.app.FragmentTransaction fragmentTransaction =
@@ -196,7 +212,6 @@ public class MainActivity extends AppCompatActivity implements MainAdapter.OnAda
             toolbar.setTitle("#Ordinary_drink");
 //            Toast.makeText(getApplicationContext(),"Ordinary Drink",Toast.LENGTH_LONG).show();
 
-
         }
 
         else if(id == R.id.nav_Cocktail){
@@ -207,8 +222,6 @@ public class MainActivity extends AppCompatActivity implements MainAdapter.OnAda
             fragmentTransaction.commit();
             toolbar.setTitle("#Cocktail");
 //            Toast.makeText(getApplicationContext(),"Cocktail",Toast.LENGTH_LONG).show();
-
-
 
         }
 

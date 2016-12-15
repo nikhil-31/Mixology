@@ -1,6 +1,17 @@
 # Mixology
 Udacity Android nanodegree Capstone 
 
+##Overview
+Application uses TheCocktailDb API to show a grid of cocktails in cardviews. Clicking on a cocktail shows a detail screen with 
+Instructions and Ingredients required to prepare the cocktail. A navigation drawer is used to filter out different types of 
+drinks according to alcohol content, Ingredients, Glass and many more and an option to save the favourite cocktails.
+
+##Libraries used
+
+* Picasso
+* Android support Library
+* Volley
+* Schematic
 
 ##ScreenShots
 

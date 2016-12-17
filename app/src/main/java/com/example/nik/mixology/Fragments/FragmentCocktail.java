@@ -127,7 +127,6 @@ public class FragmentCocktail extends Fragment {
             return data;
         }
 
-
         JSONArray results = response.getJSONArray(DRINKS);
 
         for (int i = 0; i < results.length(); i++) {
@@ -145,9 +144,7 @@ public class FragmentCocktail extends Fragment {
                 cocktail.setmDrinkId(jsonObject.getString(COCKTAIL_ID));
 
                 data.add(cocktail);
-
             }
-
 
         }
         return data;

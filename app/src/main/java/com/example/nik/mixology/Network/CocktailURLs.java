@@ -5,6 +5,8 @@ package com.example.nik.mixology.Network;
  */
 
 public class CocktailURLs {
+
+
     public static String COCKTAIL_SEARCH_URL_BY_NAME = "http://www.thecocktaildb.com/api/json/v1/1/search.php?s=";
     public static String COCKTAIL_SEARCH_URL_BY_ID = "http://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=";
     public static String COCKTAIL_URL_RANDOM = "http://www.thecocktaildb.com/api/json/v1/1/random.php";

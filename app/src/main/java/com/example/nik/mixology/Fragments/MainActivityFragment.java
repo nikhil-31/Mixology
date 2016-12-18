@@ -62,6 +62,13 @@ public class MainActivityFragment extends Fragment {
     }
 
     @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+
+    }
+
+    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mVolleySingleton = mVolleySingleton.getInstance();
@@ -110,9 +117,18 @@ public class MainActivityFragment extends Fragment {
                             mCocktailArrayList.addAll(parseJSONResponse(response));
                             mAdapter.setCocktailList(mCocktailArrayList);
 
-                            insertData();
+                            Cursor c = getActivity().getContentResolver().query(CONTENT_URI,
+                                    null,
+                                    null,
+                                    null,
+                                    null);
+                            Log.i(LOG_TAG, "cursor count: " + c.getCount());
 
+                            if (c == null || c.getCount() == 0){
+                                insertData();
+                            }
 
+                            getDataFromContentProvider();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -147,10 +163,8 @@ public class MainActivityFragment extends Fragment {
             cVVector.toArray(cvArray);
             getContext().getContentResolver().bulkInsert(CONTENT_URI, cvArray);
 
-//            getDataFromContentProvider();
+            getDataFromContentProvider();
         }
-
-
 
     }
 

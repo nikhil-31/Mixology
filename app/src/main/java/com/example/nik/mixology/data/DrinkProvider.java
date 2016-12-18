@@ -34,7 +34,7 @@ public final class DrinkProvider {
     public static class Drinks {
         @ContentUri(
                 path = Path.DRINK_SAVED,
-                type = "vnd.android.cursor.dir/planet")
+                type = "vnd.android.cursor.dir/drink")
         public static final Uri CONTENT_URI = buildUri(Path.DRINK_SAVED);
 
     }

@@ -176,8 +176,8 @@ public class MainActivity extends AppCompatActivity implements DrinkCursorAdapte
                     getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container,fragment);
             fragmentTransaction.commit();
-            toolbar.setTitle("#Vodka");
-//            Toast.makeText(getApplicationContext(),"Vodka",Toast.LENGTH_LONG).show();
+            toolbar.setTitle("#VodkaColumn");
+//            Toast.makeText(getApplicationContext(),"VodkaColumn",Toast.LENGTH_LONG).show();
         }
 
         else if(id == R.id.nav_cocktail_glass){

@@ -20,5 +20,23 @@ public class DrinkDatabase {
 
     @Table(AlcoholicColumn.class) public static final String COCKTAIL = "Cocktail";
 
+    @Table(AlcoholicColumn.class) public static final String ORDINARY_DRINK = "Ordinary_Drink";
+
+    @Table(AlcoholicColumn.class) public static final String GIN = "Gin";
+
+    @Table(AlcoholicColumn.class) public static final String VODKA = "Vodka";
+
+    @Table(AlcoholicColumn.class) public static final String COCKTAIL_GLASS = "Cocktail_Glass";
+
+    @Table(AlcoholicColumn.class) public static final String CHAMPAGNE_FLUTE = "Champagne_Flute";
+
+
+
+
+
+
+
+
+
 
 }

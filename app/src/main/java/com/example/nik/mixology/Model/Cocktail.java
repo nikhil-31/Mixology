@@ -16,6 +16,15 @@ public class Cocktail implements Parcelable {
 
     }
 
+    public Cocktail(String Id,String name,String Thumb){
+
+        this.mDrinkId = Id;
+        this.mDrinkName = name;
+        this.mDrinkThumb = Thumb;
+
+
+    }
+
     public String getmDrinkName() {
         return mDrinkName;
     }

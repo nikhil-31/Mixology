@@ -1,17 +1,13 @@
 package com.example.nik.mixology.Fragments;
 
-import android.content.ContentProviderOperation;
 import android.content.ContentValues;
-import android.content.OperationApplicationException;
 import android.database.Cursor;
-import android.os.RemoteException;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.util.StringBuilderPrinter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,8 +22,8 @@ import com.example.nik.mixology.Adapters.MainAdapter;
 import com.example.nik.mixology.Model.Cocktail;
 import com.example.nik.mixology.Network.VolleySingleton;
 import com.example.nik.mixology.R;
-import com.example.nik.mixology.data.DrinkProvider;
 import com.example.nik.mixology.data.columnDrink;
+import com.example.nik.mixology.utils.ContentProviderHelperMethods;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -124,11 +120,11 @@ public class MainActivityFragment extends Fragment {
                                     null);
                             Log.i(LOG_TAG, "cursor count: " + c.getCount());
 
-                            if (c == null || c.getCount() == 0){
-                                insertData();
-                            }
 
-                            getDataFromContentProvider();
+                            insertData();
+
+
+//                            getDataFromContentProvider();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -151,19 +147,28 @@ public class MainActivityFragment extends Fragment {
         for (Cocktail cocktail : mCocktailArrayList) {
 
             ContentValues contentValues = new ContentValues();
+            String id = cocktail.getmDrinkId();
+            boolean isThere = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(), id);
+            if (isThere) {
+                Toast.makeText(getActivity(), "Record Present", Toast.LENGTH_SHORT).show();
+            }
+            else {
+                contentValues.put(columnDrink._ID, cocktail.getmDrinkId());
+                contentValues.put(columnDrink.DRINK_NAME, cocktail.getmDrinkName());
+                contentValues.put(columnDrink.DRINK_THUMB, cocktail.getmDrinkThumb());
+                Toast.makeText(getActivity(), "Cocktail Added", Toast.LENGTH_SHORT).show();
 
-            contentValues.put(columnDrink._ID, cocktail.getmDrinkId());
-            contentValues.put(columnDrink.DRINK_NAME, cocktail.getmDrinkName());
-            contentValues.put(columnDrink.DRINK_THUMB, cocktail.getmDrinkThumb());
+                cVVector.add(contentValues);
+            }
 
-            cVVector.add(contentValues);
+
         }
         if (cVVector.size() > 0) {
             ContentValues[] cvArray = new ContentValues[cVVector.size()];
             cVVector.toArray(cvArray);
             getContext().getContentResolver().bulkInsert(CONTENT_URI, cvArray);
 
-            getDataFromContentProvider();
+//            getDataFromContentProvider();
         }
 
     }

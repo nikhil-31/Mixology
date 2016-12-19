@@ -8,7 +8,7 @@ import com.example.nik.mixology.Model.Cocktail;
 
 import java.util.ArrayList;
 
-import static com.example.nik.mixology.data.DrinkProvider.Alcoholic.CONTENT_URI;
+import static com.example.nik.mixology.data.DrinkProvider.Alcoholic.CONTENT_URI_ALCOHOLIC;
 import static com.example.nik.mixology.data.AlcoholicColumn.DRINK_NAME;
 import static com.example.nik.mixology.data.AlcoholicColumn.DRINK_THUMB;
 import static com.example.nik.mixology.data.AlcoholicColumn._ID;
@@ -19,10 +19,10 @@ import static com.example.nik.mixology.data.AlcoholicColumn._ID;
 
 public class ContentProviderHelperMethods {
 
-    public static ArrayList<Cocktail> getDrinkListFromDatabase(Activity mAct) {
+    public static ArrayList<Cocktail> getDrinkListFromDatabase(Activity mAct,Uri uri) {
 
         ArrayList<Cocktail> mDrinkList = new ArrayList<>();
-        Uri contentUri = CONTENT_URI;
+        Uri contentUri = uri;
         Cocktail cocktail = null;
 
         Cursor cursor = mAct.getContentResolver().query(contentUri, null, null, null, null);
@@ -40,9 +40,9 @@ public class ContentProviderHelperMethods {
         return mDrinkList;
     }
 
-    public static boolean isDrinkInDatabase(Activity mAct, String id) {
+    public static boolean isDrinkInDatabase(Activity mAct, String id,Uri contenturi) {
 
-        ArrayList<Cocktail> list = new ArrayList<>(getDrinkListFromDatabase(mAct));
+        ArrayList<Cocktail> list = new ArrayList<>(getDrinkListFromDatabase(mAct,contenturi));
 
         for (Cocktail listItem : list) {
             if (listItem.getmDrinkId().equals(id)) {
@@ -53,9 +53,9 @@ public class ContentProviderHelperMethods {
         return false;
     }
 
-    public static Cocktail getDrinkFromDatabase(Activity mActivity, String ID) {
+    public static Cocktail getDrinkFromDatabase(Activity mActivity, String ID,Uri uri) {
         Cocktail cocktail = null;
-        Uri contentUri = CONTENT_URI;
+        Uri contentUri = uri;
 
         Cursor cursor = mActivity.getContentResolver().query(contentUri, null, null, null, null);
         assert cursor != null;

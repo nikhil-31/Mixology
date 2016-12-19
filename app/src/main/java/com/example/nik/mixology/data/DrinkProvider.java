@@ -35,15 +35,15 @@ public final class DrinkProvider {
         @ContentUri(
                 path = Path.ALCOHOLIC,
                 type = "vnd.android.cursor.dir/drink")
-        public static final Uri CONTENT_URI = buildUri(Path.ALCOHOLIC);
+        public static final Uri CONTENT_URI_ALCOHOLIC = buildUri(Path.ALCOHOLIC);
 
     }
-    @TableEndpoint(table = DrinkDatabase.ALCOHOLIC)
+    @TableEndpoint(table = DrinkDatabase.NON_ALCOHOLIC)
     public static class NonAlcoholic {
         @ContentUri(
                 path = Path.NON_ALCOHOLIC,
                 type = "vnd.android.cursor.dir/drink")
-        public static final Uri CONTENT_URI = buildUri(Path.NON_ALCOHOLIC);
+        public static final Uri CONTENT_URI_NON_ALCOHOLIC = buildUri(Path.NON_ALCOHOLIC);
 
     }
 

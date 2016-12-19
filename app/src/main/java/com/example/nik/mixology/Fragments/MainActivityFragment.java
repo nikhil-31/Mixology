@@ -32,7 +32,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -40,7 +39,7 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_ALCOHOLIC;
-import static com.example.nik.mixology.data.DrinkProvider.Alcoholic.CONTENT_URI;
+import static com.example.nik.mixology.data.DrinkProvider.Alcoholic.CONTENT_URI_ALCOHOLIC;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -135,7 +134,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                             mCocktailArrayList.addAll(Utils.parseJSONResponse(response));
 //                            mAdapter.setCocktailList(mCocktailArrayList);
 
-//                            Cursor c = getActivity().getContentResolver().query(CONTENT_URI,
+//                            Cursor c = getActivity().getContentResolver().query(CONTENT_URI_ALCOHOLIC,
 //                                    null,
 //                                    null,
 //                                    null,
@@ -168,7 +167,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
             ContentValues contentValues = new ContentValues();
             String id = cocktail.getmDrinkId();
-            boolean isThere = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(), id);
+            boolean isThere = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(), id,CONTENT_URI_ALCOHOLIC);
             if (isThere) {
 //                Toast.makeText(getActivity(), "Record Present", Toast.LENGTH_SHORT).show();
             }
@@ -177,7 +176,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                 contentValues.put(AlcoholicColumn._ID, cocktail.getmDrinkId());
                 contentValues.put(AlcoholicColumn.DRINK_NAME, cocktail.getmDrinkName());
                 contentValues.put(AlcoholicColumn.DRINK_THUMB, cocktail.getmDrinkThumb());
-                Toast.makeText(getActivity(), "Cocktail Added", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getActivity(), "Cocktail Added", Toast.LENGTH_SHORT).show();
 
                 cVVector.add(contentValues);
             }
@@ -186,7 +185,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         if (cVVector.size() > 0) {
             ContentValues[] cvArray = new ContentValues[cVVector.size()];
             cVVector.toArray(cvArray);
-            getContext().getContentResolver().bulkInsert(CONTENT_URI, cvArray);
+            getContext().getContentResolver().bulkInsert(CONTENT_URI_ALCOHOLIC, cvArray);
 
 //            getDataFromContentProvider();
         }
@@ -202,7 +201,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         };
 
         Cursor cursor = getActivity().getContentResolver().query(
-                CONTENT_URI,
+                CONTENT_URI_ALCOHOLIC,
                 projection,
                 null,
                 null,
@@ -238,7 +237,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoader(getActivity(),
-                CONTENT_URI,
+                CONTENT_URI_ALCOHOLIC,
                 null,
                 null,
                 null,

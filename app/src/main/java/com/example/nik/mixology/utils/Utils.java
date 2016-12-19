@@ -73,12 +73,12 @@ public class Utils {
             String id = cocktail.getmDrinkId();
             boolean isThere = ContentProviderHelperMethods.isDrinkInDatabase(mAct, id, uri);
             if (isThere) {
-                Toast.makeText(mAct, "Record Present " + id, Toast.LENGTH_SHORT).show();
+//                Toast.makeText(mAct, "Record Present " + id, Toast.LENGTH_SHORT).show();
             } else {
                 contentValues.put(_id, cocktail.getmDrinkId());
                 contentValues.put(Name, cocktail.getmDrinkName());
                 contentValues.put(Thumb, cocktail.getmDrinkThumb());
-                Toast.makeText(mAct, "Cocktail Added", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(mAct, "Cocktail Added", Toast.LENGTH_SHORT).show();
 
                 cVVector.add(contentValues);
 

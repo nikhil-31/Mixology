@@ -141,7 +141,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 //                                    null);
 //                            Log.i(LOG_TAG, "cursor count: " + c.getCount());
 
-                            insertData();
+                            Utils.insertData(CONTENT_URI_ALCOHOLIC, mCocktailArrayList, getActivity());
 
 //                            getDataFromContentProvider();
                         } catch (JSONException e) {
@@ -228,10 +228,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
         cursor.close();
     }
-
-
-
-
 
 
     @Override

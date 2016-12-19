@@ -61,8 +61,6 @@ public class NonAlcoholicFragment extends Fragment implements LoaderManager.Load
 
     private ArrayList<Cocktail> mCocktailArrayList = new ArrayList<Cocktail>();
 
-
-
     private DrinkCursorAdapter mDrinkAdapter;
     // Volley
     private RequestQueue mRequestQueue;

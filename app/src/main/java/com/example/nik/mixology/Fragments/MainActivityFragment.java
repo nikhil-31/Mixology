@@ -19,6 +19,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.example.nik.mixology.Adapters.DrinkCursorAdapter;
 import com.example.nik.mixology.Adapters.MainAdapter;
 import com.example.nik.mixology.Model.Cocktail;
 import com.example.nik.mixology.Network.VolleySingleton;
@@ -56,6 +57,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     private ArrayList<Cocktail> mCocktailArrayList = new ArrayList<Cocktail>();
 
     private MainAdapter mAdapter;
+    private DrinkCursorAdapter mDrinkAdapter;
     // Volley
     private RequestQueue mRequestQueue;
     private VolleySingleton mVolleySingleton;
@@ -89,16 +91,18 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
         recyclerView.setLayoutManager(gridLayoutManager);
 
-        mAdapter = new MainAdapter(getActivity(), getActivity());
-        recyclerView.setAdapter(mAdapter);
+//        mAdapter = new MainAdapter(getActivity(), getActivity());
+        mDrinkAdapter = new DrinkCursorAdapter(getActivity(),null);
+        recyclerView.setAdapter(mDrinkAdapter);
 
-        if (savedInstanceState != null) {
-            mCocktailArrayList = savedInstanceState.getParcelableArrayList(STATE_COCKTAIL);
-            mAdapter.setCocktailList(mCocktailArrayList);
-        } else {
-            sendJsonRequest();
-        }
+//        if (savedInstanceState != null) {
+//            mCocktailArrayList = savedInstanceState.getParcelableArrayList(STATE_COCKTAIL);
+//            mAdapter.setCocktailList(mCocktailArrayList);
+//        } else {
+//            sendJsonRequest();
+//        }
 
+        sendJsonRequest();
 
         return rootView;
     }
@@ -128,18 +132,16 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                         try {
 
                             mCocktailArrayList.addAll(parseJSONResponse(response));
-                            mAdapter.setCocktailList(mCocktailArrayList);
+//                            mAdapter.setCocktailList(mCocktailArrayList);
 
-                            Cursor c = getActivity().getContentResolver().query(CONTENT_URI,
-                                    null,
-                                    null,
-                                    null,
-                                    null);
-                            Log.i(LOG_TAG, "cursor count: " + c.getCount());
-
+//                            Cursor c = getActivity().getContentResolver().query(CONTENT_URI,
+//                                    null,
+//                                    null,
+//                                    null,
+//                                    null);
+//                            Log.i(LOG_TAG, "cursor count: " + c.getCount());
 
                             insertData();
-
 
 //                            getDataFromContentProvider();
                         } catch (JSONException e) {
@@ -178,7 +180,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
                 cVVector.add(contentValues);
             }
-
 
         }
         if (cVVector.size() > 0) {
@@ -270,7 +271,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(getActivity(), CONTENT_URI,
+        return new CursorLoader(getActivity(),
+                CONTENT_URI,
                 null,
                 null,
                 null,
@@ -280,29 +282,31 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
-        String builder = null;
+        mDrinkAdapter.swapCursor(data);
 
-        int mIdIndex = data.getColumnIndex(columnDrink._ID);
-        int mDrinkName = data.getColumnIndex(columnDrink.DRINK_NAME);
-        int mDrinkThumb = data.getColumnIndex(columnDrink.DRINK_THUMB);
-
-        assert data != null;
-        while (data.moveToNext()) {
-
-            String mId = data.getString(mIdIndex);
-            String mName = data.getString(mDrinkName);
-            String mThumb = data.getString(mDrinkThumb);
-
-            builder = "Id" + mId + "\n name" + mName + "\n thumb" + mThumb;
-            Toast.makeText(getActivity(), builder, Toast.LENGTH_SHORT).show();
-        }
-
-        data.close();
+//        String builder = null;
+//
+//        int mIdIndex = data.getColumnIndex(columnDrink._ID);
+//        int mDrinkName = data.getColumnIndex(columnDrink.DRINK_NAME);
+//        int mDrinkThumb = data.getColumnIndex(columnDrink.DRINK_THUMB);
+//
+//        assert data != null;
+//        while (data.moveToNext()) {
+//
+//            String mId = data.getString(mIdIndex);
+//            String mName = data.getString(mDrinkName);
+//            String mThumb = data.getString(mDrinkThumb);
+//
+//            builder = "Id" + mId + "\n name" + mName + "\n thumb" + mThumb;
+//            Toast.makeText(getActivity(), builder, Toast.LENGTH_SHORT).show();
+//        }
+//
+//        data.close();
 
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
+        mDrinkAdapter.swapCursor(null);
     }
 }

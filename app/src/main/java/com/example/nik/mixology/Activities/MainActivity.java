@@ -28,8 +28,8 @@ import com.example.nik.mixology.Fragments.NonAlcholicFragment;
 import com.example.nik.mixology.Model.Cocktail;
 import com.example.nik.mixology.R;
 
-public class MainActivity extends AppCompatActivity implements DrinkCursorAdapter.OnAdapterItemSelectedListener,
-        NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements DrinkCursorAdapter.OnAdapterItemSelectedListener,MainAdapter.OnAdapterItemSelectedListener
+        ,NavigationView.OnNavigationItemSelectedListener {
 
     Toolbar toolbar = null;
     NavigationView navigationView = null;

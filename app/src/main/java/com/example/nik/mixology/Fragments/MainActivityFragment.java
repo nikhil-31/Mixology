@@ -24,7 +24,7 @@ import com.example.nik.mixology.Adapters.MainAdapter;
 import com.example.nik.mixology.Model.Cocktail;
 import com.example.nik.mixology.Network.VolleySingleton;
 import com.example.nik.mixology.R;
-import com.example.nik.mixology.data.columnDrink;
+import com.example.nik.mixology.data.AlcoholicColumn;
 import com.example.nik.mixology.utils.ContentProviderHelperMethods;
 
 import android.support.v4.app.LoaderManager;
@@ -39,7 +39,7 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_ALCOHOLIC;
-import static com.example.nik.mixology.data.DrinkProvider.Drinks.CONTENT_URI;
+import static com.example.nik.mixology.data.DrinkProvider.Alcoholic.CONTENT_URI;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -173,9 +173,9 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             }
             else {
 
-                contentValues.put(columnDrink._ID, cocktail.getmDrinkId());
-                contentValues.put(columnDrink.DRINK_NAME, cocktail.getmDrinkName());
-                contentValues.put(columnDrink.DRINK_THUMB, cocktail.getmDrinkThumb());
+                contentValues.put(AlcoholicColumn._ID, cocktail.getmDrinkId());
+                contentValues.put(AlcoholicColumn.DRINK_NAME, cocktail.getmDrinkName());
+                contentValues.put(AlcoholicColumn.DRINK_THUMB, cocktail.getmDrinkThumb());
                 Toast.makeText(getActivity(), "Cocktail Added", Toast.LENGTH_SHORT).show();
 
                 cVVector.add(contentValues);
@@ -195,9 +195,9 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     public void getDataFromContentProvider() {
 
         String[] projection = {
-                columnDrink._ID,
-                columnDrink.DRINK_NAME,
-                columnDrink.DRINK_THUMB
+                AlcoholicColumn._ID,
+                AlcoholicColumn.DRINK_NAME,
+                AlcoholicColumn.DRINK_THUMB
         };
 
         Cursor cursor = getActivity().getContentResolver().query(
@@ -210,9 +210,9 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
         String builder = null;
 
-        int mIdIndex = cursor.getColumnIndex(columnDrink._ID);
-        int mDrinkName = cursor.getColumnIndex(columnDrink.DRINK_NAME);
-        int mDrinkThumb = cursor.getColumnIndex(columnDrink.DRINK_THUMB);
+        int mIdIndex = cursor.getColumnIndex(AlcoholicColumn._ID);
+        int mDrinkName = cursor.getColumnIndex(AlcoholicColumn.DRINK_NAME);
+        int mDrinkThumb = cursor.getColumnIndex(AlcoholicColumn.DRINK_THUMB);
 
         assert cursor != null;
         while (cursor.moveToNext()) {
@@ -286,9 +286,9 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
 //        String builder = null;
 //
-//        int mIdIndex = data.getColumnIndex(columnDrink._ID);
-//        int mDrinkName = data.getColumnIndex(columnDrink.DRINK_NAME);
-//        int mDrinkThumb = data.getColumnIndex(columnDrink.DRINK_THUMB);
+//        int mIdIndex = data.getColumnIndex(AlcoholicColumn._ID);
+//        int mDrinkName = data.getColumnIndex(AlcoholicColumn.DRINK_NAME);
+//        int mDrinkThumb = data.getColumnIndex(AlcoholicColumn.DRINK_THUMB);
 //
 //        assert data != null;
 //        while (data.moveToNext()) {

@@ -4,7 +4,6 @@ import android.net.Uri;
 
 import net.simonvt.schematic.annotation.ContentProvider;
 import net.simonvt.schematic.annotation.ContentUri;
-import net.simonvt.schematic.annotation.InexactContentUri;
 import net.simonvt.schematic.annotation.TableEndpoint;
 
 /**
@@ -19,7 +18,7 @@ public final class DrinkProvider {
     static final Uri BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY);
 
     interface Path {
-        String DRINK_SAVED = "drinkSaved";
+        String ALCOHOLIC = "Alcoholic";
     }
 
     private static Uri buildUri(String... paths) {
@@ -30,14 +29,16 @@ public final class DrinkProvider {
         return builder.build();
     }
 
-    @TableEndpoint(table = DrinkDatabase.DRINK_SAVED)
-    public static class Drinks {
+    @TableEndpoint(table = DrinkDatabase.ALCOHOLIC)
+    public static class Alcoholic {
         @ContentUri(
-                path = Path.DRINK_SAVED,
+                path = Path.ALCOHOLIC,
                 type = "vnd.android.cursor.dir/drink")
-        public static final Uri CONTENT_URI = buildUri(Path.DRINK_SAVED);
+        public static final Uri CONTENT_URI = buildUri(Path.ALCOHOLIC);
 
     }
+
+
 
 
 }

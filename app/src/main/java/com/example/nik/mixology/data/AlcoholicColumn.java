@@ -9,7 +9,7 @@ import net.simonvt.schematic.annotation.PrimaryKey;
  * Created by nik on 12/17/2016.
  */
 
-public interface columnDrink {
+public interface AlcoholicColumn {
 
     @DataType(DataType.Type.INTEGER) @PrimaryKey
     public static final String _ID = "_id";

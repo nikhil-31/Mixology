@@ -8,10 +8,10 @@ import com.example.nik.mixology.Model.Cocktail;
 
 import java.util.ArrayList;
 
-import static com.example.nik.mixology.data.DrinkProvider.Drinks.CONTENT_URI;
-import static com.example.nik.mixology.data.columnDrink.DRINK_NAME;
-import static com.example.nik.mixology.data.columnDrink.DRINK_THUMB;
-import static com.example.nik.mixology.data.columnDrink._ID;
+import static com.example.nik.mixology.data.DrinkProvider.Alcoholic.CONTENT_URI;
+import static com.example.nik.mixology.data.AlcoholicColumn.DRINK_NAME;
+import static com.example.nik.mixology.data.AlcoholicColumn.DRINK_THUMB;
+import static com.example.nik.mixology.data.AlcoholicColumn._ID;
 
 /**
  * Created by nik on 12/19/2016.

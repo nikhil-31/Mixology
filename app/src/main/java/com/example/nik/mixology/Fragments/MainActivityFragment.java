@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -25,6 +26,10 @@ import com.example.nik.mixology.R;
 import com.example.nik.mixology.data.columnDrink;
 import com.example.nik.mixology.utils.ContentProviderHelperMethods;
 
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,8 +43,10 @@ import static com.example.nik.mixology.data.DrinkProvider.Drinks.CONTENT_URI;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainActivityFragment extends Fragment {
+public class MainActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String LOG_TAG = MainActivityFragment.class.getSimpleName();
+
+    private static final int CURSOR_LOADER_ID = 0;
 
     public String STATE_COCKTAIL = "state_cocktails";
     private String STATE_NULL = "null";
@@ -60,6 +67,8 @@ public class MainActivityFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
 
 
     }
@@ -98,6 +107,14 @@ public class MainActivityFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList(STATE_COCKTAIL, mCocktailArrayList);
+    }
+
+    @Override
+    public void onResume() {
+
+        super.onResume();
+        getLoaderManager().restartLoader(CURSOR_LOADER_ID, null, this);
+
     }
 
     private void sendJsonRequest() {
@@ -140,7 +157,7 @@ public class MainActivityFragment extends Fragment {
 
     public void insertData() {
 
-        Log.d(LOG_TAG, "insert");
+        Log.d(LOG_TAG, "Insert");
 
         Vector<ContentValues> cVVector = new Vector<ContentValues>(mCocktailArrayList.size());
 
@@ -150,9 +167,10 @@ public class MainActivityFragment extends Fragment {
             String id = cocktail.getmDrinkId();
             boolean isThere = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(), id);
             if (isThere) {
-                Toast.makeText(getActivity(), "Record Present", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getActivity(), "Record Present", Toast.LENGTH_SHORT).show();
             }
             else {
+
                 contentValues.put(columnDrink._ID, cocktail.getmDrinkId());
                 contentValues.put(columnDrink.DRINK_NAME, cocktail.getmDrinkName());
                 contentValues.put(columnDrink.DRINK_THUMB, cocktail.getmDrinkThumb());
@@ -250,4 +268,41 @@ public class MainActivityFragment extends Fragment {
     }
 
 
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(getActivity(), CONTENT_URI,
+                null,
+                null,
+                null,
+                null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
+        String builder = null;
+
+        int mIdIndex = data.getColumnIndex(columnDrink._ID);
+        int mDrinkName = data.getColumnIndex(columnDrink.DRINK_NAME);
+        int mDrinkThumb = data.getColumnIndex(columnDrink.DRINK_THUMB);
+
+        assert data != null;
+        while (data.moveToNext()) {
+
+            String mId = data.getString(mIdIndex);
+            String mName = data.getString(mDrinkName);
+            String mThumb = data.getString(mDrinkThumb);
+
+            builder = "Id" + mId + "\n name" + mName + "\n thumb" + mThumb;
+            Toast.makeText(getActivity(), builder, Toast.LENGTH_SHORT).show();
+        }
+
+        data.close();
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
+    }
 }

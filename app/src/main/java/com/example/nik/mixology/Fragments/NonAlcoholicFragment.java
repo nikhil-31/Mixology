@@ -32,7 +32,6 @@ import com.example.nik.mixology.Model.Cocktail;
 import com.example.nik.mixology.Network.VolleySingleton;
 import com.example.nik.mixology.R;
 import com.example.nik.mixology.data.AlcoholicColumn;
-import com.example.nik.mixology.data.NonAlcoholicColumn;
 import com.example.nik.mixology.utils.ContentProviderHelperMethods;
 import com.example.nik.mixology.utils.Utils;
 
@@ -47,9 +46,7 @@ import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_
 import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_NON_ALCOHOLIC;
 import static com.example.nik.mixology.data.DrinkProvider.Alcoholic.CONTENT_URI_ALCOHOLIC;
 import static com.example.nik.mixology.data.DrinkProvider.NonAlcoholic.CONTENT_URI_NON_ALCOHOLIC;
-import static com.example.nik.mixology.data.NonAlcoholicColumn.DRINK_NAME;
-import static com.example.nik.mixology.data.NonAlcoholicColumn.DRINK_THUMB;
-import static com.example.nik.mixology.data.NonAlcoholicColumn._ID;
+
 
 
 public class NonAlcoholicFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {

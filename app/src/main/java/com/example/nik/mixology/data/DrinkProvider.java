@@ -19,6 +19,7 @@ public final class DrinkProvider {
 
     interface Path {
         String ALCOHOLIC = "Alcoholic";
+        String NON_ALCOHOLIC = "Non_Alcoholic";
     }
 
     private static Uri buildUri(String... paths) {
@@ -35,6 +36,14 @@ public final class DrinkProvider {
                 path = Path.ALCOHOLIC,
                 type = "vnd.android.cursor.dir/drink")
         public static final Uri CONTENT_URI = buildUri(Path.ALCOHOLIC);
+
+    }
+    @TableEndpoint(table = DrinkDatabase.ALCOHOLIC)
+    public static class NonAlcoholic {
+        @ContentUri(
+                path = Path.NON_ALCOHOLIC,
+                type = "vnd.android.cursor.dir/drink")
+        public static final Uri CONTENT_URI = buildUri(Path.NON_ALCOHOLIC);
 
     }
 

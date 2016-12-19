@@ -26,6 +26,7 @@ import com.example.nik.mixology.Network.VolleySingleton;
 import com.example.nik.mixology.R;
 import com.example.nik.mixology.data.AlcoholicColumn;
 import com.example.nik.mixology.utils.ContentProviderHelperMethods;
+import com.example.nik.mixology.utils.Utils;
 
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -131,7 +132,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                         Log.d("Response", response.toString());
                         try {
 
-                            mCocktailArrayList.addAll(parseJSONResponse(response));
+                            mCocktailArrayList.addAll(Utils.parseJSONResponse(response));
 //                            mAdapter.setCocktailList(mCocktailArrayList);
 
 //                            Cursor c = getActivity().getContentResolver().query(CONTENT_URI,
@@ -229,44 +230,9 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         cursor.close();
     }
 
-    public ArrayList<Cocktail> parseJSONResponse(JSONObject response) throws JSONException {
-        final String DRINKS = "drinks";
-        final String COCKTAIL_NAME = "strDrink";
-        final String COCKTAIL_THUMBNAIL = "strDrinkThumb";
-        final String COCKTAIL_ID = "idDrink";
-
-        ArrayList<Cocktail> data = new ArrayList<>();
-
-        if (response == null || response.length() == 0) {
-            return data;
-        }
 
 
-        JSONArray results = response.getJSONArray(DRINKS);
 
-        for (int i = 0; i < results.length(); i++) {
-
-            Cocktail cocktail = new Cocktail();
-
-            JSONObject jsonObject = results.getJSONObject(i);
-
-            String Thumb = jsonObject.getString(COCKTAIL_THUMBNAIL);
-
-            if (Thumb != STATE_NULL) {
-
-                cocktail.setmDrinkName(jsonObject.getString(COCKTAIL_NAME));
-                cocktail.setmDrinkThumb(jsonObject.getString(COCKTAIL_THUMBNAIL));
-                cocktail.setmDrinkId(jsonObject.getString(COCKTAIL_ID));
-
-                data.add(cocktail);
-
-            }
-
-
-        }
-        return data;
-
-    }
 
 
     @Override

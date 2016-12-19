@@ -24,7 +24,7 @@ import com.example.nik.mixology.Fragments.FragmentGin;
 import com.example.nik.mixology.Fragments.FragmentOrdinaryDrink;
 import com.example.nik.mixology.Fragments.FragmentVodka;
 import com.example.nik.mixology.Fragments.MainActivityFragment;
-import com.example.nik.mixology.Fragments.NonAlcholicFragment;
+import com.example.nik.mixology.Fragments.NonAlcoholicFragment;
 import com.example.nik.mixology.Model.Cocktail;
 import com.example.nik.mixology.R;
 
@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements DrinkCursorAdapte
 
         else if (id == R.id.nav_Non_Alcoholic) {
 
-            NonAlcholicFragment fragment = new NonAlcholicFragment();
+            NonAlcoholicFragment fragment = new NonAlcoholicFragment();
             android.support.v4.app.FragmentTransaction fragmentTransaction =
                     getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container,fragment);

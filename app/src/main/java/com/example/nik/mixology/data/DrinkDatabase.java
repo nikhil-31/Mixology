@@ -18,5 +18,7 @@ public class DrinkDatabase {
 
     @Table(AlcoholicColumn.class) public static final String NON_ALCOHOLIC = "Non_Alcoholic";
 
+    @Table(AlcoholicColumn.class) public static final String COCKTAIL = "Cocktail";
+
 
 }

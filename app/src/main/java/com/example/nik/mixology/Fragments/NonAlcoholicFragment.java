@@ -92,7 +92,7 @@ public class NonAlcoholicFragment extends Fragment implements LoaderManager.Load
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
         recyclerView.setLayoutManager(gridLayoutManager);
 
-        mDrinkAdapter = new DrinkCursorAdapter(getActivity(), null,getActivity() );
+        mDrinkAdapter = new DrinkCursorAdapter(getActivity(), null, getActivity());
         recyclerView.setAdapter(mDrinkAdapter);
 
 
@@ -102,7 +102,6 @@ public class NonAlcoholicFragment extends Fragment implements LoaderManager.Load
         } else {
             sendJsonRequest();
         }
-
 
         return rootView;
     }
@@ -162,25 +161,6 @@ public class NonAlcoholicFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mDrinkAdapter.swapCursor(data);
-//        String builder = null;
-//
-//        int mIdIndex = data.getColumnIndex(_ID);
-//        int mDrinkName = data.getColumnIndex(DRINK_NAME);
-//        int mDrinkThumb = data.getColumnIndex(DRINK_THUMB);
-//
-//        assert data != null;
-//        while (data.moveToNext()) {
-//
-//            String mId = data.getString(mIdIndex);
-//            String mName = data.getString(mDrinkName);
-//            String mThumb = data.getString(mDrinkThumb);
-//
-//            builder = "Id" + mId + "\n name" + mName + "\n thumb" + mThumb;
-//            Toast.makeText(getActivity(), "Loader NonAlcoholic" + builder, Toast.LENGTH_SHORT).show();
-//        }
-//
-//        data.close();
-
     }
 
     @Override

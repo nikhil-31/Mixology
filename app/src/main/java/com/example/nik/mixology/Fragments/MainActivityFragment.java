@@ -50,7 +50,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     private static final int CURSOR_LOADER_ID = 0;
 
     public String STATE_COCKTAIL = "state_cocktails";
-    private String STATE_NULL = "null";
 
     private RecyclerView recyclerView;
 
@@ -157,40 +156,40 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         mRequestQueue.add(request);
     }
 
-    public void insertData() {
-
-        Log.d(LOG_TAG, "Insert");
-
-        Vector<ContentValues> cVVector = new Vector<ContentValues>(mCocktailArrayList.size());
-
-        for (Cocktail cocktail : mCocktailArrayList) {
-
-            ContentValues contentValues = new ContentValues();
-            String id = cocktail.getmDrinkId();
-            boolean isThere = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(), id,CONTENT_URI_ALCOHOLIC);
-            if (isThere) {
-//                Toast.makeText(getActivity(), "Record Present", Toast.LENGTH_SHORT).show();
-            }
-            else {
-
-                contentValues.put(AlcoholicColumn._ID, cocktail.getmDrinkId());
-                contentValues.put(AlcoholicColumn.DRINK_NAME, cocktail.getmDrinkName());
-                contentValues.put(AlcoholicColumn.DRINK_THUMB, cocktail.getmDrinkThumb());
-//                Toast.makeText(getActivity(), "Cocktail Added", Toast.LENGTH_SHORT).show();
-
-                cVVector.add(contentValues);
-            }
-
-        }
-        if (cVVector.size() > 0) {
-            ContentValues[] cvArray = new ContentValues[cVVector.size()];
-            cVVector.toArray(cvArray);
-            getContext().getContentResolver().bulkInsert(CONTENT_URI_ALCOHOLIC, cvArray);
-
-//            getDataFromContentProvider();
-        }
-
-    }
+//    public void insertData() {
+//
+//        Log.d(LOG_TAG, "Insert");
+//
+//        Vector<ContentValues> cVVector = new Vector<ContentValues>(mCocktailArrayList.size());
+//
+//        for (Cocktail cocktail : mCocktailArrayList) {
+//
+//            ContentValues contentValues = new ContentValues();
+//            String id = cocktail.getmDrinkId();
+//            boolean isThere = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(), id,CONTENT_URI_ALCOHOLIC);
+//            if (isThere) {
+////                Toast.makeText(getActivity(), "Record Present", Toast.LENGTH_SHORT).show();
+//            }
+//            else {
+//
+//                contentValues.put(AlcoholicColumn._ID, cocktail.getmDrinkId());
+//                contentValues.put(AlcoholicColumn.DRINK_NAME, cocktail.getmDrinkName());
+//                contentValues.put(AlcoholicColumn.DRINK_THUMB, cocktail.getmDrinkThumb());
+////                Toast.makeText(getActivity(), "Cocktail Added", Toast.LENGTH_SHORT).show();
+//
+//                cVVector.add(contentValues);
+//            }
+//
+//        }
+//        if (cVVector.size() > 0) {
+//            ContentValues[] cvArray = new ContentValues[cVVector.size()];
+//            cVVector.toArray(cvArray);
+//            getContext().getContentResolver().bulkInsert(CONTENT_URI_ALCOHOLIC, cvArray);
+//
+////            getDataFromContentProvider();
+//        }
+//
+//    }
 
     public void getDataFromContentProvider() {
 

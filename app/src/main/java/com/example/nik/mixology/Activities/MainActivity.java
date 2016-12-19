@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.example.nik.mixology.Adapters.DrinkCursorAdapter;
 import com.example.nik.mixology.Adapters.MainAdapter;
 import com.example.nik.mixology.Fragments.ActivityDetailsFragment;
 import com.example.nik.mixology.Fragments.FragmentChampagne;
@@ -27,7 +28,7 @@ import com.example.nik.mixology.Fragments.NonAlcholicFragment;
 import com.example.nik.mixology.Model.Cocktail;
 import com.example.nik.mixology.R;
 
-public class MainActivity extends AppCompatActivity implements MainAdapter.OnAdapterItemSelectedListener,
+public class MainActivity extends AppCompatActivity implements DrinkCursorAdapter.OnAdapterItemSelectedListener,
         NavigationView.OnNavigationItemSelectedListener {
 
     Toolbar toolbar = null;

@@ -92,7 +92,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         recyclerView.setLayoutManager(gridLayoutManager);
 
 //        mAdapter = new MainAdapter(getActivity(), getActivity());
-        mDrinkAdapter = new DrinkCursorAdapter(getActivity(),null);
+        mDrinkAdapter = new DrinkCursorAdapter(getActivity(), null,getActivity() );
         recyclerView.setAdapter(mDrinkAdapter);
 
 //        if (savedInstanceState != null) {

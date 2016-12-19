@@ -32,13 +32,13 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
     private OnAdapterItemSelectedListener mAdapterCallback;
 
 
-    public DrinkCursorAdapter(Context context, Cursor cursor) {
+    public DrinkCursorAdapter(Context context, Cursor cursor, Activity activity) {
         super(context, cursor);
 
         this.context = context;
-//        this.mAct = activity;
+        this.mAct = activity;
         inflater = LayoutInflater.from(context);
-//        mAdapterCallback = (OnAdapterItemSelectedListener) mAct;
+        mAdapterCallback = (OnAdapterItemSelectedListener) mAct;
     }
 
     @Override
@@ -55,14 +55,14 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
                 .load(cursor.getString(cursor.getColumnIndex(DRINK_THUMB)))
                 .error(R.drawable.empty_glass)
                 .into(viewHolder.image);
-//        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                if (mAdapterCallback != null) {
-//                    mAdapterCallback.onItemSelected(currentCocktail);
-//                }
-//            }
-//        });
+        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mAdapterCallback != null) {
+                    mAdapterCallback.onItemSelected(currentCocktail);
+                }
+            }
+        });
     }
 
     @Override

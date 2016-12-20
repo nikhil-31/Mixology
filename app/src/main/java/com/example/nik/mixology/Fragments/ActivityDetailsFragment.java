@@ -31,7 +31,6 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -53,11 +52,11 @@ public class ActivityDetailsFragment extends Fragment {
 
     private TextView mInstructionsText;
     private TextView mAlcoholicText;
-    private TextView mInstructionText;
-    private TextView mIngredientsText;
+    private TextView mInstruction;
+    private TextView mIngredients;
     private ImageView mDrinkImage;
     private TextView mDrinkName;
-
+    Toolbar mToolbar;
     private RecyclerView mIngredientsRecyclerView;
     private IngredientsAdapter mIngredientsAdapter;
 
@@ -69,6 +68,7 @@ public class ActivityDetailsFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         mVolleySingleton = mVolleySingleton.getInstance();
         mRequestQueue = mVolleySingleton.getmRequestQueue();
     }
@@ -82,30 +82,34 @@ public class ActivityDetailsFragment extends Fragment {
 
         mCocktailId = cocktail.getmDrinkId();
 
-        Toolbar toolbar = (Toolbar) v.findViewById(R.id.toolbar);
+        mToolbar = (Toolbar) v.findViewById(R.id.toolbar);
 
-        toolbar.setTitle(cocktail.getmDrinkName());
-        toolbar.setNavigationIcon(ContextCompat.getDrawable(getActivity(), R.mipmap.ic_back));
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+        mToolbar.setTitle(cocktail.getmDrinkName());
+        mToolbar.setNavigationIcon(ContextCompat.getDrawable(getActivity(), R.mipmap.ic_back));
+        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 getActivity().finish();
 
             }
         });
-        toolbar.inflateMenu(R.menu.menu_activity_details);
+
+        mToolbar.inflateMenu(R.menu.menu_activity_details);
+
         mInstructionsText = (TextView) v.findViewById(R.id.detail_instructions);
         mAlcoholicText = (TextView) v.findViewById(R.id.detail_alcoholic);
         mDrinkImage = (ImageView) v.findViewById(R.id.detail_imageView);
-        mInstructionText = (TextView) v.findViewById(R.id.detail_instructions_text);
-        mIngredientsText = (TextView) v.findViewById(R.id.detail_ingredients_text);
+        mInstruction = (TextView) v.findViewById(R.id.detail_instructions_text);
+        mIngredients = (TextView) v.findViewById(R.id.detail_ingredients_text);
         mDrinkName = (TextView) v.findViewById(R.id.detail_name);
 
         sendJsonRequest();
 
         mIngredientsAdapter = new IngredientsAdapter(getActivity());
         mIngredientsRecyclerView = (RecyclerView) v.findViewById(R.id.recycler_ingredients);
+
         LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
+
         mIngredientsRecyclerView.setLayoutManager(mLinearLayoutManager);
         mIngredientsRecyclerView.setAdapter(mIngredientsAdapter);
 
@@ -120,8 +124,8 @@ public class ActivityDetailsFragment extends Fragment {
                 .load(cocktail.getmDrinkThumb())
                 .error(R.drawable.empty_glass)
                 .into(mDrinkImage);
-        mInstructionText.setText(getResources().getString(R.string.Instructions));
-        mIngredientsText.setText(getResources().getString(R.string.Ingredients));
+        mInstruction.setText(getResources().getString(R.string.Instructions));
+        mIngredients.setText(getResources().getString(R.string.Ingredients));
         mDrinkName.setText(cocktail.getmDrinkName());
 
     }
@@ -135,15 +139,23 @@ public class ActivityDetailsFragment extends Fragment {
                     public void onResponse(JSONObject response) {
                         Log.d("Data", response.toString());
                         try {
+
                             mCocktailDetails = parseJSONResponse(response);
                             mMeasuresArrayList = parseJSONResponseMeasure(response);
+
                             setUIData();
+
                             mIngredientsAdapter.setMeasuresList(mMeasuresArrayList);
+
                             Log.d("Instructions", mCocktailDetails.getmInstructions());
 
-                        } catch (JSONException e) {
+
+                        }
+                        catch (JSONException e) {
                             e.printStackTrace();
+
                             Toast.makeText(getActivity(),"Check internet connection",Toast.LENGTH_LONG).show();
+
                         }
                     }
                 }, new Response.ErrorListener() {
@@ -160,7 +172,7 @@ public class ActivityDetailsFragment extends Fragment {
         final String DRINKS = "drinks";
         final String NAME = "strDrink";
         final String CATEGORY = "strCategory";
-        final String ALC0HOLIC = "strAlcoholic";
+        final String ALCOHOLIC = "strAlcoholic";
         final String GLASS = "strGlass";
         final String INSTRUCTIONS = "strInstructions";
 
@@ -169,7 +181,6 @@ public class ActivityDetailsFragment extends Fragment {
         if (response == null || response.length() == 0) {
             return details;
         }
-
         JSONArray results = response.getJSONArray(DRINKS);
 
         for (int i = 0; i < results.length(); i++) {
@@ -178,13 +189,12 @@ public class ActivityDetailsFragment extends Fragment {
 
             details.setmName(jsonObject.getString(NAME));
             details.setmCategory(jsonObject.getString(CATEGORY));
-            details.setmAlcoholic(jsonObject.getString(ALC0HOLIC));
+            details.setmAlcoholic(jsonObject.getString(ALCOHOLIC));
             details.setmGlass(jsonObject.getString(GLASS));
             details.setmInstructions(jsonObject.getString(INSTRUCTIONS));
 
         }
         return details;
-
     }
 
     public ArrayList<Measures> parseJSONResponseMeasure(JSONObject response) throws JSONException {

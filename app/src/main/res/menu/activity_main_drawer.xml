@@ -2,7 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/Saved_Cocktails"
-        android:title="Saved Cocktails" />
+        android:title="#Saved Cocktails" />
+
+    <item
+        android:id="@+id/nav_randomixer"
+        android:title="#Randomixer" />
+
 
 
     <item android:title="Alcoholic">

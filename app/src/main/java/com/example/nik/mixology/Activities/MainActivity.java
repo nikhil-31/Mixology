@@ -22,14 +22,16 @@ import com.example.nik.mixology.Fragments.FragmentCocktail;
 import com.example.nik.mixology.Fragments.FragmentCocktailGlass;
 import com.example.nik.mixology.Fragments.FragmentGin;
 import com.example.nik.mixology.Fragments.FragmentOrdinaryDrink;
+import com.example.nik.mixology.Fragments.FragmentRandomixer;
+import com.example.nik.mixology.Fragments.FragmentSavedDrink;
 import com.example.nik.mixology.Fragments.FragmentVodka;
 import com.example.nik.mixology.Fragments.MainActivityFragment;
 import com.example.nik.mixology.Fragments.NonAlcoholicFragment;
 import com.example.nik.mixology.Model.Cocktail;
 import com.example.nik.mixology.R;
 
-public class MainActivity extends AppCompatActivity implements DrinkCursorAdapter.OnAdapterItemSelectedListener,MainAdapter.OnAdapterItemSelectedListener
-        ,NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements DrinkCursorAdapter.OnAdapterItemSelectedListener, MainAdapter.OnAdapterItemSelectedListener
+        , NavigationView.OnNavigationItemSelectedListener {
 
     Toolbar toolbar = null;
     NavigationView navigationView = null;
@@ -42,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements DrinkCursorAdapte
         MainActivityFragment fragment = new MainActivityFragment();
         android.support.v4.app.FragmentTransaction fragmentTransaction =
                 getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.fragment_container,fragment);
+        fragmentTransaction.replace(R.id.fragment_container, fragment);
         fragmentTransaction.commit();
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -82,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements DrinkCursorAdapte
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                Toast.makeText(getApplicationContext(),query,Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), query, Toast.LENGTH_LONG).show();
 //
 //                MainActivityFragment fragment = new MainActivityFragment();
 //                android.support.v4.app.FragmentTransaction fragmentTransaction =
@@ -139,91 +141,89 @@ public class MainActivity extends AppCompatActivity implements DrinkCursorAdapte
             MainActivityFragment fragment = new MainActivityFragment();
             android.support.v4.app.FragmentTransaction fragmentTransaction =
                     getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_container,fragment);
+            fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
             toolbar.setTitle("#Alcoholic");
 
-        }
-
-        else if (id == R.id.nav_Non_Alcoholic) {
+        } else if (id == R.id.nav_Non_Alcoholic) {
 
             NonAlcoholicFragment fragment = new NonAlcoholicFragment();
             android.support.v4.app.FragmentTransaction fragmentTransaction =
                     getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_container,fragment);
+            fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
             toolbar.setTitle("#Non_Alcoholic");
 //            Toast.makeText(getApplicationContext(),"Non Alcoholic",Toast.LENGTH_LONG).show();
 
-        }
-
-        else if (id == R.id.nav_gin) {
+        } else if (id == R.id.nav_gin) {
 
             FragmentGin fragment = new FragmentGin();
             android.support.v4.app.FragmentTransaction fragmentTransaction =
                     getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_container,fragment);
+            fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
             toolbar.setTitle("#Gin");
 //            Toast.makeText(getApplicationContext(),"Gin",Toast.LENGTH_LONG).show();
 
-        }
-
-        else if (id == R.id.nav_vodka) {
+        } else if (id == R.id.nav_vodka) {
 
             FragmentVodka fragment = new FragmentVodka();
             android.support.v4.app.FragmentTransaction fragmentTransaction =
                     getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_container,fragment);
+            fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
             toolbar.setTitle("#Vodka");
 //            Toast.makeText(getApplicationContext(),"VodkaColumn",Toast.LENGTH_LONG).show();
-        }
-
-        else if(id == R.id.nav_cocktail_glass){
+        } else if (id == R.id.nav_cocktail_glass) {
 
             FragmentCocktailGlass fragment = new FragmentCocktailGlass();
             android.support.v4.app.FragmentTransaction fragmentTransaction =
                     getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_container,fragment);
+            fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
             toolbar.setTitle("#Cocktail_Glass");
 //            Toast.makeText(getApplicationContext(),"Cocktail Glass",Toast.LENGTH_LONG).show();
 
-        }
-
-        else if(id == R.id.nav_Champagne_flute){
+        } else if (id == R.id.nav_Champagne_flute) {
 
             FragmentChampagne fragment = new FragmentChampagne();
             android.support.v4.app.FragmentTransaction fragmentTransaction =
                     getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_container,fragment);
+            fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
             toolbar.setTitle("#Champagne_Flute");
 //            Toast.makeText(getApplicationContext(),"Champagne Flute",Toast.LENGTH_LONG).show();
-        }
-
-        else if(id == R.id.nav_Ordinary_Drink){
+        } else if (id == R.id.nav_Ordinary_Drink) {
 
             FragmentOrdinaryDrink fragment = new FragmentOrdinaryDrink();
             android.support.v4.app.FragmentTransaction fragmentTransaction =
                     getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_container,fragment);
+            fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
             toolbar.setTitle("#Ordinary_drink");
 //            Toast.makeText(getApplicationContext(),"Ordinary Drink",Toast.LENGTH_LONG).show();
 
-        }
-
-        else if(id == R.id.nav_Cocktail){
+        } else if (id == R.id.nav_Cocktail) {
             FragmentCocktail fragment = new FragmentCocktail();
             android.support.v4.app.FragmentTransaction fragmentTransaction =
                     getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_container,fragment);
+            fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
             toolbar.setTitle("#Cocktail");
 //            Toast.makeText(getApplicationContext(),"Cocktail",Toast.LENGTH_LONG).show();
+        } else if (id == R.id.Saved_Cocktails) {
+            FragmentSavedDrink fragment = new FragmentSavedDrink();
+            android.support.v4.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.fragment_container, fragment);
+            fragmentTransaction.commit();
+            toolbar.setTitle("#Saved_Cocktail");
 
+        } else if (id == R.id.nav_randomixer) {
+            FragmentRandomixer fragment = new FragmentRandomixer();
+            android.support.v4.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.fragment_container, fragment);
+            fragmentTransaction.commit();
+            toolbar.setTitle("#Randomixer");
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

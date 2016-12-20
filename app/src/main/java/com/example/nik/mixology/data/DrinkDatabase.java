@@ -30,13 +30,7 @@ public class DrinkDatabase {
 
     @Table(AlcoholicColumn.class) public static final String CHAMPAGNE_FLUTE = "Champagne_Flute";
 
-
-
-
-
-
-
-
+    @Table(AlcoholicColumn.class) public static final String SAVED = "Drink_Saved";
 
 
 }

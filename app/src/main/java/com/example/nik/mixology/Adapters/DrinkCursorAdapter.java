@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.nik.mixology.Model.Cocktail;
 import com.example.nik.mixology.R;
 import com.example.nik.mixology.utils.CursorRecyclerViewAdapter;
@@ -39,6 +40,7 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
         this.mAct = activity;
         inflater = LayoutInflater.from(context);
         mAdapterCallback = (OnAdapterItemSelectedListener) mAct;
+
     }
 
     @Override

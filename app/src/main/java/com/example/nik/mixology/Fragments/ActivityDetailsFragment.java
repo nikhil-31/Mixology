@@ -120,10 +120,12 @@ public class ActivityDetailsFragment extends Fragment {
 
         mInstructionsText.setText(mCocktailDetails.getmInstructions());
         mAlcoholicText.setText(mCocktailDetails.getmAlcoholic());
+
         Picasso.with(getActivity())
                 .load(cocktail.getmDrinkThumb())
                 .error(R.drawable.empty_glass)
                 .into(mDrinkImage);
+
         mInstruction.setText(getResources().getString(R.string.Instructions));
         mIngredients.setText(getResources().getString(R.string.Ingredients));
         mDrinkName.setText(cocktail.getmDrinkName());

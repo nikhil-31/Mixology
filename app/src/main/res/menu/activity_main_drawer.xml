@@ -4,9 +4,14 @@
         android:id="@+id/Saved_Cocktails"
         android:title="#Saved Cocktails" />
 
-    <item
-        android:id="@+id/nav_randomixer"
-        android:title="#Randomixer" />
+
+    <item android:title="Inspire me">
+        <menu>
+            <item
+                android:id="@+id/nav_randomixer"
+                android:title="#Randomixer" />
+        </menu>
+    </item>
 
 
 

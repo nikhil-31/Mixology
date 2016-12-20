@@ -7,4 +7,10 @@
         android:orderInCategory="100"
         android:title="@string/action_settings"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_save"
+        android:icon="@drawable/ic_favourite_filled"
+        android:title="@string/menu_save"
+        app:showAsAction="always"/>
 </menu>

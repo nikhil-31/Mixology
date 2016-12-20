@@ -27,6 +27,7 @@ public final class DrinkProvider {
         String VODKA = "Vodka";
         String COCKTAIL_GLASS = "Cocktail_Glass";
         String CHAMPAGNE_FLUTE = "Champagne_Flute";
+        String SAVED = "Drink_Saved";
     }
 
     private static Uri buildUri(String... paths) {
@@ -106,6 +107,15 @@ public final class DrinkProvider {
                 path = Path.CHAMPAGNE_FLUTE,
                 type = "vnd.android.cursor.dir/drink")
         public static final Uri CONTENT_URI_CHAMPAGNE_FLUTE = buildUri(Path.CHAMPAGNE_FLUTE);
+
+    }
+
+    @TableEndpoint(table = DrinkDatabase.SAVED)
+    public static class SavedDrink {
+        @ContentUri(
+                path = Path.SAVED,
+                type = "vnd.android.cursor.dir/drink")
+        public static final Uri CONTENT_URI_DRINK_SAVED = buildUri(Path.SAVED);
 
     }
 

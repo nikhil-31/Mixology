@@ -90,28 +90,16 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
         recyclerView.setLayoutManager(gridLayoutManager);
 
-
         mDrinkAdapter = new DrinkCursorAdapter(getActivity(), null, getActivity());
         recyclerView.setAdapter(mDrinkAdapter);
 
-//        if (savedInstanceState != null) {
-//            mCocktailArrayList = savedInstanceState.getParcelableArrayList(STATE_COCKTAIL);
-//            mAdapter.setCocktailList(mCocktailArrayList);
-//        } else {
-//            sendJsonRequest();
-//        }
+        if (savedInstanceState != null) {
+            mCocktailArrayList = savedInstanceState.getParcelableArrayList(STATE_COCKTAIL);
 
-
-        Cursor c = getActivity().getContentResolver().query(CONTENT_URI_ALCOHOLIC,
-                null,
-                null,
-                null,
-                null);
-        Log.i(LOG_TAG, "cursor count: " + c.getCount());
-
-        if (c == null || c.getCount() == 0){
+        } else {
             sendJsonRequest();
         }
+
         return rootView;
     }
 
@@ -153,7 +141,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         });
         mRequestQueue.add(request);
     }
-
 
 
     @Override

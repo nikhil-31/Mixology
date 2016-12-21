@@ -2,6 +2,7 @@ package com.example.nik.mixology.Fragments;
 
 import android.content.ContentValues;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
@@ -137,11 +138,30 @@ public class ActivityDetailsFragment extends Fragment {
                     getActivity().getContentResolver().insert(withId(mCocktailId), cv);
 
 
+                    /* Re-querying the database to ensure that the data was added
+                     * Then, setting changing the menu item */
+                    boolean inDb = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(), mCocktailId, CONTENT_URI_DRINK_SAVED);
+                    menu.findItem(R.id.action_add).setVisible(!inDb);
+                    menu.findItem(R.id.action_remove).setVisible(inDb);
+
                     return true;
                 }
 
                 if (itemId == removeId) {
+
                     Toast.makeText(getActivity(), "Removed", Toast.LENGTH_SHORT).show();
+
+                    getActivity().getContentResolver().delete(withId(mCocktailId),
+                            null,
+                            null);
+
+
+                     /* Re-querying the database to ensure that the data was added
+                     * Then, setting changing the menu item */
+                    boolean inDb = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(), mCocktailId, CONTENT_URI_DRINK_SAVED);
+                    menu.findItem(R.id.action_add).setVisible(!inDb);
+                    menu.findItem(R.id.action_remove).setVisible(inDb);
+
                     return true;
                 }
 

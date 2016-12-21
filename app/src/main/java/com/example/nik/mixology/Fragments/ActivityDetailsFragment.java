@@ -128,7 +128,8 @@ public class ActivityDetailsFragment extends Fragment {
                 int removeId = R.id.action_remove;
 
                 if (itemId == addId) {
-                    Toast.makeText(getActivity(), "Added", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(getActivity(), "Drink Added", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(getActivity().findViewById(addId), "Drink Added", Snackbar.LENGTH_LONG).show();
 
                     ContentValues cv = new ContentValues();
                     cv.put(_ID, cocktail.getmDrinkId());
@@ -141,6 +142,7 @@ public class ActivityDetailsFragment extends Fragment {
                     /* Re-querying the database to ensure that the data was added
                      * Then, setting changing the menu item */
                     boolean inDb = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(), mCocktailId, CONTENT_URI_DRINK_SAVED);
+
                     menu.findItem(R.id.action_add).setVisible(!inDb);
                     menu.findItem(R.id.action_remove).setVisible(inDb);
 
@@ -149,16 +151,17 @@ public class ActivityDetailsFragment extends Fragment {
 
                 if (itemId == removeId) {
 
-                    Toast.makeText(getActivity(), "Removed", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(getActivity(), "Drink Deleted", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(getActivity().findViewById(removeId), "Drink Deleted", Snackbar.LENGTH_LONG).show();
 
                     getActivity().getContentResolver().delete(withId(mCocktailId),
                             null,
                             null);
 
-
                      /* Re-querying the database to ensure that the data was added
                      * Then, setting changing the menu item */
                     boolean inDb = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(), mCocktailId, CONTENT_URI_DRINK_SAVED);
+
                     menu.findItem(R.id.action_add).setVisible(!inDb);
                     menu.findItem(R.id.action_remove).setVisible(inDb);
 

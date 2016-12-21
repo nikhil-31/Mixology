@@ -91,7 +91,6 @@ public class FragmentVodka extends Fragment implements LoaderManager.LoaderCallb
             sendJsonRequest();
         }
 
-
         return rootView;
     }
 

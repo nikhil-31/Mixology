@@ -1,19 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+
     <item
         android:id="@+id/Saved_Cocktails"
         android:title="#Saved Cocktails" />
-
-
-    <item android:title="Inspire me">
-        <menu>
-            <item
-                android:id="@+id/nav_randomixer"
-                android:title="#Randomixer" />
-        </menu>
-    </item>
-
-
 
     <item android:title="Alcoholic">
         <menu>
@@ -28,6 +18,13 @@
         </menu>
     </item>
 
+    <item android:title="Inspire me">
+        <menu>
+            <item
+                android:id="@+id/nav_randomixer"
+                android:title="#Randomixer" />
+        </menu>
+    </item>
 
     <item android:title="Category">
         <menu>

@@ -22,10 +22,16 @@ public class ContentProviderHelperMethods {
     public static ArrayList<Cocktail> getDrinkListFromDatabase(Activity mAct,Uri uri) {
 
         ArrayList<Cocktail> mDrinkList = new ArrayList<>();
-        Uri contentUri = uri;
+
         Cocktail cocktail = null;
 
-        Cursor cursor = mAct.getContentResolver().query(contentUri, null, null, null, null);
+        Cursor cursor = mAct.getContentResolver().query(uri,
+                null,
+                null,
+                null,
+                null);
+
+        assert cursor != null;
         if (cursor.moveToFirst()) {
             do {
                 cocktail = new Cocktail();
@@ -55,9 +61,9 @@ public class ContentProviderHelperMethods {
 
     public static Cocktail getDrinkFromDatabase(Activity mActivity, String ID,Uri uri) {
         Cocktail cocktail = null;
-        Uri contentUri = uri;
 
-        Cursor cursor = mActivity.getContentResolver().query(contentUri, null, null, null, null);
+
+        Cursor cursor = mActivity.getContentResolver().query(uri, null, null, null, null);
         assert cursor != null;
         if (cursor.moveToFirst()) {
             do {

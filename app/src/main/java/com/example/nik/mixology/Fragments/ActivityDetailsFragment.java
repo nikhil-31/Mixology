@@ -9,6 +9,8 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -26,6 +28,7 @@ import com.example.nik.mixology.Model.CocktailDetails;
 import com.example.nik.mixology.Model.Measures;
 import com.example.nik.mixology.Network.VolleySingleton;
 import com.example.nik.mixology.R;
+import com.example.nik.mixology.utils.ContentProviderHelperMethods;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -35,6 +38,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_BY_ID;
+import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.CONTENT_URI_DRINK_SAVED;
+import static com.example.nik.mixology.data.DrinkProvider.Vodka.CONTENT_URI_VODKA;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -62,6 +67,9 @@ public class ActivityDetailsFragment extends Fragment {
 
     private ArrayList<Measures> mMeasuresArrayList;
 
+
+    private boolean isInDatabase;
+
     public ActivityDetailsFragment() {
     }
 
@@ -79,8 +87,10 @@ public class ActivityDetailsFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_activity_details, container, false);
 
         cocktail = getActivity().getIntent().getParcelableExtra("Cocktail");
-
         mCocktailId = cocktail.getmDrinkId();
+        isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(), mCocktailId, CONTENT_URI_VODKA);
+
+        Toast.makeText(getActivity(),"There in database "+isInDatabase,Toast.LENGTH_LONG).show();
 
         mToolbar = (Toolbar) v.findViewById(R.id.toolbar);
 
@@ -152,11 +162,10 @@ public class ActivityDetailsFragment extends Fragment {
                             Log.d("Instructions", mCocktailDetails.getmInstructions());
 
 
-                        }
-                        catch (JSONException e) {
+                        } catch (JSONException e) {
                             e.printStackTrace();
 
-                            Toast.makeText(getActivity(),"Check internet connection",Toast.LENGTH_LONG).show();
+                            Toast.makeText(getActivity(), "Check internet connection", Toast.LENGTH_LONG).show();
 
                         }
                     }

@@ -32,7 +32,6 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
     private Activity mAct;
     private OnAdapterItemSelectedListener mAdapterCallback;
 
-
     public DrinkCursorAdapter(Context context, Cursor cursor, Activity activity) {
         super(context, cursor);
 
@@ -69,9 +68,11 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
         View v = inflater.inflate(R.layout.recycler_main_item, parent, false);
         ViewHolder viewHolder = new ViewHolder(v);
         return viewHolder;
+
     }
 
 

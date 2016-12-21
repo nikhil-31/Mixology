@@ -9,8 +9,14 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_save"
+        android:id="@+id/add"
+        android:icon="@drawable/ic_favourite_outline"
+        app:showAsAction="always"
+        android:title="@string/save"
+        />
+    <item
+        android:id="@+id/remove"
         android:icon="@drawable/ic_favourite_filled"
-        android:title="@string/menu_save"
-        app:showAsAction="always"/>
+        app:showAsAction="always"
+        android:title="@string/delete"/>
 </menu>

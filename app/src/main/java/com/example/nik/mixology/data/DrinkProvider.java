@@ -4,8 +4,11 @@ import android.net.Uri;
 
 import net.simonvt.schematic.annotation.ContentProvider;
 import net.simonvt.schematic.annotation.ContentUri;
+import net.simonvt.schematic.annotation.InexactContentUri;
 import net.simonvt.schematic.annotation.Table;
 import net.simonvt.schematic.annotation.TableEndpoint;
+
+import static com.example.nik.mixology.data.AlcoholicColumn._ID;
 
 /**
  * Created by nik on 12/17/2016.
@@ -116,6 +119,17 @@ public final class DrinkProvider {
                 path = Path.SAVED,
                 type = "vnd.android.cursor.dir/drink")
         public static final Uri CONTENT_URI_DRINK_SAVED = buildUri(Path.SAVED);
+
+
+        @InexactContentUri(
+                name = "ARCHIVED_DRINK_ID",
+                path = Path.SAVED + "/#",
+                type = "vnd.android.cursor.item/drink_id",
+                whereColumn = _ID,
+                pathSegment = 1
+        )public static Uri withId(String id){
+            return buildUri(Path.SAVED, String.valueOf(id));
+        }
 
     }
 

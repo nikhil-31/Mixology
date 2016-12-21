@@ -13,12 +13,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
-import android.widget.Toast;
+
 
 import com.example.nik.mixology.Adapters.DrinkCursorAdapter;
 import com.example.nik.mixology.R;
 
+import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.CONTENT_URI_DRINK_SAVED;
 import static com.example.nik.mixology.data.DrinkProvider.Vodka.CONTENT_URI_VODKA;
 
 /**
@@ -52,8 +52,6 @@ public class FragmentSavedDrink extends Fragment implements LoaderManager.Loader
         mDrinkAdapter = new DrinkCursorAdapter(getActivity(), null, getActivity());
         recyclerView.setAdapter(mDrinkAdapter);
 
-        Toast.makeText(getActivity(), "Hi From Saved Drink Fragment", Toast.LENGTH_LONG).show();
-
         return rootView;
     }
 
@@ -68,7 +66,7 @@ public class FragmentSavedDrink extends Fragment implements LoaderManager.Loader
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoader(getActivity(),
-                CONTENT_URI_VODKA,
+                CONTENT_URI_DRINK_SAVED,
                 null,
                 null,
                 null,

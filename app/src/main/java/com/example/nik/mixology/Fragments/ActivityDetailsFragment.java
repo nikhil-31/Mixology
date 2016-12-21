@@ -1,5 +1,6 @@
 package com.example.nik.mixology.Fragments;
 
+import android.content.ContentValues;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -30,6 +31,7 @@ import com.example.nik.mixology.Model.Measures;
 import com.example.nik.mixology.Network.VolleySingleton;
 import com.example.nik.mixology.R;
 import com.example.nik.mixology.utils.ContentProviderHelperMethods;
+import com.example.nik.mixology.utils.Utils;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -39,7 +41,11 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_BY_ID;
+import static com.example.nik.mixology.data.AlcoholicColumn.DRINK_NAME;
+import static com.example.nik.mixology.data.AlcoholicColumn.DRINK_THUMB;
+import static com.example.nik.mixology.data.AlcoholicColumn._ID;
 import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.CONTENT_URI_DRINK_SAVED;
+import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.withId;
 import static com.example.nik.mixology.data.DrinkProvider.Vodka.CONTENT_URI_VODKA;
 
 /**
@@ -83,7 +89,7 @@ public class ActivityDetailsFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_activity_details, container, false);
 
@@ -92,8 +98,7 @@ public class ActivityDetailsFragment extends Fragment {
 
         setHasOptionsMenu(true);
 
-        isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(), mCocktailId, CONTENT_URI_VODKA);
-//        Toast.makeText(getActivity(),"There in database "+isInDatabase,Toast.LENGTH_LONG).show();
+        isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(), mCocktailId, CONTENT_URI_DRINK_SAVED);
 
         mToolbar = (Toolbar) v.findViewById(R.id.toolbar);
 
@@ -121,18 +126,23 @@ public class ActivityDetailsFragment extends Fragment {
                 int addId = R.id.action_add;
                 int removeId = R.id.action_remove;
 
+                if (itemId == addId) {
+                    Toast.makeText(getActivity(), "Added", Toast.LENGTH_SHORT).show();
 
-                if(itemId == addId){
-                    Toast.makeText(getActivity(),"Added",Toast.LENGTH_LONG).show();
+                    ContentValues cv = new ContentValues();
+                    cv.put(_ID, cocktail.getmDrinkId());
+                    cv.put(DRINK_NAME, cocktail.getmDrinkName());
+                    cv.put(DRINK_THUMB, cocktail.getmDrinkThumb());
+
+                    getActivity().getContentResolver().insert(withId(mCocktailId), cv);
+
 
                     return true;
                 }
 
-                if(itemId == removeId){
-                    Toast.makeText(getActivity(),"Removed",Toast.LENGTH_LONG).show();
-
+                if (itemId == removeId) {
+                    Toast.makeText(getActivity(), "Removed", Toast.LENGTH_SHORT).show();
                     return true;
-
                 }
 
                 return true;
@@ -159,23 +169,6 @@ public class ActivityDetailsFragment extends Fragment {
         return v;
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        menu.clear();
-        inflater.inflate(R.menu.menu_activity_details, menu);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-//        menu.findItem(R.id.action_add).setVisible(false).setEnabled(false);
-    }
-
     private void setUIData() {
 
         mInstructionsText.setText(mCocktailDetails.getmInstructions());
@@ -188,6 +181,7 @@ public class ActivityDetailsFragment extends Fragment {
 
         mInstruction.setText(getResources().getString(R.string.Instructions));
         mIngredients.setText(getResources().getString(R.string.Ingredients));
+
         mDrinkName.setText(cocktail.getmDrinkName());
 
     }

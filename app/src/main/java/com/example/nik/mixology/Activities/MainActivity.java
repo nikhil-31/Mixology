@@ -62,8 +62,6 @@ public class MainActivity extends AppCompatActivity implements DrinkCursorAdapte
 
     }
 
-
-
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -73,7 +71,6 @@ public class MainActivity extends AppCompatActivity implements DrinkCursorAdapte
             super.onBackPressed();
         }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -214,6 +211,7 @@ public class MainActivity extends AppCompatActivity implements DrinkCursorAdapte
             toolbar.setTitle("#Cocktail");
 //            Toast.makeText(getApplicationContext(),"Cocktail",Toast.LENGTH_LONG).show();
         } else if (id == R.id.Saved_Cocktails) {
+
             FragmentSavedDrink fragment = new FragmentSavedDrink();
             android.support.v4.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container, fragment);

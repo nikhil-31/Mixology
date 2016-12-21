@@ -62,7 +62,6 @@ public class ContentProviderHelperMethods {
     public static Cocktail getDrinkFromDatabase(Activity mActivity, String ID,Uri uri) {
         Cocktail cocktail = null;
 
-
         Cursor cursor = mActivity.getContentResolver().query(uri, null, null, null, null);
         assert cursor != null;
         if (cursor.moveToFirst()) {

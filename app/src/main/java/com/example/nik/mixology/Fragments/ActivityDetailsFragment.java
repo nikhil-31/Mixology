@@ -10,6 +10,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -67,7 +68,7 @@ public class ActivityDetailsFragment extends Fragment {
 
     private ArrayList<Measures> mMeasuresArrayList;
 
-
+    Menu menu;
     private boolean isInDatabase;
 
     public ActivityDetailsFragment() {
@@ -88,9 +89,11 @@ public class ActivityDetailsFragment extends Fragment {
 
         cocktail = getActivity().getIntent().getParcelableExtra("Cocktail");
         mCocktailId = cocktail.getmDrinkId();
-        isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(), mCocktailId, CONTENT_URI_VODKA);
 
-        Toast.makeText(getActivity(),"There in database "+isInDatabase,Toast.LENGTH_LONG).show();
+        setHasOptionsMenu(true);
+
+        isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(), mCocktailId, CONTENT_URI_VODKA);
+//        Toast.makeText(getActivity(),"There in database "+isInDatabase,Toast.LENGTH_LONG).show();
 
         mToolbar = (Toolbar) v.findViewById(R.id.toolbar);
 
@@ -105,6 +108,36 @@ public class ActivityDetailsFragment extends Fragment {
         });
 
         mToolbar.inflateMenu(R.menu.menu_activity_details);
+        menu = mToolbar.getMenu();
+
+        menu.findItem(R.id.action_add).setVisible(!isInDatabase);
+        menu.findItem(R.id.action_remove).setVisible(isInDatabase);
+
+        mToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+
+                int itemId = item.getItemId();
+                int addId = R.id.action_add;
+                int removeId = R.id.action_remove;
+
+
+                if(itemId == addId){
+                    Toast.makeText(getActivity(),"Added",Toast.LENGTH_LONG).show();
+
+                    return true;
+                }
+
+                if(itemId == removeId){
+                    Toast.makeText(getActivity(),"Removed",Toast.LENGTH_LONG).show();
+
+                    return true;
+
+                }
+
+                return true;
+            }
+        });
 
         mInstructionsText = (TextView) v.findViewById(R.id.detail_instructions);
         mAlcoholicText = (TextView) v.findViewById(R.id.detail_alcoholic);
@@ -124,6 +157,23 @@ public class ActivityDetailsFragment extends Fragment {
         mIngredientsRecyclerView.setAdapter(mIngredientsAdapter);
 
         return v;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.clear();
+        inflater.inflate(R.menu.menu_activity_details, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+//        menu.findItem(R.id.action_add).setVisible(false).setEnabled(false);
     }
 
     private void setUIData() {

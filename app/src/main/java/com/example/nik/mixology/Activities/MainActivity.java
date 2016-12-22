@@ -219,6 +219,7 @@ public class MainActivity extends AppCompatActivity implements DrinkCursorAdapte
             toolbar.setTitle("#Saved_Cocktail");
 
         } else if (id == R.id.nav_randomixer) {
+
             FragmentRandomixer fragment = new FragmentRandomixer();
             android.support.v4.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container, fragment);

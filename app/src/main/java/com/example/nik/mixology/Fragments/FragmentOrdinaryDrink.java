@@ -50,11 +50,9 @@ public class FragmentOrdinaryDrink extends Fragment implements LoaderManager.Loa
     private DrinkCursorAdapter mDrinkAdapter;
     private ArrayList<Cocktail> mCocktailArrayList = new ArrayList<Cocktail>();
 
-
     // Volley
     private RequestQueue mRequestQueue;
     private VolleySingleton mVolleySingleton;
-
 
     public FragmentOrdinaryDrink() {
     }
@@ -119,7 +117,6 @@ public class FragmentOrdinaryDrink extends Fragment implements LoaderManager.Loa
                         try {
 
                             mCocktailArrayList.addAll(Utils.parseJSONResponse(response));
-
                             Utils.insertData(CONTENT_URI_ORDINARY_DRINK, mCocktailArrayList, getActivity());
 
                         } catch (JSONException e) {

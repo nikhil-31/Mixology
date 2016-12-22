@@ -5,6 +5,8 @@ package com.example.nik.mixology.Model;
  */
 
 public class CocktailDetails {
+
+    private String mThumb;
     private String mName;
     private String mCategory;
     private String mAlcoholic;
@@ -12,6 +14,13 @@ public class CocktailDetails {
     private String mInstructions;
 
 
+    public String getmThumb() {
+        return mThumb;
+    }
+
+    public void setmThumb(String mThumb) {
+        this.mThumb = mThumb;
+    }
 
     public String getmName() {
         return mName;

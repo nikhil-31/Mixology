@@ -4,7 +4,7 @@
     android:id="@+id/content_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.nik.mixology.Fragments.MainActivityFragment"
+    tools:context="com.example.nik.mixology.Fragments.FragmentAlcoholic"
     tools:showIn="@layout/activity_main"
     android:layout_marginTop="?android:attr/actionBarSize">
 

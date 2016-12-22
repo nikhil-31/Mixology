@@ -52,7 +52,7 @@ import static com.example.nik.mixology.data.DrinkProvider.Vodka.CONTENT_URI_VODK
 /**
  * A placeholder fragment containing a simple view.
  */
-public class ActivityDetailsFragment extends Fragment {
+public class FragmentDetails extends Fragment {
 
     private Cocktail cocktail;
     private CocktailDetails mCocktailDetails;
@@ -78,7 +78,7 @@ public class ActivityDetailsFragment extends Fragment {
     Menu menu;
     private boolean isInDatabase;
 
-    public ActivityDetailsFragment() {
+    public FragmentDetails() {
     }
 
     @Override

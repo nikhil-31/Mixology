@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/gray"
     android:fitsSystemWindows="true"
-    tools:context="com.example.nik.mixology.Fragments.ActivityDetailsFragment"
+    tools:context="com.example.nik.mixology.Fragments.FragmentDetails"
     tools:showIn="@layout/activity_details">
 
     <android.support.design.widget.AppBarLayout

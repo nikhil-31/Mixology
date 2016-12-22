@@ -16,7 +16,8 @@ import android.widget.Toast;
 
 import com.example.nik.mixology.Adapters.DrinkCursorAdapter;
 import com.example.nik.mixology.Adapters.MainAdapter;
-import com.example.nik.mixology.Fragments.ActivityDetailsFragment;
+import com.example.nik.mixology.Fragments.FragmentDetails;
+import com.example.nik.mixology.Fragments.FragmentAlcoholic;
 import com.example.nik.mixology.Fragments.FragmentChampagne;
 import com.example.nik.mixology.Fragments.FragmentCocktail;
 import com.example.nik.mixology.Fragments.FragmentCocktailGlass;
@@ -25,8 +26,7 @@ import com.example.nik.mixology.Fragments.FragmentOrdinaryDrink;
 import com.example.nik.mixology.Fragments.FragmentRandomixer;
 import com.example.nik.mixology.Fragments.FragmentSavedDrink;
 import com.example.nik.mixology.Fragments.FragmentVodka;
-import com.example.nik.mixology.Fragments.MainActivityFragment;
-import com.example.nik.mixology.Fragments.NonAlcoholicFragment;
+import com.example.nik.mixology.Fragments.FragmentNonAlcoholic;
 import com.example.nik.mixology.Model.Cocktail;
 import com.example.nik.mixology.R;
 
@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements DrinkCursorAdapte
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_navigation_drawer);
 
-        MainActivityFragment fragment = new MainActivityFragment();
+        FragmentAlcoholic fragment = new FragmentAlcoholic();
         android.support.v4.app.FragmentTransaction fragmentTransaction =
                 getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container, fragment);
@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements DrinkCursorAdapte
             public boolean onQueryTextSubmit(String query) {
                 Toast.makeText(getApplicationContext(), query, Toast.LENGTH_LONG).show();
 //
-//                MainActivityFragment fragment = new MainActivityFragment();
+//                FragmentAlcoholic fragment = new FragmentAlcoholic();
 //                android.support.v4.app.FragmentTransaction fragmentTransaction =
 //                        getSupportFragmentManager().beginTransaction();
 //                fragmentTransaction.replace(R.id.fragment_container,fragment);
@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements DrinkCursorAdapte
 
     @Override
     public void onItemSelected(Cocktail id) {
-        ActivityDetailsFragment detailsFragment = (ActivityDetailsFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_details);
+        FragmentDetails detailsFragment = (FragmentDetails) getSupportFragmentManager().findFragmentById(R.id.fragment_details);
         if (detailsFragment == null) {
             Intent mCocktailDetailIntent = new Intent(this, ActivityDetails.class);
             mCocktailDetailIntent.putExtra("Cocktail", id);
@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements DrinkCursorAdapte
 
         if (id == R.id.nav_Alcoholic) {
 
-            MainActivityFragment fragment = new MainActivityFragment();
+            FragmentAlcoholic fragment = new FragmentAlcoholic();
             android.support.v4.app.FragmentTransaction fragmentTransaction =
                     getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container, fragment);
@@ -146,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements DrinkCursorAdapte
 
         } else if (id == R.id.nav_Non_Alcoholic) {
 
-            NonAlcoholicFragment fragment = new NonAlcoholicFragment();
+            FragmentNonAlcoholic fragment = new FragmentNonAlcoholic();
             android.support.v4.app.FragmentTransaction fragmentTransaction =
                     getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container, fragment);

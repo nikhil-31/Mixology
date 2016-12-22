@@ -1,13 +1,9 @@
 package com.example.nik.mixology.Fragments;
 
-
-import android.content.ContentValues;
 import android.database.Cursor;
-import android.net.Uri;
-import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-
+import android.os.Bundle;
 
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,47 +12,43 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.widget.Toast;
-
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.example.nik.mixology.Adapters.DrinkCursorAdapter;
-import com.example.nik.mixology.Adapters.MainAdapter;
 import com.example.nik.mixology.Model.Cocktail;
 import com.example.nik.mixology.Network.VolleySingleton;
 import com.example.nik.mixology.R;
-import com.example.nik.mixology.data.AlcoholicColumn;
-import com.example.nik.mixology.utils.ContentProviderHelperMethods;
 import com.example.nik.mixology.utils.Utils;
 
-import org.json.JSONArray;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Vector;
 
 import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_ALCOHOLIC;
-import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_NON_ALCOHOLIC;
 import static com.example.nik.mixology.data.DrinkProvider.Alcoholic.CONTENT_URI_ALCOHOLIC;
-import static com.example.nik.mixology.data.DrinkProvider.NonAlcoholic.CONTENT_URI_NON_ALCOHOLIC;
 
+/**
+ * A placeholder fragment containing a simple view.
+ */
+public class FragmentAlcoholic extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+    private static final String LOG_TAG = FragmentAlcoholic.class.getSimpleName();
 
-
-public class NonAlcoholicFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+    private static final int CURSOR_LOADER_ID = 0;
 
     public String STATE_COCKTAIL = "state_cocktails";
-    private static final int CURSOR_LOADER_ID = 1;
 
     private RecyclerView recyclerView;
 
     private ArrayList<Cocktail> mCocktailArrayList = new ArrayList<Cocktail>();
+
 
     private DrinkCursorAdapter mDrinkAdapter;
     // Volley
@@ -64,13 +56,16 @@ public class NonAlcoholicFragment extends Fragment implements LoaderManager.Load
     private VolleySingleton mVolleySingleton;
 
 
-    public NonAlcoholicFragment() {
+    public FragmentAlcoholic() {
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
         getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
+
+
     }
 
     @Override
@@ -91,7 +86,6 @@ public class NonAlcoholicFragment extends Fragment implements LoaderManager.Load
 
         mDrinkAdapter = new DrinkCursorAdapter(getActivity(), null, getActivity());
         recyclerView.setAdapter(mDrinkAdapter);
-
 
         if (savedInstanceState != null) {
             mCocktailArrayList = savedInstanceState.getParcelableArrayList(STATE_COCKTAIL);
@@ -118,18 +112,16 @@ public class NonAlcoholicFragment extends Fragment implements LoaderManager.Load
 
     private void sendJsonRequest() {
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET,
-                COCKTAIL_SEARCH_URL_NON_ALCOHOLIC,
+                COCKTAIL_SEARCH_URL_ALCOHOLIC,
                 null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         Log.d("Response", response.toString());
                         try {
-
                             mCocktailArrayList.addAll(Utils.parseJSONResponse(response));
 
-                            Utils.insertData(CONTENT_URI_NON_ALCOHOLIC, mCocktailArrayList, getActivity());
-
+                            Utils.insertData(CONTENT_URI_ALCOHOLIC, mCocktailArrayList, getActivity());
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -148,7 +140,7 @@ public class NonAlcoholicFragment extends Fragment implements LoaderManager.Load
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoader(getActivity(),
-                CONTENT_URI_NON_ALCOHOLIC,
+                CONTENT_URI_ALCOHOLIC,
                 null,
                 null,
                 null,

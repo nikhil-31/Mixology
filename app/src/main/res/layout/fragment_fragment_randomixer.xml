@@ -1,15 +1,15 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:paddingTop="?attr/actionBarSize"
     tools:context="com.example.nik.mixology.Fragments.FragmentRandomixer">
 
     <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipeToRefreshLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/swipeToRefreshLayout">
+        android:layout_height="match_parent">
 
         <android.support.v4.widget.NestedScrollView
             android:layout_width="match_parent"
@@ -64,8 +64,7 @@
                         android:layout_marginLeft="20dp"
                         android:layout_marginStart="20dp"
                         android:layout_marginTop="15dp"
-                        android:textSize="17sp"
-                        android:text="@string/Instructions"/>
+                        android:textSize="17sp" />
 
                     <TextView
                         android:id="@+id/detail_instructions"
@@ -88,14 +87,13 @@
                         android:layout_marginLeft="20dp"
                         android:layout_marginStart="20dp"
                         android:layout_marginTop="15dp"
-                        android:textSize="17sp"
-                        android:text="@string/Ingredients"/>
+                        android:textSize="17sp" />
 
                     <android.support.v7.widget.RecyclerView
                         android:id="@+id/recycler_ingredients"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingBottom="35dp"/>
+                        android:paddingBottom="35dp" />
 
                 </LinearLayout>
             </android.support.v7.widget.CardView>

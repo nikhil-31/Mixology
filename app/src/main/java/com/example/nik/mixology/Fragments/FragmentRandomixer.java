@@ -106,7 +106,7 @@ public class FragmentRandomixer extends Fragment {
         return rootView;
     }
 
-    public void setUIData() {
+    public void setUIData(){
         mInstructionsText.setText(mCocktailDetails.getmInstructions());
         mAlcoholicText.setText(mCocktailDetails.getmAlcoholic());
 
@@ -136,7 +136,7 @@ public class FragmentRandomixer extends Fragment {
                             mCocktailDetails = parseJSONResponse(response);
                             mMeasuresArrayList = parseJSONResponseMeasure(response);
 
-                            setUIData();
+                                                        setUIData();
 
                             mIngredientsAdapter.setMeasuresList(mMeasuresArrayList);
 

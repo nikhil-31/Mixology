@@ -49,7 +49,7 @@ public class FragmentSavedDrink extends Fragment implements LoaderManager.Loader
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
         recyclerView.setLayoutManager(gridLayoutManager);
 
-        mDrinkAdapter = new DrinkCursorAdapter(getActivity(), null, getActivity());
+        mDrinkAdapter = new DrinkCursorAdapter(getActivity(), null, getActivity(),CONTENT_URI_DRINK_SAVED);
         recyclerView.setAdapter(mDrinkAdapter);
 
         return rootView;

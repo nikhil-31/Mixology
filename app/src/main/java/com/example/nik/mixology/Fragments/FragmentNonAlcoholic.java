@@ -46,7 +46,7 @@ import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_
 import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_NON_ALCOHOLIC;
 import static com.example.nik.mixology.data.DrinkProvider.Alcoholic.CONTENT_URI_ALCOHOLIC;
 import static com.example.nik.mixology.data.DrinkProvider.NonAlcoholic.CONTENT_URI_NON_ALCOHOLIC;
-
+import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.CONTENT_URI_DRINK_SAVED;
 
 
 public class FragmentNonAlcoholic extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -89,7 +89,7 @@ public class FragmentNonAlcoholic extends Fragment implements LoaderManager.Load
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
         recyclerView.setLayoutManager(gridLayoutManager);
 
-        mDrinkAdapter = new DrinkCursorAdapter(getActivity(), null, getActivity());
+        mDrinkAdapter = new DrinkCursorAdapter(getActivity(), null, getActivity(),CONTENT_URI_DRINK_SAVED);
         recyclerView.setAdapter(mDrinkAdapter);
 
 

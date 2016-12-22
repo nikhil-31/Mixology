@@ -8,8 +8,10 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -75,7 +77,7 @@ public class FragmentRandomixer extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_fragment_randomixer, container, false);
-
+        setHasOptionsMenu(true);
         mSwipeToRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeToRefreshLayout);
 
         mInstructionsText = (TextView) rootView.findViewById(R.id.detail_instructions);
@@ -92,6 +94,8 @@ public class FragmentRandomixer extends Fragment {
 
         mIngredientsRecyclerView.setLayoutManager(mLinearLayoutManager);
         mIngredientsRecyclerView.setAdapter(mIngredientsAdapter);
+
+
 
         mSwipeToRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override

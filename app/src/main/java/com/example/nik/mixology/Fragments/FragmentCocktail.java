@@ -36,6 +36,7 @@ import java.util.ArrayList;
 
 import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_COCKTAIL;
 import static com.example.nik.mixology.data.DrinkProvider.Cocktail.CONTENT_URI_COCKTAIL;
+import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.CONTENT_URI_DRINK_SAVED;
 
 
 /**
@@ -83,7 +84,7 @@ public class FragmentCocktail extends Fragment implements LoaderManager.LoaderCa
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
         recyclerView.setLayoutManager(gridLayoutManager);
 
-        mDrinkAdapter = new DrinkCursorAdapter(getActivity(), null, getActivity());
+        mDrinkAdapter = new DrinkCursorAdapter(getActivity(), null, getActivity(),CONTENT_URI_DRINK_SAVED);
         recyclerView.setAdapter(mDrinkAdapter);
 
         if (savedInstanceState != null) {

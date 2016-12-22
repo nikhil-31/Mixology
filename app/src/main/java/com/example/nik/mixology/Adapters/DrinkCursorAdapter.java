@@ -4,16 +4,19 @@ import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.nik.mixology.Model.Cocktail;
 import com.example.nik.mixology.R;
+import com.example.nik.mixology.utils.ContentProviderHelperMethods;
 import com.example.nik.mixology.utils.CursorRecyclerViewAdapter;
 import com.squareup.picasso.Picasso;
 
@@ -31,10 +34,12 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
     private LayoutInflater inflater;
     private Activity mAct;
     private OnAdapterItemSelectedListener mAdapterCallback;
+    private Uri contentUri;
+    private boolean isInDatabase;
 
-    public DrinkCursorAdapter(Context context, Cursor cursor, Activity activity) {
+    public DrinkCursorAdapter(Context context, Cursor cursor, Activity activity, Uri contentUri) {
         super(context, cursor);
-
+        this.contentUri = contentUri;
         this.context = context;
         this.mAct = activity;
         inflater = LayoutInflater.from(context);
@@ -47,6 +52,7 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
         DatabaseUtils.dumpCursor(cursor);
 
         final Cocktail currentCocktail = new Cocktail();
+
         currentCocktail.setmDrinkId(cursor.getString(cursor.getColumnIndex(_ID)));
         currentCocktail.setmDrinkName(cursor.getString(cursor.getColumnIndex(DRINK_NAME)));
         currentCocktail.setmDrinkThumb(cursor.getString(cursor.getColumnIndex(DRINK_THUMB)));
@@ -56,6 +62,18 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
                 .load(cursor.getString(cursor.getColumnIndex(DRINK_THUMB)))
                 .error(R.drawable.empty_glass)
                 .into(viewHolder.image);
+
+        isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(mAct,cursor.getString(cursor.getColumnIndex(_ID)),contentUri);
+        if(isInDatabase){
+            viewHolder.imageButton.setImageResource(R.drawable.ic_favourite_filled_red);
+        }
+        else {
+            viewHolder.imageButton.setImageResource(R.drawable.ic_favourite_outline_red);
+        }
+
+
+
+
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -79,6 +97,7 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
     public class ViewHolder extends RecyclerView.ViewHolder {
         ImageView image;
         TextView textView;
+        ImageView imageButton;
 
 
         public ViewHolder(View itemView) {
@@ -86,6 +105,8 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
 
             image = (ImageView) itemView.findViewById(R.id.cocktail_image);
             textView = (TextView) itemView.findViewById(R.id.cocktail_text);
+            imageButton = (ImageView) itemView.findViewById(R.id.cocktail_button);
+
         }
     }
 

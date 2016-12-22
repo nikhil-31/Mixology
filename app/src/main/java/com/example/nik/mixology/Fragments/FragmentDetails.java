@@ -69,13 +69,13 @@ public class FragmentDetails extends Fragment {
     private TextView mIngredients;
     private ImageView mDrinkImage;
     private TextView mDrinkName;
-    Toolbar mToolbar;
+    private Toolbar mToolbar;
     private RecyclerView mIngredientsRecyclerView;
     private IngredientsAdapter mIngredientsAdapter;
-
+    private Menu menu;
     private ArrayList<Measures> mMeasuresArrayList;
 
-    Menu menu;
+
     private boolean isInDatabase;
 
     public FragmentDetails() {

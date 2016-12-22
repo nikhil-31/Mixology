@@ -33,8 +33,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="350dp"
                         android:contentDescription="@string/drink_image"
-                        android:scaleType="centerCrop"
-                        android:transitionName="@string/transition_name" />
+                        android:scaleType="centerCrop" />
 
                     <TextView
                         android:id="@+id/detail_name"

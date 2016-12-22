@@ -37,6 +37,7 @@ import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_
 import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_INGREDIENT_GIN;
 import static com.example.nik.mixology.data.DrinkProvider.Cocktail.CONTENT_URI_COCKTAIL;
 import static com.example.nik.mixology.data.DrinkProvider.Gin.CONTENT_URI_GIN;
+import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.CONTENT_URI_DRINK_SAVED;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -82,7 +83,7 @@ public class FragmentGin extends Fragment implements LoaderManager.LoaderCallbac
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
         recyclerView.setLayoutManager(gridLayoutManager);
 
-        mDrinkAdapter = new DrinkCursorAdapter(getActivity(), null, getActivity());
+        mDrinkAdapter = new DrinkCursorAdapter(getActivity(), null, getActivity(),CONTENT_URI_DRINK_SAVED);
         recyclerView.setAdapter(mDrinkAdapter);
 
         if (savedInstanceState != null) {

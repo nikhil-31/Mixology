@@ -37,6 +37,7 @@ import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_
 import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_INGREDIENT_GIN;
 import static com.example.nik.mixology.data.DrinkProvider.ChampagneFlute.CONTENT_URI_CHAMPAGNE_FLUTE;
 import static com.example.nik.mixology.data.DrinkProvider.CocktailGlass.CONTENT_URI_COCKTAIL_GLASS;
+import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.CONTENT_URI_DRINK_SAVED;
 import static com.example.nik.mixology.utils.Utils.parseJSONResponse;
 
 /**
@@ -84,7 +85,7 @@ public class FragmentChampagne extends Fragment implements LoaderManager.LoaderC
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
         recyclerView.setLayoutManager(gridLayoutManager);
 
-        mDrinkAdapter = new DrinkCursorAdapter(getActivity(), null, getActivity());
+        mDrinkAdapter = new DrinkCursorAdapter(getActivity(), null, getActivity(),CONTENT_URI_DRINK_SAVED);
         recyclerView.setAdapter(mDrinkAdapter);
 
 

@@ -67,10 +67,7 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
                 .error(R.drawable.empty_glass)
                 .into(viewHolder.image);
 
-
         final int position = cursor.getPosition();
-
-        cursor.moveToPosition(position);
 
         isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(mAct, cursor.getString(cursor.getColumnIndex(_ID)), contentUri);
         if (isInDatabase) {
@@ -83,6 +80,8 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
         viewHolder.imageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                cursor.moveToPosition(position);
                 isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(mAct, cursor.getString(cursor.getColumnIndex(_ID)), contentUri);
                 if (isInDatabase) {
 

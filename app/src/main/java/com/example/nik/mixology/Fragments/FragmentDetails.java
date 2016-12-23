@@ -74,7 +74,7 @@ public class FragmentDetails extends Fragment {
     private IngredientsAdapter mIngredientsAdapter;
     private Menu menu;
     private ArrayList<Measures> mMeasuresArrayList;
-
+    private ImageView mDetailIcon;
 
     private boolean isInDatabase;
 
@@ -99,7 +99,6 @@ public class FragmentDetails extends Fragment {
 
         setHasOptionsMenu(true);
 
-        isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(), mCocktailId, CONTENT_URI_DRINK_SAVED);
 
         mToolbar = (Toolbar) v.findViewById(R.id.toolbar);
 
@@ -113,64 +112,63 @@ public class FragmentDetails extends Fragment {
             }
         });
 
-        mToolbar.inflateMenu(R.menu.menu_activity_details);
-        menu = mToolbar.getMenu();
+//        mToolbar.inflateMenu(R.menu.menu_activity_details);
+//        menu = mToolbar.getMenu();
 
-        menu.findItem(R.id.action_add).setVisible(!isInDatabase);
-        menu.findItem(R.id.action_remove).setVisible(isInDatabase);
+//        menu.findItem(R.id.action_add).setVisible(!isInDatabase);
+//        menu.findItem(R.id.action_remove).setVisible(isInDatabase);
 
-        mToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-
-                int itemId = item.getItemId();
-                int addId = R.id.action_add;
-                int removeId = R.id.action_remove;
-
-                if (itemId == addId) {
-//                    Toast.makeText(getActivity(), "Drink Added", Toast.LENGTH_SHORT).show();
-                    Snackbar.make(getActivity().findViewById(addId), "Drink Added", Snackbar.LENGTH_LONG).show();
-
-                    ContentValues cv = new ContentValues();
-                    cv.put(_ID, cocktail.getmDrinkId());
-                    cv.put(DRINK_NAME, cocktail.getmDrinkName());
-                    cv.put(DRINK_THUMB, cocktail.getmDrinkThumb());
-
-                    getActivity().getContentResolver().insert(withId(mCocktailId), cv);
-
-
-                    /* Re-querying the database to ensure that the data was added
-                     * Then, setting changing the menu item */
-                    boolean inDb = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(), mCocktailId, CONTENT_URI_DRINK_SAVED);
-
-                    menu.findItem(R.id.action_add).setVisible(!inDb);
-                    menu.findItem(R.id.action_remove).setVisible(inDb);
-
-                    return true;
-                }
-
-                if (itemId == removeId) {
-
-//                    Toast.makeText(getActivity(), "Drink Deleted", Toast.LENGTH_SHORT).show();
-                    Snackbar.make(getActivity().findViewById(removeId), "Drink Deleted", Snackbar.LENGTH_LONG).show();
-
-                    getActivity().getContentResolver().delete(withId(mCocktailId),
-                            null,
-                            null);
-
-                     /* Re-querying the database to ensure that the data was added
-                     * Then, setting changing the menu item */
-                    boolean inDb = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(), mCocktailId, CONTENT_URI_DRINK_SAVED);
-
-                    menu.findItem(R.id.action_add).setVisible(!inDb);
-                    menu.findItem(R.id.action_remove).setVisible(inDb);
-
-                    return true;
-                }
-
-                return true;
-            }
-        });
+//        mToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+//            @Override
+//            public boolean onMenuItemClick(MenuItem item) {
+//
+//                int itemId = item.getItemId();
+//                int addId = R.id.action_add;
+//                int removeId = R.id.action_remove;
+//
+//                if (itemId == addId) {
+////                    Toast.makeText(getActivity(), "Drink Added", Toast.LENGTH_SHORT).show();
+//                    Snackbar.make(getActivity().findViewById(addId), "Drink Added", Snackbar.LENGTH_LONG).show();
+//
+//                    ContentValues cv = new ContentValues();
+//                    cv.put(_ID, cocktail.getmDrinkId());
+//                    cv.put(DRINK_NAME, cocktail.getmDrinkName());
+//                    cv.put(DRINK_THUMB, cocktail.getmDrinkThumb());
+//
+//                    getActivity().getContentResolver().insert(withId(mCocktailId), cv);
+//
+//                    /* Re-querying the database to ensure that the data was added
+//                     * Then, setting changing the menu item */
+//                    boolean inDb = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(), mCocktailId, CONTENT_URI_DRINK_SAVED);
+//
+//                    menu.findItem(R.id.action_add).setVisible(!inDb);
+//                    menu.findItem(R.id.action_remove).setVisible(inDb);
+//
+//                    return true;
+//                }
+//
+//                if (itemId == removeId) {
+//
+////                    Toast.makeText(getActivity(), "Drink Deleted", Toast.LENGTH_SHORT).show();
+//                    Snackbar.make(getActivity().findViewById(removeId), "Drink Deleted", Snackbar.LENGTH_LONG).show();
+//
+//                    getActivity().getContentResolver().delete(withId(mCocktailId),
+//                            null,
+//                            null);
+//
+//                     /* Re-querying the database to ensure that the data was added
+//                     * Then, setting changing the menu item */
+//                    boolean inDb = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(), mCocktailId, CONTENT_URI_DRINK_SAVED);
+//
+//                    menu.findItem(R.id.action_add).setVisible(!inDb);
+//                    menu.findItem(R.id.action_remove).setVisible(inDb);
+//
+//                    return true;
+//                }
+//
+//                return true;
+//            }
+//        });
 
         mInstructionsText = (TextView) v.findViewById(R.id.detail_instructions);
         mAlcoholicText = (TextView) v.findViewById(R.id.detail_alcoholic);
@@ -178,7 +176,7 @@ public class FragmentDetails extends Fragment {
         mInstruction = (TextView) v.findViewById(R.id.detail_instructions_text);
         mIngredients = (TextView) v.findViewById(R.id.detail_ingredients_text);
         mDrinkName = (TextView) v.findViewById(R.id.detail_name);
-
+        mDetailIcon = (ImageView) v.findViewById(R.id.detail_fav_button);
         sendJsonRequest();
 
         mIngredientsAdapter = new IngredientsAdapter(getActivity());
@@ -188,6 +186,42 @@ public class FragmentDetails extends Fragment {
 
         mIngredientsRecyclerView.setLayoutManager(mLinearLayoutManager);
         mIngredientsRecyclerView.setAdapter(mIngredientsAdapter);
+
+        mDetailIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(), mCocktailId, CONTENT_URI_DRINK_SAVED);
+
+                if (isInDatabase) {
+                    mDetailIcon.setImageResource(R.drawable.ic_favourite_filled_red);
+
+                    Snackbar.make(mDetailIcon, "Drink Deleted", Snackbar.LENGTH_LONG).show();
+
+                    getActivity().getContentResolver().delete(withId(mCocktailId),
+                            null,
+                            null);
+
+                    mDetailIcon.setImageResource(R.drawable.ic_favourite_outline_red);
+
+                } else {
+                    mDetailIcon.setImageResource(R.drawable.ic_favourite_outline_red);
+
+                    Snackbar.make(mDetailIcon, "Drink Added", Snackbar.LENGTH_LONG).show();
+
+                    ContentValues cv = new ContentValues();
+                    cv.put(_ID, cocktail.getmDrinkId());
+                    cv.put(DRINK_NAME, cocktail.getmDrinkName());
+                    cv.put(DRINK_THUMB, cocktail.getmDrinkThumb());
+
+                    getActivity().getContentResolver().insert(withId(mCocktailId), cv);
+
+                    mDetailIcon.setImageResource(R.drawable.ic_favourite_filled_red);
+                }
+
+            }
+        });
+
+
 
         return v;
     }
@@ -204,8 +238,17 @@ public class FragmentDetails extends Fragment {
 
         mInstruction.setText(getResources().getString(R.string.Instructions));
         mIngredients.setText(getResources().getString(R.string.Ingredients));
-
         mDrinkName.setText(cocktail.getmDrinkName());
+
+        isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(), mCocktailId, CONTENT_URI_DRINK_SAVED);
+
+        if (isInDatabase) {
+            mDetailIcon.setImageResource(R.drawable.ic_favourite_filled_red);
+
+        } else {
+            mDetailIcon.setImageResource(R.drawable.ic_favourite_outline_red);
+
+        }
 
     }
 

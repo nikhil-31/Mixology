@@ -1,6 +1,7 @@
 package com.example.nik.mixology.Adapters;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
@@ -23,6 +24,8 @@ import com.squareup.picasso.Picasso;
 import static com.example.nik.mixology.data.AlcoholicColumn.DRINK_NAME;
 import static com.example.nik.mixology.data.AlcoholicColumn.DRINK_THUMB;
 import static com.example.nik.mixology.data.AlcoholicColumn._ID;
+import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.CONTENT_URI_DRINK_SAVED;
+import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.withId;
 
 /**
  * Created by nik on 12/19/2016.
@@ -48,7 +51,7 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder viewHolder, Cursor cursor) {
+    public void onBindViewHolder(final ViewHolder viewHolder, final Cursor cursor) {
         DatabaseUtils.dumpCursor(cursor);
 
         final Cocktail currentCocktail = new Cocktail();
@@ -63,14 +66,14 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
                 .error(R.drawable.empty_glass)
                 .into(viewHolder.image);
 
-        isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(mAct,cursor.getString(cursor.getColumnIndex(_ID)),contentUri);
-        if(isInDatabase){
+        isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(mAct, cursor.getString(cursor.getColumnIndex(_ID)), contentUri);
+
+        if (isInDatabase) {
             viewHolder.imageButton.setImageResource(R.drawable.ic_favourite_filled_red);
-        }
-        else {
+
+        } else {
             viewHolder.imageButton.setImageResource(R.drawable.ic_favourite_outline_red);
         }
-
 
 
 

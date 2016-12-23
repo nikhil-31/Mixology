@@ -120,11 +120,11 @@ public class MainActivity extends AppCompatActivity implements DrinkCursorAdapte
     }
 
     @Override
-    public void onItemSelected(Cocktail id) {
+    public void onItemSelected(Cocktail cocktail) {
         FragmentDetails detailsFragment = (FragmentDetails) getSupportFragmentManager().findFragmentById(R.id.fragment_details);
         if (detailsFragment == null) {
             Intent mCocktailDetailIntent = new Intent(this, ActivityDetails.class);
-            mCocktailDetailIntent.putExtra("Cocktail", id);
+            mCocktailDetailIntent.putExtra("Cocktail", cocktail);
             startActivity(mCocktailDetailIntent);
         }
 

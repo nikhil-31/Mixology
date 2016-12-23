@@ -1,17 +1,16 @@
 package com.example.nik.mixology.Fragments;
 
 
+import android.content.ContentValues;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -28,6 +27,7 @@ import com.example.nik.mixology.Model.CocktailDetails;
 import com.example.nik.mixology.Model.Measures;
 import com.example.nik.mixology.Network.VolleySingleton;
 import com.example.nik.mixology.R;
+import com.example.nik.mixology.utils.ContentProviderHelperMethods;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -36,8 +36,12 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_BY_ID;
 import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_URL_RANDOM;
+import static com.example.nik.mixology.data.AlcoholicColumn.DRINK_NAME;
+import static com.example.nik.mixology.data.AlcoholicColumn.DRINK_THUMB;
+import static com.example.nik.mixology.data.AlcoholicColumn._ID;
+import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.CONTENT_URI_DRINK_SAVED;
+import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.withId;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -64,6 +68,8 @@ public class FragmentRandomixer extends Fragment {
     private TextView mIngredients;
     private ImageView mDrinkImage;
     private TextView mDrinkName;
+    private ImageView mDetailIcon;
+    private boolean isInDatabase;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -76,7 +82,7 @@ public class FragmentRandomixer extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.fragment_fragment_randomixer, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_randomixer, container, false);
         setHasOptionsMenu(true);
         mSwipeToRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeToRefreshLayout);
 
@@ -86,6 +92,7 @@ public class FragmentRandomixer extends Fragment {
         mInstruction = (TextView) rootView.findViewById(R.id.detail_instructions_text);
         mIngredients = (TextView) rootView.findViewById(R.id.detail_ingredients_text);
         mDrinkName = (TextView) rootView.findViewById(R.id.detail_name);
+        mDetailIcon = (ImageView) rootView.findViewById(R.id.detail_fav_button);
 
         mIngredientsAdapter = new IngredientsAdapter(getActivity());
         mIngredientsRecyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_ingredients);
@@ -95,6 +102,39 @@ public class FragmentRandomixer extends Fragment {
         mIngredientsRecyclerView.setLayoutManager(mLinearLayoutManager);
         mIngredientsRecyclerView.setAdapter(mIngredientsAdapter);
 
+        mDetailIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(), mCocktailDetails.getmId(), CONTENT_URI_DRINK_SAVED);
+
+                if (isInDatabase) {
+                    mDetailIcon.setImageResource(R.drawable.ic_favourite_filled_red);
+
+                    Snackbar.make(mDetailIcon, "Drink Deleted", Snackbar.LENGTH_LONG).show();
+
+                    getActivity().getContentResolver().delete(withId(mCocktailDetails.getmId()),
+                            null,
+                            null);
+
+                    mDetailIcon.setImageResource(R.drawable.ic_favourite_outline_red);
+
+                } else {
+                    mDetailIcon.setImageResource(R.drawable.ic_favourite_outline_red);
+
+                    Snackbar.make(mDetailIcon, "Drink Added", Snackbar.LENGTH_LONG).show();
+
+                    ContentValues cv = new ContentValues();
+                    cv.put(_ID, mCocktailDetails.getmId());
+                    cv.put(DRINK_NAME, mCocktailDetails.getmName());
+                    cv.put(DRINK_THUMB, mCocktailDetails.getmThumb());
+
+                    getActivity().getContentResolver().insert(withId(mCocktailDetails.getmId()), cv);
+
+                    mDetailIcon.setImageResource(R.drawable.ic_favourite_filled_red);
+                }
+
+            }
+        });
 
 
         mSwipeToRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -110,7 +150,7 @@ public class FragmentRandomixer extends Fragment {
         return rootView;
     }
 
-    public void setUIData(){
+    public void setUIData() {
         mInstructionsText.setText(mCocktailDetails.getmInstructions());
         mAlcoholicText.setText(mCocktailDetails.getmAlcoholic());
 
@@ -123,6 +163,16 @@ public class FragmentRandomixer extends Fragment {
         mIngredients.setText(getResources().getString(R.string.Ingredients));
 
         mDrinkName.setText(mCocktailDetails.getmName());
+
+        isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(),mCocktailDetails.getmId() , CONTENT_URI_DRINK_SAVED);
+
+        if (isInDatabase) {
+            mDetailIcon.setImageResource(R.drawable.ic_favourite_filled_red);
+
+        } else {
+            mDetailIcon.setImageResource(R.drawable.ic_favourite_outline_red);
+
+        }
 
 
     }
@@ -140,7 +190,7 @@ public class FragmentRandomixer extends Fragment {
                             mCocktailDetails = parseJSONResponse(response);
                             mMeasuresArrayList = parseJSONResponseMeasure(response);
 
-                                                        setUIData();
+                            setUIData();
 
                             mIngredientsAdapter.setMeasuresList(mMeasuresArrayList);
 
@@ -166,6 +216,7 @@ public class FragmentRandomixer extends Fragment {
     public CocktailDetails parseJSONResponse(JSONObject response) throws JSONException {
 
         final String DRINKS = "drinks";
+        final String ID = "idDrink";
         final String NAME = "strDrink";
         final String CATEGORY = "strCategory";
         final String ALCOHOLIC = "strAlcoholic";
@@ -190,6 +241,7 @@ public class FragmentRandomixer extends Fragment {
             details.setmGlass(jsonObject.getString(GLASS));
             details.setmInstructions(jsonObject.getString(INSTRUCTIONS));
             details.setmThumb(jsonObject.getString(THUMB));
+            details.setmId(jsonObject.getString(ID));
 
         }
         return details;

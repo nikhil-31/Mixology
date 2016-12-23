@@ -6,6 +6,8 @@ package com.example.nik.mixology.Model;
 
 public class CocktailDetails {
 
+
+    private String mId;
     private String mThumb;
     private String mName;
     private String mCategory;
@@ -13,6 +15,13 @@ public class CocktailDetails {
     private String mGlass;
     private String mInstructions;
 
+    public String getmId() {
+        return mId;
+    }
+
+    public void setmId(String mId) {
+        this.mId = mId;
+    }
 
     public String getmThumb() {
         return mThumb;

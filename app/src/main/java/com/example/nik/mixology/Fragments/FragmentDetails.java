@@ -12,8 +12,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -32,7 +30,6 @@ import com.example.nik.mixology.Model.Measures;
 import com.example.nik.mixology.Network.VolleySingleton;
 import com.example.nik.mixology.R;
 import com.example.nik.mixology.utils.ContentProviderHelperMethods;
-import com.example.nik.mixology.utils.Utils;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -47,7 +44,7 @@ import static com.example.nik.mixology.data.AlcoholicColumn.DRINK_THUMB;
 import static com.example.nik.mixology.data.AlcoholicColumn._ID;
 import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.CONTENT_URI_DRINK_SAVED;
 import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.withId;
-import static com.example.nik.mixology.data.DrinkProvider.Vodka.CONTENT_URI_VODKA;
+
 
 /**
  * A placeholder fragment containing a simple view.

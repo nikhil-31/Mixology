@@ -15,7 +15,6 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.example.nik.mixology.Adapters.DrinkCursorAdapter;
-import com.example.nik.mixology.Adapters.MainAdapter;
 import com.example.nik.mixology.Fragments.FragmentDetails;
 import com.example.nik.mixology.Fragments.FragmentAlcoholic;
 import com.example.nik.mixology.Fragments.FragmentChampagne;
@@ -30,8 +29,8 @@ import com.example.nik.mixology.Fragments.FragmentNonAlcoholic;
 import com.example.nik.mixology.Model.Cocktail;
 import com.example.nik.mixology.R;
 
-public class MainActivity extends AppCompatActivity implements DrinkCursorAdapter.OnAdapterItemSelectedListener, MainAdapter.OnAdapterItemSelectedListener
-        , NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements DrinkCursorAdapter.OnAdapterItemSelectedListener,
+        NavigationView.OnNavigationItemSelectedListener {
 
     Toolbar toolbar = null;
     NavigationView navigationView = null;
@@ -85,11 +84,7 @@ public class MainActivity extends AppCompatActivity implements DrinkCursorAdapte
             public boolean onQueryTextSubmit(String query) {
                 Toast.makeText(getApplicationContext(), query, Toast.LENGTH_LONG).show();
 //
-//                FragmentAlcoholic fragment = new FragmentAlcoholic();
-//                android.support.v4.app.FragmentTransaction fragmentTransaction =
-//                        getSupportFragmentManager().beginTransaction();
-//                fragmentTransaction.replace(R.id.fragment_container,fragment);
-//                fragmentTransaction.commit();
+
 
                 return false;
             }
@@ -111,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements DrinkCursorAdapte
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
+
         if (id == R.id.action_settings) {
             return true;
         }

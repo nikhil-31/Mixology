@@ -21,13 +21,11 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.example.nik.mixology.Adapters.DrinkCursorAdapter;
-import com.example.nik.mixology.Adapters.MainAdapter;
 import com.example.nik.mixology.Model.Cocktail;
 import com.example.nik.mixology.Network.VolleySingleton;
 import com.example.nik.mixology.R;
 import com.example.nik.mixology.utils.Utils;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -49,11 +47,10 @@ public class FragmentCocktail extends Fragment implements LoaderManager.LoaderCa
     private static final int CURSOR_LOADER_ID = 1;
 
     private RecyclerView recyclerView;
-
     private ArrayList<Cocktail> mCocktailArrayList = new ArrayList<Cocktail>();
 
-    private MainAdapter mAdapter;
     private DrinkCursorAdapter mDrinkAdapter;
+
     // Volley
     private RequestQueue mRequestQueue;
     private VolleySingleton mVolleySingleton;

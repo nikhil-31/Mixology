@@ -288,14 +288,14 @@ public class FragmentRandomixer extends Fragment {
         for (int i = 0; i < results.length(); i++) {
 
             JSONObject jsonObject = results.getJSONObject(i);
-            if (jsonObject.getString(INGREDIENT_1).length() != 0) {
+            if (jsonObject.getString(INGREDIENT_1).length() != 0 ) {
                 Measures measure = new Measures();
                 measure.setIngredient(jsonObject.getString(INGREDIENT_1));
                 measure.setMeasure(jsonObject.getString(MEASURE_1));
                 mMeasures.add(measure);
             }
 
-            if (jsonObject.getString(INGREDIENT_2).length() != 0) {
+            if (jsonObject.getString(INGREDIENT_2).length() != 0 ) {
                 Measures measure = new Measures();
                 measure.setIngredient(jsonObject.getString(INGREDIENT_2));
                 measure.setMeasure(jsonObject.getString(MEASURE_2));

@@ -32,10 +32,19 @@
         </activity>
 
         <provider
+            android:name=".data.generated.DrinkProvider"
             android:authorities="com.example.nik.mixology.data.DrinkProvider"
-            android:name="com.example.nik.mixology.data.generated.DrinkProvider"
-            android:exported="false"/>
+            android:exported="false" />
 
+        <activity
+            android:name=".Activities.ActivitySearch"
+            android:label="@string/title_activity_search"
+            android:parentActivityName=".Activities.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.nik.mixology.Activities.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

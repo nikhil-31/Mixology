@@ -82,16 +82,18 @@ public class MainActivity extends AppCompatActivity implements DrinkCursorAdapte
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                Toast.makeText(getApplicationContext(), query, Toast.LENGTH_LONG).show();
-//
 
+                Toast.makeText(getApplicationContext(), query, Toast.LENGTH_LONG).show();
+
+                Intent intent = new Intent(getApplicationContext(), ActivitySearch.class);
+                intent.putExtra("Query", query);
+                startActivity(intent);
 
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-
                 return false;
             }
         });

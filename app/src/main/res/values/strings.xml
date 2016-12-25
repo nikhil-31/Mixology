@@ -16,4 +16,5 @@
     <string name="menu_save">save</string>
     <string name="save">Save</string>
     <string name="delete">delete</string>
+    <string name="title_activity_search">ActivitySearch</string>
 </resources>

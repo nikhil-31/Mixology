@@ -23,6 +23,7 @@ import com.example.nik.mixology.Adapters.DrinkCursorAdapter;
 import com.example.nik.mixology.Model.Cocktail;
 import com.example.nik.mixology.Network.VolleySingleton;
 import com.example.nik.mixology.R;
+import com.example.nik.mixology.utils.ContentProviderHelperMethods;
 import com.example.nik.mixology.utils.Utils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -111,7 +112,7 @@ public class FragmentNonAlcoholic extends Fragment implements LoaderManager.Load
 
                             mCocktailArrayList.addAll(Utils.parseJSONResponse(response));
 
-                            Utils.insertData(CONTENT_URI_NON_ALCOHOLIC, mCocktailArrayList, getActivity());
+                            ContentProviderHelperMethods.insertData(CONTENT_URI_NON_ALCOHOLIC, mCocktailArrayList, getActivity());
 
 
                         } catch (JSONException e) {

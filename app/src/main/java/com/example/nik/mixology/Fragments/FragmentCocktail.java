@@ -24,6 +24,7 @@ import com.example.nik.mixology.Adapters.DrinkCursorAdapter;
 import com.example.nik.mixology.Model.Cocktail;
 import com.example.nik.mixology.Network.VolleySingleton;
 import com.example.nik.mixology.R;
+import com.example.nik.mixology.utils.ContentProviderHelperMethods;
 import com.example.nik.mixology.utils.Utils;
 
 import org.json.JSONException;
@@ -118,7 +119,7 @@ public class FragmentCocktail extends Fragment implements LoaderManager.LoaderCa
 
                             mCocktailArrayList.addAll(Utils.parseJSONResponse(response));
 
-                            Utils.insertData(CONTENT_URI_COCKTAIL, mCocktailArrayList, getActivity());
+                            ContentProviderHelperMethods.insertData(CONTENT_URI_COCKTAIL, mCocktailArrayList, getActivity());
 
                         } catch (JSONException e) {
                             e.printStackTrace();

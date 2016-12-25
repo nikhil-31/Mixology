@@ -25,6 +25,7 @@ import com.example.nik.mixology.Adapters.DrinkCursorAdapter;
 import com.example.nik.mixology.Model.Cocktail;
 import com.example.nik.mixology.Network.VolleySingleton;
 import com.example.nik.mixology.R;
+import com.example.nik.mixology.utils.ContentProviderHelperMethods;
 import com.example.nik.mixology.utils.Utils;
 
 import org.json.JSONArray;
@@ -125,7 +126,7 @@ public class FragmentChampagne extends Fragment implements LoaderManager.LoaderC
 
                             mCocktailArrayList.addAll(Utils.parseJSONResponse(response));
 
-                            Utils.insertData(CONTENT_URI_CHAMPAGNE_FLUTE, mCocktailArrayList, getActivity());
+                            ContentProviderHelperMethods.insertData(CONTENT_URI_CHAMPAGNE_FLUTE, mCocktailArrayList, getActivity());
 
                         } catch (JSONException e) {
                             e.printStackTrace();

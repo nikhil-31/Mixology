@@ -22,6 +22,7 @@ import java.util.Vector;
 public class Utils {
 
     public static ArrayList<Cocktail> parseJSONResponse(JSONObject response) throws JSONException {
+
         final String DRINKS = "drinks";
         final String COCKTAIL_NAME = "strDrink";
         final String COCKTAIL_THUMBNAIL = "strDrinkThumb";
@@ -44,10 +45,15 @@ public class Utils {
 
             if (Thumb != STATE_NULL) {
 
-                cocktail.setmDrinkName(jsonObject.getString(COCKTAIL_NAME));
-                cocktail.setmDrinkThumb(jsonObject.getString(COCKTAIL_THUMBNAIL));
-                cocktail.setmDrinkId(jsonObject.getString(COCKTAIL_ID));
-
+                if(jsonObject.getString(COCKTAIL_NAME).length() != 0  && !jsonObject.isNull(COCKTAIL_NAME)){
+                    cocktail.setmDrinkName(jsonObject.getString(COCKTAIL_NAME));
+                }
+                if(jsonObject.getString(COCKTAIL_THUMBNAIL).length() != 0  && !jsonObject.isNull(COCKTAIL_THUMBNAIL)){
+                    cocktail.setmDrinkThumb(jsonObject.getString(COCKTAIL_THUMBNAIL));
+                }
+                if(jsonObject.getString(COCKTAIL_ID).length() != 0  && !jsonObject.isNull(COCKTAIL_ID)){
+                    cocktail.setmDrinkId(jsonObject.getString(COCKTAIL_ID));
+                }
                 data.add(cocktail);
 
             }

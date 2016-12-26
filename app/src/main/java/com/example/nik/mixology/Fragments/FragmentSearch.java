@@ -25,6 +25,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import javax.microedition.khronos.opengles.GL;
+
 import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_BY_ID;
 import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_BY_NAME;
 
@@ -82,14 +84,15 @@ public class FragmentSearch extends Fragment {
 
                             Log.d("Data", response.toString());
 
-//
+//                            Toast.makeText(getActivity(), "Response " + response, Toast.LENGTH_LONG).show();
 
                             textView.setText(response.toString());
-//
+//                            Toast.makeText(getActivity(), " Wot ", Toast.LENGTH_LONG).show();
 
                             mCocktailDetails = parseJSONResponse(response);
 
                             Toast.makeText(getActivity(), mCocktailDetails.get(0).getmName(), Toast.LENGTH_LONG).show();
+
 
 
 
@@ -132,11 +135,24 @@ public class FragmentSearch extends Fragment {
 
             CocktailDetails details = new CocktailDetails();
 
-            details.setmName(jsonObject.getString(NAME));
-            details.setmCategory(jsonObject.getString(CATEGORY));
-            details.setmAlcoholic(jsonObject.getString(ALCOHOLIC));
-            details.setmGlass(jsonObject.getString(GLASS));
-            details.setmInstructions(jsonObject.getString(INSTRUCTIONS));
+            if (jsonObject.getString(NAME).length() != 0  && !jsonObject.isNull(NAME)){
+                details.setmName(jsonObject.getString(NAME));
+            }
+
+            if (jsonObject.getString(CATEGORY).length() != 0  && !jsonObject.isNull(CATEGORY)){
+                details.setmCategory(jsonObject.getString(CATEGORY));
+            }
+
+            if(jsonObject.getString(ALCOHOLIC).length() != 0  && !jsonObject.isNull(ALCOHOLIC)){
+                details.setmAlcoholic(jsonObject.getString(ALCOHOLIC));
+            }
+            if(jsonObject.getString(GLASS).length() != 0  && !jsonObject.isNull(GLASS)){
+                details.setmGlass(jsonObject.getString(GLASS));
+            }
+
+            if(jsonObject.getString(INSTRUCTIONS).length() != 0  && !jsonObject.isNull(INSTRUCTIONS)){
+                details.setmInstructions(jsonObject.getString(INSTRUCTIONS));
+            }
 
             mdetailList.add(details);
 

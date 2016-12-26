@@ -15,11 +15,15 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.example.nik.mixology.Model.CocktailDetails;
 import com.example.nik.mixology.Network.VolleySingleton;
 import com.example.nik.mixology.R;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_BY_ID;
 import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_BY_NAME;
@@ -37,7 +41,9 @@ public class FragmentSearch extends Fragment {
     // Volley
     private RequestQueue mRequestQueue;
     private VolleySingleton mVolleySingleton;
-    TextView textView;
+    private TextView textView;
+    private ArrayList<CocktailDetails> mCocktailDetails = new ArrayList<>();
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -71,22 +77,25 @@ public class FragmentSearch extends Fragment {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        Log.d("Data", response.toString());
 
-                        Toast.makeText(getActivity(), "Response " + response, Toast.LENGTH_LONG).show();
+                        try {
 
-                        textView.setText(response.toString());
+                            Log.d("Data", response.toString());
 
-//                            mCocktailDetails = parseJSONResponse(response);
-//                            mMeasuresArrayList = parseJSONResponseMeasure(response);
 //
-//                            setUIData();
+
+                            textView.setText(response.toString());
 //
-//                            mIngredientsAdapter.setMeasuresList(mMeasuresArrayList);
-//
-//                            Log.d("Instructions", mCocktailDetails.getmInstructions());
+
+                            mCocktailDetails = parseJSONResponse(response);
+
+                            Toast.makeText(getActivity(), mCocktailDetails.get(0).getmName(), Toast.LENGTH_LONG).show();
 
 
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -96,4 +105,44 @@ public class FragmentSearch extends Fragment {
         });
         mRequestQueue.add(request);
     }
+
+    public ArrayList<CocktailDetails> parseJSONResponse(JSONObject response) throws JSONException {
+
+        final String DRINKS = "drinks";
+        final String NAME = "strDrink";
+        final String CATEGORY = "strCategory";
+        final String ALCOHOLIC = "strAlcoholic";
+        final String GLASS = "strGlass";
+        final String INSTRUCTIONS = "strInstructions";
+
+        ArrayList<CocktailDetails> mdetailList = new ArrayList<>();
+
+        if (response == null || response.length() == 0) {
+
+            Toast.makeText(getActivity(), "Invalid input", Toast.LENGTH_LONG).show();
+
+            return mdetailList;
+        }
+
+        JSONArray results = response.getJSONArray(DRINKS);
+
+        for (int i = 0; i < results.length(); i++) {
+
+            JSONObject jsonObject = results.getJSONObject(i);
+
+            CocktailDetails details = new CocktailDetails();
+
+            details.setmName(jsonObject.getString(NAME));
+            details.setmCategory(jsonObject.getString(CATEGORY));
+            details.setmAlcoholic(jsonObject.getString(ALCOHOLIC));
+            details.setmGlass(jsonObject.getString(GLASS));
+            details.setmInstructions(jsonObject.getString(INSTRUCTIONS));
+
+            mdetailList.add(details);
+
+        }
+        return mdetailList;
+    }
+
+
 }

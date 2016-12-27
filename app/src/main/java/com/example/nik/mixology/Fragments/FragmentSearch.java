@@ -89,7 +89,6 @@ public class FragmentSearch extends Fragment {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-
                         try {
                             Log.d("Data", response.toString());
 
@@ -112,6 +111,7 @@ public class FragmentSearch extends Fragment {
     public ArrayList<CocktailDetails> parseJSONResponse(JSONObject response) throws JSONException {
 
         final String DRINKS = "drinks";
+        final String ID = "idDrink";
         final String NAME = "strDrink";
         final String CATEGORY = "strCategory";
         final String ALCOHOLIC = "strAlcoholic";
@@ -155,6 +155,10 @@ public class FragmentSearch extends Fragment {
 
             if (jsonObject.getString(THUMBNAIL).length() != 0) {
                 details.setmThumb(jsonObject.getString(THUMBNAIL));
+            }
+
+            if(jsonObject.getString(ID).length() != 0){
+                details.setmId(jsonObject.getString(ID));
             }
 
             mdetailList.add(details);

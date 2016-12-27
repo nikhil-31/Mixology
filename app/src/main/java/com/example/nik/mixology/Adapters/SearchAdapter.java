@@ -1,6 +1,9 @@
 package com.example.nik.mixology.Adapters;
 
+import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,14 +11,19 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.nik.mixology.Model.Cocktail;
 import com.example.nik.mixology.Model.CocktailDetails;
 import com.example.nik.mixology.R;
+import com.example.nik.mixology.utils.ContentProviderHelperMethods;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Random;
+
+import static com.example.nik.mixology.data.AlcoholicColumn.DRINK_NAME;
+import static com.example.nik.mixology.data.AlcoholicColumn.DRINK_THUMB;
+import static com.example.nik.mixology.data.AlcoholicColumn._ID;
+import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.CONTENT_URI_DRINK_SAVED;
+import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.withId;
+
 
 /**
  * Created by nik on 12/28/2016.
@@ -23,13 +31,14 @@ import java.util.Random;
 
 public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchViewHolder> {
 
-    private Context mContext;
     private LayoutInflater mInflater;
     private ArrayList<CocktailDetails> mCocktailDetails = new ArrayList<>();
+    private boolean isInDatabase;
+    private Activity mAct;
 
-    public SearchAdapter(Context context) {
-        mContext = context;
-        mInflater = LayoutInflater.from(context);
+    public SearchAdapter(Activity activity) {
+        mAct = activity;
+        mInflater = LayoutInflater.from(activity);
     }
 
     public void setCocktailList(ArrayList<CocktailDetails> cocktailList) {
@@ -45,14 +54,59 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
     }
 
     @Override
-    public void onBindViewHolder(SearchViewHolder holder, int position) {
+    public void onBindViewHolder(final SearchViewHolder holder, int position) {
 
         final CocktailDetails currentCocktail = mCocktailDetails.get(position);
         holder.textView.setText(currentCocktail.getmName());
-        Picasso.with(mContext)
+        Picasso.with(mAct)
                 .load(currentCocktail.getmThumb())
                 .error(R.drawable.empty_glass)
                 .into(holder.image);
+
+        isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(mAct,currentCocktail.getmId() , CONTENT_URI_DRINK_SAVED);
+
+        if (isInDatabase) {
+            holder.imageButton.setImageResource(R.drawable.ic_fav_filled);
+
+        } else {
+            holder.imageButton.setImageResource(R.drawable.ic_fav_unfilled_black);
+
+        }
+
+        holder.imageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(mAct, currentCocktail.getmId(), CONTENT_URI_DRINK_SAVED);
+
+                if (isInDatabase) {
+                    holder.imageButton.setImageResource(R.drawable.ic_fav_filled);
+
+                    Snackbar.make(holder.imageButton, "Drink Deleted", Snackbar.LENGTH_LONG).show();
+
+                    mAct.getContentResolver().delete(withId(currentCocktail.getmId()),
+                            null,
+                            null);
+
+                    holder.imageButton.setImageResource(R.drawable.ic_fav_unfilled_black);
+
+                } else {
+                    holder.imageButton.setImageResource(R.drawable.ic_fav_unfilled_black);
+
+                    Snackbar.make(holder.imageButton, "Drink Added", Snackbar.LENGTH_LONG).show();
+
+                    ContentValues cv = new ContentValues();
+                    cv.put(_ID, currentCocktail.getmId());
+                    cv.put(DRINK_NAME, currentCocktail.getmName());
+                    cv.put(DRINK_THUMB, currentCocktail.getmThumb());
+
+                    mAct.getContentResolver().insert(withId(currentCocktail.getmId()), cv);
+
+                    holder.imageButton.setImageResource(R.drawable.ic_fav_filled);
+                }
+
+
+            }
+        });
 
     }
 
@@ -64,13 +118,13 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
     public class SearchViewHolder extends RecyclerView.ViewHolder {
         ImageView image;
         TextView textView;
-        ImageView favImage;
+        ImageView imageButton;
 
         public SearchViewHolder(View itemView) {
             super(itemView);
             image = (ImageView) itemView.findViewById(R.id.list_search_icon);
             textView = (TextView) itemView.findViewById(R.id.list_search_text);
-            favImage = (ImageView) itemView.findViewById(R.id.list_search_fav);
+            imageButton = (ImageView) itemView.findViewById(R.id.list_search_fav);
         }
     }
 }

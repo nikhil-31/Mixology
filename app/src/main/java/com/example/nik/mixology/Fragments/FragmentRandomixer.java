@@ -108,7 +108,7 @@ public class FragmentRandomixer extends Fragment {
                 isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(), mCocktailDetails.getmId(), CONTENT_URI_DRINK_SAVED);
 
                 if (isInDatabase) {
-                    mDetailIcon.setImageResource(R.drawable.ic_favourite_filled_red);
+                    mDetailIcon.setImageResource(R.drawable.ic_fav_filled);
 
                     Snackbar.make(mDetailIcon, "Drink Deleted", Snackbar.LENGTH_LONG).show();
 
@@ -116,10 +116,10 @@ public class FragmentRandomixer extends Fragment {
                             null,
                             null);
 
-                    mDetailIcon.setImageResource(R.drawable.ic_favourite_outline_red);
+                    mDetailIcon.setImageResource(R.drawable.ic_fav_unfilled_black);
 
                 } else {
-                    mDetailIcon.setImageResource(R.drawable.ic_favourite_outline_red);
+                    mDetailIcon.setImageResource(R.drawable.ic_fav_unfilled_black);
 
                     Snackbar.make(mDetailIcon, "Drink Added", Snackbar.LENGTH_LONG).show();
 
@@ -130,7 +130,7 @@ public class FragmentRandomixer extends Fragment {
 
                     getActivity().getContentResolver().insert(withId(mCocktailDetails.getmId()), cv);
 
-                    mDetailIcon.setImageResource(R.drawable.ic_favourite_filled_red);
+                    mDetailIcon.setImageResource(R.drawable.ic_fav_filled);
                 }
 
             }
@@ -167,10 +167,10 @@ public class FragmentRandomixer extends Fragment {
         isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(),mCocktailDetails.getmId() , CONTENT_URI_DRINK_SAVED);
 
         if (isInDatabase) {
-            mDetailIcon.setImageResource(R.drawable.ic_favourite_filled_red);
+            mDetailIcon.setImageResource(R.drawable.ic_fav_filled);
 
         } else {
-            mDetailIcon.setImageResource(R.drawable.ic_favourite_outline_red);
+            mDetailIcon.setImageResource(R.drawable.ic_fav_unfilled_black);
 
         }
 

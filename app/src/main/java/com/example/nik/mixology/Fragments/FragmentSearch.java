@@ -3,6 +3,7 @@ package com.example.nik.mixology.Fragments;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,7 +46,7 @@ public class FragmentSearch extends Fragment {
     private VolleySingleton mVolleySingleton;
     private TextView textView;
     private ArrayList<CocktailDetails> mCocktailDetails = new ArrayList<>();
-
+    private RecyclerView mRecyclerView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -65,7 +66,8 @@ public class FragmentSearch extends Fragment {
             Query = extras.getString("Query");
         }
 
-        textView = (TextView) rootView.findViewById(R.id.SearchText);
+        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_search);
+
         textView.setText(Query);
 
         sendJsonRequest();
@@ -81,20 +83,9 @@ public class FragmentSearch extends Fragment {
                     public void onResponse(JSONObject response) {
 
                         try {
-
                             Log.d("Data", response.toString());
 
-//                            Toast.makeText(getActivity(), "Response " + response, Toast.LENGTH_LONG).show();
-
-                            textView.setText(response.toString());
-//                            Toast.makeText(getActivity(), " Wot ", Toast.LENGTH_LONG).show();
-
                             mCocktailDetails = parseJSONResponse(response);
-
-                            Toast.makeText(getActivity(), mCocktailDetails.get(0).getmName(), Toast.LENGTH_LONG).show();
-
-
-
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -121,9 +112,7 @@ public class FragmentSearch extends Fragment {
         ArrayList<CocktailDetails> mdetailList = new ArrayList<>();
 
         if (response == null || response.length() == 0) {
-
             Toast.makeText(getActivity(), "Invalid input", Toast.LENGTH_LONG).show();
-
             return mdetailList;
         }
 
@@ -135,22 +124,22 @@ public class FragmentSearch extends Fragment {
 
             CocktailDetails details = new CocktailDetails();
 
-            if (jsonObject.getString(NAME).length() != 0  && !jsonObject.isNull(NAME)){
+            if (jsonObject.getString(NAME).length() != 0 && !jsonObject.isNull(NAME)) {
                 details.setmName(jsonObject.getString(NAME));
             }
 
-            if (jsonObject.getString(CATEGORY).length() != 0  && !jsonObject.isNull(CATEGORY)){
+            if (jsonObject.getString(CATEGORY).length() != 0 && !jsonObject.isNull(CATEGORY)) {
                 details.setmCategory(jsonObject.getString(CATEGORY));
             }
 
-            if(jsonObject.getString(ALCOHOLIC).length() != 0  && !jsonObject.isNull(ALCOHOLIC)){
+            if (jsonObject.getString(ALCOHOLIC).length() != 0 && !jsonObject.isNull(ALCOHOLIC)) {
                 details.setmAlcoholic(jsonObject.getString(ALCOHOLIC));
             }
-            if(jsonObject.getString(GLASS).length() != 0  && !jsonObject.isNull(GLASS)){
+            if (jsonObject.getString(GLASS).length() != 0 && !jsonObject.isNull(GLASS)) {
                 details.setmGlass(jsonObject.getString(GLASS));
             }
 
-            if(jsonObject.getString(INSTRUCTIONS).length() != 0  && !jsonObject.isNull(INSTRUCTIONS)){
+            if (jsonObject.getString(INSTRUCTIONS).length() != 0 && !jsonObject.isNull(INSTRUCTIONS)) {
                 details.setmInstructions(jsonObject.getString(INSTRUCTIONS));
             }
 

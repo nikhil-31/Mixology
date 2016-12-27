@@ -174,6 +174,7 @@ public class FragmentDetails extends Fragment {
         mIngredients = (TextView) v.findViewById(R.id.detail_ingredients_text);
         mDrinkName = (TextView) v.findViewById(R.id.detail_name);
         mDetailIcon = (ImageView) v.findViewById(R.id.detail_fav_button);
+
         sendJsonRequest();
 
         mIngredientsAdapter = new IngredientsAdapter(getActivity());

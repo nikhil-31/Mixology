@@ -38,13 +38,11 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
     private LayoutInflater inflater;
     private Activity mAct;
     private OnAdapterItemSelectedListener mAdapterCallback;
-    private Uri contentUri;
     private boolean isInDatabase;
 
-    public DrinkCursorAdapter(Context context, Cursor cursor, Activity activity, Uri contentUri) {
-        super(context, cursor);
-        this.contentUri = contentUri;
-        this.context = context;
+    public DrinkCursorAdapter(Cursor cursor, Activity activity) {
+        super(activity, cursor);
+        this.context = activity;
         this.mAct = activity;
         inflater = LayoutInflater.from(context);
         mAdapterCallback = (OnAdapterItemSelectedListener) mAct;
@@ -69,7 +67,7 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
 
         final int position = cursor.getPosition();
 
-        isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(mAct, cursor.getString(cursor.getColumnIndex(_ID)), contentUri);
+        isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(mAct, cursor.getString(cursor.getColumnIndex(_ID)), CONTENT_URI_DRINK_SAVED);
         if (isInDatabase) {
             viewHolder.imageButton.setImageResource(R.drawable.ic_fav_filled);
 
@@ -82,15 +80,13 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
             public void onClick(View view) {
 
                 cursor.moveToPosition(position);
-                isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(mAct, cursor.getString(cursor.getColumnIndex(_ID)), contentUri);
+                isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(mAct, cursor.getString(cursor.getColumnIndex(_ID)), CONTENT_URI_DRINK_SAVED);
                 if (isInDatabase) {
 
                     Snackbar.make(viewHolder.imageButton, "Drink Deleted", Snackbar.LENGTH_LONG).show();
-
                     mAct.getContentResolver().delete(withId(cursor.getString(cursor.getColumnIndex(_ID))),
                             null,
                             null);
-
                     viewHolder.imageButton.setImageResource(R.drawable.ic_fav_unfilled_black);
 
                 } else {

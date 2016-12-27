@@ -73,7 +73,7 @@ public class FragmentNonAlcoholic extends Fragment implements LoaderManager.Load
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
         recyclerView.setLayoutManager(gridLayoutManager);
 
-        mDrinkAdapter = new DrinkCursorAdapter(getActivity(), null, getActivity(),CONTENT_URI_DRINK_SAVED);
+        mDrinkAdapter = new DrinkCursorAdapter( null, getActivity());
         recyclerView.setAdapter(mDrinkAdapter);
 
 

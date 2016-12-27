@@ -26,14 +26,11 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
 
     ArrayList<Measures> mMeasuresArrayList = new ArrayList<>();
     private Context context;
-
     private LayoutInflater inflater;
 
 
     public IngredientsAdapter(Context context) {
         this.context = context;
-
-
         inflater = LayoutInflater.from(context);
     }
 

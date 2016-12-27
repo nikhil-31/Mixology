@@ -73,10 +73,11 @@ public class FragmentGin extends Fragment implements LoaderManager.LoaderCallbac
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_main);
+
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
         recyclerView.setLayoutManager(gridLayoutManager);
 
-        mDrinkAdapter = new DrinkCursorAdapter(getActivity(), null, getActivity(),CONTENT_URI_DRINK_SAVED);
+        mDrinkAdapter = new DrinkCursorAdapter( null, getActivity());
         recyclerView.setAdapter(mDrinkAdapter);
 
         if (savedInstanceState != null) {

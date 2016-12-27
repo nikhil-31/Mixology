@@ -71,10 +71,10 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
 
         isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(mAct, cursor.getString(cursor.getColumnIndex(_ID)), contentUri);
         if (isInDatabase) {
-            viewHolder.imageButton.setImageResource(R.drawable.ic_favourite_filled_red);
+            viewHolder.imageButton.setImageResource(R.drawable.ic_fav_filled);
 
         } else {
-            viewHolder.imageButton.setImageResource(R.drawable.ic_favourite_outline_red);
+            viewHolder.imageButton.setImageResource(R.drawable.ic_fav_unfilled_black);
         }
 
         viewHolder.imageButton.setOnClickListener(new View.OnClickListener() {
@@ -91,7 +91,7 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
                             null,
                             null);
 
-                    viewHolder.imageButton.setImageResource(R.drawable.ic_favourite_outline_red);
+                    viewHolder.imageButton.setImageResource(R.drawable.ic_fav_unfilled_black);
 
                 } else {
 
@@ -104,7 +104,7 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
 
                     mAct.getContentResolver().insert(withId(cursor.getString(cursor.getColumnIndex(_ID))), cv);
 
-                    viewHolder.imageButton.setImageResource(R.drawable.ic_favourite_filled_red);
+                    viewHolder.imageButton.setImageResource(R.drawable.ic_fav_filled);
                 }
 
             }

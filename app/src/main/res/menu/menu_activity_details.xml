@@ -4,14 +4,9 @@
     tools:context="com.example.nik.mixology.Activities.ActivityDetails">
 
     <item
-        android:id="@+id/action_add"
-        android:icon="@mipmap/ic_favourite_outline"
-        app:showAsAction="always"
-        android:title="@string/save"
-        />
-    <item
-        android:id="@+id/action_remove"
-        android:icon="@mipmap/ic_favourite_filled"
-        app:showAsAction="always"
-        android:title="@string/delete"/>
+        android:id="@+id/action_share"
+        android:icon="@drawable/ic_share_black"
+        android:title="@string/share"
+        app:showAsAction="always"/>
+
 </menu>

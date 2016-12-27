@@ -109,7 +109,7 @@ public class FragmentDetails extends Fragment {
             }
         });
 
-//        mToolbar.inflateMenu(R.menu.menu_activity_details);
+        mToolbar.inflateMenu(R.menu.menu_activity_details);
 //        menu = mToolbar.getMenu();
 
 //        menu.findItem(R.id.action_add).setVisible(!isInDatabase);
@@ -226,6 +226,7 @@ public class FragmentDetails extends Fragment {
     private void setUIData() {
 
         mInstructionsText.setText(mCocktailDetails.getmInstructions());
+
         mAlcoholicText.setText(mCocktailDetails.getmAlcoholic());
 
         Picasso.with(getActivity())

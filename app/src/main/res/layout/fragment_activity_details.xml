@@ -23,6 +23,12 @@
             android:elevation="0dp"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
+        <View
+            android:id="@+id/toolbar_shadow"
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:background="@drawable/toolbar_dropshadow" />
+
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.widget.NestedScrollView
@@ -81,8 +87,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="20dp"
                     android:layout_marginStart="20dp"
-                    android:layout_marginTop="5dp"
-                    android:textColor="@color/colorPrimary"
+                    android:textColor="@color/red"
                     android:textSize="17sp" />
 
                 <TextView

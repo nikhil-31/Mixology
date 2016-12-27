@@ -83,10 +83,10 @@ public class MainActivity extends AppCompatActivity implements DrinkCursorAdapte
             @Override
             public boolean onQueryTextSubmit(String query) {
 
-//                Toast.makeText(getApplicationContext(), query, Toast.LENGTH_LONG).show();
+                String queryAdjusted = query.replaceAll(" ","%20");
 
                 Intent intent = new Intent(getApplicationContext(), ActivitySearch.class);
-                intent.putExtra("Query", query);
+                intent.putExtra("Query", queryAdjusted);
                 startActivity(intent);
 
                 return false;

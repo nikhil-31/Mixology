@@ -2,7 +2,6 @@ package com.example.nik.mixology.Adapters;
 
 import android.app.Activity;
 import android.content.ContentValues;
-import android.content.Context;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -103,8 +102,6 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
 
                     holder.imageButton.setImageResource(R.drawable.ic_fav_filled);
                 }
-
-
             }
         });
 

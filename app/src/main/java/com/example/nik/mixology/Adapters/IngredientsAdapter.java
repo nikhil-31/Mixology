@@ -53,6 +53,7 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
         final Measures measures = mMeasuresArrayList.get(position);
         holder.mIngredientText.setText(measures.getIngredient());
         holder.mMeasureText.setText(measures.getMeasure());
+
         String ingredient = measures.getIngredient();
         String in = ingredient.replaceAll(" ","%20");
 

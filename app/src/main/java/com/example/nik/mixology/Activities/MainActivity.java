@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements DrinkCursorAdapte
             fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
             toolbar.setTitle("#Non_Alcoholic");
-//            Toast.makeText(getApplicationContext(),"Non Alcoholic",Toast.LENGTH_LONG).show();
+
 
         } else if (id == R.id.nav_gin) {
 
@@ -159,7 +159,7 @@ public class MainActivity extends AppCompatActivity implements DrinkCursorAdapte
             fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
             toolbar.setTitle("#Gin");
-//            Toast.makeText(getApplicationContext(),"Gin",Toast.LENGTH_LONG).show();
+
 
         } else if (id == R.id.nav_vodka) {
 
@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements DrinkCursorAdapte
             fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
             toolbar.setTitle("#Vodka");
-//            Toast.makeText(getApplicationContext(),"VodkaColumn",Toast.LENGTH_LONG).show();
+
         } else if (id == R.id.nav_cocktail_glass) {
 
             FragmentCocktailGlass fragment = new FragmentCocktailGlass();
@@ -178,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements DrinkCursorAdapte
             fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
             toolbar.setTitle("#Cocktail_Glass");
-//            Toast.makeText(getApplicationContext(),"Cocktail Glass",Toast.LENGTH_LONG).show();
+
 
         } else if (id == R.id.nav_Champagne_flute) {
 
@@ -188,7 +188,7 @@ public class MainActivity extends AppCompatActivity implements DrinkCursorAdapte
             fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
             toolbar.setTitle("#Champagne_Flute");
-//            Toast.makeText(getApplicationContext(),"Champagne Flute",Toast.LENGTH_LONG).show();
+
         } else if (id == R.id.nav_Ordinary_Drink) {
 
             FragmentOrdinaryDrink fragment = new FragmentOrdinaryDrink();
@@ -197,7 +197,7 @@ public class MainActivity extends AppCompatActivity implements DrinkCursorAdapte
             fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
             toolbar.setTitle("#Ordinary_drink");
-//            Toast.makeText(getApplicationContext(),"Ordinary Drink",Toast.LENGTH_LONG).show();
+
 
         } else if (id == R.id.nav_Cocktail) {
             FragmentCocktail fragment = new FragmentCocktail();
@@ -206,7 +206,7 @@ public class MainActivity extends AppCompatActivity implements DrinkCursorAdapte
             fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
             toolbar.setTitle("#Cocktail");
-//            Toast.makeText(getApplicationContext(),"Cocktail",Toast.LENGTH_LONG).show();
+
         } else if (id == R.id.Saved_Cocktails) {
 
             FragmentSavedDrink fragment = new FragmentSavedDrink();

@@ -82,6 +82,15 @@ public class FragmentSearch extends Fragment {
         return rootView;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        mRecyclerView.setAdapter(mSearchAdapter);
+
+
+    }
+
     private void sendJsonRequest() {
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET,
                 COCKTAIL_SEARCH_URL_BY_NAME + Query,

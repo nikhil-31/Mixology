@@ -1,15 +1,16 @@
 package com.example.nik.mixology.Activities;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 
+import com.example.nik.mixology.Adapters.SearchAdapter;
+import com.example.nik.mixology.Fragments.FragmentDetails;
+import com.example.nik.mixology.Model.Cocktail;
 import com.example.nik.mixology.R;
 
-public class ActivitySearch extends AppCompatActivity {
+public class ActivitySearch extends AppCompatActivity implements SearchAdapter.OnAdapterItemSelectedListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,7 +22,19 @@ public class ActivitySearch extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         String query = getIntent().getStringExtra("Query");
-        getSupportActionBar().setTitle(query);
+        String queryAdjusted = query.replaceAll("%20"," ");
+        getSupportActionBar().setTitle(queryAdjusted);
+
+
     }
 
+    @Override
+    public void onItemSelected(Cocktail id) {
+        FragmentDetails detailsFragment = (FragmentDetails) getSupportFragmentManager().findFragmentById(R.id.fragment_details);
+        if (detailsFragment == null) {
+            Intent mCocktailDetailIntent = new Intent(this, ActivityDetails.class);
+            mCocktailDetailIntent.putExtra("Cocktail", id);
+            startActivity(mCocktailDetailIntent);
+        }
+    }
 }

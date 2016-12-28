@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.nik.mixology.Model.Cocktail;
 import com.example.nik.mixology.Model.CocktailDetails;
 import com.example.nik.mixology.R;
 import com.example.nik.mixology.utils.ContentProviderHelperMethods;
@@ -34,10 +35,12 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
     private ArrayList<CocktailDetails> mCocktailDetails = new ArrayList<>();
     private boolean isInDatabase;
     private Activity mAct;
+    private OnAdapterItemSelectedListener mAdapterCallback;
 
     public SearchAdapter(Activity activity) {
         mAct = activity;
         mInflater = LayoutInflater.from(activity);
+        mAdapterCallback = (OnAdapterItemSelectedListener) mAct;
     }
 
     public void setCocktailList(ArrayList<CocktailDetails> cocktailList) {
@@ -105,6 +108,20 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
             }
         });
 
+        final Cocktail cocktail = new Cocktail();
+        cocktail.setmDrinkName(currentCocktail.getmName());
+        cocktail.setmDrinkId(currentCocktail.getmId());
+        cocktail.setmDrinkThumb(currentCocktail.getmThumb());
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mAdapterCallback != null) {
+                    mAdapterCallback.onItemSelected(cocktail);
+                }
+            }
+        });
+
     }
 
     @Override
@@ -123,5 +140,9 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
             textView = (TextView) itemView.findViewById(R.id.list_search_text);
             imageButton = (ImageView) itemView.findViewById(R.id.list_search_fav);
         }
+    }
+
+    public interface OnAdapterItemSelectedListener {
+        void onItemSelected(Cocktail id);
     }
 }

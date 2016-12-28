@@ -47,7 +47,7 @@ public class FragmentSearch extends Fragment {
     // Volley
     private RequestQueue mRequestQueue;
     private VolleySingleton mVolleySingleton;
-    private TextView textView;
+    private TextView mEmptyView;
     private ArrayList<CocktailDetails> mCocktailDetails = new ArrayList<>();
     private RecyclerView mRecyclerView;
     private SearchAdapter mSearchAdapter;
@@ -71,6 +71,7 @@ public class FragmentSearch extends Fragment {
         }
 
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_search);
+        mEmptyView = (TextView) rootView.findViewById(R.id.empty_view);
 
         LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
@@ -87,8 +88,6 @@ public class FragmentSearch extends Fragment {
         super.onResume();
 
         mRecyclerView.setAdapter(mSearchAdapter);
-
-
     }
 
     private void sendJsonRequest() {
@@ -131,8 +130,13 @@ public class FragmentSearch extends Fragment {
         ArrayList<CocktailDetails> mdetailList = new ArrayList<>();
 
         if (response == null || response.length() == 0) {
-            Toast.makeText(getActivity(), "Invalid input", Toast.LENGTH_LONG).show();
             return mdetailList;
+        }
+
+        JSONObject object = new JSONObject(response.toString());
+        if (object.isNull(DRINKS)) {
+            mRecyclerView.setVisibility(View.GONE);
+            mEmptyView.setVisibility(View.VISIBLE);
         }
 
         JSONArray results = response.getJSONArray(DRINKS);
@@ -166,7 +170,7 @@ public class FragmentSearch extends Fragment {
                 details.setmThumb(jsonObject.getString(THUMBNAIL));
             }
 
-            if(jsonObject.getString(ID).length() != 0){
+            if (jsonObject.getString(ID).length() != 0) {
                 details.setmId(jsonObject.getString(ID));
             }
 

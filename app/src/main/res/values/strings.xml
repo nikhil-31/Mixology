@@ -11,11 +11,12 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
+
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="menu_save">save</string>
     <string name="save">Save</string>
     <string name="delete">delete</string>
     <string name="title_activity_search">ActivitySearch</string>
     <string name="share">Share</string>
+    <string name="no_data_available">Sorry. Drink not available in the database. Try a new search.</string>
 </resources>

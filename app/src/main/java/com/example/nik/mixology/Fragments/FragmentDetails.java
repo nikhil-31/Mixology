@@ -12,6 +12,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -110,6 +111,17 @@ public class FragmentDetails extends Fragment {
         });
 
         mToolbar.inflateMenu(R.menu.menu_activity_details);
+
+        mToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                if(item.getItemId() == R.id.action_share){
+
+                }
+                return false;
+            }
+        });
+
 //        menu = mToolbar.getMenu();
 
 //        menu.findItem(R.id.action_add).setVisible(!isInDatabase);

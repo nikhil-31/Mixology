@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -25,9 +26,12 @@ import com.example.nik.mixology.Network.VolleySingleton;
 import com.example.nik.mixology.R;
 import com.example.nik.mixology.utils.ContentProviderHelperMethods;
 import com.example.nik.mixology.utils.Utils;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.util.ArrayList;
+
 import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_NON_ALCOHOLIC;
 import static com.example.nik.mixology.data.DrinkProvider.NonAlcoholic.CONTENT_URI_NON_ALCOHOLIC;
 import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.CONTENT_URI_DRINK_SAVED;
@@ -73,7 +77,7 @@ public class FragmentNonAlcoholic extends Fragment implements LoaderManager.Load
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
         recyclerView.setLayoutManager(gridLayoutManager);
 
-        mDrinkAdapter = new DrinkCursorAdapter( null, getActivity());
+        mDrinkAdapter = new DrinkCursorAdapter(null, getActivity());
         recyclerView.setAdapter(mDrinkAdapter);
 
 

@@ -21,6 +21,8 @@ public class CocktailURLs {
     public static String COCKTAIL_SEARCH_URL_COCKTAIL = "http://www.thecocktaildb.com/api/json/v1/1/filter.php?c=Cocktail";
     public static String COCKTAIL_SEARCH_URL_ORDINARY = "http://www.thecocktaildb.com/api/json/v1/1/filter.php?c=Ordinary_Drink";
 
+    public static String COCKTAIL_SEARCH_URL_HIGHBALL_GLASS = "http://www.thecocktaildb.com/api/json/v1/1/filter.php?g=Highball%20glass";
+
     public static String COCKTAIL_INGREDIENTS_URL = "http://www.thecocktaildb.com/images/ingredients/";
     public static String COCKTAIL_INGREDIENT_PNG_SMALL = "-Small.png";
 

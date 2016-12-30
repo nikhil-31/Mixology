@@ -12,12 +12,11 @@ import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.example.nik.mixology.Adapters.DrinkCursorAdapter;
 import com.example.nik.mixology.Fragments.FragmentDetails;
 import com.example.nik.mixology.Fragments.FragmentAlcoholic;
-import com.example.nik.mixology.Fragments.FragmentChampagne;
+import com.example.nik.mixology.Fragments.FragmentHighballGlass;
 import com.example.nik.mixology.Fragments.FragmentCocktail;
 import com.example.nik.mixology.Fragments.FragmentCocktailGlass;
 import com.example.nik.mixology.Fragments.FragmentGin;
@@ -40,11 +39,13 @@ public class MainActivity extends AppCompatActivity implements DrinkCursorAdapte
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_navigation_drawer);
 
+
         FragmentAlcoholic fragment = new FragmentAlcoholic();
         android.support.v4.app.FragmentTransaction fragmentTransaction =
                 getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container, fragment);
         fragmentTransaction.commit();
+
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("#Alcoholic");
@@ -60,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements DrinkCursorAdapte
         navigationView.setNavigationItemSelectedListener(this);
 
     }
+
 
     @Override
     public void onBackPressed() {
@@ -83,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements DrinkCursorAdapte
             @Override
             public boolean onQueryTextSubmit(String query) {
 
-                String queryAdjusted = query.replaceAll(" ","%20");
+                String queryAdjusted = query.replaceAll(" ", "%20");
 
                 Intent intent = new Intent(getApplicationContext(), ActivitySearch.class);
                 intent.putExtra("Query", queryAdjusted);
@@ -180,14 +182,14 @@ public class MainActivity extends AppCompatActivity implements DrinkCursorAdapte
             toolbar.setTitle("#Cocktail_Glass");
 
 
-        } else if (id == R.id.nav_Champagne_flute) {
+        } else if (id == R.id.nav_Highball_Glass) {
 
-            FragmentChampagne fragment = new FragmentChampagne();
+            FragmentHighballGlass fragment = new FragmentHighballGlass();
             android.support.v4.app.FragmentTransaction fragmentTransaction =
                     getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
-            toolbar.setTitle("#Champagne_Flute");
+            toolbar.setTitle("#Highball_glass");
 
         } else if (id == R.id.nav_Ordinary_Drink) {
 

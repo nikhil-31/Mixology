@@ -35,6 +35,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_CHAMPAGNE_GLASS;
+import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_HIGHBALL_GLASS;
 import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_INGREDIENT_GIN;
 import static com.example.nik.mixology.data.DrinkProvider.ChampagneFlute.CONTENT_URI_CHAMPAGNE_FLUTE;
 import static com.example.nik.mixology.data.DrinkProvider.CocktailGlass.CONTENT_URI_COCKTAIL_GLASS;
@@ -44,11 +45,10 @@ import static com.example.nik.mixology.utils.Utils.parseJSONResponse;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class FragmentChampagne extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class FragmentHighballGlass extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
 
     public String STATE_COCKTAIL = "state_cocktails";
-    private String STATE_NULL = "null";
 
     private RecyclerView recyclerView;
     private static final int CURSOR_LOADER_ID = 1;
@@ -60,7 +60,7 @@ public class FragmentChampagne extends Fragment implements LoaderManager.LoaderC
     private VolleySingleton mVolleySingleton;
 
 
-    public FragmentChampagne() {
+    public FragmentHighballGlass() {
     }
 
     @Override
@@ -116,7 +116,7 @@ public class FragmentChampagne extends Fragment implements LoaderManager.LoaderC
 
     private void sendJsonRequest() {
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET,
-                COCKTAIL_SEARCH_URL_CHAMPAGNE_GLASS,
+                COCKTAIL_SEARCH_URL_HIGHBALL_GLASS,
                 null,
                 new Response.Listener<JSONObject>() {
                     @Override

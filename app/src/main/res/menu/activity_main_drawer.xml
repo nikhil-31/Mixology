@@ -63,9 +63,9 @@
                 android:title="#Cocktail Glass" />
 
             <item
-                android:id="@+id/nav_Champagne_flute"
+                android:id="@+id/nav_Highball_Glass"
                 android:state_activated="true"
-                android:title="#Champagne flute" />
+                android:title="#Highball Glass" />
         </menu>
     </item>
 

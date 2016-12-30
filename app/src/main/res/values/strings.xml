@@ -19,4 +19,5 @@
     <string name="title_activity_search">ActivitySearch</string>
     <string name="share">Share</string>
     <string name="no_data_available">Sorry. Drink not available in the database. Try a new search.</string>
+    <string name="drink_widget_name">Mixology</string>
 </resources>

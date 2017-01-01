@@ -1,34 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/widget_list_item"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
     android:minHeight="?android:attr/listPreferredItemHeight"
     android:orientation="horizontal"
-    android:paddingLeft="@dimen/abc_list_item_padding_horizontal_material"
-    android:paddingRight="@dimen/abc_list_item_padding_horizontal_material">
+    android:padding="5dp">
 
     <ImageView
-        android:id="@+id/list_search_icon"
+        android:id="@+id/list_widget_icon"
         android:layout_width="@dimen/list_icon"
         android:layout_height="@dimen/list_icon"
         android:layout_gravity="center"
-        android:layout_marginLeft="@dimen/abc_list_item_padding_horizontal_material"
         android:layout_marginEnd="@dimen/abc_list_item_padding_horizontal_material"
-        android:layout_marginRight="@dimen/abc_list_item_padding_horizontal_material" />
+        android:layout_marginRight="@dimen/abc_list_item_padding_horizontal_material"/>
 
     <TextView
-        android:id="@+id/list_search_text"
+        android:id="@+id/list_widget_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="7"
+        android:layout_weight="1"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-        android:textSize="20sp" />
-
-    <ImageView
-        android:id="@+id/list_search_fav"
-        android:layout_width="40dp"
-        android:layout_height="40dp" />
+        android:textSize="15sp" />
 
 </LinearLayout>
-

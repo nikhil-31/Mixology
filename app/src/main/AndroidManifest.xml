@@ -48,15 +48,19 @@
 
         <receiver
             android:name=".Widget.DrinkWidgetProvider"
-            android:label="@string/drink_widget_name" >
-        <intent-filter>
-            <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            <action android:name="com.example.android.sunshine.app.ACTION_DATA_UPDATED" />
-        </intent-filter>
-        <meta-data
-            android:name="android.appwidget.provider"
-            android:resource="@xml/cocktail_app_widget_info" />
+            android:label="@string/drink_widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/cocktail_app_widget_info" />
         </receiver>
+
+        <service
+            android:name=".Widget.DrinkWidgetService"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
 
     </application>
 

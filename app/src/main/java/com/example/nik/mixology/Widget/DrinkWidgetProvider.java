@@ -22,11 +22,17 @@ public class DrinkWidgetProvider extends AppWidgetProvider {
 
 
         for (int appWidgetId : appWidgetIds) {
+
             RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.new_app_widget);
 
-//            Intent intent = new Intent(context, MainActivity.class);
-//            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
-//            views.setOnClickPendingIntent(R.id.textWidget, pendingIntent);
+            // Create Intent to launch Main Activity
+            Intent intent = new Intent(context, MainActivity.class);
+            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+            views.setOnClickPendingIntent(R.id.widget, pendingIntent);
+
+            views.setRemoteAdapter(R.id.widget_list, new Intent(context, DrinkWidgetService.class));
+
+            views.setEmptyView(R.id.widget_list, R.id.widget_empty);
 
             appWidgetManager.updateAppWidget(appWidgetId, views);
         }

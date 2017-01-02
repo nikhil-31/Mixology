@@ -70,7 +70,6 @@ public class FragmentDetails extends Fragment {
     private Toolbar mToolbar;
     private RecyclerView mIngredientsRecyclerView;
     private IngredientsAdapter mIngredientsAdapter;
-    private Menu menu;
     private ArrayList<Measures> mMeasuresArrayList;
     private ImageView mDetailIcon;
 
@@ -93,10 +92,10 @@ public class FragmentDetails extends Fragment {
         View v = inflater.inflate(R.layout.fragment_activity_details, container, false);
 
         cocktail = getActivity().getIntent().getParcelableExtra("Cocktail");
+
         mCocktailId = cocktail.getmDrinkId();
 
         setHasOptionsMenu(true);
-
 
         mToolbar = (Toolbar) v.findViewById(R.id.toolbar);
 
@@ -207,10 +206,6 @@ public class FragmentDetails extends Fragment {
 
                     Snackbar.make(mDetailIcon, "Drink Deleted", Snackbar.LENGTH_LONG).show();
 
-//                    getActivity().getContentResolver().delete(withId(mCocktailId),
-//                            null,
-//                            null);
-
                     ContentProviderHelperMethods.deleteData(getActivity(), mCocktailId);
 
                     mDetailIcon.setImageResource(R.drawable.ic_fav_unfilled_black);
@@ -224,8 +219,6 @@ public class FragmentDetails extends Fragment {
                     cv.put(_ID, cocktail.getmDrinkId());
                     cv.put(DRINK_NAME, cocktail.getmDrinkName());
                     cv.put(DRINK_THUMB, cocktail.getmDrinkThumb());
-
-//                    getActivity().getContentResolver().insert(withId(mCocktailId), cv);
 
                     ContentProviderHelperMethods.insertData(getActivity(), mCocktailId, cv);
 

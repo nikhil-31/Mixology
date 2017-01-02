@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.os.Binder;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.widget.AdapterView;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
@@ -55,7 +56,7 @@ public class DrinkWidgetService extends RemoteViewsService {
 
         private Context context;
         private Intent intent;
-        private Cursor mCursor;
+        private Cursor mCursor = null;
 
 
         public WidgetDataProvider(Context context, Intent intent, Cursor cursor) {
@@ -93,24 +94,32 @@ public class DrinkWidgetService extends RemoteViewsService {
                     null
             );
 
-
             Binder.restoreCallingIdentity(identityToken);
 
         }
 
         @Override
         public void onDestroy() {
-            mCursor.close();
+            if (mCursor != null) {
+                mCursor.close();
+                mCursor = null;
+            }
+
         }
 
         @Override
         public int getCount() {
-            return mCursor.getCount();
+            return mCursor == null ? 0 : mCursor.getCount();
         }
 
         @RequiresApi(api = Build.VERSION_CODES.KITKAT)
         @Override
         public RemoteViews getViewAt(int position) {
+
+            if (position == AdapterView.INVALID_POSITION ||
+                    mCursor == null || !mCursor.moveToPosition(position)) {
+                return null;
+            }
 
             RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.list_item_widget);
             mCursor.moveToPosition(position);
@@ -124,17 +133,15 @@ public class DrinkWidgetService extends RemoteViewsService {
                 Bitmap icon = BitmapFactory.decodeResource(context.getResources(), R.drawable.empty_glass);
                 remoteViews.setImageViewBitmap(R.id.list_widget_icon, icon);
             } else {
-                Bitmap bitmap = null;
+
                 try {
-                    bitmap = Picasso.with(context).load(thumbUrl).get();
+                    Bitmap bitmap = Picasso.with(context).load(thumbUrl).get();
+                    remoteViews.setImageViewBitmap(R.id.list_widget_icon, bitmap);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                remoteViews.setImageViewBitmap(R.id.list_widget_icon, bitmap);
 
             }
-
-
             return remoteViews;
         }
 
@@ -150,8 +157,8 @@ public class DrinkWidgetService extends RemoteViewsService {
         }
 
         @Override
-        public long getItemId(int i) {
-            return i;
+        public long getItemId(int position) {
+            return position;
         }
 
         @Override

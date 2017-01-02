@@ -1,6 +1,7 @@
 package com.example.nik.mixology.Fragments;
 
 import android.content.ContentValues;
+import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -11,7 +12,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,7 +44,6 @@ import static com.example.nik.mixology.data.AlcoholicColumn.DRINK_NAME;
 import static com.example.nik.mixology.data.AlcoholicColumn.DRINK_THUMB;
 import static com.example.nik.mixology.data.AlcoholicColumn._ID;
 import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.CONTENT_URI_DRINK_SAVED;
-import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.withId;
 
 
 /**
@@ -52,7 +51,7 @@ import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.withId;
  */
 public class FragmentDetails extends Fragment {
 
-    private Cocktail cocktail;
+    private Cocktail mCocktail;
     private CocktailDetails mCocktailDetails;
 
     // Volley
@@ -91,15 +90,15 @@ public class FragmentDetails extends Fragment {
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_activity_details, container, false);
 
-        cocktail = getActivity().getIntent().getParcelableExtra("Cocktail");
+        mCocktail = getActivity().getIntent().getParcelableExtra("Cocktail");
 
-        mCocktailId = cocktail.getmDrinkId();
+        mCocktailId = mCocktail.getmDrinkId();
 
         setHasOptionsMenu(true);
 
         mToolbar = (Toolbar) v.findViewById(R.id.toolbar);
 
-        mToolbar.setTitle(cocktail.getmDrinkName());
+        mToolbar.setTitle(mCocktail.getmDrinkName());
         mToolbar.setNavigationIcon(ContextCompat.getDrawable(getActivity(), R.drawable.ic_back_black));
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -111,72 +110,6 @@ public class FragmentDetails extends Fragment {
 
         mToolbar.inflateMenu(R.menu.menu_activity_details);
 
-        mToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                if (item.getItemId() == R.id.action_share) {
-
-                }
-                return false;
-            }
-        });
-
-//        menu = mToolbar.getMenu();
-
-//        menu.findItem(R.id.action_add).setVisible(!isInDatabase);
-//        menu.findItem(R.id.action_remove).setVisible(isInDatabase);
-
-//        mToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-//            @Override
-//            public boolean onMenuItemClick(MenuItem item) {
-//
-//                int itemId = item.getItemId();
-//                int addId = R.id.action_add;
-//                int removeId = R.id.action_remove;
-//
-//                if (itemId == addId) {
-////                    Toast.makeText(getActivity(), "Drink Added", Toast.LENGTH_SHORT).show();
-//                    Snackbar.make(getActivity().findViewById(addId), "Drink Added", Snackbar.LENGTH_LONG).show();
-//
-//                    ContentValues cv = new ContentValues();
-//                    cv.put(_ID, cocktail.getmDrinkId());
-//                    cv.put(DRINK_NAME, cocktail.getmDrinkName());
-//                    cv.put(DRINK_THUMB, cocktail.getmDrinkThumb());
-//
-//                    getActivity().getContentResolver().insert(withId(mCocktailId), cv);
-//
-//                    /* Re-querying the database to ensure that the data was added
-//                     * Then, setting changing the menu item */
-//                    boolean inDb = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(), mCocktailId, CONTENT_URI_DRINK_SAVED);
-//
-//                    menu.findItem(R.id.action_add).setVisible(!inDb);
-//                    menu.findItem(R.id.action_remove).setVisible(inDb);
-//
-//                    return true;
-//                }
-//
-//                if (itemId == removeId) {
-//
-////                    Toast.makeText(getActivity(), "Drink Deleted", Toast.LENGTH_SHORT).show();
-//                    Snackbar.make(getActivity().findViewById(removeId), "Drink Deleted", Snackbar.LENGTH_LONG).show();
-//
-//                    getActivity().getContentResolver().delete(withId(mCocktailId),
-//                            null,
-//                            null);
-//
-//                     /* Re-querying the database to ensure that the data was added
-//                     * Then, setting changing the menu item */
-//                    boolean inDb = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(), mCocktailId, CONTENT_URI_DRINK_SAVED);
-//
-//                    menu.findItem(R.id.action_add).setVisible(!inDb);
-//                    menu.findItem(R.id.action_remove).setVisible(inDb);
-//
-//                    return true;
-//                }
-//
-//                return true;
-//            }
-//        });
 
         mInstructionsText = (TextView) v.findViewById(R.id.detail_instructions);
         mAlcoholicText = (TextView) v.findViewById(R.id.detail_alcoholic);
@@ -191,9 +124,9 @@ public class FragmentDetails extends Fragment {
         mIngredientsAdapter = new IngredientsAdapter(getActivity());
         mIngredientsRecyclerView = (RecyclerView) v.findViewById(R.id.recycler_ingredients);
 
-        LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
 
-        mIngredientsRecyclerView.setLayoutManager(mLinearLayoutManager);
+        mIngredientsRecyclerView.setLayoutManager(linearLayoutManager);
         mIngredientsRecyclerView.setAdapter(mIngredientsAdapter);
 
         mDetailIcon.setOnClickListener(new View.OnClickListener() {
@@ -216,9 +149,9 @@ public class FragmentDetails extends Fragment {
                     Snackbar.make(mDetailIcon, "Drink Added", Snackbar.LENGTH_LONG).show();
 
                     ContentValues cv = new ContentValues();
-                    cv.put(_ID, cocktail.getmDrinkId());
-                    cv.put(DRINK_NAME, cocktail.getmDrinkName());
-                    cv.put(DRINK_THUMB, cocktail.getmDrinkThumb());
+                    cv.put(_ID, mCocktail.getmDrinkId());
+                    cv.put(DRINK_NAME, mCocktail.getmDrinkName());
+                    cv.put(DRINK_THUMB, mCocktail.getmDrinkThumb());
 
                     ContentProviderHelperMethods.insertData(getActivity(), mCocktailId, cv);
 
@@ -239,13 +172,13 @@ public class FragmentDetails extends Fragment {
         mAlcoholicText.setText(mCocktailDetails.getmAlcoholic());
 
         Picasso.with(getActivity())
-                .load(cocktail.getmDrinkThumb())
+                .load(mCocktail.getmDrinkThumb())
                 .error(R.drawable.empty_glass)
                 .into(mDrinkImage);
 
         mInstruction.setText(getResources().getString(R.string.Instructions));
         mIngredients.setText(getResources().getString(R.string.Ingredients));
-        mDrinkName.setText(cocktail.getmDrinkName());
+        mDrinkName.setText(mCocktail.getmDrinkName());
 
         isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(), mCocktailId, CONTENT_URI_DRINK_SAVED);
 
@@ -257,6 +190,44 @@ public class FragmentDetails extends Fragment {
 
         }
 
+
+    }
+
+    private void shareRecipe(ArrayList<Measures> measuresArrayList) {
+        final StringBuilder builder = new StringBuilder();
+
+        builder.append("Name: " + mCocktailDetails.getmName() + "\n");
+
+        builder.append("Alcoholic: " + mCocktailDetails.getmAlcoholic() + "\n");
+
+        builder.append("Instructions: \n" + mCocktailDetails.getmInstructions() + "\n");
+
+        builder.append("Ingredients: \n");
+        for (int i = 0; i < measuresArrayList.size(); i++) {
+
+            Measures measures = measuresArrayList.get(i);
+
+            builder.append(measures.getIngredient() + " -- " + measures.getMeasure() + "\n");
+        }
+
+        mToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                if (item.getItemId() == R.id.action_share) {
+                    startActivity(Intent.createChooser(shareIntent(builder.toString()), "Share Via"));
+                }
+                return false;
+            }
+        });
+
+    }
+
+    public Intent shareIntent(String data) {
+        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+        sharingIntent.setType("text/plain");
+        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Recipe sent from mixology,");
+        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, data);
+        return sharingIntent;
     }
 
     private void sendJsonRequest() {
@@ -274,9 +245,9 @@ public class FragmentDetails extends Fragment {
 
                             setUIData();
 
-                            mIngredientsAdapter.setMeasuresList(mMeasuresArrayList);
+                            shareRecipe(mMeasuresArrayList);
 
-                            Log.d("Instructions", mCocktailDetails.getmInstructions());
+                            mIngredientsAdapter.setMeasuresList(mMeasuresArrayList);
 
 
                         } catch (JSONException e) {

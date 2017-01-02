@@ -47,8 +47,10 @@ public class FragmentSearch extends Fragment {
     // Volley
     private RequestQueue mRequestQueue;
     private VolleySingleton mVolleySingleton;
+
     private TextView mEmptyView;
     private ArrayList<CocktailDetails> mCocktailDetails = new ArrayList<>();
+
     private RecyclerView mRecyclerView;
     private SearchAdapter mSearchAdapter;
 

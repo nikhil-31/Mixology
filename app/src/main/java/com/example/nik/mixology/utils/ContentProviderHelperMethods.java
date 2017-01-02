@@ -2,6 +2,8 @@ package com.example.nik.mixology.utils;
 
 import android.app.Activity;
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 
@@ -22,7 +24,9 @@ import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.withId;
 
 public class ContentProviderHelperMethods {
 
-    public static ArrayList<Cocktail> getDrinkListFromDatabase(Activity mAct,Uri uri) {
+    public static final String ACTION_DATABASE_UPDATED = "com.example.nik.mixology.utils.ACTION_DATA_UPDATED";
+
+    public static ArrayList<Cocktail> getDrinkListFromDatabase(Activity mAct, Uri uri) {
 
         ArrayList<Cocktail> mDrinkList = new ArrayList<>();
 
@@ -50,9 +54,9 @@ public class ContentProviderHelperMethods {
         return mDrinkList;
     }
 
-    public static boolean isDrinkInDatabase(Activity mAct, String id,Uri contentUri) {
+    public static boolean isDrinkInDatabase(Activity mAct, String id, Uri contentUri) {
 
-        ArrayList<Cocktail> list = new ArrayList<>(getDrinkListFromDatabase(mAct,contentUri));
+        ArrayList<Cocktail> list = new ArrayList<>(getDrinkListFromDatabase(mAct, contentUri));
 
         for (Cocktail listItem : list) {
             if (listItem.getmDrinkId().equals(id)) {
@@ -95,21 +99,33 @@ public class ContentProviderHelperMethods {
 
     }
 
-    public static void insertData(Activity mAct,String id, ContentValues cv){
+    public static void insertData(Activity mAct, String id, ContentValues cv) {
 
         mAct.getContentResolver().insert(withId(id), cv);
+        updateWidgets(mAct);
 
     }
 
-    public static void deleteData(Activity mAct,String id){
+
+
+    public static void deleteData(Activity mAct, String id) {
 
         mAct.getContentResolver().delete(withId(id),
                 null,
                 null);
+        updateWidgets(mAct);
 
     }
 
-    public static Cocktail getDrinkFromDatabase(Activity mActivity, String ID,Uri uri) {
+    private static void updateWidgets(Context context) {
+
+        // Setting the package ensures that only components in our app will receive the broadcast
+        Intent dataUpdatedIntent = new Intent(ACTION_DATABASE_UPDATED)
+                .setPackage(context.getPackageName());
+        context.sendBroadcast(dataUpdatedIntent);
+    }
+
+    public static Cocktail getDrinkFromDatabase(Activity mActivity, String ID, Uri uri) {
         Cocktail cocktail = null;
 
         Cursor cursor = mActivity.getContentResolver().query(uri, null, null, null, null);

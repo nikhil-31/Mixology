@@ -3,12 +3,15 @@ package com.example.nik.mixology.Widget;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.widget.RemoteViews;
 
 import com.example.nik.mixology.Activities.MainActivity;
 import com.example.nik.mixology.R;
+
+import static com.example.nik.mixology.utils.ContentProviderHelperMethods.ACTION_DATABASE_UPDATED;
 
 /**
  * Created by nik on 12/30/2016.
@@ -19,7 +22,6 @@ public class DrinkWidgetProvider extends AppWidgetProvider {
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         super.onUpdate(context, appWidgetManager, appWidgetIds);
-
 
         for (int appWidgetId : appWidgetIds) {
 
@@ -37,7 +39,17 @@ public class DrinkWidgetProvider extends AppWidgetProvider {
             appWidgetManager.updateAppWidget(appWidgetId, views);
         }
 
-
     }
 
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        super.onReceive(context, intent);
+        if (ACTION_DATABASE_UPDATED.equals(intent.getAction())){
+            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+            int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
+                    new ComponentName(context, getClass()));
+            appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_list);
+        }
+
+    }
 }

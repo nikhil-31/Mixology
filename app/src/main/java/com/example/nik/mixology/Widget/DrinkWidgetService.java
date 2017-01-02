@@ -1,18 +1,11 @@
 package com.example.nik.mixology.Widget;
 
-import android.app.IntentService;
+
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
-import android.graphics.RectF;
 import android.os.Binder;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
@@ -20,7 +13,6 @@ import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
 import com.example.nik.mixology.R;
-import com.example.nik.mixology.utils.Utils;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;

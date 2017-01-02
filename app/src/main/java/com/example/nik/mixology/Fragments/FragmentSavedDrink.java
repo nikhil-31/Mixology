@@ -13,15 +13,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
-
 
 import com.example.nik.mixology.Adapters.DrinkCursorAdapter;
 import com.example.nik.mixology.R;
 
-import static com.example.nik.mixology.data.AlcoholicColumn.DRINK_NAME;
-import static com.example.nik.mixology.data.AlcoholicColumn.DRINK_THUMB;
-import static com.example.nik.mixology.data.AlcoholicColumn._ID;
 import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.CONTENT_URI_DRINK_SAVED;
 
 /**
@@ -55,46 +50,8 @@ public class FragmentSavedDrink extends Fragment implements LoaderManager.Loader
         mDrinkAdapter = new DrinkCursorAdapter(null, getActivity());
         recyclerView.setAdapter(mDrinkAdapter);
 
-        getDataFromContentProvider();
 
         return rootView;
-    }
-
-    public void getDataFromContentProvider() {
-
-        String[] projection = {
-                _ID,
-                DRINK_NAME,
-                DRINK_THUMB
-        };
-
-        Cursor cursor = getActivity().getContentResolver().query(
-                CONTENT_URI_DRINK_SAVED,
-                projection,
-                null,
-                null,
-                null
-        );
-
-        String builder = null;
-
-        int mIdIndex = cursor.getColumnIndex(_ID);
-        int mDrinkName = cursor.getColumnIndex(DRINK_NAME);
-        int mDrinkThumb = cursor.getColumnIndex(DRINK_THUMB);
-
-        assert cursor != null;
-        while (cursor.moveToNext()) {
-
-            String mId = cursor.getString(mIdIndex);
-            String mName = cursor.getString(mDrinkName);
-            String mThumb = cursor.getString(mDrinkThumb);
-
-            builder = "Id" + mId + "\n name" + mName + "\n thumb" + mThumb;
-            Toast.makeText(getActivity(), builder, Toast.LENGTH_SHORT).show();
-
-        }
-
-        cursor.close();
     }
 
 

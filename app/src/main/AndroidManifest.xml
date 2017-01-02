@@ -51,7 +51,7 @@
             android:label="@string/drink_widget_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-
+                <action android:name="com.example.nik.mixology.utils.ACTION_DATA_UPDATED"/>
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"

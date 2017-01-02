@@ -196,18 +196,14 @@ public class FragmentDetails extends Fragment {
     private void shareRecipe(ArrayList<Measures> measuresArrayList) {
         final StringBuilder builder = new StringBuilder();
 
-        builder.append("Name: " + mCocktailDetails.getmName() + "\n");
-
-        builder.append("Alcoholic: " + mCocktailDetails.getmAlcoholic() + "\n");
-
-        builder.append("Instructions: \n" + mCocktailDetails.getmInstructions() + "\n");
-
+        builder.append("Name: ").append(mCocktailDetails.getmName()).append("\n");
+        builder.append("Alcoholic: ").append(mCocktailDetails.getmAlcoholic()).append("\n");
+        builder.append("Instructions: \n").append(mCocktailDetails.getmInstructions()).append("\n");
         builder.append("Ingredients: \n");
+
         for (int i = 0; i < measuresArrayList.size(); i++) {
-
             Measures measures = measuresArrayList.get(i);
-
-            builder.append(measures.getIngredient() + " -- " + measures.getMeasure() + "\n");
+            builder.append(measures.getIngredient()).append(" -- ").append(measures.getMeasure()).append("\n");
         }
 
         mToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
@@ -248,7 +244,6 @@ public class FragmentDetails extends Fragment {
                             shareRecipe(mMeasuresArrayList);
 
                             mIngredientsAdapter.setMeasuresList(mMeasuresArrayList);
-
 
                         } catch (JSONException e) {
                             e.printStackTrace();

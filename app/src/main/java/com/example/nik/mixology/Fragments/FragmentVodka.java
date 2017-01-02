@@ -28,7 +28,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
 import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_INGREDIENT_VODKA;
-import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.CONTENT_URI_DRINK_SAVED;
 import static com.example.nik.mixology.data.DrinkProvider.Vodka.CONTENT_URI_VODKA;
 
 /**
@@ -114,7 +113,7 @@ public class FragmentVodka extends Fragment implements LoaderManager.LoaderCallb
 
                             mCocktailArrayList.addAll(Utils.parseJSONResponse(response));
 
-                            ContentProviderHelperMethods.insertData(CONTENT_URI_VODKA, mCocktailArrayList, getActivity());
+                            ContentProviderHelperMethods.insertBulkData(CONTENT_URI_VODKA, mCocktailArrayList, getActivity());
 
                         } catch (JSONException e) {
                             e.printStackTrace();

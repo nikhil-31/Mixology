@@ -30,7 +30,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_INGREDIENT_GIN;
 import static com.example.nik.mixology.data.DrinkProvider.Gin.CONTENT_URI_GIN;
-import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.CONTENT_URI_DRINK_SAVED;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -116,7 +115,7 @@ public class FragmentGin extends Fragment implements LoaderManager.LoaderCallbac
 
                             mCocktailArrayList.addAll(Utils.parseJSONResponse(response));
 
-                            ContentProviderHelperMethods.insertData(CONTENT_URI_GIN, mCocktailArrayList, getActivity());
+                            ContentProviderHelperMethods.insertBulkData(CONTENT_URI_GIN, mCocktailArrayList, getActivity());
 
                         } catch (JSONException e) {
                             e.printStackTrace();

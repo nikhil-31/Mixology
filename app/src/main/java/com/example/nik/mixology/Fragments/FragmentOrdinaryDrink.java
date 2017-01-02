@@ -30,7 +30,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_ORDINARY;
 import static com.example.nik.mixology.data.DrinkProvider.OrdinaryDrink.CONTENT_URI_ORDINARY_DRINK;
-import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.CONTENT_URI_DRINK_SAVED;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -111,7 +110,7 @@ public class FragmentOrdinaryDrink extends Fragment implements LoaderManager.Loa
                         try {
 
                             mCocktailArrayList.addAll(Utils.parseJSONResponse(response));
-                            ContentProviderHelperMethods.insertData(CONTENT_URI_ORDINARY_DRINK, mCocktailArrayList, getActivity());
+                            ContentProviderHelperMethods.insertBulkData(CONTENT_URI_ORDINARY_DRINK, mCocktailArrayList, getActivity());
 
                         } catch (JSONException e) {
                             e.printStackTrace();

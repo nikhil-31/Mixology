@@ -35,7 +35,6 @@ import java.util.ArrayList;
 
 import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_ALCOHOLIC;
 import static com.example.nik.mixology.data.DrinkProvider.Alcoholic.CONTENT_URI_ALCOHOLIC;
-import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.CONTENT_URI_DRINK_SAVED;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -123,7 +122,7 @@ public class FragmentAlcoholic extends Fragment implements LoaderManager.LoaderC
                         try {
                             mCocktailArrayList.addAll(Utils.parseJSONResponse(response));
 
-                            ContentProviderHelperMethods.insertData(CONTENT_URI_ALCOHOLIC, mCocktailArrayList, getActivity());
+                            ContentProviderHelperMethods.insertBulkData(CONTENT_URI_ALCOHOLIC, mCocktailArrayList, getActivity());
 
                         } catch (JSONException e) {
                             e.printStackTrace();

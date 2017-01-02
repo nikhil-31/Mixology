@@ -85,9 +85,11 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
 
                     Snackbar.make(holder.imageButton, "Drink Deleted", Snackbar.LENGTH_LONG).show();
 
-                    mAct.getContentResolver().delete(withId(currentCocktail.getmId()),
-                            null,
-                            null);
+//                    mAct.getContentResolver().delete(withId(currentCocktail.getmId()),
+//                            null,
+//                            null);
+                    String id = currentCocktail.getmId();
+                    ContentProviderHelperMethods.deleteData(mAct,id);
 
                     holder.imageButton.setImageResource(R.drawable.ic_fav_unfilled_black);
 
@@ -101,7 +103,10 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
                     cv.put(DRINK_NAME, currentCocktail.getmName());
                     cv.put(DRINK_THUMB, currentCocktail.getmThumb());
 
-                    mAct.getContentResolver().insert(withId(currentCocktail.getmId()), cv);
+//                    mAct.getContentResolver().insert(withId(currentCocktail.getmId()), cv);
+
+                    String id = currentCocktail.getmId();
+                    ContentProviderHelperMethods.insertData(mAct,id,cv);
 
                     holder.imageButton.setImageResource(R.drawable.ic_fav_filled);
                 }

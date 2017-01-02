@@ -34,7 +34,6 @@ import java.util.ArrayList;
 
 import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_NON_ALCOHOLIC;
 import static com.example.nik.mixology.data.DrinkProvider.NonAlcoholic.CONTENT_URI_NON_ALCOHOLIC;
-import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.CONTENT_URI_DRINK_SAVED;
 
 
 public class FragmentNonAlcoholic extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -116,7 +115,7 @@ public class FragmentNonAlcoholic extends Fragment implements LoaderManager.Load
 
                             mCocktailArrayList.addAll(Utils.parseJSONResponse(response));
 
-                            ContentProviderHelperMethods.insertData(CONTENT_URI_NON_ALCOHOLIC, mCocktailArrayList, getActivity());
+                            ContentProviderHelperMethods.insertBulkData(CONTENT_URI_NON_ALCOHOLIC, mCocktailArrayList, getActivity());
 
 
                         } catch (JSONException e) {

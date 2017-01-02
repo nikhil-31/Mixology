@@ -84,9 +84,14 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
                 if (isInDatabase) {
 
                     Snackbar.make(viewHolder.imageButton, "Drink Deleted", Snackbar.LENGTH_LONG).show();
-                    mAct.getContentResolver().delete(withId(cursor.getString(cursor.getColumnIndex(_ID))),
-                            null,
-                            null);
+
+//                    mAct.getContentResolver().delete(withId(cursor.getString(cursor.getColumnIndex(_ID))),
+//                            null,
+//                            null);
+//
+                    String id = cursor.getString(cursor.getColumnIndex(_ID));
+                    ContentProviderHelperMethods.deleteData(mAct, id);
+
                     viewHolder.imageButton.setImageResource(R.drawable.ic_fav_unfilled_black);
 
                 } else {
@@ -98,7 +103,10 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
                     cv.put(DRINK_NAME, cursor.getString(cursor.getColumnIndex(DRINK_NAME)));
                     cv.put(DRINK_THUMB, cursor.getString(cursor.getColumnIndex(DRINK_THUMB)));
 
-                    mAct.getContentResolver().insert(withId(cursor.getString(cursor.getColumnIndex(_ID))), cv);
+                    String id = cursor.getString(cursor.getColumnIndex(_ID));
+                    ContentProviderHelperMethods.insertData(mAct, id, cv);
+
+//                    mAct.getContentResolver().insert(withId(cursor.getString(cursor.getColumnIndex(_ID))), cv);
 
                     viewHolder.imageButton.setImageResource(R.drawable.ic_fav_filled);
                 }

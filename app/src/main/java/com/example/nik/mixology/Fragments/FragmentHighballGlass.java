@@ -28,19 +28,13 @@ import com.example.nik.mixology.R;
 import com.example.nik.mixology.utils.ContentProviderHelperMethods;
 import com.example.nik.mixology.utils.Utils;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_CHAMPAGNE_GLASS;
 import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_HIGHBALL_GLASS;
-import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_INGREDIENT_GIN;
 import static com.example.nik.mixology.data.DrinkProvider.ChampagneFlute.CONTENT_URI_CHAMPAGNE_FLUTE;
-import static com.example.nik.mixology.data.DrinkProvider.CocktailGlass.CONTENT_URI_COCKTAIL_GLASS;
-import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.CONTENT_URI_DRINK_SAVED;
-import static com.example.nik.mixology.utils.Utils.parseJSONResponse;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -126,7 +120,7 @@ public class FragmentHighballGlass extends Fragment implements LoaderManager.Loa
 
                             mCocktailArrayList.addAll(Utils.parseJSONResponse(response));
 
-                            ContentProviderHelperMethods.insertData(CONTENT_URI_CHAMPAGNE_FLUTE, mCocktailArrayList, getActivity());
+                            ContentProviderHelperMethods.insertBulkData(CONTENT_URI_CHAMPAGNE_FLUTE, mCocktailArrayList, getActivity());
 
                         } catch (JSONException e) {
                             e.printStackTrace();

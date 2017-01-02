@@ -115,7 +115,7 @@ public class FragmentDetails extends Fragment {
         mToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                if(item.getItemId() == R.id.action_share){
+                if (item.getItemId() == R.id.action_share) {
 
                 }
                 return false;
@@ -207,9 +207,11 @@ public class FragmentDetails extends Fragment {
 
                     Snackbar.make(mDetailIcon, "Drink Deleted", Snackbar.LENGTH_LONG).show();
 
-                    getActivity().getContentResolver().delete(withId(mCocktailId),
-                            null,
-                            null);
+//                    getActivity().getContentResolver().delete(withId(mCocktailId),
+//                            null,
+//                            null);
+
+                    ContentProviderHelperMethods.deleteData(getActivity(), mCocktailId);
 
                     mDetailIcon.setImageResource(R.drawable.ic_fav_unfilled_black);
 
@@ -223,14 +225,15 @@ public class FragmentDetails extends Fragment {
                     cv.put(DRINK_NAME, cocktail.getmDrinkName());
                     cv.put(DRINK_THUMB, cocktail.getmDrinkThumb());
 
-                    getActivity().getContentResolver().insert(withId(mCocktailId), cv);
+//                    getActivity().getContentResolver().insert(withId(mCocktailId), cv);
+
+                    ContentProviderHelperMethods.insertData(getActivity(), mCocktailId, cv);
 
                     mDetailIcon.setImageResource(R.drawable.ic_fav_filled);
                 }
 
             }
         });
-
 
 
         return v;
@@ -378,7 +381,7 @@ public class FragmentDetails extends Fragment {
                 mMeasures.add(measure);
             }
 
-            if (jsonObject.getString(INGREDIENT_2).length() != 0  && !jsonObject.isNull(INGREDIENT_2) ) {
+            if (jsonObject.getString(INGREDIENT_2).length() != 0 && !jsonObject.isNull(INGREDIENT_2)) {
                 Measures measure = new Measures();
                 measure.setIngredient(jsonObject.getString(INGREDIENT_2));
                 measure.setMeasure(jsonObject.getString(MEASURE_2));
@@ -386,7 +389,7 @@ public class FragmentDetails extends Fragment {
 
             }
 
-            if (jsonObject.getString(INGREDIENT_3).length() != 0  && !jsonObject.isNull(INGREDIENT_3)) {
+            if (jsonObject.getString(INGREDIENT_3).length() != 0 && !jsonObject.isNull(INGREDIENT_3)) {
                 Measures measure = new Measures();
                 measure.setIngredient(jsonObject.getString(INGREDIENT_3));
                 measure.setMeasure(jsonObject.getString(MEASURE_3));
@@ -394,7 +397,7 @@ public class FragmentDetails extends Fragment {
 
             }
 
-            if (jsonObject.getString(INGREDIENT_4).length() != 0  && !jsonObject.isNull(INGREDIENT_4)) {
+            if (jsonObject.getString(INGREDIENT_4).length() != 0 && !jsonObject.isNull(INGREDIENT_4)) {
                 Measures measure = new Measures();
                 measure.setIngredient(jsonObject.getString(INGREDIENT_4));
                 measure.setMeasure(jsonObject.getString(MEASURE_4));
@@ -402,7 +405,7 @@ public class FragmentDetails extends Fragment {
 
             }
 
-            if (jsonObject.getString(INGREDIENT_5).length() != 0  && !jsonObject.isNull(INGREDIENT_5)) {
+            if (jsonObject.getString(INGREDIENT_5).length() != 0 && !jsonObject.isNull(INGREDIENT_5)) {
                 Measures measure = new Measures();
                 measure.setIngredient(jsonObject.getString(INGREDIENT_5));
                 measure.setMeasure(jsonObject.getString(MEASURE_5));
@@ -410,7 +413,7 @@ public class FragmentDetails extends Fragment {
 
             }
 
-            if (jsonObject.getString(INGREDIENT_6).length() != 0  && !jsonObject.isNull(INGREDIENT_6)) {
+            if (jsonObject.getString(INGREDIENT_6).length() != 0 && !jsonObject.isNull(INGREDIENT_6)) {
                 Measures measure = new Measures();
                 measure.setIngredient(jsonObject.getString(INGREDIENT_6));
                 measure.setMeasure(jsonObject.getString(MEASURE_6));
@@ -418,7 +421,7 @@ public class FragmentDetails extends Fragment {
 
             }
 
-            if (jsonObject.getString(INGREDIENT_7).length() != 0  && !jsonObject.isNull(INGREDIENT_7)) {
+            if (jsonObject.getString(INGREDIENT_7).length() != 0 && !jsonObject.isNull(INGREDIENT_7)) {
                 Measures measure = new Measures();
                 measure.setIngredient(jsonObject.getString(INGREDIENT_7));
                 measure.setMeasure(jsonObject.getString(MEASURE_7));
@@ -426,7 +429,7 @@ public class FragmentDetails extends Fragment {
 
             }
 
-            if (jsonObject.getString(INGREDIENT_8).length() != 0  && !jsonObject.isNull(INGREDIENT_8)) {
+            if (jsonObject.getString(INGREDIENT_8).length() != 0 && !jsonObject.isNull(INGREDIENT_8)) {
                 Measures measure = new Measures();
                 measure.setIngredient(jsonObject.getString(INGREDIENT_8));
                 measure.setMeasure(jsonObject.getString(MEASURE_8));
@@ -434,7 +437,7 @@ public class FragmentDetails extends Fragment {
 
             }
 
-            if (jsonObject.getString(INGREDIENT_9).length() != 0  && !jsonObject.isNull(INGREDIENT_9)) {
+            if (jsonObject.getString(INGREDIENT_9).length() != 0 && !jsonObject.isNull(INGREDIENT_9)) {
                 Measures measure = new Measures();
                 measure.setIngredient(jsonObject.getString(INGREDIENT_9));
                 measure.setMeasure(jsonObject.getString(MEASURE_9));
@@ -442,7 +445,7 @@ public class FragmentDetails extends Fragment {
 
             }
 
-            if (jsonObject.getString(INGREDIENT_10).length() != 0  && !jsonObject.isNull(INGREDIENT_10)) {
+            if (jsonObject.getString(INGREDIENT_10).length() != 0 && !jsonObject.isNull(INGREDIENT_10)) {
                 Measures measure = new Measures();
                 measure.setIngredient(jsonObject.getString(INGREDIENT_10));
                 measure.setMeasure(jsonObject.getString(MEASURE_10));
@@ -450,7 +453,7 @@ public class FragmentDetails extends Fragment {
 
             }
 
-            if (jsonObject.getString(INGREDIENT_11).length() != 0  && !jsonObject.isNull(INGREDIENT_11)) {
+            if (jsonObject.getString(INGREDIENT_11).length() != 0 && !jsonObject.isNull(INGREDIENT_11)) {
                 Measures measure = new Measures();
                 measure.setIngredient(jsonObject.getString(INGREDIENT_11));
                 measure.setMeasure(jsonObject.getString(MEASURE_11));
@@ -458,7 +461,7 @@ public class FragmentDetails extends Fragment {
 
             }
 
-            if (jsonObject.getString(INGREDIENT_12).length() != 0  && !jsonObject.isNull(INGREDIENT_12)) {
+            if (jsonObject.getString(INGREDIENT_12).length() != 0 && !jsonObject.isNull(INGREDIENT_12)) {
                 Measures measure = new Measures();
                 measure.setIngredient(jsonObject.getString(INGREDIENT_12));
                 measure.setMeasure(jsonObject.getString(MEASURE_12));
@@ -466,7 +469,7 @@ public class FragmentDetails extends Fragment {
 
             }
 
-            if (jsonObject.getString(INGREDIENT_13).length() != 0  && !jsonObject.isNull(INGREDIENT_13)) {
+            if (jsonObject.getString(INGREDIENT_13).length() != 0 && !jsonObject.isNull(INGREDIENT_13)) {
                 Measures measure = new Measures();
                 measure.setIngredient(jsonObject.getString(INGREDIENT_13));
                 measure.setMeasure(jsonObject.getString(MEASURE_13));
@@ -474,7 +477,7 @@ public class FragmentDetails extends Fragment {
 
             }
 
-            if (jsonObject.getString(INGREDIENT_14).length() != 0  && !jsonObject.isNull(INGREDIENT_14)) {
+            if (jsonObject.getString(INGREDIENT_14).length() != 0 && !jsonObject.isNull(INGREDIENT_14)) {
                 Measures measure = new Measures();
                 measure.setIngredient(jsonObject.getString(INGREDIENT_14));
                 measure.setMeasure(jsonObject.getString(MEASURE_14));
@@ -482,7 +485,7 @@ public class FragmentDetails extends Fragment {
 
             }
 
-            if (jsonObject.getString(INGREDIENT_15).length() != 0  && !jsonObject.isNull(INGREDIENT_15)) {
+            if (jsonObject.getString(INGREDIENT_15).length() != 0 && !jsonObject.isNull(INGREDIENT_15)) {
                 Measures measure = new Measures();
                 measure.setIngredient(jsonObject.getString(INGREDIENT_15));
                 measure.setMeasure(jsonObject.getString(MEASURE_15));

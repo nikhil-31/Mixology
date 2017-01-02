@@ -112,9 +112,11 @@ public class FragmentRandomixer extends Fragment {
 
                     Snackbar.make(mDetailIcon, "Drink Deleted", Snackbar.LENGTH_LONG).show();
 
-                    getActivity().getContentResolver().delete(withId(mCocktailDetails.getmId()),
-                            null,
-                            null);
+//                    getActivity().getContentResolver().delete(withId(mCocktailDetails.getmId()),
+//                            null,
+//                            null);
+
+                    ContentProviderHelperMethods.deleteData(getActivity(), mCocktailDetails.getmId());
 
                     mDetailIcon.setImageResource(R.drawable.ic_fav_unfilled_black);
 
@@ -128,7 +130,9 @@ public class FragmentRandomixer extends Fragment {
                     cv.put(DRINK_NAME, mCocktailDetails.getmName());
                     cv.put(DRINK_THUMB, mCocktailDetails.getmThumb());
 
-                    getActivity().getContentResolver().insert(withId(mCocktailDetails.getmId()), cv);
+//                    getActivity().getContentResolver().insert(withId(mCocktailDetails.getmId()), cv);
+
+                    ContentProviderHelperMethods.insertData(getActivity(),mCocktailDetails.getmId(),cv);
 
                     mDetailIcon.setImageResource(R.drawable.ic_fav_filled);
                 }

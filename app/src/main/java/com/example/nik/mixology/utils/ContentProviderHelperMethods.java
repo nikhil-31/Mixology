@@ -14,6 +14,7 @@ import static com.example.nik.mixology.data.DrinkProvider.Alcoholic.CONTENT_URI_
 import static com.example.nik.mixology.data.AlcoholicColumn.DRINK_NAME;
 import static com.example.nik.mixology.data.AlcoholicColumn.DRINK_THUMB;
 import static com.example.nik.mixology.data.AlcoholicColumn._ID;
+import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.withId;
 
 /**
  * Created by nik on 12/19/2016.
@@ -61,7 +62,7 @@ public class ContentProviderHelperMethods {
         return false;
     }
 
-    public static void insertData(Uri uri, ArrayList<Cocktail> mArrayList, Activity mAct) {
+    public static void insertBulkData(Uri uri, ArrayList<Cocktail> mArrayList, Activity mAct) {
 
         Vector<ContentValues> cVVector = new Vector<ContentValues>(mArrayList.size());
 
@@ -75,12 +76,11 @@ public class ContentProviderHelperMethods {
             String id = cocktail.getmDrinkId();
             boolean isThere = ContentProviderHelperMethods.isDrinkInDatabase(mAct, id, uri);
             if (isThere) {
-//                Toast.makeText(mAct, "Record Present " + id, Toast.LENGTH_SHORT).show();
+
             } else {
                 contentValues.put(_id, cocktail.getmDrinkId());
                 contentValues.put(Name, cocktail.getmDrinkName());
                 contentValues.put(Thumb, cocktail.getmDrinkThumb());
-//                Toast.makeText(mAct, "Cocktail Added", Toast.LENGTH_SHORT).show();
 
                 cVVector.add(contentValues);
 
@@ -92,6 +92,20 @@ public class ContentProviderHelperMethods {
             mAct.getContentResolver().bulkInsert(uri, cvArray);
 
         }
+
+    }
+
+    public static void insertData(Activity mAct,String id, ContentValues cv){
+
+        mAct.getContentResolver().insert(withId(id), cv);
+
+    }
+
+    public static void deleteData(Activity mAct,String id){
+
+        mAct.getContentResolver().delete(withId(id),
+                null,
+                null);
 
     }
 

@@ -13,6 +13,7 @@ import android.widget.AdapterView;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
+import com.example.nik.mixology.Model.Cocktail;
 import com.example.nik.mixology.R;
 import com.squareup.picasso.Picasso;
 
@@ -142,6 +143,18 @@ public class DrinkWidgetService extends RemoteViewsService {
                 }
 
             }
+
+            final Intent fillInIntent = new Intent();
+
+            Cocktail cocktail = new Cocktail();
+            cocktail.setmDrinkId(mCursor.getString(mCursor.getColumnIndex(_ID)));
+            cocktail.setmDrinkName(mCursor.getString(mCursor.getColumnIndex(DRINK_NAME)));
+            cocktail.setmDrinkThumb(mCursor.getString(mCursor.getColumnIndex(DRINK_THUMB)));
+
+            fillInIntent.putExtra("Cocktail", cocktail);
+
+            remoteViews.setOnClickFillInIntent(R.id.widget_list_item, fillInIntent);
+
             return remoteViews;
         }
 

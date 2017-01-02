@@ -17,7 +17,8 @@
         android:layout_marginLeft="@dimen/abc_list_item_padding_horizontal_material"
         android:layout_marginStart="@dimen/abc_list_item_padding_horizontal_material"
         android:layout_marginEnd="@dimen/abc_list_item_padding_horizontal_material"
-        android:layout_marginRight="@dimen/abc_list_item_padding_horizontal_material"/>
+        android:layout_marginRight="@dimen/abc_list_item_padding_horizontal_material"
+        android:src="@drawable/empty_cocktail_glass"/>
 
     <TextView
         android:id="@+id/list_widget_text"

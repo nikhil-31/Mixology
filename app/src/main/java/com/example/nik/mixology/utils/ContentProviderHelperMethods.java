@@ -37,6 +37,7 @@ public class ContentProviderHelperMethods {
         assert cursor != null;
         if (cursor.moveToFirst()) {
             do {
+
                 cocktail = new Cocktail();
                 cocktail.setmDrinkId(cursor.getString(cursor.getColumnIndex(_ID)));
                 cocktail.setmDrinkName(cursor.getString(cursor.getColumnIndex(DRINK_NAME)));
@@ -49,9 +50,9 @@ public class ContentProviderHelperMethods {
         return mDrinkList;
     }
 
-    public static boolean isDrinkInDatabase(Activity mAct, String id,Uri contenturi) {
+    public static boolean isDrinkInDatabase(Activity mAct, String id,Uri contentUri) {
 
-        ArrayList<Cocktail> list = new ArrayList<>(getDrinkListFromDatabase(mAct,contenturi));
+        ArrayList<Cocktail> list = new ArrayList<>(getDrinkListFromDatabase(mAct,contentUri));
 
         for (Cocktail listItem : list) {
             if (listItem.getmDrinkId().equals(id)) {
@@ -75,9 +76,8 @@ public class ContentProviderHelperMethods {
             ContentValues contentValues = new ContentValues();
             String id = cocktail.getmDrinkId();
             boolean isThere = ContentProviderHelperMethods.isDrinkInDatabase(mAct, id, uri);
-            if (isThere) {
+            if (!isThere) {
 
-            } else {
                 contentValues.put(_id, cocktail.getmDrinkId());
                 contentValues.put(Name, cocktail.getmDrinkName());
                 contentValues.put(Thumb, cocktail.getmDrinkThumb());

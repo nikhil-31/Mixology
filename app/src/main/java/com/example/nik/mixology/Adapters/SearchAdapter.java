@@ -65,7 +65,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
                 .error(R.drawable.empty_glass)
                 .into(holder.image);
 
-        isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(mAct,currentCocktail.getmId() , CONTENT_URI_DRINK_SAVED);
+        isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(mAct, currentCocktail.getmId(), CONTENT_URI_DRINK_SAVED);
 
         if (isInDatabase) {
             holder.imageButton.setImageResource(R.drawable.ic_fav_filled);
@@ -89,7 +89,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
 //                            null,
 //                            null);
                     String id = currentCocktail.getmId();
-                    ContentProviderHelperMethods.deleteData(mAct,id);
+                    ContentProviderHelperMethods.deleteData(mAct, id);
 
                     holder.imageButton.setImageResource(R.drawable.ic_fav_unfilled_black);
 
@@ -106,7 +106,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
 //                    mAct.getContentResolver().insert(withId(currentCocktail.getmId()), cv);
 
                     String id = currentCocktail.getmId();
-                    ContentProviderHelperMethods.insertData(mAct,id,cv);
+                    ContentProviderHelperMethods.insertData(mAct, id, cv);
 
                     holder.imageButton.setImageResource(R.drawable.ic_fav_filled);
                 }

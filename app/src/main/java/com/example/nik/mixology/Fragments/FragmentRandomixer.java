@@ -54,6 +54,7 @@ public class FragmentRandomixer extends Fragment {
 
     private CocktailDetails mCocktailDetails;
     private ArrayList<Measures> mMeasuresArrayList;
+
     // Volley
     private RequestQueue mRequestQueue;
     private VolleySingleton mVolleySingleton;
@@ -69,6 +70,7 @@ public class FragmentRandomixer extends Fragment {
     private ImageView mDrinkImage;
     private TextView mDrinkName;
     private ImageView mDetailIcon;
+
     private boolean isInDatabase;
 
     @Override
@@ -140,7 +142,6 @@ public class FragmentRandomixer extends Fragment {
             }
         });
 
-
         mSwipeToRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -149,6 +150,7 @@ public class FragmentRandomixer extends Fragment {
 
             }
         });
+
         sendJsonRequest();
 
         return rootView;
@@ -177,8 +179,6 @@ public class FragmentRandomixer extends Fragment {
             mDetailIcon.setImageResource(R.drawable.ic_fav_unfilled_black);
 
         }
-
-
     }
 
     private void sendJsonRequest() {

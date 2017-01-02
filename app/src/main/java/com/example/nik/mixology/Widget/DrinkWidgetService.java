@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -13,6 +14,8 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Binder;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
@@ -21,6 +24,7 @@ import com.example.nik.mixology.utils.Utils;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import static com.example.nik.mixology.data.AlcoholicColumn.DRINK_NAME;
 import static com.example.nik.mixology.data.AlcoholicColumn.DRINK_THUMB;
@@ -112,6 +116,7 @@ public class DrinkWidgetService extends RemoteViewsService {
             return mCursor.getCount();
         }
 
+        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
         @Override
         public RemoteViews getViewAt(int position) {
 
@@ -120,13 +125,21 @@ public class DrinkWidgetService extends RemoteViewsService {
 
             remoteViews.setTextViewText(R.id.list_widget_text, mCursor.getString(mCursor.getColumnIndex(DRINK_NAME)));
 
-            try {
+            String thumbUrl = mCursor.getString(mCursor.getColumnIndex(DRINK_THUMB));
+            String State_Null = "null";
 
-                Bitmap b = Picasso.with(context).load(mCursor.getString(mCursor.getColumnIndex(DRINK_THUMB))).get();
-                remoteViews.setImageViewBitmap(R.id.list_widget_icon, b);
+            if (Objects.equals(thumbUrl, State_Null)) {
+                Bitmap icon = BitmapFactory.decodeResource(context.getResources(), R.drawable.empty_glass);
+                remoteViews.setImageViewBitmap(R.id.list_widget_icon, icon);
+            } else {
+                Bitmap bitmap = null;
+                try {
+                    bitmap = Picasso.with(context).load(thumbUrl).get();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                remoteViews.setImageViewBitmap(R.id.list_widget_icon, bitmap);
 
-            } catch (IOException e) {
-                e.printStackTrace();
             }
 
 

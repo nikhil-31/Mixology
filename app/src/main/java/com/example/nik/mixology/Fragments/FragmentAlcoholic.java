@@ -44,14 +44,9 @@ public class FragmentAlcoholic extends Fragment implements LoaderManager.LoaderC
 
     private static final int CURSOR_LOADER_ID = 0;
 
-    public String STATE_COCKTAIL = "state_cocktails";
-
     private RecyclerView recyclerView;
-
-    private ArrayList<Cocktail> mCocktailArrayList = new ArrayList<Cocktail>();
-
-
     private DrinkCursorAdapter mDrinkAdapter;
+
     // Volley
     private RequestQueue mRequestQueue;
     private VolleySingleton mVolleySingleton;
@@ -63,10 +58,7 @@ public class FragmentAlcoholic extends Fragment implements LoaderManager.LoaderC
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
         getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
-
-
     }
 
     @Override
@@ -88,12 +80,7 @@ public class FragmentAlcoholic extends Fragment implements LoaderManager.LoaderC
         mDrinkAdapter = new DrinkCursorAdapter(null, getActivity());
         recyclerView.setAdapter(mDrinkAdapter);
 
-        if (savedInstanceState != null) {
-            mCocktailArrayList = savedInstanceState.getParcelableArrayList(STATE_COCKTAIL);
-
-        } else {
-            sendJsonRequest();
-        }
+        Utils.sendNetworkJsonRequest(getActivity(),COCKTAIL_SEARCH_URL_ALCOHOLIC,mRequestQueue,CONTENT_URI_ALCOHOLIC);
 
         return rootView;
     }
@@ -101,7 +88,7 @@ public class FragmentAlcoholic extends Fragment implements LoaderManager.LoaderC
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(STATE_COCKTAIL, mCocktailArrayList);
+
     }
 
     @Override
@@ -109,32 +96,6 @@ public class FragmentAlcoholic extends Fragment implements LoaderManager.LoaderC
         super.onResume();
         getLoaderManager().restartLoader(CURSOR_LOADER_ID, null, this);
 
-    }
-
-    private void sendJsonRequest() {
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET,
-                COCKTAIL_SEARCH_URL_ALCOHOLIC,
-                null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        Log.d("Response", response.toString());
-                        try {
-                            mCocktailArrayList.addAll(Utils.parseJSONResponse(response));
-
-                            ContentProviderHelperMethods.insertBulkData(CONTENT_URI_ALCOHOLIC, mCocktailArrayList, getActivity());
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-
-            }
-        });
-        mRequestQueue.add(request);
     }
 
 

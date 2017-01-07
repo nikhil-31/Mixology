@@ -28,7 +28,7 @@ public class DrinkDatabase {
 
     @Table(AlcoholicColumn.class) public static final String COCKTAIL_GLASS = "Cocktail_Glass";
 
-    @Table(AlcoholicColumn.class) public static final String CHAMPAGNE_FLUTE = "Champagne_Flute";
+    @Table(AlcoholicColumn.class) public static final String HIGHBALL_GLASS = "Champagne_Flute";
 
     @Table(AlcoholicColumn.class) public static final String SAVED = "Drink_Saved";
 

@@ -12,8 +12,15 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.net.Uri;
+import android.support.v4.os.ParcelableCompatCreatorCallbacks;
+import android.util.Log;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.example.nik.mixology.Model.Cocktail;
 
 import org.json.JSONArray;
@@ -22,6 +29,9 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Vector;
+
+import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_ALCOHOLIC;
+import static com.example.nik.mixology.data.DrinkProvider.Alcoholic.CONTENT_URI_ALCOHOLIC;
 
 /**
  * Created by nik on 12/19/2016.
@@ -53,13 +63,13 @@ public class Utils {
 
             if (Thumb != STATE_NULL) {
 
-                if(jsonObject.getString(COCKTAIL_NAME).length() != 0  && !jsonObject.isNull(COCKTAIL_NAME)){
+                if (jsonObject.getString(COCKTAIL_NAME).length() != 0 && !jsonObject.isNull(COCKTAIL_NAME)) {
                     cocktail.setmDrinkName(jsonObject.getString(COCKTAIL_NAME));
                 }
-                if(jsonObject.getString(COCKTAIL_THUMBNAIL).length() != 0  && !jsonObject.isNull(COCKTAIL_THUMBNAIL)){
+                if (jsonObject.getString(COCKTAIL_THUMBNAIL).length() != 0 && !jsonObject.isNull(COCKTAIL_THUMBNAIL)) {
                     cocktail.setmDrinkThumb(jsonObject.getString(COCKTAIL_THUMBNAIL));
                 }
-                if(jsonObject.getString(COCKTAIL_ID).length() != 0  && !jsonObject.isNull(COCKTAIL_ID)){
+                if (jsonObject.getString(COCKTAIL_ID).length() != 0 && !jsonObject.isNull(COCKTAIL_ID)) {
                     cocktail.setmDrinkId(jsonObject.getString(COCKTAIL_ID));
                 }
                 data.add(cocktail);
@@ -71,8 +81,35 @@ public class Utils {
 
     }
 
+    public static void sendNetworkJsonRequest(final Activity activity, String url, RequestQueue requestQueue, final Uri uri) {
 
+        final ArrayList<Cocktail> mCocktailArrayList = new ArrayList<>();
 
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET,
+                url,
+                null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Log.d("Response", response.toString());
+                        try {
+
+                            mCocktailArrayList.addAll(Utils.parseJSONResponse(response));
+                            ContentProviderHelperMethods.insertBulkData(uri, mCocktailArrayList, activity);
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
+        requestQueue.add(request);
+
+    }
 
 
 }

@@ -5,7 +5,6 @@ import android.net.Uri;
 import net.simonvt.schematic.annotation.ContentProvider;
 import net.simonvt.schematic.annotation.ContentUri;
 import net.simonvt.schematic.annotation.InexactContentUri;
-import net.simonvt.schematic.annotation.Table;
 import net.simonvt.schematic.annotation.TableEndpoint;
 
 import static com.example.nik.mixology.data.AlcoholicColumn._ID;
@@ -29,7 +28,7 @@ public final class DrinkProvider {
         String GIN = "Gin";
         String VODKA = "Vodka";
         String COCKTAIL_GLASS = "Cocktail_Glass";
-        String CHAMPAGNE_FLUTE = "Champagne_Flute";
+        String HIGHBALL_GLASS = "highball_glass";
         String SAVED = "Drink_Saved";
     }
 
@@ -104,12 +103,12 @@ public final class DrinkProvider {
 
     }
 
-    @TableEndpoint(table = DrinkDatabase.CHAMPAGNE_FLUTE)
+    @TableEndpoint(table = DrinkDatabase.HIGHBALL_GLASS)
     public static class ChampagneFlute {
         @ContentUri(
-                path = Path.CHAMPAGNE_FLUTE,
+                path = Path.HIGHBALL_GLASS,
                 type = "vnd.android.cursor.dir/drink")
-        public static final Uri CONTENT_URI_CHAMPAGNE_FLUTE = buildUri(Path.CHAMPAGNE_FLUTE);
+        public static final Uri CONTENT_URI_HIGHBALL_GLASS = buildUri(Path.HIGHBALL_GLASS);
 
     }
 

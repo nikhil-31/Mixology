@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "34414752885",
+    "firebase_url": "https://mixology-2f1d4.firebaseio.com",
+    "project_id": "mixology-2f1d4",
+    "storage_bucket": "mixology-2f1d4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:34414752885:android:a3cd4919c1cde3b8",
+        "android_client_info": {
+          "package_name": "com.example.nik.mixology"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "34414752885-4rogfj6hii4jr28i15nk86jfk84sb2cm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.nik.mixology",
+            "certificate_hash": "CB9AC1299782BF166ED5AE6B3B315E7684E64EFD"
+          }
+        },
+        {
+          "client_id": "34414752885-g3fno8dv7hjnclddohdk3tqae6aq00ds.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAmrqDKJcTzUAUFf-wXzPmKvDSlEiufHNE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "34414752885-g3fno8dv7hjnclddohdk3tqae6aq00ds.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

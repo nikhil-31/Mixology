@@ -1,6 +1,7 @@
 package com.example.nik.mixology.Activities;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -8,10 +9,14 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.nik.mixology.Adapters.DrinkCursorAdapter;
@@ -31,11 +36,19 @@ import com.example.nik.mixology.R;
 import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.squareup.picasso.Picasso;
 
 import java.util.Arrays;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
+import static com.example.nik.mixology.data.AlcoholicColumn.DRINK_THUMB;
+
 public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapter.OnAdapterItemSelectedListener,
         NavigationView.OnNavigationItemSelectedListener {
+
+    public static final int RC_SIGN_IN = 1;
+    private static final String ANONYMOUS = "anonymous";
 
     private Toolbar toolbar = null;
     private NavigationView navigationView = null;
@@ -44,14 +57,20 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
 
-    public static final int RC_SIGN_IN = 1;
+    private String mUsername;
+    View mHeader;
 
+    TextView mProfileNameText;
+    TextView mProfileEmailText;
+    CircleImageView mProfileImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_navigation_drawer);
 
+
+        mUsername = ANONYMOUS;
 
         //Initialize Firebase components
         mFirebaseAuth = FirebaseAuth.getInstance();
@@ -76,22 +95,33 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        mHeader = navigationView.getHeaderView(0);
+
+        mProfileImage = (CircleImageView) mHeader.findViewById(R.id.header_profile_image);
+        mProfileNameText = (TextView) mHeader.findViewById(R.id.header_profile_name);
+        mProfileEmailText = (TextView) mHeader.findViewById(R.id.header_profile_email);
+
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
+
                     // User is signed in
-                    Toast.makeText(getApplicationContext(), "Signed in", Toast.LENGTH_LONG).show();
+                    onSignedInInitialize(user.getDisplayName(), user.getEmail(), user.getPhotoUrl().toString());
 
                 } else {
-                    // USer is signed out
+                    // User is signed out
+
+                    onSignedOutTeardown();
+
                     startActivityForResult(
                             AuthUI.getInstance()
                                     .createSignInIntentBuilder()
                                     .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
                                             new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
-                                    .setTheme(R.style.AppTheme)
+                                    .setTheme(R.style.AppThemeFirebaseAuth)
+                                    .setLogo(R.drawable.ic_launcher1)
                                     .build(),
                             RC_SIGN_IN);
                 }
@@ -99,6 +129,22 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
 
             }
         };
+
+    }
+
+    private void onSignedOutTeardown() {
+        mUsername = ANONYMOUS;
+    }
+
+    private void onSignedInInitialize(String user, String email, String imageUrl) {
+        mUsername = user;
+        mProfileNameText.setText(mUsername);
+        mProfileEmailText.setText(email);
+
+        Picasso.with(getApplicationContext())
+                .load(imageUrl)
+                .into(mProfileImage);
+
 
     }
 

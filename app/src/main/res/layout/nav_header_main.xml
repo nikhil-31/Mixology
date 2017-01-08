@@ -9,36 +9,33 @@
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
     <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/profile_image"
+        android:id="@+id/header_profile_image"
         android:layout_width="70dp"
         android:layout_height="70dp"
         android:layout_marginLeft="@dimen/nav_bar_margin_left"
         android:layout_marginStart="@dimen/nav_bar_margin_left"
-        android:src="@drawable/lowang"
         app:civ_border_color="#FFFFFF"
         app:civ_border_width="1dp" />
 
     <TextView
+        android:id="@+id/header_profile_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/nav_bar_margin_left"
         android:layout_marginStart="@dimen/nav_bar_margin_left"
         android:layout_marginTop="@dimen/nav_header_vertical_spacing"
-        android:textSize="14sp"
         android:fontFamily="Roboto Medium"
-        android:text="shadow warrior"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:id="@+id/textView2" />
+        android:textSize="14sp" />
 
     <TextView
-        android:id="@+id/textWidget"
+        android:id="@+id/header_profile_email"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:fontFamily="Roboto Regular"
         android:layout_marginBottom="16dp"
         android:layout_marginLeft="@dimen/nav_bar_margin_left"
         android:layout_marginStart="@dimen/nav_bar_margin_left"
-        android:text="shadowwarrior@gmail.com" />
+        android:fontFamily="Roboto Regular"
+        android:textSize="14sp" />
 
 </LinearLayout>

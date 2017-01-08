@@ -10,7 +10,7 @@ import android.support.v4.app.TaskStackBuilder;
 import android.widget.RemoteViews;
 
 import com.example.nik.mixology.Activities.ActivityDetails;
-import com.example.nik.mixology.Activities.MainActivity;
+import com.example.nik.mixology.Activities.ActivityMain;
 import com.example.nik.mixology.R;
 
 import static com.example.nik.mixology.utils.ContentProviderHelperMethods.ACTION_DATABASE_UPDATED;
@@ -30,7 +30,7 @@ public class DrinkWidgetProvider extends AppWidgetProvider {
             RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.new_app_widget);
 
             // Create Intent to launch Main Activity
-            Intent intent = new Intent(context, MainActivity.class);
+            Intent intent = new Intent(context, ActivityMain.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
             views.setOnClickPendingIntent(R.id.widget, pendingIntent);
 

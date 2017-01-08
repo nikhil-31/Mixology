@@ -12,6 +12,7 @@ import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.example.nik.mixology.Adapters.DrinkCursorAdapter;
 import com.example.nik.mixology.Fragments.FragmentDetails;
@@ -27,18 +28,33 @@ import com.example.nik.mixology.Fragments.FragmentVodka;
 import com.example.nik.mixology.Fragments.FragmentNonAlcoholic;
 import com.example.nik.mixology.Model.Cocktail;
 import com.example.nik.mixology.R;
+import com.firebase.ui.auth.AuthUI;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
-public class MainActivity extends AppCompatActivity implements DrinkCursorAdapter.OnAdapterItemSelectedListener,
+import java.util.Arrays;
+
+public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapter.OnAdapterItemSelectedListener,
         NavigationView.OnNavigationItemSelectedListener {
 
-    Toolbar toolbar = null;
-    NavigationView navigationView = null;
+    private Toolbar toolbar = null;
+    private NavigationView navigationView = null;
+
+    // Firebase instance variables
+    private FirebaseAuth mFirebaseAuth;
+    private FirebaseAuth.AuthStateListener mAuthStateListener;
+
+    public static final int RC_SIGN_IN = 1;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_navigation_drawer);
 
+
+        //Initialize Firebase components
+        mFirebaseAuth = FirebaseAuth.getInstance();
 
         FragmentAlcoholic fragment = new FragmentAlcoholic();
         android.support.v4.app.FragmentTransaction fragmentTransaction =
@@ -60,8 +76,45 @@ public class MainActivity extends AppCompatActivity implements DrinkCursorAdapte
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    // User is signed in
+                    Toast.makeText(getApplicationContext(), "Signed in", Toast.LENGTH_LONG).show();
+
+                } else {
+                    // USer is signed out
+                    startActivityForResult(
+                            AuthUI.getInstance()
+                                    .createSignInIntentBuilder()
+                                    .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
+                                            new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
+                                    .setTheme(R.style.AppTheme)
+                                    .build(),
+                            RC_SIGN_IN);
+                }
+
+
+            }
+        };
+
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        mFirebaseAuth.addAuthStateListener(mAuthStateListener);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
+    }
 
     @Override
     public void onBackPressed() {

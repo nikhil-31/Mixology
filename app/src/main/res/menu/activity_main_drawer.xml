@@ -5,6 +5,14 @@
         android:id="@+id/Saved_Cocktails"
         android:title="#Saved Cocktails" />
 
+    <item android:title="Inspire me">
+        <menu>
+            <item
+                android:id="@+id/nav_randomixer"
+                android:title="#Randomixer" />
+        </menu>
+    </item>
+
     <item android:title="Alcoholic">
         <menu>
             <item
@@ -18,13 +26,7 @@
         </menu>
     </item>
 
-    <item android:title="Inspire me">
-        <menu>
-            <item
-                android:id="@+id/nav_randomixer"
-                android:title="#Randomixer" />
-        </menu>
-    </item>
+
 
     <item android:title="Category">
         <menu>

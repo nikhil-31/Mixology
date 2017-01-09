@@ -22,4 +22,5 @@
     <string name="drink_widget_name">Mixology</string>
     <string name="empty_saved_cocktails">Add a cocktail</string>
     <string name="sign_out">Sign Out</string>
+    <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
 </resources>

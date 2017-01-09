@@ -196,6 +196,7 @@ public class FragmentDetails extends Fragment {
     private void shareRecipe(ArrayList<Measures> measuresArrayList) {
         final StringBuilder builder = new StringBuilder();
 
+        builder.append("Sent From Mixology !!!!!!!\n");
         builder.append("Name: ").append(mCocktailDetails.getmName()).append("\n");
         builder.append("Alcoholic: ").append(mCocktailDetails.getmAlcoholic()).append("\n");
         builder.append("Instructions: \n").append(mCocktailDetails.getmInstructions()).append("\n");

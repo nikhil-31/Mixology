@@ -36,6 +36,9 @@ import com.example.nik.mixology.Model.Cocktail;
 import com.example.nik.mixology.R;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ui.email.SignInActivity;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -73,6 +76,11 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_navigation_drawer);
 
+        MobileAds.initialize(getApplicationContext(), "ca-app-pub-3940256099942544~3347511713");
+
+        AdView mAdView = (AdView) findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
 
         mUsername = ANONYMOUS;
 
@@ -84,7 +92,6 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
                 getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container, fragment);
         fragmentTransaction.commit();
-
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("#Alcoholic");
@@ -110,13 +117,11 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
-
                     // User is signed in
                     onSignedInInitialize(user.getDisplayName(), user.getEmail(), user.getPhotoUrl().toString());
 
                 } else {
                     // User is signed out
-
                     onSignedOutTeardown();
 
                     startActivityForResult(
@@ -125,15 +130,13 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
                                     .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
                                             new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
                                     .setTheme(R.style.AppThemeFirebaseAuth)
+                                    .setIsSmartLockEnabled(false)
                                     .setLogo(R.drawable.ic_launcher1)
                                     .build(),
                             RC_SIGN_IN);
                 }
-
-
             }
         };
-
     }
 
     private void onSignedOutTeardown() {
@@ -213,7 +216,6 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-
         if (id == R.id.action_settings) {
             return true;
         }
@@ -228,9 +230,6 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
                         }
                     });
         }
-
-
-
         return super.onOptionsItemSelected(item);
     }
 

@@ -4,14 +4,16 @@
     android:id="@+id/content_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginTop="?android:attr/actionBarSize"
     tools:context="com.example.nik.mixology.Fragments.FragmentAlcoholic"
-    tools:showIn="@layout/activity_main"
-    android:layout_marginTop="?android:attr/actionBarSize">
+    tools:showIn="@layout/activity_main">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/gray" />
+        android:background="@color/gray"
+        android:paddingBottom="50dp"
+        android:clipToPadding="false"/>
 
 </FrameLayout>

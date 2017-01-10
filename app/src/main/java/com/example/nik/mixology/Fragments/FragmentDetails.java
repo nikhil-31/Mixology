@@ -92,13 +92,11 @@ public class FragmentDetails extends Fragment {
 
         mCocktail = getActivity().getIntent().getParcelableExtra("Cocktail");
 
-        mCocktailId = mCocktail.getmDrinkId();
 
         setHasOptionsMenu(true);
 
         mToolbar = (Toolbar) v.findViewById(R.id.toolbar);
 
-        mToolbar.setTitle(mCocktail.getmDrinkName());
         mToolbar.setNavigationIcon(ContextCompat.getDrawable(getActivity(), R.drawable.ic_back_black));
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -110,7 +108,6 @@ public class FragmentDetails extends Fragment {
 
         mToolbar.inflateMenu(R.menu.menu_activity_details);
 
-
         mInstructionsText = (TextView) v.findViewById(R.id.detail_instructions);
         mAlcoholicText = (TextView) v.findViewById(R.id.detail_alcoholic);
         mDrinkImage = (ImageView) v.findViewById(R.id.detail_imageView);
@@ -119,8 +116,6 @@ public class FragmentDetails extends Fragment {
         mDrinkName = (TextView) v.findViewById(R.id.detail_name);
         mDetailIcon = (ImageView) v.findViewById(R.id.detail_fav_button);
 
-        sendJsonRequest();
-
         mIngredientsAdapter = new IngredientsAdapter(getActivity());
         mIngredientsRecyclerView = (RecyclerView) v.findViewById(R.id.recycler_ingredients);
 
@@ -128,6 +123,48 @@ public class FragmentDetails extends Fragment {
 
         mIngredientsRecyclerView.setLayoutManager(linearLayoutManager);
         mIngredientsRecyclerView.setAdapter(mIngredientsAdapter);
+
+        if(mCocktail != null){
+            startNetworkRequest(mCocktail);
+        }
+
+
+        return v;
+    }
+
+    public void updateContent(Cocktail cocktail){
+        startNetworkRequest(cocktail);
+
+    }
+
+    private void startNetworkRequest(final Cocktail cocktail) {
+
+        mCocktailId = cocktail.getmDrinkId();
+
+        sendJsonRequest(mCocktailId);
+
+        mToolbar.setTitle(cocktail.getmDrinkName());
+
+        mDrinkName.setText(cocktail.getmDrinkName());
+
+        Picasso.with(getActivity())
+                .load(cocktail.getmDrinkThumb())
+                .error(R.drawable.empty_glass)
+                .into(mDrinkImage);
+
+
+        mInstruction.setText(getResources().getString(R.string.Instructions));
+        mIngredients.setText(getResources().getString(R.string.Ingredients));
+
+        isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(), mCocktailId, CONTENT_URI_DRINK_SAVED);
+
+        if (isInDatabase) {
+            mDetailIcon.setImageResource(R.drawable.ic_fav_filled);
+
+        } else {
+            mDetailIcon.setImageResource(R.drawable.ic_fav_unfilled_black);
+
+        }
 
         mDetailIcon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -149,9 +186,9 @@ public class FragmentDetails extends Fragment {
                     Snackbar.make(mDetailIcon, "Drink Added", Snackbar.LENGTH_LONG).show();
 
                     ContentValues cv = new ContentValues();
-                    cv.put(_ID, mCocktail.getmDrinkId());
-                    cv.put(DRINK_NAME, mCocktail.getmDrinkName());
-                    cv.put(DRINK_THUMB, mCocktail.getmDrinkThumb());
+                    cv.put(_ID, cocktail.getmDrinkId());
+                    cv.put(DRINK_NAME, cocktail.getmDrinkName());
+                    cv.put(DRINK_THUMB, cocktail.getmDrinkThumb());
 
                     ContentProviderHelperMethods.insertData(getActivity(), mCocktailId, cv);
 
@@ -162,44 +199,19 @@ public class FragmentDetails extends Fragment {
         });
 
 
-        return v;
     }
 
-    private void setUIData() {
-
-        mInstructionsText.setText(mCocktailDetails.getmInstructions());
-
-        mAlcoholicText.setText(mCocktailDetails.getmAlcoholic());
-
-        Picasso.with(getActivity())
-                .load(mCocktail.getmDrinkThumb())
-                .error(R.drawable.empty_glass)
-                .into(mDrinkImage);
-
-        mInstruction.setText(getResources().getString(R.string.Instructions));
-        mIngredients.setText(getResources().getString(R.string.Ingredients));
-        mDrinkName.setText(mCocktail.getmDrinkName());
-
-        isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(), mCocktailId, CONTENT_URI_DRINK_SAVED);
-
-        if (isInDatabase) {
-            mDetailIcon.setImageResource(R.drawable.ic_fav_filled);
-
-        } else {
-            mDetailIcon.setImageResource(R.drawable.ic_fav_unfilled_black);
-
-        }
-
+    public void setUIData(Cocktail cocktail){
 
     }
 
-    private void shareRecipe(ArrayList<Measures> measuresArrayList) {
+    private void shareRecipe(ArrayList<Measures> measuresArrayList, CocktailDetails cocktailDetails) {
         final StringBuilder builder = new StringBuilder();
 
         builder.append("Sent From Mixology !!!!!!!\n");
-        builder.append("Name: ").append(mCocktailDetails.getmName()).append("\n");
-        builder.append("Alcoholic: ").append(mCocktailDetails.getmAlcoholic()).append("\n");
-        builder.append("Instructions: \n").append(mCocktailDetails.getmInstructions()).append("\n");
+        builder.append("Name: ").append(cocktailDetails.getmName()).append("\n");
+        builder.append("Alcoholic: ").append(cocktailDetails.getmAlcoholic()).append("\n");
+        builder.append("Instructions: \n").append(cocktailDetails.getmInstructions()).append("\n");
         builder.append("Ingredients: \n");
 
         for (int i = 0; i < measuresArrayList.size(); i++) {
@@ -227,9 +239,12 @@ public class FragmentDetails extends Fragment {
         return sharingIntent;
     }
 
-    private void sendJsonRequest() {
+    private CocktailDetails sendJsonRequest(String id) {
+
+        final CocktailDetails[] cocktailDetails = new CocktailDetails[1];
+
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET,
-                COCKTAIL_SEARCH_URL_BY_ID + mCocktailId,
+                COCKTAIL_SEARCH_URL_BY_ID + id,
                 null,
                 new Response.Listener<JSONObject>() {
                     @Override
@@ -237,12 +252,14 @@ public class FragmentDetails extends Fragment {
                         Log.d("Data", response.toString());
                         try {
 
-                            mCocktailDetails = parseJSONResponse(response);
+                            cocktailDetails[0] = parseJSONResponse(response);
+
+                            mInstructionsText.setText(cocktailDetails[0].getmInstructions());
+                            mAlcoholicText.setText(cocktailDetails[0].getmAlcoholic());
+
                             mMeasuresArrayList = parseJSONResponseMeasure(response);
 
-                            setUIData();
-
-                            shareRecipe(mMeasuresArrayList);
+                            shareRecipe(mMeasuresArrayList, cocktailDetails[0]);
 
                             mIngredientsAdapter.setMeasuresList(mMeasuresArrayList);
 
@@ -259,7 +276,10 @@ public class FragmentDetails extends Fragment {
 
             }
         });
+
         mRequestQueue.add(request);
+
+        return cocktailDetails[0];
     }
 
     public CocktailDetails parseJSONResponse(JSONObject response) throws JSONException {

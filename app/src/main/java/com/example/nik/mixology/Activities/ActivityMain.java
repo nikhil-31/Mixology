@@ -61,8 +61,8 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
     private NavigationView navigationView = null;
 
     // Firebase instance variables
-    private FirebaseAuth mFirebaseAuth;
-    private FirebaseAuth.AuthStateListener mAuthStateListener;
+//    private FirebaseAuth mFirebaseAuth;
+//    private FirebaseAuth.AuthStateListener mAuthStateListener;
 
     private String mUsername;
     View mHeader;
@@ -85,7 +85,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
         mUsername = ANONYMOUS;
 
         //Initialize Firebase components
-        mFirebaseAuth = FirebaseAuth.getInstance();
+//        mFirebaseAuth = FirebaseAuth.getInstance();
 
         FragmentAlcoholic fragment = new FragmentAlcoholic();
         android.support.v4.app.FragmentTransaction fragmentTransaction =
@@ -112,31 +112,31 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
         mProfileNameText = (TextView) mHeader.findViewById(R.id.header_profile_name);
         mProfileEmailText = (TextView) mHeader.findViewById(R.id.header_profile_email);
 
-        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    // User is signed in
-                    onSignedInInitialize(user.getDisplayName(), user.getEmail(), user.getPhotoUrl().toString());
-
-                } else {
-                    // User is signed out
-                    onSignedOutTeardown();
-
-                    startActivityForResult(
-                            AuthUI.getInstance()
-                                    .createSignInIntentBuilder()
-                                    .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
-                                            new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
-                                    .setTheme(R.style.AppThemeFirebaseAuth)
-                                    .setIsSmartLockEnabled(false)
-                                    .setLogo(R.drawable.ic_launcher1)
-                                    .build(),
-                            RC_SIGN_IN);
-                }
-            }
-        };
+//        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
+//            @Override
+//            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+//                FirebaseUser user = firebaseAuth.getCurrentUser();
+//                if (user != null) {
+//                    // User is signed in
+//                    onSignedInInitialize(user.getDisplayName(), user.getEmail(), user.getPhotoUrl().toString());
+//
+//                } else {
+//                    // User is signed out
+//                    onSignedOutTeardown();
+//
+//                    startActivityForResult(
+//                            AuthUI.getInstance()
+//                                    .createSignInIntentBuilder()
+//                                    .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
+//                                            new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
+//                                    .setTheme(R.style.AppThemeFirebaseAuth)
+//                                    .setIsSmartLockEnabled(false)
+//                                    .setLogo(R.drawable.ic_launcher1)
+//                                    .build(),
+//                            RC_SIGN_IN);
+//                }
+//            }
+//        };
     }
 
     private void onSignedOutTeardown() {
@@ -159,14 +159,14 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
     protected void onResume() {
         super.onResume();
 
-        mFirebaseAuth.addAuthStateListener(mAuthStateListener);
+//        mFirebaseAuth.addAuthStateListener(mAuthStateListener);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
 
-        mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
+//        mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
     }
 
     @Override
@@ -219,7 +219,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
         if (id == R.id.action_settings) {
             return true;
         }
-        if(id == R.id.action_sign_out){
+        if (id == R.id.action_sign_out) {
             AuthUI.getInstance()
                     .signOut(this)
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -235,11 +235,15 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
 
     @Override
     public void onItemSelected(Cocktail cocktail) {
-        FragmentDetails detailsFragment = (FragmentDetails) getSupportFragmentManager().findFragmentById(R.id.fragment_details);
+        FragmentDetails detailsFragment = (FragmentDetails) getSupportFragmentManager().findFragmentById(R.id.fragment);
         if (detailsFragment == null) {
             Intent mCocktailDetailIntent = new Intent(this, ActivityDetails.class);
             mCocktailDetailIntent.putExtra("Cocktail", cocktail);
             startActivity(mCocktailDetailIntent);
+        }
+
+        else {
+            detailsFragment.updateContent(cocktail);
         }
 
     }

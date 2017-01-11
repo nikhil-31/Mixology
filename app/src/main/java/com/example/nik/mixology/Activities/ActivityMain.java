@@ -2,6 +2,7 @@ package com.example.nik.mixology.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -36,22 +37,18 @@ import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
 
-import java.util.Arrays;
-
 import de.hdodenhof.circleimageview.CircleImageView;
-
-import static com.example.nik.mixology.data.AlcoholicColumn.DRINK_THUMB;
 
 public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapter.OnAdapterItemSelectedListener,
         NavigationView.OnNavigationItemSelectedListener {
 
     public static final int RC_SIGN_IN = 1;
     private static final String ANONYMOUS = "anonymous";
+    private static final String SELECTED_ID = "selected" ;
 
+    private int mNavItemSelected;
     private Toolbar toolbar = null;
     private NavigationView navigationView = null;
 
@@ -60,11 +57,11 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
 //    private FirebaseAuth.AuthStateListener mAuthStateListener;
 
     private String mUsername;
-    View mHeader;
+    private View mHeader;
 
-    TextView mProfileNameText;
-    TextView mProfileEmailText;
-    CircleImageView mProfileImage;
+    private TextView mProfileNameText;
+    private TextView mProfileEmailText;
+    private CircleImageView mProfileImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,14 +79,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
         //Initialize Firebase components
 //        mFirebaseAuth = FirebaseAuth.getInstance();
 
-        FragmentAlcoholic fragment = new FragmentAlcoholic();
-        android.support.v4.app.FragmentTransaction fragmentTransaction =
-                getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.fragment_container, fragment);
-        fragmentTransaction.commit();
-
         toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle(R.string.alcoholic);
         setSupportActionBar(toolbar);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -106,6 +96,10 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
         mProfileImage = (CircleImageView) mHeader.findViewById(R.id.header_profile_image);
         mProfileNameText = (TextView) mHeader.findViewById(R.id.header_profile_name);
         mProfileEmailText = (TextView) mHeader.findViewById(R.id.header_profile_email);
+
+        mNavItemSelected = savedInstanceState == null ? R.id.nav_Alcoholic : savedInstanceState.getInt(SELECTED_ID);
+        navigate(mNavItemSelected);
+
 
 //        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
 //            @Override
@@ -133,6 +127,8 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
 //            }
 //        };
     }
+
+
 
     private void onSignedOutTeardown() {
         mUsername = ANONYMOUS;
@@ -244,11 +240,13 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
 
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        outState.putInt(SELECTED_ID, mNavItemSelected);
+    }
 
+    private void navigate(int id) {
         if (id == R.id.nav_Alcoholic) {
 
             FragmentAlcoholic fragment = new FragmentAlcoholic();
@@ -343,6 +341,17 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
+
+    }
+
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+        mNavItemSelected = item.getItemId();
+        navigate(mNavItemSelected);
+
         return true;
     }
+
 }

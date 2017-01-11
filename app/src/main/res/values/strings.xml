@@ -28,6 +28,7 @@
 
     <!-- Network error -->
     <string name="Network_error">Network error</string>
+    <string name="no_network_available">No Internet Connection</string>
     <string name="search_no_data_available">Sorry. Drink not available in the database. Try a new search.</string>
 
     <!-- Navigation Drawer -->

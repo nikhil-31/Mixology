@@ -21,7 +21,7 @@ public class ActivitySearch extends AppCompatActivity implements SearchAdapter.O
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        String query = getIntent().getStringExtra("Query");
+        String query = getIntent().getStringExtra(getString(R.string.search_intent_query));
         String queryAdjusted = query.replaceAll("%20"," ");
         getSupportActionBar().setTitle(queryAdjusted);
 
@@ -33,7 +33,7 @@ public class ActivitySearch extends AppCompatActivity implements SearchAdapter.O
         FragmentDetails detailsFragment = (FragmentDetails) getSupportFragmentManager().findFragmentById(R.id.fragment_details);
         if (detailsFragment == null) {
             Intent mCocktailDetailIntent = new Intent(this, ActivityDetails.class);
-            mCocktailDetailIntent.putExtra("Cocktail", id);
+            mCocktailDetailIntent.putExtra(getString(R.string.details_intent_cocktail), id);
             startActivity(mCocktailDetailIntent);
         }
     }

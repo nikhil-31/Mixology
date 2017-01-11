@@ -107,7 +107,6 @@ public class ContentProviderHelperMethods {
     }
 
 
-
     public static void deleteData(Activity mAct, String id) {
 
         mAct.getContentResolver().delete(withId(id),
@@ -120,31 +119,8 @@ public class ContentProviderHelperMethods {
     private static void updateWidgets(Context context) {
 
         // Setting the package ensures that only components in our app will receive the broadcast
-        Intent dataUpdatedIntent = new Intent(ACTION_DATABASE_UPDATED)
-                .setPackage(context.getPackageName());
+        Intent dataUpdatedIntent = new Intent(ACTION_DATABASE_UPDATED).setPackage(context.getPackageName());
         context.sendBroadcast(dataUpdatedIntent);
     }
-
-    public static Cocktail getDrinkFromDatabase(Activity mActivity, String ID, Uri uri) {
-        Cocktail cocktail = null;
-
-        Cursor cursor = mActivity.getContentResolver().query(uri, null, null, null, null);
-        assert cursor != null;
-        if (cursor.moveToFirst()) {
-            do {
-                if (ID.equals(cursor.getString(cursor.getColumnIndex(_ID)))) {
-                    cocktail = new Cocktail();
-                    cocktail.setmDrinkId(cursor.getString(cursor.getColumnIndex(_ID)));
-                    cocktail.setmDrinkName(cursor.getString(cursor.getColumnIndex(DRINK_NAME)));
-                    cocktail.setmDrinkThumb(cursor.getString(cursor.getColumnIndex(DRINK_THUMB)));
-                    break;
-                }
-            }
-            while (cursor.moveToNext());
-        }
-        cursor.close();
-        return cocktail;
-    }
-
 
 }

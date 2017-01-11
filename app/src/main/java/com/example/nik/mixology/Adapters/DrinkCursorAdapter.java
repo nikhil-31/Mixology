@@ -5,17 +5,14 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
-import android.net.Uri;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.example.nik.mixology.Model.Cocktail;
 import com.example.nik.mixology.R;
 import com.example.nik.mixology.utils.ContentProviderHelperMethods;
@@ -26,7 +23,6 @@ import static com.example.nik.mixology.data.AlcoholicColumn.DRINK_NAME;
 import static com.example.nik.mixology.data.AlcoholicColumn.DRINK_THUMB;
 import static com.example.nik.mixology.data.AlcoholicColumn._ID;
 import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.CONTENT_URI_DRINK_SAVED;
-import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.withId;
 
 /**
  * Created by nik on 12/19/2016.
@@ -34,7 +30,7 @@ import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.withId;
 
 public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAdapter.ViewHolder> {
 
-    private Context context;
+    private Context mContext;
     private LayoutInflater inflater;
     private Activity mAct;
     private OnAdapterItemSelectedListener mAdapterCallback;
@@ -42,9 +38,9 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
 
     public DrinkCursorAdapter(Cursor cursor, Activity activity) {
         super(activity, cursor);
-        this.context = activity;
+        this.mContext = activity;
         this.mAct = activity;
-        inflater = LayoutInflater.from(context);
+        inflater = LayoutInflater.from(mContext);
         mAdapterCallback = (OnAdapterItemSelectedListener) mAct;
 
     }
@@ -60,7 +56,7 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
         currentCocktail.setmDrinkThumb(cursor.getString(cursor.getColumnIndex(DRINK_THUMB)));
 
         viewHolder.textView.setText(cursor.getString(cursor.getColumnIndex(DRINK_NAME)));
-        Picasso.with(context)
+        Picasso.with(mContext)
                 .load(cursor.getString(cursor.getColumnIndex(DRINK_THUMB)))
                 .error(R.drawable.empty_glass)
                 .into(viewHolder.image);
@@ -83,7 +79,7 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
                 isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(mAct, cursor.getString(cursor.getColumnIndex(_ID)), CONTENT_URI_DRINK_SAVED);
                 if (isInDatabase) {
 
-                    Snackbar.make(viewHolder.imageButton, "Drink Deleted", Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(viewHolder.imageButton, mContext.getString(R.string.drink_deleted), Snackbar.LENGTH_LONG).show();
 
                     String id = cursor.getString(cursor.getColumnIndex(_ID));
                     ContentProviderHelperMethods.deleteData(mAct, id);
@@ -92,7 +88,7 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
 
                 } else {
 
-                    Snackbar.make(viewHolder.imageButton, "Drink Added", Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(viewHolder.imageButton, mContext.getString(R.string.drink_added), Snackbar.LENGTH_LONG).show();
 
                     ContentValues cv = new ContentValues();
                     cv.put(_ID, cursor.getString(cursor.getColumnIndex(_ID)));

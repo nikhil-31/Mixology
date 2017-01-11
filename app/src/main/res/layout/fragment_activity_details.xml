@@ -52,9 +52,8 @@
                     android:id="@+id/detail_imageView"
                     android:layout_width="match_parent"
                     android:layout_height="350dp"
-                    android:contentDescription="@string/drink_image"
-                    android:scaleType="centerCrop"
-                    android:transitionName="@string/transition_name" />
+                    android:contentDescription="@string/content_desc_drink_image"
+                    android:scaleType="centerCrop" />
 
                 <LinearLayout
                     android:layout_width="match_parent"

@@ -3,71 +3,71 @@
 
     <item
         android:id="@+id/Saved_Cocktails"
-        android:title="#Saved Cocktails" />
+        android:title="@string/saved_cocktails" />
 
-    <item android:title="Inspire me">
+    <item android:title="@string/nav_title_inspire_me">
         <menu>
             <item
                 android:id="@+id/nav_randomixer"
-                android:title="#Randomixer" />
+                android:title="@string/randomixer" />
         </menu>
     </item>
 
-    <item android:title="Alcoholic">
+    <item android:title="@string/nav_title_alcoholic">
         <menu>
             <item
                 android:id="@+id/nav_Alcoholic"
                 android:state_activated="true"
-                android:title="#Alcoholic" />
+                android:title="@string/alcoholic" />
             <item
                 android:id="@+id/nav_Non_Alcoholic"
                 android:state_activated="true"
-                android:title="#Non Alcoholic" />
+                android:title="@string/non_alcoholic" />
         </menu>
     </item>
 
 
 
-    <item android:title="Category">
+    <item android:title="@string/nav_title_category">
         <menu>
             <item
                 android:id="@+id/nav_Cocktail"
                 android:state_activated="true"
-                android:title="#Cocktail" />
+                android:title="@string/cocktail" />
 
             <item
                 android:id="@+id/nav_Ordinary_Drink"
                 android:state_activated="true"
-                android:title="#Ordinary Drink" />
+                android:title="@string/ordinary_drink" />
         </menu>
     </item>
 
 
-    <item android:title="Favourite Ingredients">
+    <item android:title="@string/nav_title_favourite_ingredients">
         <menu>
             <item
                 android:id="@+id/nav_gin"
                 android:state_activated="true"
-                android:title="#Gin" />
+                android:title="@string/gin" />
 
             <item
                 android:id="@+id/nav_vodka"
                 android:state_activated="true"
-                android:title="#Vodka" />
+                android:title="@string/vodka" />
         </menu>
     </item>
 
-    <item android:title="Glass">
+    <item android:title="@string/nav_title_glass">
         <menu>
             <item
                 android:id="@+id/nav_cocktail_glass"
                 android:state_activated="true"
-                android:title="#Cocktail Glass" />
+                android:title="@string/cocktail_glass" />
 
             <item
                 android:id="@+id/nav_Highball_Glass"
                 android:state_activated="true"
-                android:title="#Highball Glass" />
+                android:title="@string/highball_glass" />
         </menu>
     </item>
 

@@ -69,7 +69,7 @@ public class FragmentSearch extends Fragment {
 
         Bundle extras = getActivity().getIntent().getExtras();
         if (extras != null) {
-            Query = extras.getString("Query");
+            Query = extras.getString(getString(R.string.search_intent_query));
         }
 
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_search);
@@ -100,7 +100,6 @@ public class FragmentSearch extends Fragment {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            Log.d("Data", response.toString());
 
                             mCocktailDetails = parseJSONResponse(response);
                             mSearchAdapter.setCocktailList(mCocktailDetails);

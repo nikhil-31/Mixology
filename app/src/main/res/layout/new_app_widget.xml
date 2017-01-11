@@ -19,7 +19,7 @@
             android:layout_marginStart="@dimen/abc_list_item_padding_horizontal_material"
             android:textColor="@android:color/black"
             android:gravity="center_vertical"
-            android:text="#Saved_Cocktails"
+            android:text="@string/saved_cocktails"
             android:textSize="18sp" />
 
     </FrameLayout>
@@ -41,7 +41,7 @@
             android:layout_height="match_parent"
             android:fontFamily="sans-serif-condensed"
             android:gravity="center"
-            android:text="@string/empty_saved_cocktails"
+            android:text="@string/widget_empty_saved_cocktails"
             android:textAppearance="?android:textAppearanceLarge" />
     </FrameLayout>
 

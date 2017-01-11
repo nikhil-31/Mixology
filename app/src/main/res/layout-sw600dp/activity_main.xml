@@ -29,7 +29,7 @@
         <FrameLayout
             android:id="@+id/fragment_container"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent" />
 
         <com.google.android.gms.ads.AdView
             android:id="@+id/adView"
@@ -37,6 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
+            android:contentDescription="@string/content_desc_sponsored"
             ads:adSize="BANNER"
             ads:adUnitId="@string/banner_ad_unit_id" />
     </RelativeLayout>

@@ -83,11 +83,8 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
                 if (isInDatabase) {
                     holder.imageButton.setImageResource(R.drawable.ic_fav_filled);
 
-                    Snackbar.make(holder.imageButton, "Drink Deleted", Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(holder.imageButton, mAct.getString(R.string.drink_deleted), Snackbar.LENGTH_LONG).show();
 
-//                    mAct.getContentResolver().delete(withId(currentCocktail.getmId()),
-//                            null,
-//                            null);
                     String id = currentCocktail.getmId();
                     ContentProviderHelperMethods.deleteData(mAct, id);
 
@@ -96,14 +93,12 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
                 } else {
                     holder.imageButton.setImageResource(R.drawable.ic_fav_unfilled_black);
 
-                    Snackbar.make(holder.imageButton, "Drink Added", Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(holder.imageButton, mAct.getString(R.string.drink_added), Snackbar.LENGTH_LONG).show();
 
                     ContentValues cv = new ContentValues();
                     cv.put(_ID, currentCocktail.getmId());
                     cv.put(DRINK_NAME, currentCocktail.getmName());
                     cv.put(DRINK_THUMB, currentCocktail.getmThumb());
-
-//                    mAct.getContentResolver().insert(withId(currentCocktail.getmId()), cv);
 
                     String id = currentCocktail.getmId();
                     ContentProviderHelperMethods.insertData(mAct, id, cv);

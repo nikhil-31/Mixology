@@ -32,7 +32,7 @@
                         android:id="@+id/detail_imageView"
                         android:layout_width="match_parent"
                         android:layout_height="350dp"
-                        android:contentDescription="@string/drink_image"
+                        android:contentDescription="@string/content_desc_drink_image"
                         android:scaleType="centerCrop" />
 
                     <LinearLayout
@@ -57,7 +57,8 @@
                             android:layout_height="40dp"
                             android:layout_marginEnd="@dimen/abc_list_item_padding_horizontal_material"
                             android:layout_marginRight="@dimen/abc_list_item_padding_horizontal_material"
-                            android:layout_marginTop="18dp" />
+                            android:layout_marginTop="18dp"
+                            android:contentDescription="@string/content_desc_Add_Delete_button"/>
 
 
                     </LinearLayout>

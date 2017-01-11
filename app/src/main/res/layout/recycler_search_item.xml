@@ -15,7 +15,8 @@
         android:layout_gravity="center"
         android:layout_marginLeft="@dimen/abc_list_item_padding_horizontal_material"
         android:layout_marginEnd="@dimen/abc_list_item_padding_horizontal_material"
-        android:layout_marginRight="@dimen/abc_list_item_padding_horizontal_material" />
+        android:layout_marginRight="@dimen/abc_list_item_padding_horizontal_material"
+        android:contentDescription="@string/content_desc_drink_image"/>
 
     <TextView
         android:id="@+id/list_search_text"
@@ -28,7 +29,8 @@
     <ImageView
         android:id="@+id/list_search_fav"
         android:layout_width="40dp"
-        android:layout_height="40dp" />
+        android:layout_height="40dp"
+        android:contentDescription="@string/content_desc_Add_Delete_button"/>
 
 </LinearLayout>
 

@@ -22,7 +22,8 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:visibility="gone"
-        android:text="@string/no_data_available"
-        android:textSize="20sp"/>
+        android:text="@string/search_no_data_available"
+        android:textSize="20sp"
+        android:contentDescription="@string/search_no_data_available"/>
 
 </RelativeLayout>

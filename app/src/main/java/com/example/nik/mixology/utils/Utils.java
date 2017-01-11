@@ -45,7 +45,7 @@ public class Utils {
         final String COCKTAIL_NAME = "strDrink";
         final String COCKTAIL_THUMBNAIL = "strDrinkThumb";
         final String COCKTAIL_ID = "idDrink";
-        String STATE_NULL = "null";
+        final String STATE_NULL = "null";
 
         ArrayList<Cocktail> data = new ArrayList<>();
 
@@ -91,7 +91,6 @@ public class Utils {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        Log.d("Response", response.toString());
                         try {
 
                             mCocktailArrayList.addAll(Utils.parseJSONResponse(response));

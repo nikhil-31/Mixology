@@ -112,7 +112,7 @@ public class FragmentRandomixer extends Fragment {
                 if (isInDatabase) {
                     mDetailIcon.setImageResource(R.drawable.ic_fav_filled);
 
-                    Snackbar.make(mDetailIcon, "Drink Deleted", Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(mDetailIcon, getString(R.string.drink_deleted), Snackbar.LENGTH_LONG).show();
 
                     ContentProviderHelperMethods.deleteData(getActivity(), mCocktailDetails.getmId());
 
@@ -121,14 +121,14 @@ public class FragmentRandomixer extends Fragment {
                 } else {
                     mDetailIcon.setImageResource(R.drawable.ic_fav_unfilled_black);
 
-                    Snackbar.make(mDetailIcon, "Drink Added", Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(mDetailIcon, getString(R.string.drink_added), Snackbar.LENGTH_LONG).show();
 
                     ContentValues cv = new ContentValues();
                     cv.put(_ID, mCocktailDetails.getmId());
                     cv.put(DRINK_NAME, mCocktailDetails.getmName());
                     cv.put(DRINK_THUMB, mCocktailDetails.getmThumb());
 
-                    ContentProviderHelperMethods.insertData(getActivity(),mCocktailDetails.getmId(),cv);
+                    ContentProviderHelperMethods.insertData(getActivity(), mCocktailDetails.getmId(), cv);
 
                     mDetailIcon.setImageResource(R.drawable.ic_fav_filled);
                 }
@@ -164,7 +164,7 @@ public class FragmentRandomixer extends Fragment {
 
         mDrinkName.setText(mCocktailDetails.getmName());
 
-        isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(),mCocktailDetails.getmId() , CONTENT_URI_DRINK_SAVED);
+        isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(), mCocktailDetails.getmId(), CONTENT_URI_DRINK_SAVED);
 
         if (isInDatabase) {
             mDetailIcon.setImageResource(R.drawable.ic_fav_filled);
@@ -182,7 +182,6 @@ public class FragmentRandomixer extends Fragment {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        Log.d("Data", response.toString());
                         try {
 
                             mCocktailDetails = parseJSONResponse(response);
@@ -192,13 +191,10 @@ public class FragmentRandomixer extends Fragment {
 
                             mIngredientsAdapter.setMeasuresList(mMeasuresArrayList);
 
-                            Log.d("Instructions", mCocktailDetails.getmInstructions());
-
-
                         } catch (JSONException e) {
                             e.printStackTrace();
 
-                            Toast.makeText(getActivity(), "Check internet connection", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getActivity(), getString(R.string.Network_error), Toast.LENGTH_LONG).show();
 
                         }
                     }
@@ -293,7 +289,7 @@ public class FragmentRandomixer extends Fragment {
                 mMeasures.add(measure);
             }
 
-            if (jsonObject.getString(INGREDIENT_2).length() != 0 && !jsonObject.isNull(INGREDIENT_2) ) {
+            if (jsonObject.getString(INGREDIENT_2).length() != 0 && !jsonObject.isNull(INGREDIENT_2)) {
                 Measures measure = new Measures();
                 measure.setIngredient(jsonObject.getString(INGREDIENT_2));
                 measure.setMeasure(jsonObject.getString(MEASURE_2));

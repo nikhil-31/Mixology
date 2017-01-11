@@ -10,7 +10,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -52,7 +51,6 @@ import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.CONTENT_URI
 public class FragmentDetails extends Fragment {
 
     private Cocktail mCocktail;
-    private CocktailDetails mCocktailDetails;
 
     // Volley
     private RequestQueue mRequestQueue;
@@ -71,7 +69,6 @@ public class FragmentDetails extends Fragment {
     private IngredientsAdapter mIngredientsAdapter;
     private ArrayList<Measures> mMeasuresArrayList;
     private ImageView mDetailIcon;
-
     private boolean isInDatabase;
 
     public FragmentDetails() {
@@ -90,7 +87,7 @@ public class FragmentDetails extends Fragment {
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_activity_details, container, false);
 
-        mCocktail = getActivity().getIntent().getParcelableExtra("Cocktail");
+        mCocktail = getActivity().getIntent().getParcelableExtra(getString(R.string.details_intent_cocktail));
 
 
         setHasOptionsMenu(true);
@@ -98,11 +95,11 @@ public class FragmentDetails extends Fragment {
         mToolbar = (Toolbar) v.findViewById(R.id.toolbar);
 
         mToolbar.setNavigationIcon(ContextCompat.getDrawable(getActivity(), R.drawable.ic_back_black));
+        mToolbar.setNavigationContentDescription(getString(R.string.content_desc_up_navigation));
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 getActivity().finish();
-
             }
         });
 
@@ -115,6 +112,7 @@ public class FragmentDetails extends Fragment {
         mIngredients = (TextView) v.findViewById(R.id.detail_ingredients_text);
         mDrinkName = (TextView) v.findViewById(R.id.detail_name);
         mDetailIcon = (ImageView) v.findViewById(R.id.detail_fav_button);
+        mDetailIcon.setContentDescription(getString(R.string.content_desc_Add_Delete_button));
 
         mIngredientsAdapter = new IngredientsAdapter(getActivity());
         mIngredientsRecyclerView = (RecyclerView) v.findViewById(R.id.recycler_ingredients);
@@ -124,7 +122,7 @@ public class FragmentDetails extends Fragment {
         mIngredientsRecyclerView.setLayoutManager(linearLayoutManager);
         mIngredientsRecyclerView.setAdapter(mIngredientsAdapter);
 
-        if(mCocktail != null){
+        if (mCocktail != null) {
             startNetworkRequest(mCocktail);
         }
 
@@ -132,7 +130,7 @@ public class FragmentDetails extends Fragment {
         return v;
     }
 
-    public void updateContent(Cocktail cocktail){
+    public void updateContent(Cocktail cocktail) {
         startNetworkRequest(cocktail);
 
     }
@@ -160,10 +158,8 @@ public class FragmentDetails extends Fragment {
 
         if (isInDatabase) {
             mDetailIcon.setImageResource(R.drawable.ic_fav_filled);
-
         } else {
             mDetailIcon.setImageResource(R.drawable.ic_fav_unfilled_black);
-
         }
 
         mDetailIcon.setOnClickListener(new View.OnClickListener() {
@@ -174,7 +170,7 @@ public class FragmentDetails extends Fragment {
                 if (isInDatabase) {
                     mDetailIcon.setImageResource(R.drawable.ic_fav_filled);
 
-                    Snackbar.make(mDetailIcon, "Drink Deleted", Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(mDetailIcon, getString(R.string.drink_deleted), Snackbar.LENGTH_LONG).show();
 
                     ContentProviderHelperMethods.deleteData(getActivity(), mCocktailId);
 
@@ -183,7 +179,8 @@ public class FragmentDetails extends Fragment {
                 } else {
                     mDetailIcon.setImageResource(R.drawable.ic_fav_unfilled_black);
 
-                    Snackbar.make(mDetailIcon, "Drink Added", Snackbar.LENGTH_LONG).show();
+
+                    Snackbar.make(mDetailIcon, getString(R.string.drink_added), Snackbar.LENGTH_LONG).show();
 
                     ContentValues cv = new ContentValues();
                     cv.put(_ID, cocktail.getmDrinkId());
@@ -201,18 +198,14 @@ public class FragmentDetails extends Fragment {
 
     }
 
-    public void setUIData(Cocktail cocktail){
-
-    }
-
     private void shareRecipe(ArrayList<Measures> measuresArrayList, CocktailDetails cocktailDetails) {
         final StringBuilder builder = new StringBuilder();
 
-        builder.append("Sent From Mixology !!!!!!!\n");
-        builder.append("Name: ").append(cocktailDetails.getmName()).append("\n");
-        builder.append("Alcoholic: ").append(cocktailDetails.getmAlcoholic()).append("\n");
-        builder.append("Instructions: \n").append(cocktailDetails.getmInstructions()).append("\n");
-        builder.append("Ingredients: \n");
+        builder.append(R.string.detail_share_sent_from_mixology).append("\n");
+        builder.append(R.string.detail_share_name).append(cocktailDetails.getmName()).append("\n");
+        builder.append(R.string.detail_share_alcoholic).append(cocktailDetails.getmAlcoholic()).append("\n");
+        builder.append(R.string.detail_share_instructions).append("\n").append(cocktailDetails.getmInstructions()).append("\n");
+        builder.append(R.string.detail_share_ingredients).append("\n");
 
         for (int i = 0; i < measuresArrayList.size(); i++) {
             Measures measures = measuresArrayList.get(i);
@@ -223,7 +216,7 @@ public class FragmentDetails extends Fragment {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 if (item.getItemId() == R.id.action_share) {
-                    startActivity(Intent.createChooser(shareIntent(builder.toString()), "Share Via"));
+                    startActivity(Intent.createChooser(shareIntent(builder.toString()), getString(R.string.detail_share_via)));
                 }
                 return false;
             }
@@ -234,7 +227,7 @@ public class FragmentDetails extends Fragment {
     public Intent shareIntent(String data) {
         Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
         sharingIntent.setType("text/plain");
-        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Recipe sent from mixology,");
+        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, R.string.detail_share_sent_from_mixology);
         sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, data);
         return sharingIntent;
     }
@@ -249,7 +242,6 @@ public class FragmentDetails extends Fragment {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        Log.d("Data", response.toString());
                         try {
 
                             cocktailDetails[0] = parseJSONResponse(response);
@@ -266,7 +258,7 @@ public class FragmentDetails extends Fragment {
                         } catch (JSONException e) {
                             e.printStackTrace();
 
-                            Toast.makeText(getActivity(), "Check internet connection", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getActivity(), getString(R.string.Network_error), Toast.LENGTH_LONG).show();
 
                         }
                     }

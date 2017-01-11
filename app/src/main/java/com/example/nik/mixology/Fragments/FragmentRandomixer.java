@@ -36,6 +36,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import javax.microedition.khronos.opengles.GL;
+
 import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_URL_RANDOM;
 import static com.example.nik.mixology.data.AlcoholicColumn.DRINK_NAME;
 import static com.example.nik.mixology.data.AlcoholicColumn.DRINK_THUMB;
@@ -229,14 +231,33 @@ public class FragmentRandomixer extends Fragment {
 
             JSONObject jsonObject = results.getJSONObject(i);
 
-            details.setmName(jsonObject.getString(NAME));
-            details.setmCategory(jsonObject.getString(CATEGORY));
-            details.setmAlcoholic(jsonObject.getString(ALCOHOLIC));
-            details.setmGlass(jsonObject.getString(GLASS));
-            details.setmInstructions(jsonObject.getString(INSTRUCTIONS));
-            details.setmThumb(jsonObject.getString(THUMB));
-            details.setmId(jsonObject.getString(ID));
+            if (jsonObject.getString(NAME).length() != 0 && !jsonObject.isNull(NAME)) {
+                details.setmName(jsonObject.getString(NAME));
+            }
 
+            if (jsonObject.getString(CATEGORY).length() != 0 && !jsonObject.isNull(CATEGORY)) {
+                details.setmCategory(jsonObject.getString(CATEGORY));
+            }
+
+            if (jsonObject.getString(ALCOHOLIC).length() != 0 && !jsonObject.isNull(ALCOHOLIC)) {
+                details.setmAlcoholic(jsonObject.getString(ALCOHOLIC));
+            }
+
+            if (jsonObject.getString(GLASS).length() != 0 && !jsonObject.isNull(GLASS)) {
+                details.setmGlass(jsonObject.getString(GLASS));
+            }
+
+            if (jsonObject.getString(INSTRUCTIONS).length() != 0 && !jsonObject.isNull(INSTRUCTIONS)) {
+                details.setmInstructions(jsonObject.getString(INSTRUCTIONS));
+            }
+
+            if (jsonObject.getString(THUMB).length() != 0 && !jsonObject.isNull(THUMB)) {
+                details.setmThumb(jsonObject.getString(THUMB));
+            }
+
+            if (jsonObject.getString(ID).length() != 0 && !jsonObject.isNull(ID)) {
+                details.setmId(jsonObject.getString(ID));
+            }
         }
         return details;
     }

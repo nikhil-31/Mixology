@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">Mixology</string>
-    <string name="title_activity_details">ActivityDetails</string>
-    <string name="title_activity_search">ActivitySearch</string>
+    <string name="app_name" translatable="false">Mixology</string>
+    <string name="title_activity_details" translatable="false">ActivityDetails</string>
+    <string name="title_activity_search" translatable="false">ActivitySearch</string>
 
     <!-- Menu -->
     <string name="action_settings">Settings</string>
@@ -14,13 +14,13 @@
     <string name="content_desc_up_navigation">Up navigation</string>
     <string name="content_desc_sponsored">Sponsored</string>
 
-    <!-- static variables in details fragment -->
+    <!-- static data set in details fragment -->
     <string name="Instructions">Instructions</string>
     <string name="Ingredients">Ingredients</string>
 
     <!-- Intents -->
-    <string name="search_intent_query">Query</string>
-    <string name="details_intent_cocktail">Cocktail</string>
+    <string name="search_intent_query" translatable="false">Query</string>
+    <string name="details_intent_cocktail" translatable="false">Cocktail</string>
 
     <!-- Add or delete to database -->
     <string name="drink_added">Drink Added</string>
@@ -47,9 +47,9 @@
     <string name="action_sign_out">Sign Out</string>
 
     <!-- Admob ad unit id -->
-    <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="banner_ad_unit_id" translatable="false">ca-app-pub-3940256099942544/6300978111</string>
 
-    <!-- Navigation drawer and title for main activity based on which fragment is present-->
+    <!-- Navigation drawer menu items and title for main activity toolbar based on which fragment is present-->
     <string name="saved_cocktails">#Saved Cocktails</string>
     <string name="randomixer">#Randomixer</string>
     <string name="non_alcoholic">#Non Alcoholic</string>
@@ -61,7 +61,7 @@
     <string name="cocktail_glass">#Cocktail Glass</string>
     <string name="highball_glass">#Highball Glass</string>
 
-    <!-- Share Intent detail fragment -->
+    <!-- Share Intent detail fragment that shares data to many different apps -->
     <string name="detail_share_via">Share Via</string>
     <string name="detail_share_sent_from_mixology">Recipe Sent From Mixology !!!!!!!</string>
     <string name="detail_share_name">Name: </string>

@@ -221,15 +221,18 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
             return true;
         }
         if (id == R.id.action_sign_out) {
-            AuthUI.getInstance()
-                    .signOut(this)
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        public void onComplete(@NonNull Task<Void> task) {
-                            // user is now signed out
-                            startActivity(new Intent(ActivityMain.this, SignInActivity.class));
-                            finish();
-                        }
-                    });
+            FirebaseAuth.getInstance().signOut();
+
+            FirebaseAuth.AuthStateListener authListener = new FirebaseAuth.AuthStateListener() {
+                @Override
+                public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                    FirebaseUser user = firebaseAuth.getCurrentUser();
+                    if (user == null) {
+                        startActivity(new Intent(ActivityMain.this, SignInActivity.class));
+                        finish();
+                    }
+                }
+            };
         }
         return super.onOptionsItemSelected(item);
     }

@@ -62,7 +62,7 @@
             android:name=".Widget.DrinkWidgetService"
             android:exported="false"
             android:permission="android.permission.BIND_REMOTEVIEWS" />
-        <activity android:name=".SigninActivity"/>
+
     </application>
 
 </manifest>

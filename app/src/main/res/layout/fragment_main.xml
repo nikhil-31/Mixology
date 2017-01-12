@@ -22,8 +22,7 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:visibility="gone"
-        android:text="@string/check_internet_connection"
         android:textSize="20sp"
-        android:contentDescription="@string/check_internet_connection"/>
+        android:contentDescription="@string/add_a_drink"/>
 
 </FrameLayout>

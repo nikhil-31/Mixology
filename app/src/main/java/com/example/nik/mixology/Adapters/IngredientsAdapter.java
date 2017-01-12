@@ -1,6 +1,5 @@
 package com.example.nik.mixology.Adapters;
 
-import android.app.Activity;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -59,7 +58,7 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
 
         Picasso.with(context)
                 .load(COCKTAIL_INGREDIENTS_URL + in + COCKTAIL_INGREDIENT_PNG_SMALL )
-                .error(R.drawable.vodka)
+                .error(R.drawable.vodka1)
                 .into(holder.mIngredientsImage);
 
     }

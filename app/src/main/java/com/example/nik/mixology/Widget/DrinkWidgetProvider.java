@@ -36,7 +36,7 @@ public class DrinkWidgetProvider extends AppWidgetProvider {
 
             views.setRemoteAdapter(R.id.widget_list, new Intent(context, DrinkWidgetService.class));
 
-            Intent clickIntentTemplate = new Intent(context,ActivityDetails.class);
+            Intent clickIntentTemplate = new Intent(context, ActivityDetails.class);
 
             PendingIntent clickPendingIntentTemplate = TaskStackBuilder.create(context)
                     .addNextIntentWithParentStack(clickIntentTemplate)
@@ -54,7 +54,7 @@ public class DrinkWidgetProvider extends AppWidgetProvider {
     @Override
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
-        if (ACTION_DATABASE_UPDATED.equals(intent.getAction())){
+        if (ACTION_DATABASE_UPDATED.equals(intent.getAction())) {
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
             int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
                     new ComponentName(context, getClass()));

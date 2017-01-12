@@ -202,11 +202,11 @@ public class FragmentDetails extends Fragment {
     private void shareRecipe(ArrayList<Measures> measuresArrayList, CocktailDetails cocktailDetails) {
         final StringBuilder builder = new StringBuilder();
 
-        builder.append(R.string.detail_share_sent_from_mixology).append("\n");
-        builder.append(R.string.detail_share_name).append(cocktailDetails.getmName()).append("\n");
-        builder.append(R.string.detail_share_alcoholic).append(cocktailDetails.getmAlcoholic()).append("\n");
-        builder.append(R.string.detail_share_instructions).append("\n").append(cocktailDetails.getmInstructions()).append("\n");
-        builder.append(R.string.detail_share_ingredients).append("\n");
+        builder.append(getString(R.string.detail_share_sent_from_mixology)).append(" \n");
+        builder.append(getString(R.string.detail_share_name)).append(" ").append(cocktailDetails.getmName()).append("\n");
+        builder.append(getString(R.string.detail_share_alcoholic)).append(" ").append(cocktailDetails.getmAlcoholic()).append("\n");
+        builder.append(getString(R.string.detail_share_instructions)).append(" ").append("\n").append(cocktailDetails.getmInstructions()).append("\n");
+        builder.append(getString(R.string.detail_share_ingredients)).append("\n");
 
         for (int i = 0; i < measuresArrayList.size(); i++) {
             Measures measures = measuresArrayList.get(i);
@@ -228,7 +228,7 @@ public class FragmentDetails extends Fragment {
     public Intent shareIntent(String data) {
         Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
         sharingIntent.setType("text/plain");
-        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, R.string.detail_share_sent_from_mixology);
+        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, getString(R.string.detail_share_sent_from_mixology));
         sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, data);
         return sharingIntent;
     }

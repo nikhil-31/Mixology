@@ -74,11 +74,6 @@ public class FragmentCocktailGlass extends Fragment implements LoaderManager.Loa
 
         Utils.sendNetworkJsonRequest(getActivity(), COCKTAIL_SEARCH_URL_COCKTAIL_GLASS, mRequestQueue, CONTENT_URI_COCKTAIL_GLASS);
 
-        if(ContentProviderHelperMethods.getDrinkListFromDatabase(getActivity(),CONTENT_URI_ALCOHOLIC).size() == 0){
-            mRecyclerView.setVisibility(View.INVISIBLE);
-            mEmptyTextView.setVisibility(View.VISIBLE);
-        }
-
         return rootView;
     }
 

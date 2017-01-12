@@ -25,6 +25,7 @@ import android.widget.TextView;
 
 import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_ALCOHOLIC;
 import static com.example.nik.mixology.data.DrinkProvider.Alcoholic.CONTENT_URI_ALCOHOLIC;
+import static com.example.nik.mixology.data.DrinkProvider.Vodka.CONTENT_URI_VODKA;
 
 /**
  * A placeholder fragment containing a simple view.

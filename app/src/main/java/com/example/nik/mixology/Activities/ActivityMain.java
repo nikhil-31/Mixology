@@ -37,7 +37,11 @@ import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
+
+import java.util.Arrays;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -46,16 +50,15 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
 
     public static final int RC_SIGN_IN = 1;
     private static final String ANONYMOUS = "anonymous";
-    private static final String SELECTED_ID = "selected" ;
+    private static final String SELECTED_ID = "selected";
 
     private int mNavItemSelected;
     private Toolbar toolbar = null;
     private NavigationView navigationView = null;
-    private String mTitle;
 
     // Firebase instance variables
-//    private FirebaseAuth mFirebaseAuth;
-//    private FirebaseAuth.AuthStateListener mAuthStateListener;
+    private FirebaseAuth mFirebaseAuth;
+    private FirebaseAuth.AuthStateListener mAuthStateListener;
 
     private String mUsername;
     private View mHeader;
@@ -78,7 +81,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
         mUsername = ANONYMOUS;
 
         //Initialize Firebase components
-//        mFirebaseAuth = FirebaseAuth.getInstance();
+        mFirebaseAuth = FirebaseAuth.getInstance();
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -101,53 +104,45 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
         mNavItemSelected = savedInstanceState == null ? R.id.nav_Alcoholic : savedInstanceState.getInt(SELECTED_ID);
         navigate(mNavItemSelected);
 
+        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    // User is signed in
+                    onSignedInInitialize(user.getDisplayName(), user.getEmail(), user.getPhotoUrl().toString());
 
+                } else {
+                    // User is signed out
+                    onSignedOutTeardown();
 
+                    startActivityForResult(
+                            AuthUI.getInstance()
+                                    .createSignInIntentBuilder()
+                                    .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
+                                            new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
+                                    .setTheme(R.style.AppThemeFirebaseAuth)
+                                    .setIsSmartLockEnabled(false)
+                                    .setLogo(R.drawable.ic_launcher1)
+                                    .build(),
+                            RC_SIGN_IN);
+                }
+            }
+        };
 
-
-//        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
-//            @Override
-//            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-//                FirebaseUser user = firebaseAuth.getCurrentUser();
-//                if (user != null) {
-//                    // User is signed in
-//                    onSignedInInitialize(user.getDisplayName(), user.getEmail(), user.getPhotoUrl().toString());
-//
-//                } else {
-//                    // User is signed out
-//                    onSignedOutTeardown();
-//
-//                    startActivityForResult(
-//                            AuthUI.getInstance()
-//                                    .createSignInIntentBuilder()
-//                                    .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
-//                                            new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
-//                                    .setTheme(R.style.AppThemeFirebaseAuth)
-//                                    .setIsSmartLockEnabled(false)
-//                                    .setLogo(R.drawable.ic_launcher1)
-//                                    .build(),
-//                            RC_SIGN_IN);
-//                }
-//            }
-//        };
-
-
-        if(savedInstanceState != null){
+        if (savedInstanceState != null) {
             String title = savedInstanceState.getString("TITLE");
             getSupportActionBar().setTitle(title);
         }
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        super.onSaveInstanceState(outState, outPersistentState);
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
         outState.putInt(SELECTED_ID, mNavItemSelected);
         String title = getSupportActionBar().getTitle().toString();
         outState.putString("TITLE", title);
     }
-
-
-
 
     private void onSignedOutTeardown() {
         mUsername = ANONYMOUS;
@@ -166,15 +161,13 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
     @Override
     protected void onResume() {
         super.onResume();
-
-//        mFirebaseAuth.addAuthStateListener(mAuthStateListener);
+        mFirebaseAuth.addAuthStateListener(mAuthStateListener);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-
-//        mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
+        mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
     }
 
     @Override
@@ -249,9 +242,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
             Intent mCocktailDetailIntent = new Intent(this, ActivityDetails.class);
             mCocktailDetailIntent.putExtra(getString(R.string.details_intent_cocktail), cocktail);
             startActivity(mCocktailDetailIntent);
-        }
-
-        else {
+        } else {
             detailsFragment.updateContent(cocktail);
         }
 
@@ -363,7 +354,6 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
 
         mNavItemSelected = item.getItemId();
         navigate(mNavItemSelected);
-
         return true;
     }
 

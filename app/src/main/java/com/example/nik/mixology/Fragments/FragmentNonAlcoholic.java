@@ -70,11 +70,6 @@ public class FragmentNonAlcoholic extends Fragment implements LoaderManager.Load
 
         Utils.sendNetworkJsonRequest(getActivity(), COCKTAIL_SEARCH_URL_NON_ALCOHOLIC, mRequestQueue, CONTENT_URI_NON_ALCOHOLIC);
 
-        if (ContentProviderHelperMethods.getDrinkListFromDatabase(getActivity(), CONTENT_URI_ALCOHOLIC).size() == 0) {
-            mRecyclerView.setVisibility(View.INVISIBLE);
-            mEmptyTextView.setVisibility(View.VISIBLE);
-        }
-
         return rootView;
     }
 

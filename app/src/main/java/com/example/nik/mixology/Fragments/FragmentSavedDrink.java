@@ -56,12 +56,6 @@ public class FragmentSavedDrink extends Fragment implements LoaderManager.Loader
         mDrinkAdapter = new DrinkCursorAdapter(null, getActivity());
         mRecyclerView.setAdapter(mDrinkAdapter);
 
-        if (ContentProviderHelperMethods.getDrinkListFromDatabase(getActivity(), CONTENT_URI_ALCOHOLIC).size() == 0) {
-            mRecyclerView.setVisibility(View.INVISIBLE);
-            mEmptyTextView.setVisibility(View.VISIBLE);
-            mEmptyTextView.setText(getString(R.string.add_a_drink));
-        }
-
         return rootView;
     }
 

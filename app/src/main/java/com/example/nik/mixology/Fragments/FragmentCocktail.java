@@ -72,10 +72,6 @@ public class FragmentCocktail extends Fragment implements LoaderManager.LoaderCa
 
         Utils.sendNetworkJsonRequest(getActivity(), COCKTAIL_SEARCH_URL_COCKTAIL, mRequestQueue, CONTENT_URI_COCKTAIL);
 
-        if(ContentProviderHelperMethods.getDrinkListFromDatabase(getActivity(),CONTENT_URI_ALCOHOLIC).size() == 0){
-            mRecyclerView.setVisibility(View.INVISIBLE);
-            mEmptyTextView.setVisibility(View.VISIBLE);
-        }
         return rootView;
     }
 

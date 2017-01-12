@@ -71,11 +71,6 @@ public class FragmentGin extends Fragment implements LoaderManager.LoaderCallbac
 
         Utils.sendNetworkJsonRequest(getActivity(), COCKTAIL_SEARCH_URL_INGREDIENT_GIN, mRequestQueue, CONTENT_URI_GIN);
 
-        if(ContentProviderHelperMethods.getDrinkListFromDatabase(getActivity(),CONTENT_URI_ALCOHOLIC).size() == 0){
-            mRecyclerView.setVisibility(View.INVISIBLE);
-            mEmptyTextView.setVisibility(View.VISIBLE);
-        }
-
         return rootView;
     }
 

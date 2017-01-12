@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "34414752885-p47l805762aqo4frt1kq16t46t07996l.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.nik.mixology",
+            "certificate_hash": "533C24DED3CEE01665EFA75A446BE92044FC4F2E"
+          }
+        },
+        {
           "client_id": "34414752885-4rogfj6hii4jr28i15nk86jfk84sb2cm.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

@@ -51,6 +51,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
     private int mNavItemSelected;
     private Toolbar toolbar = null;
     private NavigationView navigationView = null;
+    private String mTitle;
 
     // Firebase instance variables
 //    private FirebaseAuth mFirebaseAuth;
@@ -101,6 +102,9 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
         navigate(mNavItemSelected);
 
 
+
+
+
 //        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
 //            @Override
 //            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -126,7 +130,22 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
 //                }
 //            }
 //        };
+
+
+        if(savedInstanceState != null){
+            String title = savedInstanceState.getString("TITLE");
+            getSupportActionBar().setTitle(title);
+        }
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        outState.putInt(SELECTED_ID, mNavItemSelected);
+        String title = getSupportActionBar().getTitle().toString();
+        outState.putString("TITLE", title);
+    }
+
 
 
 
@@ -142,8 +161,6 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
         Picasso.with(getApplicationContext())
                 .load(imageUrl)
                 .into(mProfileImage);
-
-
     }
 
     @Override
@@ -240,13 +257,9 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
 
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        super.onSaveInstanceState(outState, outPersistentState);
-        outState.putInt(SELECTED_ID, mNavItemSelected);
-    }
 
     private void navigate(int id) {
+        navigationView.setCheckedItem(id);
         if (id == R.id.nav_Alcoholic) {
 
             FragmentAlcoholic fragment = new FragmentAlcoholic();
@@ -254,7 +267,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
                     getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
-            toolbar.setTitle(getString(R.string.alcoholic));
+            getSupportActionBar().setTitle(getString(R.string.alcoholic));
 
         } else if (id == R.id.nav_Non_Alcoholic) {
 
@@ -263,7 +276,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
                     getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
-            toolbar.setTitle(getString(R.string.non_alcoholic));
+            getSupportActionBar().setTitle(getString(R.string.non_alcoholic));
 
 
         } else if (id == R.id.nav_gin) {
@@ -273,7 +286,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
                     getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
-            toolbar.setTitle(getString(R.string.gin));
+            getSupportActionBar().setTitle(getString(R.string.gin));
 
 
         } else if (id == R.id.nav_vodka) {
@@ -283,7 +296,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
                     getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
-            toolbar.setTitle(getString(R.string.vodka));
+            getSupportActionBar().setTitle(getString(R.string.vodka));
 
         } else if (id == R.id.nav_cocktail_glass) {
 
@@ -292,7 +305,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
                     getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
-            toolbar.setTitle(getString(R.string.cocktail_glass));
+            getSupportActionBar().setTitle(getString(R.string.cocktail_glass));
 
 
         } else if (id == R.id.nav_Highball_Glass) {
@@ -302,7 +315,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
                     getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
-            toolbar.setTitle(getString(R.string.highball_glass));
+            getSupportActionBar().setTitle(getString(R.string.highball_glass));
 
         } else if (id == R.id.nav_Ordinary_Drink) {
 
@@ -311,7 +324,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
                     getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
-            toolbar.setTitle(getString(R.string.ordinary_drink));
+            getSupportActionBar().setTitle(getString(R.string.ordinary_drink));
 
 
         } else if (id == R.id.nav_Cocktail) {
@@ -320,7 +333,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
                     getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
-            toolbar.setTitle(getString(R.string.cocktail));
+            getSupportActionBar().setTitle(getString(R.string.cocktail));
 
         } else if (id == R.id.Saved_Cocktails) {
 
@@ -328,7 +341,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
             android.support.v4.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
-            toolbar.setTitle(getString(R.string.saved_cocktails));
+            getSupportActionBar().setTitle(getString(R.string.saved_cocktails));
 
         } else if (id == R.id.nav_randomixer) {
 
@@ -336,7 +349,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
             android.support.v4.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
-            toolbar.setTitle(getString(R.string.randomixer));
+            getSupportActionBar().setTitle(getString(R.string.randomixer));
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

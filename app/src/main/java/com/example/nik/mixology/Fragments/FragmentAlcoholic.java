@@ -10,12 +10,14 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import com.android.volley.RequestQueue;
 import com.example.nik.mixology.Adapters.DrinkCursorAdapter;
 import com.example.nik.mixology.Network.VolleySingleton;
 import com.example.nik.mixology.R;
 import com.example.nik.mixology.utils.ContentProviderHelperMethods;
 import com.example.nik.mixology.utils.Utils;
+
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -65,6 +67,7 @@ public class FragmentAlcoholic extends Fragment implements LoaderManager.LoaderC
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_main);
         mEmptyTextView = (TextView) rootView.findViewById(R.id.empty_view);
 
+
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
         mRecyclerView.setLayoutManager(gridLayoutManager);
 
@@ -72,12 +75,7 @@ public class FragmentAlcoholic extends Fragment implements LoaderManager.LoaderC
         mDrinkAdapter = new DrinkCursorAdapter(null, getActivity());
         mRecyclerView.setAdapter(mDrinkAdapter);
 
-        Utils.sendNetworkJsonRequest(getActivity(),COCKTAIL_SEARCH_URL_ALCOHOLIC,mRequestQueue,CONTENT_URI_ALCOHOLIC);
-
-        if(ContentProviderHelperMethods.getDrinkListFromDatabase(getActivity(),CONTENT_URI_ALCOHOLIC).size() == 0){
-            mRecyclerView.setVisibility(View.INVISIBLE);
-            mEmptyTextView.setVisibility(View.VISIBLE);
-        }
+        Utils.sendNetworkJsonRequest(getActivity(), COCKTAIL_SEARCH_URL_ALCOHOLIC, mRequestQueue, CONTENT_URI_ALCOHOLIC);
 
         return rootView;
     }

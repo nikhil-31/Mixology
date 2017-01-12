@@ -4,7 +4,9 @@ Udacity Android nanodegree Capstone
 ##Overview
 Application uses TheCocktailDb API to show a grid of cocktails in cardviews. Clicking on a cocktail shows a detail screen with 
 Instructions and Ingredients required to prepare the cocktail. A navigation drawer is used to filter out different types of 
-drinks according to alcohol content, Ingredients, Glass and many more and an option to save the favourite cocktails.
+drinks according to alcohol content, Ingredients, Glass and many more and an option to save the favourite cocktails. The randomixer 
+allows the user to browse through random cocktails. The app has a widget that shows a list of all the saved cocktails. There is support 
+for both phones and tablets. The user can also search through the extensive using the search option  
 
 ##Libraries used
 
@@ -12,20 +14,21 @@ drinks according to alcohol content, Ingredients, Glass and many more and an opt
 * Android support Library
 * Volley
 * Schematic
+* Firebase Auth
+* Firebase Ads
+* circleimageview
 
 ##ScreenShots
 
 ###Main Screen
 
-![screenshot_20161215-091827](https://cloud.githubusercontent.com/assets/19944703/21211353/d8d51d36-c2a8-11e6-89d5-01e321ec04d1.png)    ![screenshot_20161215-091844](https://cloud.githubusercontent.com/assets/19944703/21211420/4ec09d0e-c2a9-11e6-86e2-ee56e587695a.png)
+####Phone
 
-###Navigation Drawer
+![screenshot_1484259108](https://cloud.githubusercontent.com/assets/19944703/21910595/bd9fba0c-d942-11e6-8a44-77eaeb489bad.png) ![screenshot_1484259132](https://cloud.githubusercontent.com/assets/19944703/21910636/e4cbb266-d942-11e6-95fa-ffbb300b20bb.png)
 
-![screenshot_20161215-091854](https://cloud.githubusercontent.com/assets/19944703/21211446/828ad5c8-c2a9-11e6-89c5-b6309a8d47d5.png)    ![screenshot_20161215-091858](https://cloud.githubusercontent.com/assets/19944703/21211445/828953e2-c2a9-11e6-8d2b-bf80e425be47.png)
+####Tablet
 
-###Detail Screen
-
-![screenshot_20161215-091832](https://cloud.githubusercontent.com/assets/19944703/21211466/c5653604-c2a9-11e6-9d6a-e823da3204eb.png)    ![screenshot_20161215-091836](https://cloud.githubusercontent.com/assets/19944703/21211467/c5658654-c2a9-11e6-9241-7701c14c6a24.png)
+![screenshot_1484259902](https://cloud.githubusercontent.com/assets/19944703/21910909/24355f78-d944-11e6-94a3-a80abe6c23e1.png)
 
 
 ##Credits

@@ -13,10 +13,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.example.nik.mixology.Adapters.DrinkCursorAdapter;
 import com.example.nik.mixology.R;
+import com.example.nik.mixology.utils.ContentProviderHelperMethods;
 
+import static com.example.nik.mixology.data.DrinkProvider.Alcoholic.CONTENT_URI_ALCOHOLIC;
 import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.CONTENT_URI_DRINK_SAVED;
 
 /**
@@ -24,8 +27,10 @@ import static com.example.nik.mixology.data.DrinkProvider.SavedDrink.CONTENT_URI
  */
 public class FragmentSavedDrink extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    private RecyclerView recyclerView;
+    private RecyclerView mRecyclerView;
     private DrinkCursorAdapter mDrinkAdapter;
+
+    private TextView mEmptyTextView;
     private static final int CURSOR_LOADER_ID = 1;
 
     public FragmentSavedDrink() {
@@ -43,13 +48,19 @@ public class FragmentSavedDrink extends Fragment implements LoaderManager.Loader
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_main);
+        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_main);
+        mEmptyTextView = (TextView) rootView.findViewById(R.id.empty_view);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
-        recyclerView.setLayoutManager(gridLayoutManager);
+        mRecyclerView.setLayoutManager(gridLayoutManager);
 
         mDrinkAdapter = new DrinkCursorAdapter(null, getActivity());
-        recyclerView.setAdapter(mDrinkAdapter);
+        mRecyclerView.setAdapter(mDrinkAdapter);
 
+        if (ContentProviderHelperMethods.getDrinkListFromDatabase(getActivity(), CONTENT_URI_ALCOHOLIC).size() == 0) {
+            mRecyclerView.setVisibility(View.INVISIBLE);
+            mEmptyTextView.setVisibility(View.VISIBLE);
+            mEmptyTextView.setText(getString(R.string.add_a_drink));
+        }
 
         return rootView;
     }

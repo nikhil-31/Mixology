@@ -30,6 +30,7 @@
     <string name="Network_error">Network error</string>
     <string name="no_network_available">No Internet Connection</string>
     <string name="search_no_data_available">Sorry. Drink not available in the database. Try a new search.</string>
+    <string name="check_internet_connection">Please, check your internet connection.</string>
 
     <!-- Navigation Drawer -->
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -70,6 +71,7 @@
     <string name="detail_share_alcoholic">Alcoholic: </string>
     <string name="detail_share_instructions">Instructions: </string>
     <string name="detail_share_ingredients">Ingredients: </string>
+    <string name="add_a_drink">Add a drink !!! Its lonely here.</string>
 
 
 </resources>

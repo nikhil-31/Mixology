@@ -195,15 +195,12 @@ public class FragmentRandomixer extends Fragment {
 
                         } catch (JSONException e) {
                             e.printStackTrace();
-
-                            Toast.makeText(getActivity(), getString(R.string.Network_error), Toast.LENGTH_LONG).show();
-
                         }
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-
+                Toast.makeText(getActivity(), getString(R.string.no_network_available), Toast.LENGTH_LONG).show();
             }
         });
         mRequestQueue.add(request);

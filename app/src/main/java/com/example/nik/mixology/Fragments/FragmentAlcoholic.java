@@ -14,10 +14,12 @@ import com.android.volley.RequestQueue;
 import com.example.nik.mixology.Adapters.DrinkCursorAdapter;
 import com.example.nik.mixology.Network.VolleySingleton;
 import com.example.nik.mixology.R;
+import com.example.nik.mixology.utils.ContentProviderHelperMethods;
 import com.example.nik.mixology.utils.Utils;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.widget.TextView;
 
 import static com.example.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_ALCOHOLIC;
 import static com.example.nik.mixology.data.DrinkProvider.Alcoholic.CONTENT_URI_ALCOHOLIC;
@@ -30,8 +32,9 @@ public class FragmentAlcoholic extends Fragment implements LoaderManager.LoaderC
 
     private static final int CURSOR_LOADER_ID = 0;
 
-    private RecyclerView recyclerView;
+    private RecyclerView mRecyclerView;
     private DrinkCursorAdapter mDrinkAdapter;
+    private TextView mEmptyTextView;
 
     // Volley
     private RequestQueue mRequestQueue;
@@ -59,14 +62,22 @@ public class FragmentAlcoholic extends Fragment implements LoaderManager.LoaderC
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_main);
+        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_main);
+        mEmptyTextView = (TextView) rootView.findViewById(R.id.empty_view);
+
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
-        recyclerView.setLayoutManager(gridLayoutManager);
+        mRecyclerView.setLayoutManager(gridLayoutManager);
+
 
         mDrinkAdapter = new DrinkCursorAdapter(null, getActivity());
-        recyclerView.setAdapter(mDrinkAdapter);
+        mRecyclerView.setAdapter(mDrinkAdapter);
 
         Utils.sendNetworkJsonRequest(getActivity(),COCKTAIL_SEARCH_URL_ALCOHOLIC,mRequestQueue,CONTENT_URI_ALCOHOLIC);
+
+        if(ContentProviderHelperMethods.getDrinkListFromDatabase(getActivity(),CONTENT_URI_ALCOHOLIC).size() == 0){
+            mRecyclerView.setVisibility(View.INVISIBLE);
+            mEmptyTextView.setVisibility(View.VISIBLE);
+        }
 
         return rootView;
     }

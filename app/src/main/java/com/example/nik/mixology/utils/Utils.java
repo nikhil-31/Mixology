@@ -22,6 +22,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.example.nik.mixology.Model.Cocktail;
+import com.example.nik.mixology.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -103,7 +104,7 @@ public class Utils {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-
+                Toast.makeText(activity, activity.getString(R.string.no_network_available), Toast.LENGTH_LONG).show();
             }
         });
         requestQueue.add(request);

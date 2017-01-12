@@ -84,8 +84,16 @@ public class FragmentSearch extends Fragment {
             OnTaskCompleted onTaskCompleted = new OnTaskCompleted() {
                 @Override
                 public void onMySearchTaskCompleted(ArrayList<CocktailDetails> cocktailDetailsArrayList) {
-                    mSearchAdapter.setCocktailList(cocktailDetailsArrayList);
+                    if (cocktailDetailsArrayList == null) {
+                        mRecyclerView.setVisibility(View.GONE);
+                        mEmptyView.setVisibility(View.VISIBLE);
+                    }
+                    else {
+
+                        mSearchAdapter.setCocktailList(cocktailDetailsArrayList);
+                    }
                 }
+
             };
 
             MySearchTask mySearchTask = new MySearchTask(onTaskCompleted);
@@ -207,10 +215,9 @@ public class FragmentSearch extends Fragment {
         }
 
         JSONObject object = new JSONObject(response.toString());
-        if (object.isNull(DRINKS)) {
-            mRecyclerView.setVisibility(View.GONE);
-            mEmptyView.setVisibility(View.VISIBLE);
-        }
+//        if (object.isNull(DRINKS)) {
+//            Toast.makeText(getActivity(), getString(R.string.search_no_data_available), Toast.LENGTH_LONG).show();
+//        }
 
         JSONArray results = response.getJSONArray(DRINKS);
 

@@ -7,7 +7,7 @@ android {
         config {
             keyAlias 'mix'
             keyPassword 'nikhil12345'
-            storeFile file('F:/Android/Android/Mixology/myKeystore.jks')
+            storeFile file("$rootDir/myKeystore.jks")
             storePassword 'ABCD123'
         }
     }

@@ -48,6 +48,7 @@ Swiping down shows a random cocktail !
 
 ##Credits
 This product uses TheCocktailDb API.
+
 ![cocktaildb_logo](https://cloud.githubusercontent.com/assets/19944703/21918710/443d7db0-d97a-11e6-8e92-b3b0758338e1.png)
 
 

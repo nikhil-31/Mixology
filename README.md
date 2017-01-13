@@ -40,6 +40,11 @@ for both phones and tablets. The user can also search through the extensive usin
 
 ![widget_preview](https://cloud.githubusercontent.com/assets/19944703/21918879/e13675d0-d97b-11e6-871e-87f0f61fc7aa.png)
 
+####Randomixer
+Swiping down shows a random cocktail !
+
+![screenshot_1484284402](https://cloud.githubusercontent.com/assets/19944703/21919038/5764ce86-d97d-11e6-90f8-add71365abac.png)  ![screenshot_1484284449](https://cloud.githubusercontent.com/assets/19944703/21919076/8d3f4ee6-d97d-11e6-9675-62bf1477a3ce.png)
+
 
 ##Credits
 This product uses TheCocktailDb API.

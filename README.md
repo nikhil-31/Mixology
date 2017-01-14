@@ -6,7 +6,7 @@ Application uses TheCocktailDb API to show a grid of cocktails in cardviews. Cli
 Instructions and Ingredients required to prepare the cocktail. A navigation drawer is used to filter out different types of 
 drinks according to alcohol content, Ingredients, Glass and many more and an option to save the favourite cocktails. The randomixer 
 allows the user to browse through random cocktails. The app has a widget that shows a list of all the saved cocktails. There is support 
-for both phones and tablets. The user can also search through the extensive using the search option  
+for both phones and tablets. The user can also search through the extensive database using the search option.
 
 ##Libraries used
 

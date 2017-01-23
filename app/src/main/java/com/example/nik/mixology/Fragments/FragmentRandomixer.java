@@ -105,6 +105,7 @@ public class FragmentRandomixer extends Fragment {
 
         mIngredientsRecyclerView.setLayoutManager(mLinearLayoutManager);
         mIngredientsRecyclerView.setAdapter(mIngredientsAdapter);
+        mIngredientsRecyclerView.setNestedScrollingEnabled(false);
 
         mDetailIcon.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -91,7 +91,6 @@ public class FragmentDetails extends Fragment {
 
         mCocktail = getActivity().getIntent().getParcelableExtra(getString(R.string.details_intent_cocktail));
 
-
         setHasOptionsMenu(true);
 
         mToolbar = (Toolbar) v.findViewById(R.id.toolbar);
@@ -117,6 +116,7 @@ public class FragmentDetails extends Fragment {
 
         mIngredientsAdapter = new IngredientsAdapter(getActivity());
         mIngredientsRecyclerView = (RecyclerView) v.findViewById(R.id.recycler_ingredients);
+        mIngredientsRecyclerView.setNestedScrollingEnabled(false);
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
 
@@ -126,7 +126,6 @@ public class FragmentDetails extends Fragment {
         if (mCocktail != null) {
             startNetworkRequest(mCocktail);
         }
-
 
         return v;
     }

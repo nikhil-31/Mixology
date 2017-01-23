@@ -1,6 +1,7 @@
 package com.example.nik.mixology.Activities;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
@@ -110,7 +111,13 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     // User is signed in
-                    onSignedInInitialize(user.getDisplayName(), user.getEmail(), user.getPhotoUrl().toString());
+                    if (user.getPhotoUrl() != null) {
+                        onSignedInInitialize(user.getDisplayName(), user.getEmail(), user.getPhotoUrl());
+                    } else {
+                        onSignedInInitialize(user.getEmail());
+
+                    }
+
 
                 } else {
                     // User is signed out
@@ -148,15 +155,38 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
         mUsername = ANONYMOUS;
     }
 
-    private void onSignedInInitialize(String user, String email, String imageUrl) {
-        mUsername = user;
-        mProfileNameText.setText(mUsername);
-        mProfileEmailText.setText(email);
+    private void onSignedInInitialize(String user, String email, Uri imageUrl) {
+
+        if (mUsername != null && !user.isEmpty()) {
+            mUsername = user;
+            mProfileNameText.setText(mUsername);
+
+        }
+        if (email != null && !email.isEmpty()) {
+            mProfileEmailText.setText(email);
+        }
+
+        if (imageUrl != null) {
+            Picasso.with(getApplicationContext())
+                    .load(imageUrl)
+                    .error(R.drawable.emptyprofile)
+                    .into(mProfileImage);
+        }
+    }
+
+    private void onSignedInInitialize(String email){
 
         Picasso.with(getApplicationContext())
-                .load(imageUrl)
+                .load(R.drawable.emptyprofile)
                 .into(mProfileImage);
+
+
+        if (email != null && !email.isEmpty()) {
+            mProfileEmailText.setText(email);
+        }
+
     }
+
 
     @Override
     protected void onResume() {
@@ -217,9 +247,6 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
-            return true;
-        }
         if (id == R.id.action_sign_out) {
             FirebaseAuth.getInstance().signOut();
 

@@ -4,7 +4,9 @@ Udacity Android nanodegree Capstone
 ##Overview
 Application uses TheCocktailDb API to show a grid of cocktails in cardviews. Clicking on a cocktail shows a detail screen with 
 Instructions and Ingredients required to prepare the cocktail. A navigation drawer is used to filter out different types of 
-drinks according to alcohol content, Ingredients, Glass and many more and an option to save the favourite cocktails.
+drinks according to alcohol content, Ingredients, Glass and many more and an option to save the favourite cocktails. The randomixer 
+allows the user to browse through random cocktails. The app has a widget that shows a list of all the saved cocktails. There is support 
+for both phones and tablets. The user can also search through the extensive database using the search option.
 
 ##Libraries used
 
@@ -12,24 +14,43 @@ drinks according to alcohol content, Ingredients, Glass and many more and an opt
 * Android support Library
 * Volley
 * Schematic
+* Firebase Auth
+* Firebase Ads
+* circleimageview
 
 ##ScreenShots
 
 ###Main Screen
 
-![screenshot_20161215-091827](https://cloud.githubusercontent.com/assets/19944703/21211353/d8d51d36-c2a8-11e6-89d5-01e321ec04d1.png)    ![screenshot_20161215-091844](https://cloud.githubusercontent.com/assets/19944703/21211420/4ec09d0e-c2a9-11e6-86e2-ee56e587695a.png)
+####Phone
 
-###Navigation Drawer
+![screenshot_1484259108](https://cloud.githubusercontent.com/assets/19944703/21910595/bd9fba0c-d942-11e6-8a44-77eaeb489bad.png) ![screenshot_1484259132](https://cloud.githubusercontent.com/assets/19944703/21910636/e4cbb266-d942-11e6-95fa-ffbb300b20bb.png)
 
-![screenshot_20161215-091854](https://cloud.githubusercontent.com/assets/19944703/21211446/828ad5c8-c2a9-11e6-89c5-b6309a8d47d5.png)    ![screenshot_20161215-091858](https://cloud.githubusercontent.com/assets/19944703/21211445/828953e2-c2a9-11e6-8d2b-bf80e425be47.png)
+####Details Screen
 
-###Detail Screen
+![screenshot_1484283732](https://cloud.githubusercontent.com/assets/19944703/21918860/a25e6516-d97b-11e6-9f25-9e37f102629d.png) ![screenshot_1484283735](https://cloud.githubusercontent.com/assets/19944703/21918874/c199d384-d97b-11e6-8efe-ea99a8229631.png)
 
-![screenshot_20161215-091832](https://cloud.githubusercontent.com/assets/19944703/21211466/c5653604-c2a9-11e6-9d6a-e823da3204eb.png)    ![screenshot_20161215-091836](https://cloud.githubusercontent.com/assets/19944703/21211467/c5658654-c2a9-11e6-9241-7701c14c6a24.png)
+
+####Tablet
+
+![screenshot_1484259902](https://cloud.githubusercontent.com/assets/19944703/21910909/24355f78-d944-11e6-94a3-a80abe6c23e1.png)
+![screenshot_1484284042](https://cloud.githubusercontent.com/assets/19944703/21918925/53cc4a48-d97c-11e6-8c78-f3bd3f12bd24.png)
+
+####Widget
+
+![widget_preview](https://cloud.githubusercontent.com/assets/19944703/21918879/e13675d0-d97b-11e6-871e-87f0f61fc7aa.png)
+
+####Randomixer
+Swiping down shows a random cocktail !
+
+![screenshot_1484284402](https://cloud.githubusercontent.com/assets/19944703/21919038/5764ce86-d97d-11e6-90f8-add71365abac.png)  ![screenshot_1484284449](https://cloud.githubusercontent.com/assets/19944703/21919076/8d3f4ee6-d97d-11e6-9675-62bf1477a3ce.png)
 
 
 ##Credits
 This product uses TheCocktailDb API.
+
+![cocktaildb_logo](https://cloud.githubusercontent.com/assets/19944703/21918710/443d7db0-d97a-11e6-8e92-b3b0758338e1.png)
+
 
 ##License
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at

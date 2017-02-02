@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.nik.mixology">
+    package="com.capstone.nik.mixology">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
-        android:name=".Network.MyApplication"
+        android:name="com.capstone.nik.mixology.Network.MyApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher1"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".Activities.ActivityMain"
+            android:name="com.capstone.nik.mixology.Activities.ActivityMain"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -22,13 +22,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Activities.ActivityDetails"
+            android:name="com.capstone.nik.mixology.Activities.ActivityDetails"
             android:label="@string/title_activity_details"
-            android:parentActivityName=".Activities.ActivityMain"
+            android:parentActivityName="com.capstone.nik.mixology.Activities.ActivityMain"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.nik.mixology.Activities.ActivityMain" />
+                android:value="com.capstone.nik.mixology.Activities.ActivityMain" />
         </activity>
 
         <provider
@@ -37,17 +37,17 @@
             android:exported="false" />
 
         <activity
-            android:name=".Activities.ActivitySearch"
+            android:name="com.capstone.nik.mixology.Activities.ActivitySearch"
             android:label="@string/title_activity_search"
-            android:parentActivityName=".Activities.ActivityMain"
+            android:parentActivityName="com.capstone.nik.mixology.Activities.ActivityMain"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.nik.mixology.Activities.ActivityMain" />
+                android:value="com.capstone.nik.mixology.Activities.ActivityMain" />
         </activity>
 
         <receiver
-            android:name=".Widget.DrinkWidgetProvider"
+            android:name="com.capstone.nik.mixology.Widget.DrinkWidgetProvider"
             android:label="@string/widget_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -59,7 +59,7 @@
         </receiver>
 
         <service
-            android:name=".Widget.DrinkWidgetService"
+            android:name="com.capstone.nik.mixology.Widget.DrinkWidgetService"
             android:exported="false"
             android:permission="android.permission.BIND_REMOTEVIEWS" />
 

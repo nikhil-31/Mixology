@@ -15,21 +15,41 @@
       },
       "oauth_client": [
         {
-          "client_id": "34414752885-p47l805762aqo4frt1kq16t46t07996l.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.nik.mixology",
-            "certificate_hash": "533C24DED3CEE01665EFA75A446BE92044FC4F2E"
-          }
-        },
+          "client_id": "34414752885-g3fno8dv7hjnclddohdk3tqae6aq00ds.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
         {
-          "client_id": "34414752885-4rogfj6hii4jr28i15nk86jfk84sb2cm.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.nik.mixology",
-            "certificate_hash": "CB9AC1299782BF166ED5AE6B3B315E7684E64EFD"
-          }
+          "current_key": "AIzaSyAmrqDKJcTzUAUFf-wXzPmKvDSlEiufHNE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
         },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "34414752885-g3fno8dv7hjnclddohdk3tqae6aq00ds.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:34414752885:android:17ada8d4255eb974",
+        "android_client_info": {
+          "package_name": "com.capstone.nik.mixology"
+        }
+      },
+      "oauth_client": [
         {
           "client_id": "34414752885-g3fno8dv7hjnclddohdk3tqae6aq00ds.apps.googleusercontent.com",
           "client_type": 3

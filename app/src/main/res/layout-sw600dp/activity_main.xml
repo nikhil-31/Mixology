@@ -6,7 +6,7 @@
     android:layout_width="0dp"
     android:layout_height="match_parent"
     android:layout_weight="0.5"
-    tools:context="com.example.nik.mixology.Activities.ActivityMain">
+    tools:context="com.capstone.nik.mixology.Activities.ActivityMain">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"

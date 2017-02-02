@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingTop="?attr/actionBarSize"
-    tools:context="com.example.nik.mixology.Fragments.FragmentRandomixer">
+    tools:context="com.capstone.nik.mixology.Fragments.FragmentRandomixer">
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipeToRefreshLayout"

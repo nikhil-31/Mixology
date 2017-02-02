@@ -17,7 +17,7 @@
 
         <fragment
             android:id="@+id/fragment"
-            android:name="com.example.nik.mixology.Fragments.FragmentDetails"
+            android:name="com.capstone.nik.mixology.Fragments.FragmentDetails"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="0.5"

@@ -249,7 +249,10 @@ public class FragmentDetails extends Fragment {
 
                             mMeasuresArrayList = parseJSONResponseMeasure(response);
 
-                            shareRecipe(mMeasuresArrayList, cocktailDetails[0]);
+                            if(isAdded() && getActivity() != null){
+                                shareRecipe(mMeasuresArrayList, cocktailDetails[0]);
+                            }
+
 
                             mIngredientsAdapter.setMeasuresList(mMeasuresArrayList);
 

@@ -2,6 +2,7 @@ package com.capstone.nik.mixology.Activities;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -114,22 +115,33 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
                         onSignedInInitialize(user.getEmail());
 
                     }
-
-
                 } else {
                     // User is signed out
                     onSignedOutTeardown();
 
-                    startActivityForResult(
-                            AuthUI.getInstance()
-                                    .createSignInIntentBuilder()
-                                    .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
-                                            new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
-                                    .setTheme(R.style.AppThemeFirebaseAuth)
-                                    .setIsSmartLockEnabled(false)
-                                    .setLogo(R.drawable.ic_launcher1)
-                                    .build(),
-                            RC_SIGN_IN);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        startActivityForResult(
+                                AuthUI.getInstance()
+                                        .createSignInIntentBuilder()
+                                        .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
+                                                new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
+                                        .setLogo(R.drawable.icon)
+                                        .setTheme(R.style.AppThemeFirebaseAuth)
+                                        .setIsSmartLockEnabled(false)
+                                        .build(),
+                                RC_SIGN_IN);
+                    } else {
+                        startActivityForResult(
+                                AuthUI.getInstance()
+                                        .createSignInIntentBuilder()
+                                        .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
+                                                new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
+                                        .setLogo(R.drawable.icon)
+                                        .setIsSmartLockEnabled(false)
+                                        .build(),
+                                RC_SIGN_IN);
+
+                    }
                 }
             }
         };
@@ -171,7 +183,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
         }
     }
 
-    private void onSignedInInitialize(String email){
+    private void onSignedInInitialize(String email) {
 
         Picasso.with(getApplicationContext())
                 .load(R.drawable.emptyprofile)

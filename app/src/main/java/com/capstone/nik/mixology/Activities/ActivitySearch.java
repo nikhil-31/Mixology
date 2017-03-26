@@ -31,10 +31,13 @@ public class ActivitySearch extends AppCompatActivity implements SearchAdapter.O
     @Override
     public void onItemSelected(Cocktail id) {
         FragmentDetails detailsFragment = (FragmentDetails) getSupportFragmentManager().findFragmentById(R.id.fragment_details);
+
         if (detailsFragment == null) {
+
             Intent mCocktailDetailIntent = new Intent(this, ActivityDetails.class);
             mCocktailDetailIntent.putExtra(getString(R.string.details_intent_cocktail), id);
             startActivity(mCocktailDetailIntent);
+
         }
     }
 }

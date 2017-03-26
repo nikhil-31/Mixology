@@ -70,6 +70,7 @@ public class FragmentSearch extends Fragment {
                 @Override
                 public void onMySearchTaskCompleted(ArrayList<CocktailDetails> cocktailDetailsArrayList) {
                     if (cocktailDetailsArrayList == null) {
+
                         mRecyclerView.setVisibility(View.GONE);
                         mEmptyView.setVisibility(View.VISIBLE);
                     }
@@ -101,11 +102,10 @@ public class FragmentSearch extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-
         mRecyclerView.setAdapter(mSearchAdapter);
     }
 
-    class MySearchTask extends AsyncTask<String, Void, ArrayList<CocktailDetails>> {
+    public class MySearchTask extends AsyncTask<String, Void, ArrayList<CocktailDetails>> {
         private final String LOG_TAG = MySearchTask.class.getSimpleName();
 
         private final OnTaskCompleted mListener;
@@ -177,7 +177,6 @@ public class FragmentSearch extends Fragment {
         protected void onPostExecute(ArrayList<CocktailDetails> cocktailDetailsArrayList) {
             super.onPostExecute(cocktailDetailsArrayList);
             mListener.onMySearchTaskCompleted(cocktailDetailsArrayList);
-
         }
     }
 

@@ -31,6 +31,7 @@ import com.capstone.nik.mixology.Fragments.FragmentVodka;
 import com.capstone.nik.mixology.Fragments.FragmentNonAlcoholic;
 import com.capstone.nik.mixology.Model.Cocktail;
 import com.capstone.nik.mixology.R;
+
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ui.email.SignInActivity;
 import com.google.android.gms.ads.AdRequest;
@@ -38,11 +39,13 @@ import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.crash.FirebaseCrash;
 import com.squareup.picasso.Picasso;
 
 import java.util.Arrays;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+
 
 public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapter.OnAdapterItemSelectedListener,
         NavigationView.OnNavigationItemSelectedListener {
@@ -59,9 +62,11 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
 
+    // Username
     private String mUsername;
     private View mHeader;
 
+    // Views for the navigation header
     private TextView mProfileNameText;
     private TextView mProfileEmailText;
     private CircleImageView mProfileImage;
@@ -71,20 +76,24 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_navigation_drawer);
 
+        // Admob integration with my id
         MobileAds.initialize(getApplicationContext(), "ca-app-pub-3940256099942544~3347511713");
 
         AdView mAdView = (AdView) findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
 
+        //Default UserName
         mUsername = ANONYMOUS;
 
         //Initialize Firebase components
         mFirebaseAuth = FirebaseAuth.getInstance();
 
+        // Initializing the toolbar
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        // Initializes the Navigation Drawer
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -94,22 +103,26 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+
+        // Navigation Header that contains the name, email and profile image
         mHeader = navigationView.getHeaderView(0);
 
         mProfileImage = (CircleImageView) mHeader.findViewById(R.id.header_profile_image);
         mProfileNameText = (TextView) mHeader.findViewById(R.id.header_profile_name);
         mProfileEmailText = (TextView) mHeader.findViewById(R.id.header_profile_email);
 
+        // Retaining the state
         mNavItemSelected = savedInstanceState == null ? R.id.nav_Alcoholic : savedInstanceState.getInt(SELECTED_ID);
         navigate(mNavItemSelected);
 
+        // Checks if the user is signed in or not
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     // User is signed in
-                    if (user.getPhotoUrl() != null) {
+                    if (user.getPhotoUrl() != null) {    // If the user is signed and there is a photo available
                         onSignedInInitialize(user.getDisplayName(), user.getEmail(), user.getPhotoUrl());
                     } else {
                         onSignedInInitialize(user.getEmail());
@@ -119,6 +132,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
                     // User is signed out
                     onSignedOutTeardown();
 
+                    // If the version is higher than lollypop then we set the style in firebase login UI or we just leave it to be the same
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         startActivityForResult(
                                 AuthUI.getInstance()
@@ -146,6 +160,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
             }
         };
 
+        // Restoring the title after rotation
         if (savedInstanceState != null) {
             String title = savedInstanceState.getString("TITLE");
             getSupportActionBar().setTitle(title);
@@ -155,16 +170,19 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        // Saving the title
         outState.putInt(SELECTED_ID, mNavItemSelected);
         String title = getSupportActionBar().getTitle().toString();
         outState.putString("TITLE", title);
     }
 
+    // When the user signs out the user name is set to anonymous.
     private void onSignedOutTeardown() {
         mUsername = ANONYMOUS;
     }
 
     private void onSignedInInitialize(String user, String email, Uri imageUrl) {
+
 
         if (mUsername != null && !user.isEmpty()) {
             mUsername = user;
@@ -200,17 +218,20 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
     @Override
     protected void onResume() {
         super.onResume();
+        // Add the auth state listener when the activity is resumed.
         mFirebaseAuth.addAuthStateListener(mAuthStateListener);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        // Auth state listener is removed when the activity is paused
         mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
     }
 
     @Override
     public void onBackPressed() {
+        // This is will close the drawer after something is selected.
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
@@ -221,12 +242,14 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
         MenuItem item = menu.findItem(R.id.menuSearch);
         SearchView searchView = (SearchView) item.getActionView();
 
+        // The search query is sent to the search activity using the listener.
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -275,7 +298,9 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
 
     @Override
     public void onItemSelected(Cocktail cocktail) {
-
+        /*
+        * Check is the detail fragment is present in the main activity.
+        * */
         FragmentDetails detailsFragment = (FragmentDetails) getSupportFragmentManager().findFragmentById(R.id.fragment);
         if (detailsFragment == null) {
             Intent mCocktailDetailIntent = new Intent(this, ActivityDetails.class);
@@ -287,7 +312,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
 
     }
 
-
+    // Navigate to the selected fragment when clicked in the navigation drawer.
     private void navigate(int id) {
         navigationView.setCheckedItem(id);
         if (id == R.id.nav_Alcoholic) {

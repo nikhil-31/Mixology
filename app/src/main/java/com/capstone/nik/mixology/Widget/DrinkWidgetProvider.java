@@ -45,7 +45,6 @@ public class DrinkWidgetProvider extends AppWidgetProvider {
 
             views.setEmptyView(R.id.widget_list, R.id.widget_empty);
 
-
             appWidgetManager.updateAppWidget(appWidgetId, views);
         }
 

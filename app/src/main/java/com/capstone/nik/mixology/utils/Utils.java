@@ -58,9 +58,7 @@ public class Utils {
                     cocktail.setmDrinkId(jsonObject.getString(COCKTAIL_ID));
                 }
                 data.add(cocktail);
-
             }
-
         }
         return data;
 

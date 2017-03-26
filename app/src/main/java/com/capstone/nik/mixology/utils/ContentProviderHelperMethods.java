@@ -30,7 +30,6 @@ public class ContentProviderHelperMethods {
         ArrayList<Cocktail> mDrinkList = new ArrayList<>();
 
         Cocktail cocktail = null;
-
         Cursor cursor = mAct.getContentResolver().query(uri,
                 null,
                 null,
@@ -47,7 +46,8 @@ public class ContentProviderHelperMethods {
                 cocktail.setmDrinkThumb(cursor.getString(cursor.getColumnIndex(DRINK_THUMB)));
 
                 mDrinkList.add(cocktail);
-            } while (cursor.moveToNext());
+            }
+            while (cursor.moveToNext());
         }
         cursor.close();
         return mDrinkList;
@@ -79,6 +79,7 @@ public class ContentProviderHelperMethods {
             ContentValues contentValues = new ContentValues();
             String id = cocktail.getmDrinkId();
             boolean isThere = ContentProviderHelperMethods.isDrinkInDatabase(mAct, id, uri);
+
             if (!isThere) {
 
                 contentValues.put(_id, cocktail.getmDrinkId());

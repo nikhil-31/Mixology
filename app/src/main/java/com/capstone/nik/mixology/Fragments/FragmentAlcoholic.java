@@ -66,10 +66,8 @@ public class FragmentAlcoholic extends Fragment implements LoaderManager.LoaderC
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_main);
         mEmptyTextView = (TextView) rootView.findViewById(R.id.empty_view);
 
-
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
         mRecyclerView.setLayoutManager(gridLayoutManager);
-
 
         mDrinkAdapter = new DrinkCursorAdapter(null, getActivity());
         mRecyclerView.setAdapter(mDrinkAdapter);

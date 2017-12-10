@@ -55,7 +55,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
     private static final String SELECTED_ID = "selected";
 
     private int mNavItemSelected;
-    private Toolbar toolbar = null;
+    private Toolbar toolbar;
     private NavigationView navigationView = null;
 
     // Firebase instance variables
@@ -103,7 +103,6 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-
         // Navigation Header that contains the name, email and profile image
         mHeader = navigationView.getHeaderView(0);
 
@@ -132,7 +131,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
                     // User is signed out
                     onSignedOutTeardown();
 
-                    // If the version is higher than lollypop then we set the style in firebase login UI or we just leave it to be the same
+                    // If the version is higher than lollipop then set the style in firebase or set no style
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         startActivityForResult(
                                 AuthUI.getInstance()
@@ -145,8 +144,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
                                         .build(),
                                 RC_SIGN_IN);
                     } else {
-                        startActivityForResult(
-                                AuthUI.getInstance()
+                        startActivityForResult(AuthUI.getInstance()
                                         .createSignInIntentBuilder()
                                         .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
                                                 new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
@@ -154,7 +152,6 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
                                         .setIsSmartLockEnabled(false)
                                         .build(),
                                 RC_SIGN_IN);
-
                     }
                 }
             }
@@ -183,7 +180,6 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
 
     private void onSignedInInitialize(String user, String email, Uri imageUrl) {
 
-
         if (mUsername != null && !user.isEmpty()) {
             mUsername = user;
             mProfileNameText.setText(mUsername);
@@ -202,18 +198,15 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
     }
 
     private void onSignedInInitialize(String email) {
-
         Picasso.with(getApplicationContext())
                 .load(R.drawable.emptyprofile)
                 .into(mProfileImage);
-
 
         if (email != null && !email.isEmpty()) {
             mProfileEmailText.setText(email);
         }
 
     }
-
 
     @Override
     protected void onResume() {
@@ -316,7 +309,6 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
     private void navigate(int id) {
         navigationView.setCheckedItem(id);
         if (id == R.id.nav_Alcoholic) {
-
             FragmentAlcoholic fragment = new FragmentAlcoholic();
             android.support.v4.app.FragmentTransaction fragmentTransaction =
                     getSupportFragmentManager().beginTransaction();

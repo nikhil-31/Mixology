@@ -145,12 +145,8 @@ public class FragmentRandomixer extends Fragment {
         });
 
         if(savedInstanceState == null){
-
             sendJsonRequest();
         }
-
-
-
         return rootView;
     }
 

@@ -1,6 +1,7 @@
 package com.capstone.nik.mixology.Fragments;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -30,6 +31,9 @@ import com.capstone.nik.mixology.Model.Measures;
 import com.capstone.nik.mixology.Network.VolleySingleton;
 import com.capstone.nik.mixology.R;
 import com.capstone.nik.mixology.utils.ContentProviderHelperMethods;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -39,6 +43,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import static com.capstone.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_BY_ID;
+import static com.capstone.nik.mixology.Network.MyApplication.getAppContext;
 import static com.capstone.nik.mixology.data.AlcoholicColumn.DRINK_NAME;
 import static com.capstone.nik.mixology.data.AlcoholicColumn.DRINK_THUMB;
 import static com.capstone.nik.mixology.data.AlcoholicColumn._ID;
@@ -90,6 +95,12 @@ public class FragmentDetails extends Fragment {
         mCocktail = getActivity().getIntent().getParcelableExtra(getString(R.string.details_intent_cocktail));
 
         setHasOptionsMenu(true);
+
+        MobileAds.initialize(getAppContext(), "ca-app-pub-3940256099942544~3347511713");
+
+        AdView mAdView = (AdView) v.findViewById(R.id.adViewDetails);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
 
         mToolbar = (Toolbar) v.findViewById(R.id.toolbar);
 
@@ -147,7 +158,6 @@ public class FragmentDetails extends Fragment {
                 .load(cocktail.getmDrinkThumb())
                 .error(R.drawable.empty_glass)
                 .into(mDrinkImage);
-
 
         mInstruction.setText(getResources().getString(R.string.Instructions));
         mIngredients.setText(getResources().getString(R.string.Ingredients));
@@ -478,6 +488,7 @@ public class FragmentDetails extends Fragment {
         }
         return mMeasures;
     }
+
 
 
 }

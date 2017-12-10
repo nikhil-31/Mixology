@@ -50,6 +50,7 @@
 
     <!-- Admob ad unit id -->
     <string name="banner_ad_unit_id" translatable="false">ca-app-pub-3113257282676296/3350546766</string>
+    <string name="banner_ad_unit_id_details" translatable="false">ca-app-pub-3113257282676296/2081424367</string>
 
     <!-- Navigation drawer menu items and title for main activity toolbar based on which fragment is present-->
     <string name="saved_cocktails">#Saved Cocktails</string>
@@ -62,7 +63,6 @@
     <string name="vodka">#Vodka</string>
     <string name="cocktail_glass">#Cocktail Glass</string>
     <string name="highball_glass">#Highball Glass</string>
-
 
     <!-- Share Intent detail fragment that shares data to many different apps -->
     <string name="detail_share_via">Share Via</string>

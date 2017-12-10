@@ -19,4 +19,6 @@ public class ActivityDetails extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         return true;
     }
+
+
 }

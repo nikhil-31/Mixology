@@ -48,369 +48,369 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 // Repo moved from gitHub to bitbucket private repo
 public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapter.OnAdapterItemSelectedListener,
-        NavigationView.OnNavigationItemSelectedListener {
+    NavigationView.OnNavigationItemSelectedListener {
 
-    public static final int RC_SIGN_IN = 1;
-    private static final String ANONYMOUS = "anonymous";
-    private static final String SELECTED_ID = "selected";
+  public static final int RC_SIGN_IN = 1;
+  private static final String ANONYMOUS = "anonymous";
+  private static final String SELECTED_ID = "selected";
 
-    private int mNavItemSelected;
-    private Toolbar toolbar;
-    private NavigationView navigationView = null;
+  private int mNavItemSelected;
+  private Toolbar toolbar;
+  private NavigationView navigationView = null;
 
-    // Firebase instance variables
-    private FirebaseAuth mFirebaseAuth;
-    private FirebaseAuth.AuthStateListener mAuthStateListener;
+  // Firebase instance variables
+  private FirebaseAuth mFirebaseAuth;
+  private FirebaseAuth.AuthStateListener mAuthStateListener;
 
-    // Username
-    private String mUsername;
-    private View mHeader;
+  // Username
+  private String mUsername;
+  private View mHeader;
 
-    // Views for the navigation header
-    private TextView mProfileNameText;
-    private TextView mProfileEmailText;
-    private CircleImageView mProfileImage;
+  // Views for the navigation header
+  private TextView mProfileNameText;
+  private TextView mProfileEmailText;
+  private CircleImageView mProfileImage;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_navigation_drawer);
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_navigation_drawer);
 
-        // Admob integration with my id
-        MobileAds.initialize(getApplicationContext(), "ca-app-pub-3940256099942544~3347511713");
+    // Admob integration with my id
+    MobileAds.initialize(getApplicationContext(), "ca-app-pub-3940256099942544~3347511713");
 
-        AdView mAdView = (AdView) findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
+    AdView mAdView = (AdView) findViewById(R.id.adView);
+    AdRequest adRequest = new AdRequest.Builder().build();
+    mAdView.loadAd(adRequest);
 
-        //Default UserName
-        mUsername = ANONYMOUS;
+    //Default UserName
+    mUsername = ANONYMOUS;
 
-        //Initialize Firebase components
-        mFirebaseAuth = FirebaseAuth.getInstance();
+    //Initialize Firebase components
+    mFirebaseAuth = FirebaseAuth.getInstance();
 
-        // Initializing the toolbar
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+    // Initializing the toolbar
+    toolbar = (Toolbar) findViewById(R.id.toolbar);
+    setSupportActionBar(toolbar);
 
-        // Initializes the Navigation Drawer
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
+    // Initializes the Navigation Drawer
+    DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+    ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+        this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+    drawer.setDrawerListener(toggle);
+    toggle.syncState();
 
-        navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+    navigationView = (NavigationView) findViewById(R.id.nav_view);
+    navigationView.setNavigationItemSelectedListener(this);
 
-        // Navigation Header that contains the name, email and profile image
-        mHeader = navigationView.getHeaderView(0);
+    // Navigation Header that contains the name, email and profile image
+    mHeader = navigationView.getHeaderView(0);
 
-        mProfileImage = (CircleImageView) mHeader.findViewById(R.id.header_profile_image);
-        mProfileNameText = (TextView) mHeader.findViewById(R.id.header_profile_name);
-        mProfileEmailText = (TextView) mHeader.findViewById(R.id.header_profile_email);
+    mProfileImage = (CircleImageView) mHeader.findViewById(R.id.header_profile_image);
+    mProfileNameText = (TextView) mHeader.findViewById(R.id.header_profile_name);
+    mProfileEmailText = (TextView) mHeader.findViewById(R.id.header_profile_email);
 
-        // Retaining the state
-        mNavItemSelected = savedInstanceState == null ? R.id.nav_Alcoholic : savedInstanceState.getInt(SELECTED_ID);
-        navigate(mNavItemSelected);
+    // Retaining the state
+    mNavItemSelected = savedInstanceState == null ? R.id.nav_Alcoholic : savedInstanceState.getInt(SELECTED_ID);
+    navigate(mNavItemSelected);
 
-        // Checks if the user is signed in or not
-        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    // User is signed in
-                    if (user.getPhotoUrl() != null) {    // If the user is signed and there is a photo available
-                        onSignedInInitialize(user.getDisplayName(), user.getEmail(), user.getPhotoUrl());
-                    } else {
-                        onSignedInInitialize(user.getEmail());
+    // Checks if the user is signed in or not
+    mAuthStateListener = new FirebaseAuth.AuthStateListener() {
+      @Override
+      public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+        FirebaseUser user = firebaseAuth.getCurrentUser();
+        if (user != null) {
+          // User is signed in
+          if (user.getPhotoUrl() != null) {    // If the user is signed and there is a photo available
+            onSignedInInitialize(user.getDisplayName(), user.getEmail(), user.getPhotoUrl());
+          } else {
+            onSignedInInitialize(user.getEmail());
 
-                    }
-                } else {
-                    // User is signed out
-                    onSignedOutTeardown();
-
-                    // If the version is higher than lollipop then set the style in firebase or set no style
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        startActivityForResult(
-                                AuthUI.getInstance()
-                                        .createSignInIntentBuilder()
-                                        .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
-                                                new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
-                                        .setLogo(R.drawable.icon)
-                                        .setTheme(R.style.AppThemeFirebaseAuth)
-                                        .setIsSmartLockEnabled(false)
-                                        .build(),
-                                RC_SIGN_IN);
-                    } else {
-                        startActivityForResult(AuthUI.getInstance()
-                                        .createSignInIntentBuilder()
-                                        .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
-                                                new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
-                                        .setLogo(R.drawable.icon)
-                                        .setIsSmartLockEnabled(false)
-                                        .build(),
-                                RC_SIGN_IN);
-                    }
-                }
-            }
-        };
-
-        // Restoring the title after rotation
-        if (savedInstanceState != null) {
-            String title = savedInstanceState.getString("TITLE");
-            getSupportActionBar().setTitle(title);
-        }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        // Saving the title
-        outState.putInt(SELECTED_ID, mNavItemSelected);
-        String title = getSupportActionBar().getTitle().toString();
-        outState.putString("TITLE", title);
-    }
-
-    // When the user signs out the user name is set to anonymous.
-    private void onSignedOutTeardown() {
-        mUsername = ANONYMOUS;
-    }
-
-    private void onSignedInInitialize(String user, String email, Uri imageUrl) {
-
-        if (mUsername != null && !user.isEmpty()) {
-            mUsername = user;
-            mProfileNameText.setText(mUsername);
-
-        }
-        if (email != null && !email.isEmpty()) {
-            mProfileEmailText.setText(email);
-        }
-
-        if (imageUrl != null) {
-            Picasso.with(getApplicationContext())
-                    .load(imageUrl)
-                    .error(R.drawable.emptyprofile)
-                    .into(mProfileImage);
-        }
-    }
-
-    private void onSignedInInitialize(String email) {
-        Picasso.with(getApplicationContext())
-                .load(R.drawable.emptyprofile)
-                .into(mProfileImage);
-
-        if (email != null && !email.isEmpty()) {
-            mProfileEmailText.setText(email);
-        }
-
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        // Add the auth state listener when the activity is resumed.
-        mFirebaseAuth.addAuthStateListener(mAuthStateListener);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        // Auth state listener is removed when the activity is paused
-        mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
-    }
-
-    @Override
-    public void onBackPressed() {
-        // This is will close the drawer after something is selected.
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
+          }
         } else {
-            super.onBackPressed();
+          // User is signed out
+          onSignedOutTeardown();
+
+          // If the version is higher than lollipop then set the style in firebase or set no style
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            startActivityForResult(
+                AuthUI.getInstance()
+                    .createSignInIntentBuilder()
+                    .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
+                        new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
+                    .setLogo(R.drawable.icon)
+                    .setTheme(R.style.AppThemeFirebaseAuth)
+                    .setIsSmartLockEnabled(false)
+                    .build(),
+                RC_SIGN_IN);
+          } else {
+            startActivityForResult(AuthUI.getInstance()
+                    .createSignInIntentBuilder()
+                    .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
+                        new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
+                    .setLogo(R.drawable.icon)
+                    .setIsSmartLockEnabled(false)
+                    .build(),
+                RC_SIGN_IN);
+          }
         }
+      }
+    };
+
+    // Restoring the title after rotation
+    if (savedInstanceState != null) {
+      String title = savedInstanceState.getString("TITLE");
+      getSupportActionBar().setTitle(title);
+    }
+  }
+
+  @Override
+  public void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+    // Saving the title
+    outState.putInt(SELECTED_ID, mNavItemSelected);
+    String title = getSupportActionBar().getTitle().toString();
+    outState.putString("TITLE", title);
+  }
+
+  // When the user signs out the user name is set to anonymous.
+  private void onSignedOutTeardown() {
+    mUsername = ANONYMOUS;
+  }
+
+  private void onSignedInInitialize(String user, String email, Uri imageUrl) {
+
+    if (mUsername != null && !user.isEmpty()) {
+      mUsername = user;
+      mProfileNameText.setText(mUsername);
+
+    }
+    if (email != null && !email.isEmpty()) {
+      mProfileEmailText.setText(email);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    if (imageUrl != null) {
+      Picasso.with(getApplicationContext())
+          .load(imageUrl)
+          .error(R.drawable.emptyprofile)
+          .into(mProfileImage);
+    }
+  }
 
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+  private void onSignedInInitialize(String email) {
+    Picasso.with(getApplicationContext())
+        .load(R.drawable.emptyprofile)
+        .into(mProfileImage);
 
-        MenuItem item = menu.findItem(R.id.menuSearch);
-        SearchView searchView = (SearchView) item.getActionView();
-
-        // The search query is sent to the search activity using the listener.
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-
-                String queryAdjusted = query.replaceAll(" ", "%20");
-
-                Intent intent = new Intent(getApplicationContext(), ActivitySearch.class);
-                intent.putExtra(getString(R.string.search_intent_query), queryAdjusted);
-                startActivity(intent);
-
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                return false;
-            }
-        });
-
-        return true;
+    if (email != null && !email.isEmpty()) {
+      mProfileEmailText.setText(email);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+  }
 
-        if (id == R.id.action_sign_out) {
-            FirebaseAuth.getInstance().signOut();
+  @Override
+  protected void onResume() {
+    super.onResume();
+    // Add the auth state listener when the activity is resumed.
+    mFirebaseAuth.addAuthStateListener(mAuthStateListener);
+  }
 
-            FirebaseAuth.AuthStateListener authListener = new FirebaseAuth.AuthStateListener() {
-                @Override
-                public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                    FirebaseUser user = firebaseAuth.getCurrentUser();
-                    if (user == null) {
-                        startActivity(new Intent(ActivityMain.this, SignInActivity.class));
-                        finish();
-                    }
-                }
-            };
+  @Override
+  protected void onPause() {
+    super.onPause();
+    // Auth state listener is removed when the activity is paused
+    mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
+  }
+
+  @Override
+  public void onBackPressed() {
+    // This is will close the drawer after something is selected.
+    DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+    if (drawer.isDrawerOpen(GravityCompat.START)) {
+      drawer.closeDrawer(GravityCompat.START);
+    } else {
+      super.onBackPressed();
+    }
+  }
+
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
+
+    // Inflate the menu; this adds items to the action bar if it is present.
+    getMenuInflater().inflate(R.menu.menu_main, menu);
+
+    MenuItem item = menu.findItem(R.id.menuSearch);
+    SearchView searchView = (SearchView) item.getActionView();
+
+    // The search query is sent to the search activity using the listener.
+    searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+      @Override
+      public boolean onQueryTextSubmit(String query) {
+
+        String queryAdjusted = query.replaceAll(" ", "%20");
+
+        Intent intent = new Intent(getApplicationContext(), ActivitySearch.class);
+        intent.putExtra(getString(R.string.search_intent_query), queryAdjusted);
+        startActivity(intent);
+
+        return false;
+      }
+
+      @Override
+      public boolean onQueryTextChange(String newText) {
+        return false;
+      }
+    });
+
+    return true;
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    // Handle action bar item clicks here. The action bar will
+    // automatically handle clicks on the Home/Up button, so long
+    // as you specify a parent activity in AndroidManifest.xml.
+    int id = item.getItemId();
+
+    if (id == R.id.action_sign_out) {
+      FirebaseAuth.getInstance().signOut();
+
+      FirebaseAuth.AuthStateListener authListener = new FirebaseAuth.AuthStateListener() {
+        @Override
+        public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+          FirebaseUser user = firebaseAuth.getCurrentUser();
+          if (user == null) {
+            startActivity(new Intent(ActivityMain.this, SignInActivity.class));
+            finish();
+          }
         }
-        return super.onOptionsItemSelected(item);
+      };
     }
+    return super.onOptionsItemSelected(item);
+  }
 
-    @Override
-    public void onItemSelected(Cocktail cocktail) {
+  @Override
+  public void onItemSelected(Cocktail cocktail) {
         /*
         * Check is the detail fragment is present in the main activity.
         * */
-        FragmentDetails detailsFragment = (FragmentDetails) getSupportFragmentManager().findFragmentById(R.id.fragment);
-        if (detailsFragment == null) {
-            Intent mCocktailDetailIntent = new Intent(this, ActivityDetails.class);
-            mCocktailDetailIntent.putExtra(getString(R.string.details_intent_cocktail), cocktail);
-            startActivity(mCocktailDetailIntent);
-        } else {
-            detailsFragment.updateContent(cocktail);
-        }
-
+    FragmentDetails detailsFragment = (FragmentDetails) getSupportFragmentManager().findFragmentById(R.id.fragment);
+    if (detailsFragment == null) {
+      Intent mCocktailDetailIntent = new Intent(this, ActivityDetails.class);
+      mCocktailDetailIntent.putExtra(getString(R.string.details_intent_cocktail), cocktail);
+      startActivity(mCocktailDetailIntent);
+    } else {
+      detailsFragment.updateContent(cocktail);
     }
 
-    // Navigate to the selected fragment when clicked in the navigation drawer.
-    private void navigate(int id) {
-        navigationView.setCheckedItem(id);
-        if (id == R.id.nav_Alcoholic) {
-            FragmentAlcoholic fragment = new FragmentAlcoholic();
-            android.support.v4.app.FragmentTransaction fragmentTransaction =
-                    getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_container, fragment);
-            fragmentTransaction.commit();
-            getSupportActionBar().setTitle(getString(R.string.alcoholic));
+  }
 
-        } else if (id == R.id.nav_Non_Alcoholic) {
+  // Navigate to the selected fragment when clicked in the navigation drawer.
+  private void navigate(int id) {
+    navigationView.setCheckedItem(id);
+    if (id == R.id.nav_Alcoholic) {
+      FragmentAlcoholic fragment = new FragmentAlcoholic();
+      android.support.v4.app.FragmentTransaction fragmentTransaction =
+          getSupportFragmentManager().beginTransaction();
+      fragmentTransaction.replace(R.id.fragment_container, fragment);
+      fragmentTransaction.commit();
+      getSupportActionBar().setTitle(getString(R.string.alcoholic));
 
-            FragmentNonAlcoholic fragment = new FragmentNonAlcoholic();
-            android.support.v4.app.FragmentTransaction fragmentTransaction =
-                    getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_container, fragment);
-            fragmentTransaction.commit();
-            getSupportActionBar().setTitle(getString(R.string.non_alcoholic));
+    } else if (id == R.id.nav_Non_Alcoholic) {
 
-
-        } else if (id == R.id.nav_gin) {
-
-            FragmentGin fragment = new FragmentGin();
-            android.support.v4.app.FragmentTransaction fragmentTransaction =
-                    getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_container, fragment);
-            fragmentTransaction.commit();
-            getSupportActionBar().setTitle(getString(R.string.gin));
+      FragmentNonAlcoholic fragment = new FragmentNonAlcoholic();
+      android.support.v4.app.FragmentTransaction fragmentTransaction =
+          getSupportFragmentManager().beginTransaction();
+      fragmentTransaction.replace(R.id.fragment_container, fragment);
+      fragmentTransaction.commit();
+      getSupportActionBar().setTitle(getString(R.string.non_alcoholic));
 
 
-        } else if (id == R.id.nav_vodka) {
+    } else if (id == R.id.nav_gin) {
 
-            FragmentVodka fragment = new FragmentVodka();
-            android.support.v4.app.FragmentTransaction fragmentTransaction =
-                    getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_container, fragment);
-            fragmentTransaction.commit();
-            getSupportActionBar().setTitle(getString(R.string.vodka));
-
-        } else if (id == R.id.nav_cocktail_glass) {
-
-            FragmentCocktailGlass fragment = new FragmentCocktailGlass();
-            android.support.v4.app.FragmentTransaction fragmentTransaction =
-                    getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_container, fragment);
-            fragmentTransaction.commit();
-            getSupportActionBar().setTitle(getString(R.string.cocktail_glass));
+      FragmentGin fragment = new FragmentGin();
+      android.support.v4.app.FragmentTransaction fragmentTransaction =
+          getSupportFragmentManager().beginTransaction();
+      fragmentTransaction.replace(R.id.fragment_container, fragment);
+      fragmentTransaction.commit();
+      getSupportActionBar().setTitle(getString(R.string.gin));
 
 
-        } else if (id == R.id.nav_Highball_Glass) {
+    } else if (id == R.id.nav_vodka) {
 
-            FragmentHighballGlass fragment = new FragmentHighballGlass();
-            android.support.v4.app.FragmentTransaction fragmentTransaction =
-                    getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_container, fragment);
-            fragmentTransaction.commit();
-            getSupportActionBar().setTitle(getString(R.string.highball_glass));
+      FragmentVodka fragment = new FragmentVodka();
+      android.support.v4.app.FragmentTransaction fragmentTransaction =
+          getSupportFragmentManager().beginTransaction();
+      fragmentTransaction.replace(R.id.fragment_container, fragment);
+      fragmentTransaction.commit();
+      getSupportActionBar().setTitle(getString(R.string.vodka));
 
-        } else if (id == R.id.nav_Ordinary_Drink) {
+    } else if (id == R.id.nav_cocktail_glass) {
 
-            FragmentOrdinaryDrink fragment = new FragmentOrdinaryDrink();
-            android.support.v4.app.FragmentTransaction fragmentTransaction =
-                    getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_container, fragment);
-            fragmentTransaction.commit();
-            getSupportActionBar().setTitle(getString(R.string.ordinary_drink));
+      FragmentCocktailGlass fragment = new FragmentCocktailGlass();
+      android.support.v4.app.FragmentTransaction fragmentTransaction =
+          getSupportFragmentManager().beginTransaction();
+      fragmentTransaction.replace(R.id.fragment_container, fragment);
+      fragmentTransaction.commit();
+      getSupportActionBar().setTitle(getString(R.string.cocktail_glass));
 
 
-        } else if (id == R.id.nav_Cocktail) {
-            FragmentCocktail fragment = new FragmentCocktail();
-            android.support.v4.app.FragmentTransaction fragmentTransaction =
-                    getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_container, fragment);
-            fragmentTransaction.commit();
-            getSupportActionBar().setTitle(getString(R.string.cocktail));
+    } else if (id == R.id.nav_Highball_Glass) {
 
-        } else if (id == R.id.Saved_Cocktails) {
+      FragmentHighballGlass fragment = new FragmentHighballGlass();
+      android.support.v4.app.FragmentTransaction fragmentTransaction =
+          getSupportFragmentManager().beginTransaction();
+      fragmentTransaction.replace(R.id.fragment_container, fragment);
+      fragmentTransaction.commit();
+      getSupportActionBar().setTitle(getString(R.string.highball_glass));
 
-            FragmentSavedDrink fragment = new FragmentSavedDrink();
-            android.support.v4.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_container, fragment);
-            fragmentTransaction.commit();
-            getSupportActionBar().setTitle(getString(R.string.saved_cocktails));
+    } else if (id == R.id.nav_Ordinary_Drink) {
 
-        } else if (id == R.id.nav_randomixer) {
+      FragmentOrdinaryDrink fragment = new FragmentOrdinaryDrink();
+      android.support.v4.app.FragmentTransaction fragmentTransaction =
+          getSupportFragmentManager().beginTransaction();
+      fragmentTransaction.replace(R.id.fragment_container, fragment);
+      fragmentTransaction.commit();
+      getSupportActionBar().setTitle(getString(R.string.ordinary_drink));
 
-            FragmentRandomixer fragment = new FragmentRandomixer();
-            android.support.v4.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_container, fragment);
-            fragmentTransaction.commit();
-            getSupportActionBar().setTitle(getString(R.string.randomixer));
-        }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
+    } else if (id == R.id.nav_Cocktail) {
+      FragmentCocktail fragment = new FragmentCocktail();
+      android.support.v4.app.FragmentTransaction fragmentTransaction =
+          getSupportFragmentManager().beginTransaction();
+      fragmentTransaction.replace(R.id.fragment_container, fragment);
+      fragmentTransaction.commit();
+      getSupportActionBar().setTitle(getString(R.string.cocktail));
 
+    } else if (id == R.id.Saved_Cocktails) {
+
+      FragmentSavedDrink fragment = new FragmentSavedDrink();
+      android.support.v4.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+      fragmentTransaction.replace(R.id.fragment_container, fragment);
+      fragmentTransaction.commit();
+      getSupportActionBar().setTitle(getString(R.string.saved_cocktails));
+
+    } else if (id == R.id.nav_randomixer) {
+
+      FragmentRandomixer fragment = new FragmentRandomixer();
+      android.support.v4.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+      fragmentTransaction.replace(R.id.fragment_container, fragment);
+      fragmentTransaction.commit();
+      getSupportActionBar().setTitle(getString(R.string.randomixer));
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+    DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+    drawer.closeDrawer(GravityCompat.START);
 
-        mNavItemSelected = item.getItemId();
-        navigate(mNavItemSelected);
-        return true;
-    }
+  }
+
+  @SuppressWarnings("StatementWithEmptyBody")
+  @Override
+  public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+    mNavItemSelected = item.getItemId();
+    navigate(mNavItemSelected);
+    return true;
+  }
 
 }

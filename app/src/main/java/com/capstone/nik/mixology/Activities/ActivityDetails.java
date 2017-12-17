@@ -8,17 +8,17 @@ import com.capstone.nik.mixology.R;
 
 public class ActivityDetails extends AppCompatActivity {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_details);
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_details);
 
-    }
+  }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        return true;
-    }
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
+    return true;
+  }
 
 
 }

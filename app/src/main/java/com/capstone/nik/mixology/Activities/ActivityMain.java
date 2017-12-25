@@ -33,7 +33,6 @@ import com.capstone.nik.mixology.Model.Cocktail;
 import com.capstone.nik.mixology.R;
 
 import com.firebase.ui.auth.AuthUI;
-import com.firebase.ui.auth.ui.email.SignInActivity;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
@@ -280,7 +279,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
                 public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                     FirebaseUser user = firebaseAuth.getCurrentUser();
                     if (user == null) {
-                        startActivity(new Intent(ActivityMain.this, SignInActivity.class));
+//                        startActivity(new Intent(ActivityMain.this, S.class));
                         finish();
                     }
                 }
@@ -398,19 +397,15 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
             fragmentTransaction.commit();
             getSupportActionBar().setTitle(getString(R.string.randomixer));
         }
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
-
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-
         mNavItemSelected = item.getItemId();
         navigate(mNavItemSelected);
         return true;
     }
-
 }

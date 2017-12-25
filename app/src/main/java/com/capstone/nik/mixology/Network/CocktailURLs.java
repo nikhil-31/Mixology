@@ -7,7 +7,7 @@ package com.capstone.nik.mixology.Network;
 public class CocktailURLs {
 
     // API Key
-    public static String API_KEY = "2912";
+    private static String API_KEY = "2912";
 
     // Search using name
     public static String COCKTAIL_SEARCH_URL_BY_NAME = "http://www.thecocktaildb.com/api/json/v1/"+ API_KEY +"/search.php?s=";

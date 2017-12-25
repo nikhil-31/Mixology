@@ -16,9 +16,8 @@ import static com.capstone.nik.mixology.data.AlcoholicColumn._ID;
 @ContentProvider(authority = DrinkProvider.AUTHORITY, database = DrinkDatabase.class)
 public final class DrinkProvider {
 
-  public static final String AUTHORITY =
-      "com.example.nik.mixology.data.DrinkProvider";
-  static final Uri BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY);
+  static final String AUTHORITY = "com.example.nik.mixology.data.DrinkProvider";
+  private static final Uri BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY);
 
   interface Path {
     String ALCOHOLIC = "Alcoholic";

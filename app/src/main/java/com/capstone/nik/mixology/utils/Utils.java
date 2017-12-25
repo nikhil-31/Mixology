@@ -65,7 +65,6 @@ public class Utils {
   }
 
   public static void sendNetworkJsonRequest(final Activity activity, String url, RequestQueue requestQueue, final Uri uri) {
-
     final ArrayList<Cocktail> mCocktailArrayList = new ArrayList<>();
 
     JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET,
@@ -92,6 +91,4 @@ public class Utils {
     requestQueue.add(request);
 
   }
-
-
 }

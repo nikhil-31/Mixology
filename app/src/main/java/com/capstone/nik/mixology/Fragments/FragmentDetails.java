@@ -199,11 +199,8 @@ public class FragmentDetails extends Fragment {
 
           mDetailIcon.setImageResource(R.drawable.ic_fav_filled);
         }
-
       }
     });
-
-
   }
 
   private void shareRecipe(ArrayList<Measures> measuresArrayList, CocktailDetails cocktailDetails) {
@@ -229,7 +226,6 @@ public class FragmentDetails extends Fragment {
         return false;
       }
     });
-
   }
 
   public Intent shareIntent(String data) {
@@ -279,9 +275,7 @@ public class FragmentDetails extends Fragment {
 
       }
     });
-
     mRequestQueue.add(request);
-
     return cocktailDetails[0];
   }
 

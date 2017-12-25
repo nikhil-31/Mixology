@@ -29,7 +29,6 @@ import static com.capstone.nik.mixology.data.DrinkProvider.CocktailGlass.CONTENT
  */
 public class FragmentCocktailGlass extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
-
   private static final int CURSOR_LOADER_ID = 1;
 
   private RecyclerView mRecyclerView;

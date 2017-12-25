@@ -24,8 +24,6 @@ public class ActivitySearch extends AppCompatActivity implements SearchAdapter.O
     String query = getIntent().getStringExtra(getString(R.string.search_intent_query));
     String queryAdjusted = query.replaceAll("%20", " ");
     getSupportActionBar().setTitle(queryAdjusted);
-
-
   }
 
   @Override

@@ -1,36 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:gravity="center_vertical"
+  android:minHeight="?android:attr/listPreferredItemHeight"
+  android:orientation="horizontal"
+  android:paddingLeft="@dimen/abc_list_item_padding_horizontal_material"
+  android:paddingRight="@dimen/abc_list_item_padding_horizontal_material">
+
+  <ImageView
+    android:id="@+id/list_search_icon"
+    android:layout_width="@dimen/list_icon"
+    android:layout_height="@dimen/list_icon"
+    android:layout_gravity="center"
+    android:layout_marginEnd="@dimen/abc_list_item_padding_horizontal_material"
+    android:layout_marginLeft="@dimen/abc_list_item_padding_horizontal_material"
+    android:layout_marginRight="@dimen/abc_list_item_padding_horizontal_material"
+    android:contentDescription="@string/content_desc_drink_image" />
+
+  <TextView
+    android:id="@+id/list_search_text"
+    android:layout_width="0dp"
     android:layout_height="wrap_content"
-    android:gravity="center_vertical"
-    android:minHeight="?android:attr/listPreferredItemHeight"
-    android:orientation="horizontal"
-    android:paddingLeft="@dimen/abc_list_item_padding_horizontal_material"
-    android:paddingRight="@dimen/abc_list_item_padding_horizontal_material">
+    android:layout_weight="7"
+    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+    android:textSize="20sp" />
 
-    <ImageView
-        android:id="@+id/list_search_icon"
-        android:layout_width="@dimen/list_icon"
-        android:layout_height="@dimen/list_icon"
-        android:layout_gravity="center"
-        android:layout_marginLeft="@dimen/abc_list_item_padding_horizontal_material"
-        android:layout_marginEnd="@dimen/abc_list_item_padding_horizontal_material"
-        android:layout_marginRight="@dimen/abc_list_item_padding_horizontal_material"
-        android:contentDescription="@string/content_desc_drink_image"/>
-
-    <TextView
-        android:id="@+id/list_search_text"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="7"
-        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-        android:textSize="20sp" />
-
-    <ImageView
-        android:id="@+id/list_search_fav"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:contentDescription="@string/content_desc_Add_Delete_button"/>
+  <ImageView
+    android:id="@+id/list_search_fav"
+    android:layout_width="40dp"
+    android:layout_height="40dp"
+    android:contentDescription="@string/content_desc_Add_Delete_button" />
 
 </LinearLayout>
 

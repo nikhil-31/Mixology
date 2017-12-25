@@ -169,8 +169,10 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
     super.onSaveInstanceState(outState);
     // Saving the title
     outState.putInt(SELECTED_ID, mNavItemSelected);
-    String title = getSupportActionBar().getTitle().toString();
-    outState.putString("TITLE", title);
+    if (getSupportActionBar() != null){
+      String title = getSupportActionBar().getTitle().toString();
+      outState.putString("TITLE", title);
+    }
   }
 
   // When the user signs out the user name is set to anonymous.
@@ -204,6 +206,12 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
 
     if (email != null && !email.isEmpty()) {
       mProfileEmailText.setText(email);
+    }
+  }
+
+  private void setTitle(String title) {
+    if (getSupportActionBar() != null) {
+      getSupportActionBar().setTitle(title);
     }
   }
 
@@ -252,13 +260,11 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
 
         return false;
       }
-
       @Override
       public boolean onQueryTextChange(String newText) {
         return false;
       }
     });
-
     return true;
   }
 
@@ -307,94 +313,71 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
           getSupportFragmentManager().beginTransaction();
       fragmentTransaction.replace(R.id.fragment_container, fragment);
       fragmentTransaction.commit();
-      getSupportActionBar().setTitle(getString(R.string.alcoholic));
-
+      setTitle(getString(R.string.alcoholic));
     } else if (id == R.id.nav_Non_Alcoholic) {
-
       FragmentNonAlcoholic fragment = new FragmentNonAlcoholic();
       android.support.v4.app.FragmentTransaction fragmentTransaction =
           getSupportFragmentManager().beginTransaction();
       fragmentTransaction.replace(R.id.fragment_container, fragment);
       fragmentTransaction.commit();
-      getSupportActionBar().setTitle(getString(R.string.non_alcoholic));
-
-
+      setTitle(getString(R.string.non_alcoholic));
     } else if (id == R.id.nav_gin) {
-
       FragmentGin fragment = new FragmentGin();
       android.support.v4.app.FragmentTransaction fragmentTransaction =
           getSupportFragmentManager().beginTransaction();
       fragmentTransaction.replace(R.id.fragment_container, fragment);
       fragmentTransaction.commit();
-      getSupportActionBar().setTitle(getString(R.string.gin));
-
-
+      setTitle(getString(R.string.gin));
     } else if (id == R.id.nav_vodka) {
-
       FragmentVodka fragment = new FragmentVodka();
       android.support.v4.app.FragmentTransaction fragmentTransaction =
           getSupportFragmentManager().beginTransaction();
       fragmentTransaction.replace(R.id.fragment_container, fragment);
       fragmentTransaction.commit();
-      getSupportActionBar().setTitle(getString(R.string.vodka));
-
+      setTitle(getString(R.string.vodka));
     } else if (id == R.id.nav_cocktail_glass) {
-
       FragmentCocktailGlass fragment = new FragmentCocktailGlass();
       android.support.v4.app.FragmentTransaction fragmentTransaction =
           getSupportFragmentManager().beginTransaction();
       fragmentTransaction.replace(R.id.fragment_container, fragment);
       fragmentTransaction.commit();
-      getSupportActionBar().setTitle(getString(R.string.cocktail_glass));
-
-
+      setTitle(getString(R.string.cocktail_glass));
     } else if (id == R.id.nav_Highball_Glass) {
-
       FragmentHighballGlass fragment = new FragmentHighballGlass();
       android.support.v4.app.FragmentTransaction fragmentTransaction =
           getSupportFragmentManager().beginTransaction();
       fragmentTransaction.replace(R.id.fragment_container, fragment);
       fragmentTransaction.commit();
-      getSupportActionBar().setTitle(getString(R.string.highball_glass));
-
+      setTitle(getString(R.string.highball_glass));
     } else if (id == R.id.nav_Ordinary_Drink) {
-
       FragmentOrdinaryDrink fragment = new FragmentOrdinaryDrink();
       android.support.v4.app.FragmentTransaction fragmentTransaction =
           getSupportFragmentManager().beginTransaction();
       fragmentTransaction.replace(R.id.fragment_container, fragment);
       fragmentTransaction.commit();
-      getSupportActionBar().setTitle(getString(R.string.ordinary_drink));
-
-
+      setTitle(getString(R.string.ordinary_drink));
     } else if (id == R.id.nav_Cocktail) {
       FragmentCocktail fragment = new FragmentCocktail();
       android.support.v4.app.FragmentTransaction fragmentTransaction =
           getSupportFragmentManager().beginTransaction();
       fragmentTransaction.replace(R.id.fragment_container, fragment);
       fragmentTransaction.commit();
-      getSupportActionBar().setTitle(getString(R.string.cocktail));
-
+      setTitle(getString(R.string.cocktail));
     } else if (id == R.id.Saved_Cocktails) {
-
       FragmentSavedDrink fragment = new FragmentSavedDrink();
       android.support.v4.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
       fragmentTransaction.replace(R.id.fragment_container, fragment);
       fragmentTransaction.commit();
-      getSupportActionBar().setTitle(getString(R.string.saved_cocktails));
-
+      setTitle(getString(R.string.saved_cocktails));
     } else if (id == R.id.nav_randomixer) {
-
       FragmentRandomixer fragment = new FragmentRandomixer();
       android.support.v4.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
       fragmentTransaction.replace(R.id.fragment_container, fragment);
       fragmentTransaction.commit();
-      getSupportActionBar().setTitle(getString(R.string.randomixer));
+      setTitle(getString(R.string.randomixer));
     }
-
     DrawerLayout drawer = findViewById(R.id.drawer_layout);
     drawer.closeDrawer(GravityCompat.START);
-
   }
 
   @SuppressWarnings("StatementWithEmptyBody")

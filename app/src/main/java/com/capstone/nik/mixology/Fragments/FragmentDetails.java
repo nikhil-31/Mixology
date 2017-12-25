@@ -59,7 +59,6 @@ public class FragmentDetails extends Fragment {
 
   // Volley
   private RequestQueue mRequestQueue;
-  private VolleySingleton mVolleySingleton;
 
   private String mCocktailId;
 
@@ -70,7 +69,6 @@ public class FragmentDetails extends Fragment {
   private ImageView mDrinkImage;
   private TextView mDrinkName;
   private Toolbar mToolbar;
-  private RecyclerView mIngredientsRecyclerView;
   private IngredientsAdapter mIngredientsAdapter;
   private ArrayList<Measures> mMeasuresArrayList;
   private ImageView mDetailIcon;
@@ -83,7 +81,7 @@ public class FragmentDetails extends Fragment {
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    mVolleySingleton = mVolleySingleton.getInstance();
+    VolleySingleton mVolleySingleton = VolleySingleton.getInstance();
     mRequestQueue = mVolleySingleton.getmRequestQueue();
   }
 
@@ -98,11 +96,11 @@ public class FragmentDetails extends Fragment {
 
     MobileAds.initialize(getAppContext(), "ca-app-pub-3940256099942544~3347511713");
 
-    AdView mAdView = (AdView) v.findViewById(R.id.adViewDetails);
+    AdView mAdView = v.findViewById(R.id.adViewDetails);
     AdRequest adRequest = new AdRequest.Builder().build();
     mAdView.loadAd(adRequest);
 
-    mToolbar = (Toolbar) v.findViewById(R.id.toolbar);
+    mToolbar = v.findViewById(R.id.toolbar);
 
     mToolbar.setNavigationIcon(ContextCompat.getDrawable(getActivity(), R.drawable.ic_back_black));
     mToolbar.setNavigationContentDescription(getString(R.string.content_desc_up_navigation));
@@ -115,22 +113,22 @@ public class FragmentDetails extends Fragment {
 
     mToolbar.inflateMenu(R.menu.menu_activity_details);
 
-    mInstructionsText = (TextView) v.findViewById(R.id.detail_instructions);
-    mAlcoholicText = (TextView) v.findViewById(R.id.detail_alcoholic);
-    mDrinkImage = (ImageView) v.findViewById(R.id.detail_imageView);
-    mInstruction = (TextView) v.findViewById(R.id.detail_instructions_text);
-    mIngredients = (TextView) v.findViewById(R.id.detail_ingredients_text);
-    mDrinkName = (TextView) v.findViewById(R.id.detail_name);
-    mDetailIcon = (ImageView) v.findViewById(R.id.detail_fav_button);
+    mInstructionsText = v.findViewById(R.id.detail_instructions);
+    mAlcoholicText = v.findViewById(R.id.detail_alcoholic);
+    mDrinkImage = v.findViewById(R.id.detail_imageView);
+    mInstruction = v.findViewById(R.id.detail_instructions_text);
+    mIngredients = v.findViewById(R.id.detail_ingredients_text);
+    mDrinkName = v.findViewById(R.id.detail_name);
+    mDetailIcon = v.findViewById(R.id.detail_fav_button);
 
     mIngredientsAdapter = new IngredientsAdapter(getActivity());
-    mIngredientsRecyclerView = (RecyclerView) v.findViewById(R.id.recycler_ingredients);
-    mIngredientsRecyclerView.setNestedScrollingEnabled(false);
+    RecyclerView ingredientsRecyclerView = v.findViewById(R.id.recycler_ingredients);
+    ingredientsRecyclerView.setNestedScrollingEnabled(false);
 
     LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
 
-    mIngredientsRecyclerView.setLayoutManager(linearLayoutManager);
-    mIngredientsRecyclerView.setAdapter(mIngredientsAdapter);
+    ingredientsRecyclerView.setLayoutManager(linearLayoutManager);
+    ingredientsRecyclerView.setAdapter(mIngredientsAdapter);
 
     if (mCocktail != null) {
       startNetworkRequest(mCocktail);
@@ -145,13 +143,9 @@ public class FragmentDetails extends Fragment {
   }
 
   private void startNetworkRequest(final Cocktail cocktail) {
-
     mCocktailId = cocktail.getmDrinkId();
-
     sendJsonRequest(mCocktailId);
-
     mToolbar.setTitle(cocktail.getmDrinkName());
-
     mDrinkName.setText(cocktail.getmDrinkName());
 
     Picasso.with(getActivity())
@@ -177,26 +171,17 @@ public class FragmentDetails extends Fragment {
 
         if (isInDatabase) {
           mDetailIcon.setImageResource(R.drawable.ic_fav_filled);
-
           Snackbar.make(mDetailIcon, getString(R.string.drink_deleted), Snackbar.LENGTH_LONG).show();
-
           ContentProviderHelperMethods.deleteData(getActivity(), mCocktailId);
-
           mDetailIcon.setImageResource(R.drawable.ic_fav_unfilled_black);
-
         } else {
           mDetailIcon.setImageResource(R.drawable.ic_fav_unfilled_black);
-
-
           Snackbar.make(mDetailIcon, getString(R.string.drink_added), Snackbar.LENGTH_LONG).show();
-
           ContentValues cv = new ContentValues();
           cv.put(_ID, cocktail.getmDrinkId());
           cv.put(DRINK_NAME, cocktail.getmDrinkName());
           cv.put(DRINK_THUMB, cocktail.getmDrinkThumb());
-
           ContentProviderHelperMethods.insertData(getActivity(), mCocktailId, cv);
-
           mDetailIcon.setImageResource(R.drawable.ic_fav_filled);
         }
       }
@@ -237,7 +222,6 @@ public class FragmentDetails extends Fragment {
   }
 
   private CocktailDetails sendJsonRequest(String id) {
-
     final CocktailDetails[] cocktailDetails = new CocktailDetails[1];
 
     JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET,
@@ -247,26 +231,17 @@ public class FragmentDetails extends Fragment {
           @Override
           public void onResponse(JSONObject response) {
             try {
-
               cocktailDetails[0] = parseJSONResponse(response);
-
               mInstructionsText.setText(cocktailDetails[0].getmInstructions());
               mAlcoholicText.setText(cocktailDetails[0].getmAlcoholic());
-
               mMeasuresArrayList = parseJSONResponseMeasure(response);
-
               if (isAdded() && getActivity() != null) {
                 shareRecipe(mMeasuresArrayList, cocktailDetails[0]);
               }
-
-
               mIngredientsAdapter.setMeasuresList(mMeasuresArrayList);
-
             } catch (JSONException e) {
               e.printStackTrace();
-
               Toast.makeText(getActivity(), getString(R.string.Network_error), Toast.LENGTH_LONG).show();
-
             }
           }
         }, new Response.ErrorListener() {
@@ -280,7 +255,6 @@ public class FragmentDetails extends Fragment {
   }
 
   public CocktailDetails parseJSONResponse(JSONObject response) throws JSONException {
-
     final String DRINKS = "drinks";
     final String NAME = "strDrink";
     final String CATEGORY = "strCategory";
@@ -296,7 +270,6 @@ public class FragmentDetails extends Fragment {
     JSONArray results = response.getJSONArray(DRINKS);
 
     for (int i = 0; i < results.length(); i++) {
-
       JSONObject jsonObject = results.getJSONObject(i);
 
       if (jsonObject.getString(NAME).length() != 0 && !jsonObject.isNull(NAME)) {
@@ -308,14 +281,12 @@ public class FragmentDetails extends Fragment {
       if (jsonObject.getString(ALCOHOLIC).length() != 0 && !jsonObject.isNull(ALCOHOLIC)) {
         details.setmAlcoholic(jsonObject.getString(ALCOHOLIC));
       }
-
       if (jsonObject.getString(GLASS).length() != 0 && !jsonObject.isNull(GLASS)) {
         details.setmGlass(jsonObject.getString(GLASS));
       }
       if (jsonObject.getString(INSTRUCTIONS).length() != 0 && !jsonObject.isNull(INSTRUCTIONS)) {
         details.setmInstructions(jsonObject.getString(INSTRUCTIONS));
       }
-
     }
     return details;
   }

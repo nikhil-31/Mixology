@@ -1,122 +1,122 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:paddingTop="?attr/actionBarSize"
+  tools:context="com.capstone.nik.mixology.Fragments.FragmentRandomixer">
+
+  <android.support.v4.widget.SwipeRefreshLayout
+    android:id="@+id/swipeToRefreshLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingTop="?attr/actionBarSize"
-    tools:context="com.capstone.nik.mixology.Fragments.FragmentRandomixer">
+    android:layout_height="match_parent">
 
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/swipeToRefreshLayout"
+    <android.support.v4.widget.NestedScrollView
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+      <android.support.v7.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_margin="5dp"
+        app:cardCornerRadius="5dp"
+        app:cardElevation="5dp">
 
-        <android.support.v4.widget.NestedScrollView
+        <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:orientation="vertical">
+
+          <ImageView
+            android:id="@+id/detail_imageView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+            android:layout_height="350dp"
+            android:contentDescription="@string/content_desc_drink_image"
+            android:scaleType="centerCrop" />
 
-            <android.support.v7.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="5dp"
-                app:cardCornerRadius="5dp"
-                app:cardElevation="5dp">
+          <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
+            <TextView
+              android:id="@+id/detail_name"
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_marginLeft="20dp"
+              android:layout_marginStart="20dp"
+              android:layout_marginTop="20dp"
+              android:layout_weight="1"
+              android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
+              android:textSize="22sp" />
 
-                    <ImageView
-                        android:id="@+id/detail_imageView"
-                        android:layout_width="match_parent"
-                        android:layout_height="350dp"
-                        android:contentDescription="@string/content_desc_drink_image"
-                        android:scaleType="centerCrop" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_weight="1"
-                            android:id="@+id/detail_name"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="20dp"
-                            android:layout_marginStart="20dp"
-                            android:layout_marginTop="20dp"
-                            android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
-                            android:textSize="22sp" />
-
-                        <ImageView
-                            android:id="@+id/detail_fav_button"
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:layout_marginEnd="@dimen/abc_list_item_padding_horizontal_material"
-                            android:layout_marginRight="@dimen/abc_list_item_padding_horizontal_material"
-                            android:layout_marginTop="18dp"
-                            android:contentDescription="@string/content_desc_Add_Delete_button"/>
+            <ImageView
+              android:id="@+id/detail_fav_button"
+              android:layout_width="40dp"
+              android:layout_height="40dp"
+              android:layout_marginEnd="@dimen/abc_list_item_padding_horizontal_material"
+              android:layout_marginRight="@dimen/abc_list_item_padding_horizontal_material"
+              android:layout_marginTop="18dp"
+              android:contentDescription="@string/content_desc_Add_Delete_button" />
 
 
-                    </LinearLayout>
+          </LinearLayout>
 
-                    <TextView
-                        android:id="@+id/detail_alcoholic"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginStart="20dp"
-                        android:layout_marginTop="5dp"
-                        android:textColor="@color/red"
-                        android:textSize="17sp" />
+          <TextView
+            android:id="@+id/detail_alcoholic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="5dp"
+            android:textColor="@color/red"
+            android:textSize="17sp" />
 
-                    <TextView
-                        android:id="@+id/detail_instructions_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginStart="20dp"
-                        android:layout_marginTop="15dp"
-                        android:textSize="17sp" />
+          <TextView
+            android:id="@+id/detail_instructions_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="15dp"
+            android:textSize="17sp" />
 
-                    <TextView
-                        android:id="@+id/detail_instructions"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="20dp"
-                        android:layout_marginLeft="35dp"
-                        android:layout_marginRight="20dp"
-                        android:layout_marginStart="20dp"
-                        android:layout_marginTop="5dp"
-                        android:paddingBottom="20dp"
-                        android:textColor="@color/primary_text"
-                        android:textSize="17sp" />
+          <TextView
+            android:id="@+id/detail_instructions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
+            android:layout_marginLeft="35dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="5dp"
+            android:paddingBottom="20dp"
+            android:textColor="@color/primary_text"
+            android:textSize="17sp" />
 
-                    <TextView
-                        android:id="@+id/detail_ingredients_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginStart="20dp"
-                        android:layout_marginTop="15dp"
-                        android:textSize="17sp" />
+          <TextView
+            android:id="@+id/detail_ingredients_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="15dp"
+            android:textSize="17sp" />
 
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/recycler_ingredients"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:paddingBottom="100dp" />
+          <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_ingredients"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="100dp" />
 
-                </LinearLayout>
-            </android.support.v7.widget.CardView>
-        </android.support.v4.widget.NestedScrollView>
+        </LinearLayout>
+      </android.support.v7.widget.CardView>
+    </android.support.v4.widget.NestedScrollView>
 
-    </android.support.v4.widget.SwipeRefreshLayout>
+  </android.support.v4.widget.SwipeRefreshLayout>
 
 
 </FrameLayout>

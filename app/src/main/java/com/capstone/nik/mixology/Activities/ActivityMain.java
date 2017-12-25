@@ -32,6 +32,7 @@ import com.capstone.nik.mixology.Fragments.FragmentNonAlcoholic;
 import com.capstone.nik.mixology.Model.Cocktail;
 import com.capstone.nik.mixology.R;
 
+import com.crashlytics.android.Crashlytics;
 import com.firebase.ui.auth.AuthUI;
 
 import com.google.android.gms.ads.AdRequest;
@@ -121,6 +122,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
         FirebaseUser user = firebaseAuth.getCurrentUser();
         if (user != null) {
           // User is signed in
+          Crashlytics.setUserEmail(user.getEmail());
           if (user.getPhotoUrl() != null) {    // If the user is signed and there is a photo available
             onSignedInInitialize(user.getDisplayName(), user.getEmail(), user.getPhotoUrl());
           } else {
@@ -169,7 +171,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
     super.onSaveInstanceState(outState);
     // Saving the title
     outState.putInt(SELECTED_ID, mNavItemSelected);
-    if (getSupportActionBar() != null){
+    if (getSupportActionBar() != null) {
       String title = getSupportActionBar().getTitle().toString();
       outState.putString("TITLE", title);
     }
@@ -260,6 +262,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
 
         return false;
       }
+
       @Override
       public boolean onQueryTextChange(String newText) {
         return false;

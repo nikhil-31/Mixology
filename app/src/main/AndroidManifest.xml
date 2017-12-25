@@ -9,12 +9,12 @@
   <application
     android:name="com.capstone.nik.mixology.Network.MyApplication"
     android:allowBackup="true"
+    android:fullBackupContent="@xml/backup_descriptor"
     android:icon="@drawable/wine2"
     android:label="@string/app_name"
     android:supportsRtl="true"
     android:theme="@style/AppTheme"
-    tools:ignore="InnerclassSeparator"
-    android:fullBackupContent="@xml/backup_descriptor">
+    tools:ignore="InnerclassSeparator">
 
     <activity
       android:name="com.capstone.nik.mixology.Activities.ActivityMain"
@@ -67,5 +67,9 @@
       android:name="com.capstone.nik.mixology.Widget.DrinkWidgetService"
       android:exported="false"
       android:permission="android.permission.BIND_REMOTEVIEWS" />
+
+    <meta-data
+      android:name="io.fabric.ApiKey"
+      android:value="716de6caed709cd5d2cded23c88864657c5f4187" />
   </application>
 </manifest>

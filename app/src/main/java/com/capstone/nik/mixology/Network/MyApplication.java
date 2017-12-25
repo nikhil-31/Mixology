@@ -2,13 +2,12 @@ package com.capstone.nik.mixology.Network;
 
 import android.app.Application;
 import android.content.Context;
-import android.support.multidex.MultiDexApplication;
 
 /**
  * Created by nik on 12/7/2016.
  */
 
-public class MyApplication extends MultiDexApplication {
+public class MyApplication extends Application {
     private static MyApplication sInstance;
 
     @Override

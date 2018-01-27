@@ -78,7 +78,9 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
     setContentView(R.layout.activity_navigation_drawer);
 
     // Admob integration with my id
-    MobileAds.initialize(getApplicationContext(), "ca-app-pub-3940256099942544~3347511713");
+//    MobileAds.initialize(getApplicationContext(), "ca-app-pub-3940256099942544~3347511713");
+    //TODO - Uncomment original Ad
+    MobileAds.initialize(getApplicationContext(), "ca-app-pub-3940256099942544/6300978111");
 
     AdView mAdView = findViewById(R.id.adView);
     AdRequest adRequest = new AdRequest.Builder().build();

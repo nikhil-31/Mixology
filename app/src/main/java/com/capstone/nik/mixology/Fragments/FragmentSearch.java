@@ -92,10 +92,10 @@ public class FragmentSearch extends Fragment {
 
   public boolean isOnline() {
     ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+    assert cm != null;
     NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-    boolean isConnected = activeNetwork != null &&
+    return activeNetwork != null &&
         activeNetwork.isConnectedOrConnecting();
-    return isConnected;
   }
 
   @Override

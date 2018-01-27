@@ -24,7 +24,7 @@ import java.util.ArrayList;
 
 public class Utils {
 
-  public static ArrayList<Cocktail> parseJSONResponse(JSONObject response) throws JSONException {
+  private static ArrayList<Cocktail> parseJSONResponse(JSONObject response) throws JSONException {
 
     final String DRINKS = "drinks";
     final String COCKTAIL_NAME = "strDrink";

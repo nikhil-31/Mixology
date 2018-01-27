@@ -1,7 +1,6 @@
 package com.capstone.nik.mixology.Fragments;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -28,7 +27,7 @@ import com.capstone.nik.mixology.Adapters.IngredientsAdapter;
 import com.capstone.nik.mixology.Model.Cocktail;
 import com.capstone.nik.mixology.Model.CocktailDetails;
 import com.capstone.nik.mixology.Model.Measures;
-import com.capstone.nik.mixology.Network.VolleySingleton;
+import com.capstone.nik.mixology.Network.MyApplication;
 import com.capstone.nik.mixology.R;
 import com.capstone.nik.mixology.utils.ContentProviderHelperMethods;
 import com.google.android.gms.ads.AdRequest;
@@ -41,6 +40,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+
+import javax.inject.Inject;
 
 import static com.capstone.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_BY_ID;
 import static com.capstone.nik.mixology.Network.MyApplication.getAppContext;
@@ -58,7 +59,8 @@ public class FragmentDetails extends Fragment {
   private Cocktail mCocktail;
 
   // Volley
-  private RequestQueue mRequestQueue;
+  @Inject
+  RequestQueue mRequestQueue;
 
   private String mCocktailId;
 
@@ -80,9 +82,7 @@ public class FragmentDetails extends Fragment {
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
-    VolleySingleton mVolleySingleton = VolleySingleton.getInstance();
-    mRequestQueue = mVolleySingleton.getmRequestQueue();
+    ((MyApplication) getActivity().getApplication()).getComponent().inject(this);
   }
 
   @Override
@@ -94,7 +94,9 @@ public class FragmentDetails extends Fragment {
 
     setHasOptionsMenu(true);
 
-    MobileAds.initialize(getAppContext(), "ca-app-pub-3940256099942544~3347511713");
+//    MobileAds.initialize(getAppContext(), "ca-app-pub-3940256099942544~3347511713");
+    //TODO - Uncomment original Ad
+    MobileAds.initialize(getAppContext(), "ca-app-pub-3940256099942544/6300978111");
 
     AdView mAdView = v.findViewById(R.id.adViewDetails);
     AdRequest adRequest = new AdRequest.Builder().build();

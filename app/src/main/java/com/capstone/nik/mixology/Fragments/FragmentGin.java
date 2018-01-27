@@ -17,9 +17,11 @@ import android.widget.TextView;
 
 import com.android.volley.RequestQueue;
 import com.capstone.nik.mixology.Adapters.DrinkCursorAdapter;
-import com.capstone.nik.mixology.Network.VolleySingleton;
+import com.capstone.nik.mixology.Network.MyApplication;
 import com.capstone.nik.mixology.R;
 import com.capstone.nik.mixology.utils.Utils;
+
+import javax.inject.Inject;
 
 import static com.capstone.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_INGREDIENT_GIN;
 import static com.capstone.nik.mixology.data.DrinkProvider.Gin.CONTENT_URI_GIN;
@@ -35,8 +37,8 @@ public class FragmentGin extends Fragment implements LoaderManager.LoaderCallbac
   private DrinkCursorAdapter mDrinkAdapter;
   private TextView mEmptyTextView;
   // Volley
-  private RequestQueue mRequestQueue;
-  private VolleySingleton mVolleySingleton;
+  @Inject
+  RequestQueue mRequestQueue;
 
   public FragmentGin() {
   }
@@ -50,8 +52,7 @@ public class FragmentGin extends Fragment implements LoaderManager.LoaderCallbac
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    mVolleySingleton = mVolleySingleton.getInstance();
-    mRequestQueue = mVolleySingleton.getmRequestQueue();
+    ((MyApplication) getActivity().getApplication()).getComponent().inject(this);
   }
 
   @Override

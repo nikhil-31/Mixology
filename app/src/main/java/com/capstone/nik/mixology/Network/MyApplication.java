@@ -2,11 +2,11 @@ package com.capstone.nik.mixology.Network;
 
 import android.app.Application;
 import android.content.Context;
-import com.crashlytics.android.Crashlytics;
-import io.fabric.sdk.android.Fabric;
 
+import com.capstone.nik.mixology.di.applicationComponent.ApplicationComponent;
+import com.capstone.nik.mixology.di.applicationComponent.DaggerApplicationComponent;
+import com.capstone.nik.mixology.di.module.ApplicationModule;
 import com.crashlytics.android.Crashlytics;
-
 import io.fabric.sdk.android.Fabric;
 
 /**
@@ -16,15 +16,23 @@ import io.fabric.sdk.android.Fabric;
 public class MyApplication extends Application {
   private static MyApplication sInstance;
 
+  private ApplicationComponent component;
+
   @Override
   public void onCreate() {
     super.onCreate();
     sInstance = this;
     Fabric.with(this, new Crashlytics());
+
+    component = DaggerApplicationComponent
+        .builder()
+        .applicationModule(new ApplicationModule(this))
+        .build();
+
   }
 
-  private static MyApplication getsInstance() {
-    return sInstance;
+  public ApplicationComponent getComponent() {
+    return component;
   }
 
   public static Context getAppContext() {

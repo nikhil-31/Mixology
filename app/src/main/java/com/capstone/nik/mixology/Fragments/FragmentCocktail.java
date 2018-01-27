@@ -17,7 +17,7 @@ import android.widget.TextView;
 
 import com.android.volley.RequestQueue;
 import com.capstone.nik.mixology.Adapters.DrinkCursorAdapter;
-import com.capstone.nik.mixology.Network.VolleySingleton;
+import com.capstone.nik.mixology.Network.MyApplication;
 import com.capstone.nik.mixology.R;
 import com.capstone.nik.mixology.utils.Utils;
 
@@ -37,7 +37,6 @@ public class FragmentCocktail extends Fragment implements LoaderManager.LoaderCa
   private TextView mEmptyTextView;
   // Volley
   private RequestQueue mRequestQueue;
-  private VolleySingleton mVolleySingleton;
 
   public FragmentCocktail() {
   }
@@ -51,8 +50,8 @@ public class FragmentCocktail extends Fragment implements LoaderManager.LoaderCa
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    mVolleySingleton = mVolleySingleton.getInstance();
-    mRequestQueue = mVolleySingleton.getmRequestQueue();
+
+    ((MyApplication) getActivity().getApplication()).getComponent().inject(this);
   }
 
   @Override

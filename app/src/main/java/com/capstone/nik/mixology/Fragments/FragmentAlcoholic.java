@@ -1,5 +1,6 @@
 package com.capstone.nik.mixology.Fragments;
 
+import android.app.Application;
 import android.database.Cursor;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -13,7 +14,7 @@ import android.view.ViewGroup;
 
 import com.android.volley.RequestQueue;
 import com.capstone.nik.mixology.Adapters.DrinkCursorAdapter;
-import com.capstone.nik.mixology.Network.VolleySingleton;
+import com.capstone.nik.mixology.Network.MyApplication;
 import com.capstone.nik.mixology.R;
 import com.capstone.nik.mixology.utils.Utils;
 
@@ -21,6 +22,8 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.widget.TextView;
+
+import javax.inject.Inject;
 
 import static com.capstone.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_ALCOHOLIC;
 import static com.capstone.nik.mixology.data.DrinkProvider.Alcoholic.CONTENT_URI_ALCOHOLIC;
@@ -33,14 +36,13 @@ public class FragmentAlcoholic extends Fragment implements LoaderManager.LoaderC
 
   private static final int CURSOR_LOADER_ID = 0;
 
-  private RecyclerView mRecyclerView;
   private DrinkCursorAdapter mDrinkAdapter;
   private TextView mEmptyTextView;
 
   // Volley
-  private RequestQueue mRequestQueue;
-  private VolleySingleton mVolleySingleton;
 
+  @Inject
+  RequestQueue mRequestQueue;
 
   public FragmentAlcoholic() {
   }
@@ -54,8 +56,7 @@ public class FragmentAlcoholic extends Fragment implements LoaderManager.LoaderC
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    mVolleySingleton = mVolleySingleton.getInstance();
-    mRequestQueue = mVolleySingleton.getmRequestQueue();
+    ((MyApplication) getActivity().getApplication()).getComponent().inject(this);
   }
 
   @Override
@@ -63,14 +64,14 @@ public class FragmentAlcoholic extends Fragment implements LoaderManager.LoaderC
                            Bundle savedInstanceState) {
     View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-    mRecyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_main);
-    mEmptyTextView = (TextView) rootView.findViewById(R.id.empty_view);
+    RecyclerView recyclerView = rootView.findViewById(R.id.recycler_main);
+    mEmptyTextView = rootView.findViewById(R.id.empty_view);
 
     GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
-    mRecyclerView.setLayoutManager(gridLayoutManager);
+    recyclerView.setLayoutManager(gridLayoutManager);
 
     mDrinkAdapter = new DrinkCursorAdapter(null, getActivity());
-    mRecyclerView.setAdapter(mDrinkAdapter);
+    recyclerView.setAdapter(mDrinkAdapter);
 
     Utils.sendNetworkJsonRequest(getActivity(), COCKTAIL_SEARCH_URL_ALCOHOLIC, mRequestQueue, CONTENT_URI_ALCOHOLIC);
 
@@ -80,16 +81,13 @@ public class FragmentAlcoholic extends Fragment implements LoaderManager.LoaderC
   @Override
   public void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
-
   }
 
   @Override
   public void onResume() {
     super.onResume();
     getLoaderManager().restartLoader(CURSOR_LOADER_ID, null, this);
-
   }
-
 
   @Override
   public Loader<Cursor> onCreateLoader(int id, Bundle args) {

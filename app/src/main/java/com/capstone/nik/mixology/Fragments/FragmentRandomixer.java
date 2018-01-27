@@ -24,7 +24,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.capstone.nik.mixology.Adapters.IngredientsAdapter;
 import com.capstone.nik.mixology.Model.CocktailDetails;
 import com.capstone.nik.mixology.Model.Measures;
-import com.capstone.nik.mixology.Network.VolleySingleton;
+import com.capstone.nik.mixology.Network.MyApplication;
 import com.capstone.nik.mixology.R;
 import com.capstone.nik.mixology.utils.ContentProviderHelperMethods;
 import com.squareup.picasso.Picasso;
@@ -34,6 +34,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+
+import javax.inject.Inject;
 
 import static com.capstone.nik.mixology.Network.CocktailURLs.COCKTAIL_URL_RANDOM;
 import static com.capstone.nik.mixology.data.AlcoholicColumn.DRINK_NAME;
@@ -54,8 +56,8 @@ public class FragmentRandomixer extends Fragment {
   private ArrayList<Measures> mMeasuresArrayList;
 
   // Volley
-  private RequestQueue mRequestQueue;
-  private VolleySingleton mVolleySingleton;
+  @Inject
+  RequestQueue mRequestQueue;
 
   private SwipeRefreshLayout mSwipeToRefreshLayout;
   private RecyclerView mIngredientsRecyclerView;
@@ -74,8 +76,7 @@ public class FragmentRandomixer extends Fragment {
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    mVolleySingleton = mVolleySingleton.getInstance();
-    mRequestQueue = mVolleySingleton.getmRequestQueue();
+    ((MyApplication) getActivity().getApplication()).getComponent().inject(this);
   }
 
   @Override

@@ -42,7 +42,6 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
     this.mAct = activity;
     inflater = LayoutInflater.from(mContext);
     mAdapterCallback = (OnAdapterItemSelectedListener) mAct;
-
   }
 
   @Override
@@ -67,7 +66,6 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
     isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(mAct, cursor.getString(cursor.getColumnIndex(_ID)), CONTENT_URI_DRINK_SAVED);
     if (isInDatabase) {
       viewHolder.imageView.setImageResource(R.drawable.ic_fav_filled);
-
     } else {
       viewHolder.imageView.setImageResource(R.drawable.ic_fav_unfilled_black);
     }
@@ -106,22 +104,21 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
       }
     });
 
-    viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        if (mAdapterCallback != null) {
-          mAdapterCallback.onItemSelected(currentCocktail);
-        }
-      }
-    });
+//    viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+//      @Override
+//      public void onClick(View view) {
+//        if (mAdapterCallback != null) {
+//          mAdapterCallback.onItemSelected(currentCocktail);
+//        }
+//      }
+//    });
   }
 
   @Override
   public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
     View v = inflater.inflate(R.layout.recycler_main_item, parent, false);
-    ViewHolder viewHolder = new ViewHolder(v);
-    return viewHolder;
+    return new ViewHolder(v);
 
   }
 
@@ -131,18 +128,42 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
     TextView textView;
     final ImageView imageView;
 
-
     public ViewHolder(View itemView) {
       super(itemView);
 
-      image = (ImageView) itemView.findViewById(R.id.cocktail_image);
-      textView = (TextView) itemView.findViewById(R.id.cocktail_text);
-      imageView = (ImageView) itemView.findViewById(R.id.cocktail_button);
+      image = itemView.findViewById(R.id.cocktail_image);
+      textView = itemView.findViewById(R.id.cocktail_text);
+      imageView = itemView.findViewById(R.id.cocktail_button);
+
+      imageView.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+
+
+
+        }
+      });
+
+      itemView.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+          if (mAdapterCallback != null) {
+            Cursor cursor = getCursor();
+
+            final Cocktail currentCocktail = new Cocktail();
+
+            currentCocktail.setmDrinkId(cursor.getString(cursor.getColumnIndex(_ID)));
+            currentCocktail.setmDrinkName(cursor.getString(cursor.getColumnIndex(DRINK_NAME)));
+            currentCocktail.setmDrinkThumb(cursor.getString(cursor.getColumnIndex(DRINK_THUMB)));
+            mAdapterCallback.onItemSelected(currentCocktail);
+          }
+        }
+      });
 
     }
   }
 
   public interface OnAdapterItemSelectedListener {
-    void onItemSelected(Cocktail id);
+    void onItemSelected(Cocktail cocktail);
   }
 }

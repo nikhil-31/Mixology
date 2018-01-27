@@ -12,12 +12,11 @@ public interface AlcoholicColumn {
 
   @DataType(DataType.Type.INTEGER)
   @PrimaryKey
-  public static final String _ID = "_id";
+  String _ID = "_id";
   @DataType(DataType.Type.TEXT)
   @NotNull
-  public static final String DRINK_NAME = "name";
+  String DRINK_NAME = "name";
   @DataType(DataType.Type.TEXT)
   @NotNull
-  public static final String DRINK_THUMB = "thumb";
-
+  String DRINK_THUMB = "thumb";
 }

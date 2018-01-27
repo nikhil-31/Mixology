@@ -59,11 +59,20 @@ dependencies {
   implementation('com.crashlytics.sdk.android:answers:1.4.1@aar') {
     transitive = true;
   }
+  // Job
+  implementation 'com.birbit:android-priority-jobqueue:2.0.1'
+  implementation 'com.google.android.gms:play-services-gcm:11.6.2'
   // Dependency Injection
   implementation 'com.google.dagger:dagger:2.8'
   implementation 'javax.inject:javax.inject:1'
   provided 'javax.annotation:jsr250-api:1.0'
   annotationProcessor 'com.google.dagger:dagger-compiler:2.8'
+  // Stetho
+  implementation 'com.facebook.stetho:stetho:1.5.0'
+  // Leak Canary
+  debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.5.4'
+  releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
+  testImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
   // Data Storage
   implementation 'net.simonvt.schematic:schematic:0.6.3'
   annotationProcessor 'net.simonvt.schematic:schematic-compiler:0.6.3'

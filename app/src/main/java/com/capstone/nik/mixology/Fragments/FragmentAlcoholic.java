@@ -1,7 +1,6 @@
 package com.capstone.nik.mixology.Fragments;
 
 import android.app.Activity;
-import android.app.Application;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -23,7 +22,6 @@ import com.capstone.nik.mixology.utils.Utils;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.widget.TextView;
 
 import javax.inject.Inject;
 
@@ -58,7 +56,7 @@ public class FragmentAlcoholic extends Fragment implements LoaderManager.LoaderC
     super.onCreate(savedInstanceState);
     mActivity = getActivity();
     if (mActivity != null) {
-      ((MyApplication) mActivity.getApplication()).getComponent().inject(this);
+      ((MyApplication) mActivity.getApplication()).getApplicationComponent().inject(this);
     }
   }
 

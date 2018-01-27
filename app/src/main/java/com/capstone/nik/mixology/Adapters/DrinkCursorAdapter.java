@@ -59,10 +59,8 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
 
   @Override
   public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
     View v = inflater.inflate(R.layout.recycler_item_main, parent, false);
     return new ViewHolder(v);
-
   }
 
 

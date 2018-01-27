@@ -11,6 +11,8 @@ import com.capstone.nik.mixology.Fragments.FragmentOrdinaryDrink;
 import com.capstone.nik.mixology.Fragments.FragmentRandomixer;
 import com.capstone.nik.mixology.Fragments.FragmentVodka;
 import com.capstone.nik.mixology.di.module.ApplicationModule;
+import com.capstone.nik.mixology.services.MyGcmJobService;
+import com.capstone.nik.mixology.services.MyJobService;
 
 import javax.inject.Singleton;
 
@@ -42,5 +44,9 @@ public interface ApplicationComponent {
   void inject(FragmentRandomixer target);
 
   void inject(FragmentVodka target);
+
+  void inject(MyGcmJobService target);
+
+  void inject(MyJobService target);
 
 }

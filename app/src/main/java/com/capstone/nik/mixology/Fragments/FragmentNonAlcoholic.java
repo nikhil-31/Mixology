@@ -15,7 +15,6 @@ import android.view.ViewGroup;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.widget.TextView;
 
 import com.android.volley.RequestQueue;
 import com.capstone.nik.mixology.Adapters.DrinkCursorAdapter;
@@ -53,7 +52,7 @@ public class FragmentNonAlcoholic extends Fragment implements LoaderManager.Load
     super.onCreate(savedInstanceState);
     mActivity = getActivity();
     if (mActivity != null) {
-      ((MyApplication) mActivity.getApplication()).getComponent().inject(this);
+      ((MyApplication) mActivity.getApplication()).getApplicationComponent().inject(this);
     }
   }
 

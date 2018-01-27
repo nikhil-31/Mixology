@@ -54,7 +54,7 @@ public class FragmentCocktail extends Fragment implements LoaderManager.LoaderCa
     super.onCreate(savedInstanceState);
     mActivity = getActivity();
     if (mActivity != null) {
-      ((MyApplication) mActivity.getApplication()).getComponent().inject(this);
+      ((MyApplication) mActivity.getApplication()).getApplicationComponent().inject(this);
     }
   }
 

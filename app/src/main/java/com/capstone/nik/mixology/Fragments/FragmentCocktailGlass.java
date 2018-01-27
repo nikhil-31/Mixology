@@ -15,7 +15,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.android.volley.RequestQueue;
 import com.capstone.nik.mixology.Adapters.DrinkCursorAdapter;
@@ -56,7 +55,7 @@ public class FragmentCocktailGlass extends Fragment implements LoaderManager.Loa
     super.onCreate(savedInstanceState);
     mActivity = getActivity();
     if (mActivity != null) {
-      ((MyApplication) mActivity.getApplication()).getComponent().inject(this);
+      ((MyApplication) mActivity.getApplication()).getApplicationComponent().inject(this);
     }
   }
 

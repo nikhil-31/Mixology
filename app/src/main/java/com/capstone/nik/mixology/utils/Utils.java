@@ -74,10 +74,8 @@ public class Utils {
           @Override
           public void onResponse(JSONObject response) {
             try {
-
               mCocktailArrayList.addAll(Utils.parseJSONResponse(response));
               ContentProviderHelperMethods.insertBulkData(uri, mCocktailArrayList, activity);
-
             } catch (JSONException e) {
               e.printStackTrace();
             }

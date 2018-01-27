@@ -13,7 +13,6 @@ public class Cocktail implements Parcelable {
   private String mDrinkId;
 
   public Cocktail() {
-
   }
 
   public Cocktail(String Id, String name, String Thumb) {
@@ -76,6 +75,4 @@ public class Cocktail implements Parcelable {
     parcel.writeString(mDrinkThumb);
     parcel.writeString(mDrinkId);
   }
-
-
 }

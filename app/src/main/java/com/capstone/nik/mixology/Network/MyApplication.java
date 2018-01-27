@@ -28,7 +28,6 @@ public class MyApplication extends Application {
         .builder()
         .applicationModule(new ApplicationModule(this))
         .build();
-
   }
 
   public ApplicationComponent getComponent() {

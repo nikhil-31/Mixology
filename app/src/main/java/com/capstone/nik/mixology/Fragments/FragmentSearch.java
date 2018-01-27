@@ -1,9 +1,12 @@
 package com.capstone.nik.mixology.Fragments;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -45,13 +48,22 @@ public class FragmentSearch extends Fragment {
   private TextView mEmptyView;
   private RecyclerView mRecyclerView;
   private SearchAdapter mSearchAdapter;
+  private Activity mActivity;
 
   @Override
-  public View onCreateView(LayoutInflater inflater, ViewGroup container,
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    if (isAdded()) {
+      mActivity = getActivity();
+    }
+  }
+
+  @Override
+  public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                            Bundle savedInstanceState) {
     View rootView = inflater.inflate(R.layout.fragment_activity_search, container, false);
 
-    Bundle extras = getActivity().getIntent().getExtras();
+    Bundle extras = mActivity.getIntent().getExtras();
     if (extras != null) {
       Query = extras.getString(getString(R.string.search_intent_query));
     }
@@ -59,10 +71,10 @@ public class FragmentSearch extends Fragment {
     mRecyclerView = rootView.findViewById(R.id.recycler_search);
     mEmptyView = rootView.findViewById(R.id.empty_view);
 
-    LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
+    LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(mActivity, LinearLayoutManager.VERTICAL, false);
     mRecyclerView.setLayoutManager(mLinearLayoutManager);
 
-    mSearchAdapter = new SearchAdapter(getActivity());
+    mSearchAdapter = new SearchAdapter(mActivity);
     mRecyclerView.setAdapter(mSearchAdapter);
 
     if (isOnline()) {
@@ -84,14 +96,14 @@ public class FragmentSearch extends Fragment {
       MySearchTask mySearchTask = new MySearchTask(onTaskCompleted);
       mySearchTask.execute(COCKTAIL_SEARCH_URL_BY_NAME + Query);
     } else {
-      Toast.makeText(getActivity(), R.string.no_network_available, Toast.LENGTH_LONG).show();
+      Toast.makeText(mActivity, R.string.no_network_available, Toast.LENGTH_LONG).show();
     }
 
     return rootView;
   }
 
   public boolean isOnline() {
-    ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+    ConnectivityManager cm = (ConnectivityManager) mActivity.getSystemService(Context.CONNECTIVITY_SERVICE);
     assert cm != null;
     NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
     return activeNetwork != null &&
@@ -198,7 +210,7 @@ public class FragmentSearch extends Fragment {
 
     JSONObject object = new JSONObject(response.toString());
 //        if (object.isNull(DRINKS)) {
-//            Toast.makeText(getActivity(), getString(R.string.search_no_data_available), Toast.LENGTH_LONG).show();
+//            Toast.makeText(mActivity, getString(R.string.search_no_data_available), Toast.LENGTH_LONG).show();
 //        }
 
     JSONArray results = response.getJSONArray(DRINKS);

@@ -47,6 +47,7 @@ public class DrinkWidgetService extends RemoteViewsService {
         null,
         null
     );
+    assert cursor != null;
     cursor.close();
     return new WidgetDataProvider(this, intent, cursor);
   }
@@ -58,7 +59,7 @@ public class DrinkWidgetService extends RemoteViewsService {
     private Intent intent;
     private Cursor mCursor = null;
 
-    public WidgetDataProvider(Context context, Intent intent, Cursor cursor) {
+    WidgetDataProvider(Context context, Intent intent, Cursor cursor) {
       this.context = context;
       this.intent = intent;
       mCursor = cursor;

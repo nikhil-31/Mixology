@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -62,7 +61,7 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
   @Override
   public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-    View v = inflater.inflate(R.layout.recycler_main_item, parent, false);
+    View v = inflater.inflate(R.layout.recycler_item_main, parent, false);
     return new ViewHolder(v);
 
   }

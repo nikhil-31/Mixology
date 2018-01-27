@@ -12,7 +12,6 @@ public class Measures implements Parcelable {
   private String Measure;
 
   public Measures() {
-
   }
 
   public String getIngredient() {
@@ -59,6 +58,4 @@ public class Measures implements Parcelable {
     parcel.writeString(Ingredient);
     parcel.writeString(Measure);
   }
-
-
 }

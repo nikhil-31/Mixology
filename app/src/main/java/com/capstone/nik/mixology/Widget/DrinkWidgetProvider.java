@@ -27,7 +27,7 @@ public class DrinkWidgetProvider extends AppWidgetProvider {
 
     for (int appWidgetId : appWidgetIds) {
 
-      RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.new_app_widget);
+      RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_list);
 
       // Create Intent to launch Main Activity
       Intent intent = new Intent(context, ActivityMain.class);
@@ -44,10 +44,8 @@ public class DrinkWidgetProvider extends AppWidgetProvider {
       views.setPendingIntentTemplate(R.id.widget_list, clickPendingIntentTemplate);
 
       views.setEmptyView(R.id.widget_list, R.id.widget_empty);
-
       appWidgetManager.updateAppWidget(appWidgetId, views);
     }
-
   }
 
   @Override

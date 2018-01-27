@@ -1,7 +1,9 @@
 package com.capstone.nik.mixology.Fragments;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -75,6 +77,7 @@ public class FragmentDetails extends Fragment {
   private ArrayList<Measures> mMeasuresArrayList;
   private ImageView mDetailIcon;
   private boolean isInDatabase;
+  private Activity mActivity;
 
   public FragmentDetails() {
   }
@@ -82,15 +85,20 @@ public class FragmentDetails extends Fragment {
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    ((MyApplication) getActivity().getApplication()).getComponent().inject(this);
+    if (isAdded()) {
+      mActivity = getActivity();
+    }
+    if (mActivity != null) {
+      ((MyApplication) mActivity.getApplication()).getComponent().inject(this);
+    }
   }
 
   @Override
-  public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
+  public View onCreateView(@NonNull final LayoutInflater inflater, final ViewGroup container,
                            Bundle savedInstanceState) {
     View v = inflater.inflate(R.layout.fragment_activity_details, container, false);
 
-    mCocktail = getActivity().getIntent().getParcelableExtra(getString(R.string.details_intent_cocktail));
+    mCocktail = mActivity.getIntent().getParcelableExtra(getString(R.string.details_intent_cocktail));
 
     setHasOptionsMenu(true);
 
@@ -104,12 +112,12 @@ public class FragmentDetails extends Fragment {
 
     mToolbar = v.findViewById(R.id.toolbar);
 
-    mToolbar.setNavigationIcon(ContextCompat.getDrawable(getActivity(), R.drawable.ic_back_black));
+    mToolbar.setNavigationIcon(ContextCompat.getDrawable(mActivity, R.drawable.ic_back_black));
     mToolbar.setNavigationContentDescription(getString(R.string.content_desc_up_navigation));
     mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        getActivity().finish();
+        mActivity.finish();
       }
     });
 
@@ -123,11 +131,11 @@ public class FragmentDetails extends Fragment {
     mDrinkName = v.findViewById(R.id.detail_name);
     mDetailIcon = v.findViewById(R.id.detail_fav_button);
 
-    mIngredientsAdapter = new IngredientsAdapter(getActivity());
+    mIngredientsAdapter = new IngredientsAdapter(mActivity);
     RecyclerView ingredientsRecyclerView = v.findViewById(R.id.recycler_ingredients);
     ingredientsRecyclerView.setNestedScrollingEnabled(false);
 
-    LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
+    LinearLayoutManager linearLayoutManager = new LinearLayoutManager(mActivity, LinearLayoutManager.VERTICAL, false);
 
     ingredientsRecyclerView.setLayoutManager(linearLayoutManager);
     ingredientsRecyclerView.setAdapter(mIngredientsAdapter);
@@ -150,7 +158,7 @@ public class FragmentDetails extends Fragment {
     mToolbar.setTitle(cocktail.getmDrinkName());
     mDrinkName.setText(cocktail.getmDrinkName());
 
-    Picasso.with(getActivity())
+    Picasso.with(mActivity)
         .load(cocktail.getmDrinkThumb())
         .error(R.drawable.empty_glass)
         .into(mDrinkImage);
@@ -158,7 +166,7 @@ public class FragmentDetails extends Fragment {
     mInstruction.setText(getResources().getString(R.string.Instructions));
     mIngredients.setText(getResources().getString(R.string.Ingredients));
 
-    isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(), mCocktailId, CONTENT_URI_DRINK_SAVED);
+    isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(mActivity, mCocktailId, CONTENT_URI_DRINK_SAVED);
 
     if (isInDatabase) {
       mDetailIcon.setImageResource(R.drawable.ic_fav_filled);
@@ -169,12 +177,12 @@ public class FragmentDetails extends Fragment {
     mDetailIcon.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(), mCocktailId, CONTENT_URI_DRINK_SAVED);
+        isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(mActivity, mCocktailId, CONTENT_URI_DRINK_SAVED);
 
         if (isInDatabase) {
           mDetailIcon.setImageResource(R.drawable.ic_fav_filled);
           Snackbar.make(mDetailIcon, getString(R.string.drink_deleted), Snackbar.LENGTH_LONG).show();
-          ContentProviderHelperMethods.deleteData(getActivity(), mCocktailId);
+          ContentProviderHelperMethods.deleteData(mActivity, mCocktailId);
           mDetailIcon.setImageResource(R.drawable.ic_fav_unfilled_black);
         } else {
           mDetailIcon.setImageResource(R.drawable.ic_fav_unfilled_black);
@@ -183,7 +191,7 @@ public class FragmentDetails extends Fragment {
           cv.put(_ID, cocktail.getmDrinkId());
           cv.put(DRINK_NAME, cocktail.getmDrinkName());
           cv.put(DRINK_THUMB, cocktail.getmDrinkThumb());
-          ContentProviderHelperMethods.insertData(getActivity(), mCocktailId, cv);
+          ContentProviderHelperMethods.insertData(mActivity, mCocktailId, cv);
           mDetailIcon.setImageResource(R.drawable.ic_fav_filled);
         }
       }
@@ -223,7 +231,7 @@ public class FragmentDetails extends Fragment {
     return sharingIntent;
   }
 
-  private CocktailDetails sendJsonRequest(String id) {
+  private void sendJsonRequest(String id) {
     final CocktailDetails[] cocktailDetails = new CocktailDetails[1];
 
     JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET,
@@ -237,13 +245,13 @@ public class FragmentDetails extends Fragment {
               mInstructionsText.setText(cocktailDetails[0].getmInstructions());
               mAlcoholicText.setText(cocktailDetails[0].getmAlcoholic());
               mMeasuresArrayList = parseJSONResponseMeasure(response);
-              if (isAdded() && getActivity() != null) {
+              if (isAdded() && mActivity != null) {
                 shareRecipe(mMeasuresArrayList, cocktailDetails[0]);
               }
               mIngredientsAdapter.setMeasuresList(mMeasuresArrayList);
             } catch (JSONException e) {
               e.printStackTrace();
-              Toast.makeText(getActivity(), getString(R.string.Network_error), Toast.LENGTH_LONG).show();
+              Toast.makeText(mActivity, getString(R.string.Network_error), Toast.LENGTH_LONG).show();
             }
           }
         }, new Response.ErrorListener() {
@@ -253,7 +261,6 @@ public class FragmentDetails extends Fragment {
       }
     });
     mRequestQueue.add(request);
-    return cocktailDetails[0];
   }
 
   public CocktailDetails parseJSONResponse(JSONObject response) throws JSONException {
@@ -347,7 +354,6 @@ public class FragmentDetails extends Fragment {
         measure.setIngredient(jsonObject.getString(INGREDIENT_2));
         measure.setMeasure(jsonObject.getString(MEASURE_2));
         mMeasures.add(measure);
-
       }
 
       if (jsonObject.getString(INGREDIENT_3).length() != 0 && !jsonObject.isNull(INGREDIENT_3)) {
@@ -355,7 +361,6 @@ public class FragmentDetails extends Fragment {
         measure.setIngredient(jsonObject.getString(INGREDIENT_3));
         measure.setMeasure(jsonObject.getString(MEASURE_3));
         mMeasures.add(measure);
-
       }
 
       if (jsonObject.getString(INGREDIENT_4).length() != 0 && !jsonObject.isNull(INGREDIENT_4)) {
@@ -363,7 +368,6 @@ public class FragmentDetails extends Fragment {
         measure.setIngredient(jsonObject.getString(INGREDIENT_4));
         measure.setMeasure(jsonObject.getString(MEASURE_4));
         mMeasures.add(measure);
-
       }
 
       if (jsonObject.getString(INGREDIENT_5).length() != 0 && !jsonObject.isNull(INGREDIENT_5)) {
@@ -371,7 +375,6 @@ public class FragmentDetails extends Fragment {
         measure.setIngredient(jsonObject.getString(INGREDIENT_5));
         measure.setMeasure(jsonObject.getString(MEASURE_5));
         mMeasures.add(measure);
-
       }
 
       if (jsonObject.getString(INGREDIENT_6).length() != 0 && !jsonObject.isNull(INGREDIENT_6)) {
@@ -379,7 +382,6 @@ public class FragmentDetails extends Fragment {
         measure.setIngredient(jsonObject.getString(INGREDIENT_6));
         measure.setMeasure(jsonObject.getString(MEASURE_6));
         mMeasures.add(measure);
-
       }
 
       if (jsonObject.getString(INGREDIENT_7).length() != 0 && !jsonObject.isNull(INGREDIENT_7)) {
@@ -387,7 +389,6 @@ public class FragmentDetails extends Fragment {
         measure.setIngredient(jsonObject.getString(INGREDIENT_7));
         measure.setMeasure(jsonObject.getString(MEASURE_7));
         mMeasures.add(measure);
-
       }
 
       if (jsonObject.getString(INGREDIENT_8).length() != 0 && !jsonObject.isNull(INGREDIENT_8)) {
@@ -395,7 +396,6 @@ public class FragmentDetails extends Fragment {
         measure.setIngredient(jsonObject.getString(INGREDIENT_8));
         measure.setMeasure(jsonObject.getString(MEASURE_8));
         mMeasures.add(measure);
-
       }
 
       if (jsonObject.getString(INGREDIENT_9).length() != 0 && !jsonObject.isNull(INGREDIENT_9)) {
@@ -403,7 +403,6 @@ public class FragmentDetails extends Fragment {
         measure.setIngredient(jsonObject.getString(INGREDIENT_9));
         measure.setMeasure(jsonObject.getString(MEASURE_9));
         mMeasures.add(measure);
-
       }
 
       if (jsonObject.getString(INGREDIENT_10).length() != 0 && !jsonObject.isNull(INGREDIENT_10)) {
@@ -411,7 +410,6 @@ public class FragmentDetails extends Fragment {
         measure.setIngredient(jsonObject.getString(INGREDIENT_10));
         measure.setMeasure(jsonObject.getString(MEASURE_10));
         mMeasures.add(measure);
-
       }
 
       if (jsonObject.getString(INGREDIENT_11).length() != 0 && !jsonObject.isNull(INGREDIENT_11)) {
@@ -419,7 +417,6 @@ public class FragmentDetails extends Fragment {
         measure.setIngredient(jsonObject.getString(INGREDIENT_11));
         measure.setMeasure(jsonObject.getString(MEASURE_11));
         mMeasures.add(measure);
-
       }
 
       if (jsonObject.getString(INGREDIENT_12).length() != 0 && !jsonObject.isNull(INGREDIENT_12)) {
@@ -427,7 +424,6 @@ public class FragmentDetails extends Fragment {
         measure.setIngredient(jsonObject.getString(INGREDIENT_12));
         measure.setMeasure(jsonObject.getString(MEASURE_12));
         mMeasures.add(measure);
-
       }
 
       if (jsonObject.getString(INGREDIENT_13).length() != 0 && !jsonObject.isNull(INGREDIENT_13)) {
@@ -435,7 +431,6 @@ public class FragmentDetails extends Fragment {
         measure.setIngredient(jsonObject.getString(INGREDIENT_13));
         measure.setMeasure(jsonObject.getString(MEASURE_13));
         mMeasures.add(measure);
-
       }
 
       if (jsonObject.getString(INGREDIENT_14).length() != 0 && !jsonObject.isNull(INGREDIENT_14)) {
@@ -443,7 +438,6 @@ public class FragmentDetails extends Fragment {
         measure.setIngredient(jsonObject.getString(INGREDIENT_14));
         measure.setMeasure(jsonObject.getString(MEASURE_14));
         mMeasures.add(measure);
-
       }
 
       if (jsonObject.getString(INGREDIENT_15).length() != 0 && !jsonObject.isNull(INGREDIENT_15)) {

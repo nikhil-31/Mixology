@@ -1,8 +1,9 @@
 package com.capstone.nik.mixology.Fragments;
 
-
+import android.app.Activity;
 import android.content.ContentValues;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -54,13 +55,13 @@ public class FragmentRandomixer extends Fragment {
 
   private CocktailDetails mCocktailDetails;
   private ArrayList<Measures> mMeasuresArrayList;
+  private Activity mActivity;
 
   // Volley
   @Inject
   RequestQueue mRequestQueue;
 
   private SwipeRefreshLayout mSwipeToRefreshLayout;
-  private RecyclerView mIngredientsRecyclerView;
   private IngredientsAdapter mIngredientsAdapter;
 
   private TextView mInstructionsText;
@@ -76,11 +77,16 @@ public class FragmentRandomixer extends Fragment {
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    ((MyApplication) getActivity().getApplication()).getComponent().inject(this);
+    if (isAdded()) {
+      mActivity = getActivity();
+    }
+    if (mActivity != null) {
+      ((MyApplication) mActivity.getApplication()).getComponent().inject(this);
+    }
   }
 
   @Override
-  public View onCreateView(LayoutInflater inflater, ViewGroup container,
+  public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                            Bundle savedInstanceState) {
     // Inflate the layout for this fragment
     View rootView = inflater.inflate(R.layout.fragment_randomixer, container, false);
@@ -95,10 +101,10 @@ public class FragmentRandomixer extends Fragment {
     mDrinkName = rootView.findViewById(R.id.detail_name);
     mDetailIcon = rootView.findViewById(R.id.detail_fav_button);
 
-    mIngredientsAdapter = new IngredientsAdapter(getActivity());
-    mIngredientsRecyclerView = rootView.findViewById(R.id.recycler_ingredients);
+    mIngredientsAdapter = new IngredientsAdapter(mActivity);
+    RecyclerView mIngredientsRecyclerView = rootView.findViewById(R.id.recycler_ingredients);
 
-    LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
+    LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(mActivity, LinearLayoutManager.VERTICAL, false);
 
     mIngredientsRecyclerView.setLayoutManager(mLinearLayoutManager);
     mIngredientsRecyclerView.setAdapter(mIngredientsAdapter);
@@ -107,14 +113,14 @@ public class FragmentRandomixer extends Fragment {
     mDetailIcon.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(), mCocktailDetails.getmId(), CONTENT_URI_DRINK_SAVED);
+        isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(mActivity, mCocktailDetails.getmId(), CONTENT_URI_DRINK_SAVED);
 
         if (isInDatabase) {
           mDetailIcon.setImageResource(R.drawable.ic_fav_filled);
 
           Snackbar.make(mDetailIcon, getString(R.string.drink_deleted), Snackbar.LENGTH_LONG).show();
 
-          ContentProviderHelperMethods.deleteData(getActivity(), mCocktailDetails.getmId());
+          ContentProviderHelperMethods.deleteData(mActivity, mCocktailDetails.getmId());
 
           mDetailIcon.setImageResource(R.drawable.ic_fav_unfilled_black);
 
@@ -128,7 +134,7 @@ public class FragmentRandomixer extends Fragment {
           cv.put(DRINK_NAME, mCocktailDetails.getmName());
           cv.put(DRINK_THUMB, mCocktailDetails.getmThumb());
 
-          ContentProviderHelperMethods.insertData(getActivity(), mCocktailDetails.getmId(), cv);
+          ContentProviderHelperMethods.insertData(mActivity, mCocktailDetails.getmId(), cv);
 
           mDetailIcon.setImageResource(R.drawable.ic_fav_filled);
         }
@@ -155,24 +161,19 @@ public class FragmentRandomixer extends Fragment {
     mInstructionsText.setText(mCocktailDetails.getmInstructions());
     mAlcoholicText.setText(mCocktailDetails.getmAlcoholic());
 
-    Picasso.with(getActivity())
-        .load(mCocktailDetails.getmThumb())
-        .error(R.drawable.empty_glass)
+    Picasso.with(mActivity).load(mCocktailDetails.getmThumb()).error(R.drawable.empty_glass)
         .into(mDrinkImage);
 
     mInstruction.setText(getResources().getString(R.string.Instructions));
     mIngredients.setText(getResources().getString(R.string.Ingredients));
 
     mDrinkName.setText(mCocktailDetails.getmName());
-
-    isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(getActivity(), mCocktailDetails.getmId(), CONTENT_URI_DRINK_SAVED);
+    isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(mActivity, mCocktailDetails.getmId(), CONTENT_URI_DRINK_SAVED);
 
     if (isInDatabase) {
       mDetailIcon.setImageResource(R.drawable.ic_fav_filled);
-
     } else {
       mDetailIcon.setImageResource(R.drawable.ic_fav_unfilled_black);
-
     }
   }
 
@@ -184,14 +185,11 @@ public class FragmentRandomixer extends Fragment {
           @Override
           public void onResponse(JSONObject response) {
             try {
-
               mCocktailDetails = parseJSONResponse(response);
               mMeasuresArrayList = parseJSONResponseMeasure(response);
 
               setUIData();
-
               mIngredientsAdapter.setMeasuresList(mMeasuresArrayList);
-
             } catch (JSONException e) {
               e.printStackTrace();
             }
@@ -199,14 +197,13 @@ public class FragmentRandomixer extends Fragment {
         }, new Response.ErrorListener() {
       @Override
       public void onErrorResponse(VolleyError error) {
-        Toast.makeText(getActivity(), getString(R.string.no_network_available), Toast.LENGTH_LONG).show();
+        Toast.makeText(mActivity, getString(R.string.no_network_available), Toast.LENGTH_LONG).show();
       }
     });
     mRequestQueue.add(request);
   }
 
   public CocktailDetails parseJSONResponse(JSONObject response) throws JSONException {
-
     final String DRINKS = "drinks";
     final String ID = "idDrink";
     final String NAME = "strDrink";
@@ -224,33 +221,25 @@ public class FragmentRandomixer extends Fragment {
     JSONArray results = response.getJSONArray(DRINKS);
 
     for (int i = 0; i < results.length(); i++) {
-
       JSONObject jsonObject = results.getJSONObject(i);
-
       if (jsonObject.getString(NAME).length() != 0 && !jsonObject.isNull(NAME)) {
         details.setmName(jsonObject.getString(NAME));
       }
-
       if (jsonObject.getString(CATEGORY).length() != 0 && !jsonObject.isNull(CATEGORY)) {
         details.setmCategory(jsonObject.getString(CATEGORY));
       }
-
       if (jsonObject.getString(ALCOHOLIC).length() != 0 && !jsonObject.isNull(ALCOHOLIC)) {
         details.setmAlcoholic(jsonObject.getString(ALCOHOLIC));
       }
-
       if (jsonObject.getString(GLASS).length() != 0 && !jsonObject.isNull(GLASS)) {
         details.setmGlass(jsonObject.getString(GLASS));
       }
-
       if (jsonObject.getString(INSTRUCTIONS).length() != 0 && !jsonObject.isNull(INSTRUCTIONS)) {
         details.setmInstructions(jsonObject.getString(INSTRUCTIONS));
       }
-
       if (jsonObject.getString(THUMB).length() != 0 && !jsonObject.isNull(THUMB)) {
         details.setmThumb(jsonObject.getString(THUMB));
       }
-
       if (jsonObject.getString(ID).length() != 0 && !jsonObject.isNull(ID)) {
         details.setmId(jsonObject.getString(ID));
       }
@@ -311,7 +300,6 @@ public class FragmentRandomixer extends Fragment {
         measure.setIngredient(jsonObject.getString(INGREDIENT_2));
         measure.setMeasure(jsonObject.getString(MEASURE_2));
         mMeasures.add(measure);
-
       }
 
       if (jsonObject.getString(INGREDIENT_3).length() != 0 && !jsonObject.isNull(INGREDIENT_3)) {
@@ -319,7 +307,6 @@ public class FragmentRandomixer extends Fragment {
         measure.setIngredient(jsonObject.getString(INGREDIENT_3));
         measure.setMeasure(jsonObject.getString(MEASURE_3));
         mMeasures.add(measure);
-
       }
 
       if (jsonObject.getString(INGREDIENT_4).length() != 0 && !jsonObject.isNull(INGREDIENT_4)) {
@@ -327,7 +314,6 @@ public class FragmentRandomixer extends Fragment {
         measure.setIngredient(jsonObject.getString(INGREDIENT_4));
         measure.setMeasure(jsonObject.getString(MEASURE_4));
         mMeasures.add(measure);
-
       }
 
       if (jsonObject.getString(INGREDIENT_5).length() != 0 && !jsonObject.isNull(INGREDIENT_5)) {
@@ -335,7 +321,6 @@ public class FragmentRandomixer extends Fragment {
         measure.setIngredient(jsonObject.getString(INGREDIENT_5));
         measure.setMeasure(jsonObject.getString(MEASURE_5));
         mMeasures.add(measure);
-
       }
 
       if (jsonObject.getString(INGREDIENT_6).length() != 0 && !jsonObject.isNull(INGREDIENT_6)) {
@@ -343,7 +328,6 @@ public class FragmentRandomixer extends Fragment {
         measure.setIngredient(jsonObject.getString(INGREDIENT_6));
         measure.setMeasure(jsonObject.getString(MEASURE_6));
         mMeasures.add(measure);
-
       }
 
       if (jsonObject.getString(INGREDIENT_7).length() != 0 && !jsonObject.isNull(INGREDIENT_7)) {
@@ -351,7 +335,6 @@ public class FragmentRandomixer extends Fragment {
         measure.setIngredient(jsonObject.getString(INGREDIENT_7));
         measure.setMeasure(jsonObject.getString(MEASURE_7));
         mMeasures.add(measure);
-
       }
 
       if (jsonObject.getString(INGREDIENT_8).length() != 0 && !jsonObject.isNull(INGREDIENT_8)) {
@@ -359,7 +342,6 @@ public class FragmentRandomixer extends Fragment {
         measure.setIngredient(jsonObject.getString(INGREDIENT_8));
         measure.setMeasure(jsonObject.getString(MEASURE_8));
         mMeasures.add(measure);
-
       }
 
       if (jsonObject.getString(INGREDIENT_9).length() != 0 && !jsonObject.isNull(INGREDIENT_9)) {
@@ -367,7 +349,6 @@ public class FragmentRandomixer extends Fragment {
         measure.setIngredient(jsonObject.getString(INGREDIENT_9));
         measure.setMeasure(jsonObject.getString(MEASURE_9));
         mMeasures.add(measure);
-
       }
 
       if (jsonObject.getString(INGREDIENT_10).length() != 0 && !jsonObject.isNull(INGREDIENT_10)) {
@@ -375,7 +356,6 @@ public class FragmentRandomixer extends Fragment {
         measure.setIngredient(jsonObject.getString(INGREDIENT_10));
         measure.setMeasure(jsonObject.getString(MEASURE_10));
         mMeasures.add(measure);
-
       }
 
       if (jsonObject.getString(INGREDIENT_11).length() != 0 && !jsonObject.isNull(INGREDIENT_11)) {
@@ -383,7 +363,6 @@ public class FragmentRandomixer extends Fragment {
         measure.setIngredient(jsonObject.getString(INGREDIENT_11));
         measure.setMeasure(jsonObject.getString(MEASURE_11));
         mMeasures.add(measure);
-
       }
 
       if (jsonObject.getString(INGREDIENT_12).length() != 0 && !jsonObject.isNull(INGREDIENT_12)) {
@@ -391,7 +370,6 @@ public class FragmentRandomixer extends Fragment {
         measure.setIngredient(jsonObject.getString(INGREDIENT_12));
         measure.setMeasure(jsonObject.getString(MEASURE_12));
         mMeasures.add(measure);
-
       }
 
       if (jsonObject.getString(INGREDIENT_13).length() != 0 && !jsonObject.isNull(INGREDIENT_13)) {
@@ -399,7 +377,6 @@ public class FragmentRandomixer extends Fragment {
         measure.setIngredient(jsonObject.getString(INGREDIENT_13));
         measure.setMeasure(jsonObject.getString(MEASURE_13));
         mMeasures.add(measure);
-
       }
 
       if (jsonObject.getString(INGREDIENT_14).length() != 0 && !jsonObject.isNull(INGREDIENT_14)) {
@@ -407,7 +384,6 @@ public class FragmentRandomixer extends Fragment {
         measure.setIngredient(jsonObject.getString(INGREDIENT_14));
         measure.setMeasure(jsonObject.getString(MEASURE_14));
         mMeasures.add(measure);
-
       }
 
       if (jsonObject.getString(INGREDIENT_15).length() != 0 && !jsonObject.isNull(INGREDIENT_15)) {

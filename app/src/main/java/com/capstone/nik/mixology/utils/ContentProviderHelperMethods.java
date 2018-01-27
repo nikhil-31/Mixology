@@ -26,31 +26,29 @@ public class ContentProviderHelperMethods {
   public static final String ACTION_DATABASE_UPDATED = "com.example.nik.mixology.utils.ACTION_DATA_UPDATED";
 
   public static ArrayList<Cocktail> getDrinkListFromDatabase(Activity mAct, Uri uri) {
+    ArrayList<Cocktail> drinkList = new ArrayList<>();
 
-    ArrayList<Cocktail> mDrinkList = new ArrayList<>();
-
-    Cocktail cocktail = null;
-    Cursor cursor = mAct.getContentResolver().query(uri,
-        null,
-        null,
-        null,
-        null);
+    Cocktail cocktail;
+    Cursor cursor = mAct.getContentResolver().query(uri
+        , null
+        , null
+        , null
+        , null);
 
     assert cursor != null;
     if (cursor.moveToFirst()) {
       do {
-
         cocktail = new Cocktail();
         cocktail.setmDrinkId(cursor.getString(cursor.getColumnIndex(_ID)));
         cocktail.setmDrinkName(cursor.getString(cursor.getColumnIndex(DRINK_NAME)));
         cocktail.setmDrinkThumb(cursor.getString(cursor.getColumnIndex(DRINK_THUMB)));
 
-        mDrinkList.add(cocktail);
+        drinkList.add(cocktail);
       }
       while (cursor.moveToNext());
     }
     cursor.close();
-    return mDrinkList;
+    return drinkList;
   }
 
   public static boolean isDrinkInDatabase(Activity mAct, String id, Uri contentUri) {
@@ -66,8 +64,7 @@ public class ContentProviderHelperMethods {
     return false;
   }
 
-  public static void insertBulkData(Uri uri, ArrayList<Cocktail> mArrayList, Activity mAct) {
-
+  static void insertBulkData(Uri uri, ArrayList<Cocktail> mArrayList, Activity mAct) {
     Vector<ContentValues> cVVector = new Vector<ContentValues>(mArrayList.size());
 
     final String _id = "_id";
@@ -91,7 +88,6 @@ public class ContentProviderHelperMethods {
       ContentValues[] cvArray = new ContentValues[cVVector.size()];
       cVVector.toArray(cvArray);
       mAct.getContentResolver().bulkInsert(uri, cvArray);
-
     }
   }
 
@@ -100,18 +96,13 @@ public class ContentProviderHelperMethods {
     updateWidgets(mAct);
   }
 
-
   public static void deleteData(Activity mAct, String id) {
-
-    mAct.getContentResolver().delete(withId(id),
-        null,
-        null);
+    mAct.getContentResolver().delete(withId(id), null, null);
     updateWidgets(mAct);
 
   }
 
   private static void updateWidgets(Context context) {
-
     // Setting the package ensures that only components in our app will receive the broadcast
     Intent dataUpdatedIntent = new Intent(ACTION_DATABASE_UPDATED).setPackage(context.getPackageName());
     context.sendBroadcast(dataUpdatedIntent);

@@ -11,7 +11,8 @@
   <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:baselineAligned="false">
 
     <include layout="@layout/activity_main" />
 
@@ -22,8 +23,6 @@
       android:layout_height="match_parent"
       android:layout_weight="0.5"
       tools:layout="@layout/fragment_activity_details" />
-
-
   </LinearLayout>
 
   <android.support.design.widget.NavigationView
@@ -32,7 +31,7 @@
     android:layout_height="match_parent"
     android:layout_gravity="start"
     android:fitsSystemWindows="true"
-    app:headerLayout="@layout/nav_header_main"
-    app:menu="@menu/activity_main_drawer" />
+    app:headerLayout="@layout/navigation_header_main"
+    app:menu="@menu/navigation_main_drawer" />
 
 </android.support.v4.widget.DrawerLayout>

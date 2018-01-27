@@ -5,8 +5,6 @@ package com.capstone.nik.mixology.Model;
  */
 
 public class CocktailDetails {
-
-
   private String mId;
   private String mThumb;
   private String mName;

@@ -52,9 +52,7 @@ public class FragmentOrdinaryDrink extends Fragment implements LoaderManager.Loa
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    if (isAdded()) {
-      mActivity = getActivity();
-    }
+    mActivity = getActivity();
     if (mActivity != null) {
       ((MyApplication) mActivity.getApplication()).getComponent().inject(this);
     }

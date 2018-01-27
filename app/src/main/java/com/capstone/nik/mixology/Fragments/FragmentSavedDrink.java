@@ -47,9 +47,7 @@ public class FragmentSavedDrink extends Fragment implements LoaderManager.Loader
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    if (isAdded()) {
-      mActivity = getActivity();
-    }
+    mActivity = getActivity();
   }
 
   @Override

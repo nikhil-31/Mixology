@@ -34,7 +34,6 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
   private Activity mAct;
   private OnAdapterItemSelectedListener mAdapterCallback;
 
-
   public DrinkCursorAdapter(Cursor cursor, Activity activity) {
     super(activity, cursor);
     this.mContext = activity;

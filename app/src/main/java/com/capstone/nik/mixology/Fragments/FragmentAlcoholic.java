@@ -37,7 +37,6 @@ public class FragmentAlcoholic extends Fragment implements LoaderManager.LoaderC
   private static final int CURSOR_LOADER_ID = 0;
 
   private DrinkCursorAdapter mDrinkAdapter;
-  private TextView mEmptyTextView;
 
   // Volley
 
@@ -65,7 +64,7 @@ public class FragmentAlcoholic extends Fragment implements LoaderManager.LoaderC
     View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
     RecyclerView recyclerView = rootView.findViewById(R.id.recycler_main);
-    mEmptyTextView = rootView.findViewById(R.id.empty_view);
+    TextView emptyTextView = rootView.findViewById(R.id.empty_view);
 
     GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
     recyclerView.setLayoutManager(gridLayoutManager);

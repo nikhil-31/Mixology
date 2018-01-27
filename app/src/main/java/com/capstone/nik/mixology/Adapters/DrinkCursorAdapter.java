@@ -34,7 +34,7 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
   private LayoutInflater inflater;
   private Activity mAct;
   private OnAdapterItemSelectedListener mAdapterCallback;
-  private boolean isInDatabase;
+
 
   public DrinkCursorAdapter(Cursor cursor, Activity activity) {
     super(activity, cursor);
@@ -46,72 +46,17 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
 
   @Override
   public void onBindViewHolder(final ViewHolder viewHolder, final Cursor cursor) {
-
-    DatabaseUtils.dumpCursor(cursor);
-
-    final Cocktail currentCocktail = new Cocktail();
-
-    currentCocktail.setmDrinkId(cursor.getString(cursor.getColumnIndex(_ID)));
-    currentCocktail.setmDrinkName(cursor.getString(cursor.getColumnIndex(DRINK_NAME)));
-    currentCocktail.setmDrinkThumb(cursor.getString(cursor.getColumnIndex(DRINK_THUMB)));
-
     viewHolder.textView.setText(cursor.getString(cursor.getColumnIndex(DRINK_NAME)));
     Picasso.with(mContext)
         .load(cursor.getString(cursor.getColumnIndex(DRINK_THUMB)))
         .error(R.drawable.empty_glass)
         .into(viewHolder.image);
-
-    final int position = cursor.getPosition();
-
-    isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(mAct, cursor.getString(cursor.getColumnIndex(_ID)), CONTENT_URI_DRINK_SAVED);
+    boolean isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(mAct, cursor.getString(cursor.getColumnIndex(_ID)), CONTENT_URI_DRINK_SAVED);
     if (isInDatabase) {
       viewHolder.imageView.setImageResource(R.drawable.ic_fav_filled);
     } else {
       viewHolder.imageView.setImageResource(R.drawable.ic_fav_unfilled_black);
     }
-
-    viewHolder.imageView.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-
-        cursor.moveToPosition(position);
-        isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(mAct, cursor.getString(cursor.getColumnIndex(_ID)), CONTENT_URI_DRINK_SAVED);
-        if (isInDatabase) {
-
-          Snackbar.make(viewHolder.imageView, mContext.getString(R.string.drink_deleted), Snackbar.LENGTH_LONG).show();
-
-          String id = cursor.getString(cursor.getColumnIndex(_ID));
-          ContentProviderHelperMethods.deleteData(mAct, id);
-
-          viewHolder.imageView.setImageResource(R.drawable.ic_fav_unfilled_black);
-
-        } else {
-
-          Snackbar.make(viewHolder.imageView, mContext.getString(R.string.drink_added), Snackbar.LENGTH_LONG).show();
-
-          ContentValues cv = new ContentValues();
-          cv.put(_ID, cursor.getString(cursor.getColumnIndex(_ID)));
-          cv.put(DRINK_NAME, cursor.getString(cursor.getColumnIndex(DRINK_NAME)));
-          cv.put(DRINK_THUMB, cursor.getString(cursor.getColumnIndex(DRINK_THUMB)));
-
-          String id = cursor.getString(cursor.getColumnIndex(_ID));
-          ContentProviderHelperMethods.insertData(mAct, id, cv);
-
-
-          viewHolder.imageView.setImageResource(R.drawable.ic_fav_filled);
-        }
-
-      }
-    });
-
-//    viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-//      @Override
-//      public void onClick(View view) {
-//        if (mAdapterCallback != null) {
-//          mAdapterCallback.onItemSelected(currentCocktail);
-//        }
-//      }
-//    });
   }
 
   @Override
@@ -138,9 +83,30 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
       imageView.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+          Cursor cursor = getCursor();
+          cursor.moveToPosition(getAdapterPosition());
+          boolean isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(mAct, cursor.getString(cursor.getColumnIndex(_ID)), CONTENT_URI_DRINK_SAVED);
+          if (isInDatabase) {
 
+            Snackbar.make(imageView, mContext.getString(R.string.drink_deleted), Snackbar.LENGTH_LONG).show();
 
+            String id = cursor.getString(cursor.getColumnIndex(_ID));
+            ContentProviderHelperMethods.deleteData(mAct, id);
 
+            imageView.setImageResource(R.drawable.ic_fav_unfilled_black);
+          } else {
+            Snackbar.make(imageView, mContext.getString(R.string.drink_added), Snackbar.LENGTH_LONG).show();
+
+            ContentValues cv = new ContentValues();
+            cv.put(_ID, cursor.getString(cursor.getColumnIndex(_ID)));
+            cv.put(DRINK_NAME, cursor.getString(cursor.getColumnIndex(DRINK_NAME)));
+            cv.put(DRINK_THUMB, cursor.getString(cursor.getColumnIndex(DRINK_THUMB)));
+
+            String id = cursor.getString(cursor.getColumnIndex(_ID));
+            ContentProviderHelperMethods.insertData(mAct, id, cv);
+
+            imageView.setImageResource(R.drawable.ic_fav_filled);
+          }
         }
       });
 
@@ -149,7 +115,7 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
         public void onClick(View v) {
           if (mAdapterCallback != null) {
             Cursor cursor = getCursor();
-
+            cursor.moveToPosition(getAdapterPosition());
             final Cocktail currentCocktail = new Cocktail();
 
             currentCocktail.setmDrinkId(cursor.getString(cursor.getColumnIndex(_ID)));

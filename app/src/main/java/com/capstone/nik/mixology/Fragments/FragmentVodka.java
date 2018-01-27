@@ -60,8 +60,8 @@ public class FragmentVodka extends Fragment implements LoaderManager.LoaderCallb
                            Bundle savedInstanceState) {
     View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-    mRecyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_main);
-    mEmptyTextView = (TextView) rootView.findViewById(R.id.empty_view);
+    mRecyclerView = rootView.findViewById(R.id.recycler_main);
+    mEmptyTextView = rootView.findViewById(R.id.empty_view);
     GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
     mRecyclerView.setLayoutManager(gridLayoutManager);
 

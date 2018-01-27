@@ -22,6 +22,8 @@ import com.capstone.nik.mixology.R;
 import com.capstone.nik.mixology.utils.Utils;
 
 
+import javax.inject.Inject;
+
 import static com.capstone.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_COCKTAIL;
 import static com.capstone.nik.mixology.data.DrinkProvider.Cocktail.CONTENT_URI_COCKTAIL;
 
@@ -36,7 +38,8 @@ public class FragmentCocktail extends Fragment implements LoaderManager.LoaderCa
   private DrinkCursorAdapter mDrinkAdapter;
   private TextView mEmptyTextView;
   // Volley
-  private RequestQueue mRequestQueue;
+  @Inject
+  RequestQueue mRequestQueue;
 
   public FragmentCocktail() {
   }
@@ -50,7 +53,6 @@ public class FragmentCocktail extends Fragment implements LoaderManager.LoaderCa
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
     ((MyApplication) getActivity().getApplication()).getComponent().inject(this);
   }
 
@@ -59,8 +61,8 @@ public class FragmentCocktail extends Fragment implements LoaderManager.LoaderCa
                            Bundle savedInstanceState) {
     View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-    mRecyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_main);
-    mEmptyTextView = (TextView) rootView.findViewById(R.id.empty_view);
+    mRecyclerView = rootView.findViewById(R.id.recycler_main);
+    mEmptyTextView = rootView.findViewById(R.id.empty_view);
     GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
     mRecyclerView.setLayoutManager(gridLayoutManager);
 

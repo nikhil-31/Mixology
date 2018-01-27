@@ -61,9 +61,9 @@ public class FragmentHighballGlass extends Fragment implements LoaderManager.Loa
                            Bundle savedInstanceState) {
     View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-    mRecyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_main);
+    mRecyclerView = rootView.findViewById(R.id.recycler_main);
     GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
-    mEmptyTextView = (TextView) rootView.findViewById(R.id.empty_view);
+    mEmptyTextView = rootView.findViewById(R.id.empty_view);
     mRecyclerView.setLayoutManager(gridLayoutManager);
 
     mDrinkAdapter = new DrinkCursorAdapter(null, getActivity());

@@ -85,18 +85,18 @@ public class FragmentRandomixer extends Fragment {
     // Inflate the layout for this fragment
     View rootView = inflater.inflate(R.layout.fragment_randomixer, container, false);
     setHasOptionsMenu(true);
-    mSwipeToRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeToRefreshLayout);
+    mSwipeToRefreshLayout = rootView.findViewById(R.id.swipeToRefreshLayout);
 
-    mInstructionsText = (TextView) rootView.findViewById(R.id.detail_instructions);
-    mAlcoholicText = (TextView) rootView.findViewById(R.id.detail_alcoholic);
-    mDrinkImage = (ImageView) rootView.findViewById(R.id.detail_imageView);
-    mInstruction = (TextView) rootView.findViewById(R.id.detail_instructions_text);
-    mIngredients = (TextView) rootView.findViewById(R.id.detail_ingredients_text);
-    mDrinkName = (TextView) rootView.findViewById(R.id.detail_name);
-    mDetailIcon = (ImageView) rootView.findViewById(R.id.detail_fav_button);
+    mInstructionsText = rootView.findViewById(R.id.detail_instructions);
+    mAlcoholicText = rootView.findViewById(R.id.detail_alcoholic);
+    mDrinkImage = rootView.findViewById(R.id.detail_imageView);
+    mInstruction = rootView.findViewById(R.id.detail_instructions_text);
+    mIngredients = rootView.findViewById(R.id.detail_ingredients_text);
+    mDrinkName = rootView.findViewById(R.id.detail_name);
+    mDetailIcon = rootView.findViewById(R.id.detail_fav_button);
 
     mIngredientsAdapter = new IngredientsAdapter(getActivity());
-    mIngredientsRecyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_ingredients);
+    mIngredientsRecyclerView = rootView.findViewById(R.id.recycler_ingredients);
 
     LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
 

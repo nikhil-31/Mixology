@@ -33,9 +33,7 @@ public class FragmentGin extends Fragment implements LoaderManager.LoaderCallbac
 
   private static final int CURSOR_LOADER_ID = 1;
 
-  private RecyclerView mRecyclerView;
   private DrinkCursorAdapter mDrinkAdapter;
-  private TextView mEmptyTextView;
   // Volley
   @Inject
   RequestQueue mRequestQueue;
@@ -60,8 +58,8 @@ public class FragmentGin extends Fragment implements LoaderManager.LoaderCallbac
                            Bundle savedInstanceState) {
     View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-    mRecyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_main);
-    mEmptyTextView = (TextView) rootView.findViewById(R.id.empty_view);
+    RecyclerView mRecyclerView = rootView.findViewById(R.id.recycler_main);
+    TextView mEmptyTextView = rootView.findViewById(R.id.empty_view);
     GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
     mRecyclerView.setLayoutManager(gridLayoutManager);
 

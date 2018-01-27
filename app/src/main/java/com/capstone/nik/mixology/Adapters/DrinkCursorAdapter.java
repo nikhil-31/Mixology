@@ -63,7 +63,6 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
     return new ViewHolder(v);
   }
 
-
   public class ViewHolder extends RecyclerView.ViewHolder {
     ImageView image;
     TextView textView;
@@ -83,7 +82,6 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
           cursor.moveToPosition(getAdapterPosition());
           boolean isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(mAct, cursor.getString(cursor.getColumnIndex(_ID)), CONTENT_URI_DRINK_SAVED);
           if (isInDatabase) {
-
             Snackbar.make(imageView, mContext.getString(R.string.drink_deleted), Snackbar.LENGTH_LONG).show();
 
             String id = cursor.getString(cursor.getColumnIndex(_ID));
@@ -112,16 +110,14 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
           if (mAdapterCallback != null) {
             Cursor cursor = getCursor();
             cursor.moveToPosition(getAdapterPosition());
-            final Cocktail currentCocktail = new Cocktail();
-
-            currentCocktail.setmDrinkId(cursor.getString(cursor.getColumnIndex(_ID)));
-            currentCocktail.setmDrinkName(cursor.getString(cursor.getColumnIndex(DRINK_NAME)));
-            currentCocktail.setmDrinkThumb(cursor.getString(cursor.getColumnIndex(DRINK_THUMB)));
-            mAdapterCallback.onItemSelected(currentCocktail);
+            Cocktail cocktail = new Cocktail();
+            cocktail.setmDrinkId(cursor.getString(cursor.getColumnIndex(_ID)));
+            cocktail.setmDrinkName(cursor.getString(cursor.getColumnIndex(DRINK_NAME)));
+            cocktail.setmDrinkThumb(cursor.getString(cursor.getColumnIndex(DRINK_THUMB)));
+            mAdapterCallback.onItemSelected(cocktail);
           }
         }
       });
-
     }
   }
 

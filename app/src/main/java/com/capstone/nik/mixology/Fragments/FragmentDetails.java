@@ -2,6 +2,7 @@ package com.capstone.nik.mixology.Fragments;
 
 import android.app.Activity;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -46,21 +47,18 @@ import java.util.ArrayList;
 import javax.inject.Inject;
 
 import static com.capstone.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_BY_ID;
-import static com.capstone.nik.mixology.Network.MyApplication.getAppContext;
 import static com.capstone.nik.mixology.data.AlcoholicColumn.DRINK_NAME;
 import static com.capstone.nik.mixology.data.AlcoholicColumn.DRINK_THUMB;
 import static com.capstone.nik.mixology.data.AlcoholicColumn._ID;
 import static com.capstone.nik.mixology.data.DrinkProvider.SavedDrink.CONTENT_URI_DRINK_SAVED;
-
 
 /**
  * A placeholder fragment containing a simple view.
  */
 public class FragmentDetails extends Fragment {
 
-  private Cocktail mCocktail;
-
-  // Volley
+  @Inject
+  Context applicationContext;
   @Inject
   RequestQueue mRequestQueue;
 
@@ -94,21 +92,20 @@ public class FragmentDetails extends Fragment {
   @Override
   public View onCreateView(@NonNull final LayoutInflater inflater, final ViewGroup container,
                            Bundle savedInstanceState) {
-    View v = inflater.inflate(R.layout.fragment_activity_details, container, false);
-
-    mCocktail = mActivity.getIntent().getParcelableExtra(getString(R.string.details_intent_cocktail));
+    View view = inflater.inflate(R.layout.fragment_activity_details, container, false);
+    Cocktail cocktail = mActivity.getIntent().getParcelableExtra(getString(R.string.details_intent_cocktail));
 
     setHasOptionsMenu(true);
 
 //    MobileAds.initialize(getAppContext(), "ca-app-pub-3940256099942544~3347511713");
     //TODO - Uncomment original Ad
-    MobileAds.initialize(getAppContext(), "ca-app-pub-3940256099942544/6300978111");
+    MobileAds.initialize(applicationContext, "ca-app-pub-3940256099942544/6300978111");
 
-    AdView mAdView = v.findViewById(R.id.adViewDetails);
+    AdView adView = view.findViewById(R.id.adViewDetails);
     AdRequest adRequest = new AdRequest.Builder().build();
-    mAdView.loadAd(adRequest);
+    adView.loadAd(adRequest);
 
-    mToolbar = v.findViewById(R.id.toolbar);
+    mToolbar = view.findViewById(R.id.toolbar);
 
     mToolbar.setNavigationIcon(ContextCompat.getDrawable(mActivity, R.drawable.ic_back_black));
     mToolbar.setNavigationContentDescription(getString(R.string.content_desc_up_navigation));
@@ -121,16 +118,16 @@ public class FragmentDetails extends Fragment {
 
     mToolbar.inflateMenu(R.menu.menu_activity_details);
 
-    mInstructionsText = v.findViewById(R.id.detail_instructions);
-    mAlcoholicText = v.findViewById(R.id.detail_alcoholic);
-    mDrinkImage = v.findViewById(R.id.detail_imageView);
-    mInstruction = v.findViewById(R.id.detail_instructions_text);
-    mIngredients = v.findViewById(R.id.detail_ingredients_text);
-    mDrinkName = v.findViewById(R.id.detail_name);
-    mDetailIcon = v.findViewById(R.id.detail_fav_button);
+    mInstructionsText = view.findViewById(R.id.detail_instructions);
+    mAlcoholicText = view.findViewById(R.id.detail_alcoholic);
+    mDrinkImage = view.findViewById(R.id.detail_imageView);
+    mInstruction = view.findViewById(R.id.detail_instructions_text);
+    mIngredients = view.findViewById(R.id.detail_ingredients_text);
+    mDrinkName = view.findViewById(R.id.detail_name);
+    mDetailIcon = view.findViewById(R.id.detail_fav_button);
 
     mIngredientsAdapter = new IngredientsAdapter(mActivity);
-    RecyclerView ingredientsRecyclerView = v.findViewById(R.id.recycler_ingredients);
+    RecyclerView ingredientsRecyclerView = view.findViewById(R.id.recycler_ingredients);
     ingredientsRecyclerView.setNestedScrollingEnabled(false);
 
     LinearLayoutManager linearLayoutManager = new LinearLayoutManager(mActivity, LinearLayoutManager.VERTICAL, false);
@@ -138,16 +135,14 @@ public class FragmentDetails extends Fragment {
     ingredientsRecyclerView.setLayoutManager(linearLayoutManager);
     ingredientsRecyclerView.setAdapter(mIngredientsAdapter);
 
-    if (mCocktail != null) {
-      startNetworkRequest(mCocktail);
+    if (cocktail != null) {
+      startNetworkRequest(cocktail);
     }
-
-    return v;
+    return view;
   }
 
   public void updateContent(Cocktail cocktail) {
     startNetworkRequest(cocktail);
-
   }
 
   private void startNetworkRequest(final Cocktail cocktail) {
@@ -333,11 +328,9 @@ public class FragmentDetails extends Fragment {
     final String MEASURE_15 = "strMeasure15";
 
     ArrayList<Measures> mMeasures = new ArrayList<>();
-
     JSONArray results = response.getJSONArray(DRINKS);
 
     for (int i = 0; i < results.length(); i++) {
-
       JSONObject jsonObject = results.getJSONObject(i);
 
       if (jsonObject.getString(INGREDIENT_1).length() != 0 && !jsonObject.isNull(INGREDIENT_1)) {

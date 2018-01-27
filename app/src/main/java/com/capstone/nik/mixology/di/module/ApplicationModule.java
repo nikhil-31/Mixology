@@ -36,19 +36,19 @@ public class ApplicationModule {
 
   @Provides
   @Singleton
-  public Context provideApplication() {
+  Context provideApplication() {
     return application;
   }
 
   @Provides
   @Singleton
-  public RequestQueue provideRequestQueue() {
+  RequestQueue provideRequestQueue() {
     return Volley.newRequestQueue(application);
   }
 
   @Provides
   @Singleton
-  public JobManager provideJobManager() {
+  JobManager provideJobManager() {
     Configuration.Builder builder = new Configuration.Builder(application)
         .customLogger(new CustomLogger() {
           private static final String TAG = "JOBS";

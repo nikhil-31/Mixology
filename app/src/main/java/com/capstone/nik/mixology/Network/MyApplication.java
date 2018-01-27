@@ -32,7 +32,7 @@ public class MyApplication extends Application {
   private static MyApplication sInstance;
 
   private ApplicationComponent component;
-  private JobManager mJobManager;
+//  private JobManager mJobManager;
 
   @Override
   public void onCreate() {
@@ -63,63 +63,59 @@ public class MyApplication extends Application {
     return component;
   }
 
-  public static Context getAppContext() {
-    return sInstance.getApplicationContext();
-  }
-
-  // Initializes the job Manager only once
-  public synchronized JobManager getJobManager() {
-    if (mJobManager == null) {
-      configureJobManager();
-    }
-    return mJobManager;
-  }
-
-  private void configureJobManager() {
-    Configuration.Builder builder = new Configuration.Builder(this)
-        .customLogger(new CustomLogger() {
-          private static final String TAG = "JOBS";
-
-          @Override
-          public boolean isDebugEnabled() {
-            return true;
-          }
-
-          @Override
-          public void d(String text, Object... args) {
-            Log.d(TAG, String.format(text, args));
-          }
-
-          @Override
-          public void e(Throwable t, String text, Object... args) {
-            Log.e(TAG, String.format(text, args), t);
-          }
-
-          @Override
-          public void e(String text, Object... args) {
-            Log.e(TAG, String.format(text, args));
-          }
-
-          @Override
-          public void v(String text, Object... args) {
-
-          }
-        })
-        .minConsumerCount(1)        // always keep at least one consumer alive
-        .maxConsumerCount(3)        // up to 3 consumers at a time
-        .loadFactor(3)              // 3 jobs per consumer
-        .consumerKeepAlive(120);    // wait 2 minute
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-      builder.scheduler(FrameworkJobSchedulerService.createSchedulerFor(this,
-          MyJobService.class), false);
-    } else {
-      int enableGcm = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this);
-      if (enableGcm == ConnectionResult.SUCCESS) {
-        builder.scheduler(GcmJobSchedulerService.createSchedulerFor(this,
-            MyGcmJobService.class), false);
-      }
-    }
-    mJobManager = new JobManager(builder.build());
-  }
+// Initializes the job Manager only once
+//  public synchronized JobManager getJobManager() {
+//    if (mJobManager == null) {
+//      configureJobManager();
+//    }
+//    return mJobManager;
+//  }
+//
+//  private void configureJobManager() {
+//    Configuration.Builder builder = new Configuration.Builder(this)
+//        .customLogger(new CustomLogger() {
+//          private static final String TAG = "JOBS";
+//
+//          @Override
+//          public boolean isDebugEnabled() {
+//            return true;
+//          }
+//
+//          @Override
+//          public void d(String text, Object... args) {
+//            Log.d(TAG, String.format(text, args));
+//          }
+//
+//          @Override
+//          public void e(Throwable t, String text, Object... args) {
+//            Log.e(TAG, String.format(text, args), t);
+//          }
+//
+//          @Override
+//          public void e(String text, Object... args) {
+//            Log.e(TAG, String.format(text, args));
+//          }
+//
+//          @Override
+//          public void v(String text, Object... args) {
+//
+//          }
+//        })
+//        .minConsumerCount(1)        // always keep at least one consumer alive
+//        .maxConsumerCount(3)        // up to 3 consumers at a time
+//        .loadFactor(3)              // 3 jobs per consumer
+//        .consumerKeepAlive(120);    // wait 2 minute
+//    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//      builder.scheduler(FrameworkJobSchedulerService.createSchedulerFor(this,
+//          MyJobService.class), false);
+//    } else {
+//      int enableGcm = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this);
+//      if (enableGcm == ConnectionResult.SUCCESS) {
+//        builder.scheduler(GcmJobSchedulerService.createSchedulerFor(this,
+//            MyGcmJobService.class), false);
+//      }
+//    }
+//    mJobManager = new JobManager(builder.build());
+//  }
 
 }

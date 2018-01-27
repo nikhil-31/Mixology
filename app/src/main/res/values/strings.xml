@@ -23,7 +23,7 @@
   <string name="details_intent_cocktail" translatable="false">Cocktail</string>
 
   <!-- Add or delete to database -->
-  <string name="drink_added">Drink Added</string>
+  <string name="drink_added">Drink Saved</string>
   <string name="drink_deleted">Drink Deleted</string>
 
   <!-- Network error -->

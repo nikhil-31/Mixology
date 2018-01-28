@@ -159,7 +159,7 @@ public class FragmentDetails extends Fragment {
     mInstruction.setText(getResources().getString(R.string.Instructions));
     mIngredients.setText(getResources().getString(R.string.Ingredients));
 
-    isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(mActivity, mCocktailId, CONTENT_URI_DRINK_SAVED);
+    isInDatabase = ContentProviderHelperMethods.isDrinkSavedInDb(mActivity, mCocktailId);
 
     if (isInDatabase) {
       mDetailIcon.setImageResource(R.drawable.ic_fav_filled);
@@ -170,7 +170,7 @@ public class FragmentDetails extends Fragment {
     mDetailIcon.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(mActivity, mCocktailId, CONTENT_URI_DRINK_SAVED);
+        isInDatabase = ContentProviderHelperMethods.isDrinkSavedInDb(mActivity, mCocktailId);
 
         if (isInDatabase) {
           mDetailIcon.setImageResource(R.drawable.ic_fav_filled);

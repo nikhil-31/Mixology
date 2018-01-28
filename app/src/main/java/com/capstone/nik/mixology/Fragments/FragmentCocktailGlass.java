@@ -23,7 +23,6 @@ import com.capstone.nik.mixology.Network.MyApplication;
 import com.capstone.nik.mixology.R;
 import com.capstone.nik.mixology.job.DrinkTypeFilterJob;
 import com.capstone.nik.mixology.job.GlassTypeFilterJob;
-import com.capstone.nik.mixology.utils.Utils;
 
 import javax.inject.Inject;
 

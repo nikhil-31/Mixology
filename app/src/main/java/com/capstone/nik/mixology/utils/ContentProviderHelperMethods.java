@@ -15,6 +15,7 @@ import java.util.Vector;
 import static com.capstone.nik.mixology.data.AlcoholicColumn.DRINK_NAME;
 import static com.capstone.nik.mixology.data.AlcoholicColumn.DRINK_THUMB;
 import static com.capstone.nik.mixology.data.AlcoholicColumn._ID;
+import static com.capstone.nik.mixology.data.DrinkProvider.SavedDrink.CONTENT_URI_DRINK_SAVED;
 import static com.capstone.nik.mixology.data.DrinkProvider.SavedDrink.withId;
 
 /**
@@ -25,11 +26,10 @@ public class ContentProviderHelperMethods {
 
   public static final String ACTION_DATABASE_UPDATED = "com.example.nik.mixology.utils.ACTION_DATA_UPDATED";
 
-  public static ArrayList<Cocktail> getDrinkListFromDatabase(Context mAct, Uri uri) {
+  public static ArrayList<Cocktail> getDrinkListFromDatabase(Context context) {
     ArrayList<Cocktail> drinkList = new ArrayList<>();
 
-    Cocktail cocktail;
-    Cursor cursor = mAct.getContentResolver().query(uri
+    Cursor cursor = context.getContentResolver().query(CONTENT_URI_DRINK_SAVED
         , null
         , null
         , null
@@ -38,7 +38,7 @@ public class ContentProviderHelperMethods {
     assert cursor != null;
     if (cursor.moveToFirst()) {
       do {
-        cocktail = new Cocktail();
+        Cocktail cocktail = new Cocktail();
         cocktail.setmDrinkId(cursor.getString(cursor.getColumnIndex(_ID)));
         cocktail.setmDrinkName(cursor.getString(cursor.getColumnIndex(DRINK_NAME)));
         cocktail.setmDrinkThumb(cursor.getString(cursor.getColumnIndex(DRINK_THUMB)));
@@ -48,13 +48,14 @@ public class ContentProviderHelperMethods {
       while (cursor.moveToNext());
     }
     cursor.close();
+
     return drinkList;
   }
 
-  public static boolean isDrinkInDatabase(Context mAct, String id, Uri contentUri) {
-    ArrayList<Cocktail> list = new ArrayList<>(getDrinkListFromDatabase(mAct, contentUri));
+  public static boolean isDrinkSavedInDb(Context context, String id) {
+    ArrayList<Cocktail> drinkList = new ArrayList<>(getDrinkListFromDatabase(context));
 
-    for (Cocktail listItem : list) {
+    for (Cocktail listItem : drinkList) {
       if (listItem.getmDrinkId().equals(id)) {
         return true;
       }

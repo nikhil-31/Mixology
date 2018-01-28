@@ -111,7 +111,7 @@ public class FragmentRandomixer extends Fragment {
     mDetailIcon.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(mActivity, mCocktailDetails.getmId(), CONTENT_URI_DRINK_SAVED);
+        isInDatabase = ContentProviderHelperMethods.isDrinkSavedInDb(mActivity, mCocktailDetails.getmId());
 
         if (isInDatabase) {
           mDetailIcon.setImageResource(R.drawable.ic_fav_filled);
@@ -166,7 +166,7 @@ public class FragmentRandomixer extends Fragment {
     mIngredients.setText(getResources().getString(R.string.Ingredients));
 
     mDrinkName.setText(mCocktailDetails.getmName());
-    isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(mActivity, mCocktailDetails.getmId(), CONTENT_URI_DRINK_SAVED);
+    isInDatabase = ContentProviderHelperMethods.isDrinkSavedInDb(mActivity, mCocktailDetails.getmId());
 
     if (isInDatabase) {
       mDetailIcon.setImageResource(R.drawable.ic_fav_filled);

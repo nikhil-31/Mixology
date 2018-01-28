@@ -21,14 +21,10 @@ import com.birbit.android.jobqueue.JobManager;
 import com.capstone.nik.mixology.Adapters.DrinkCursorAdapter;
 import com.capstone.nik.mixology.Network.MyApplication;
 import com.capstone.nik.mixology.R;
-import com.capstone.nik.mixology.job.AlcoholFilterJob;
 import com.capstone.nik.mixology.job.DrinkTypeFilterJob;
-import com.capstone.nik.mixology.utils.Utils;
 
 import javax.inject.Inject;
 
-import static com.capstone.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_ORDINARY;
-import static com.capstone.nik.mixology.data.DrinkProvider.NonAlcoholic.CONTENT_URI_NON_ALCOHOLIC;
 import static com.capstone.nik.mixology.data.DrinkProvider.OrdinaryDrink.CONTENT_URI_ORDINARY_DRINK;
 
 /**

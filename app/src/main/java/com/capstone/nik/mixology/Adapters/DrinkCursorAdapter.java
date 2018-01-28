@@ -49,7 +49,8 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
         .load(cursor.getString(cursor.getColumnIndex(DRINK_THUMB)))
         .error(R.drawable.empty_glass)
         .into(viewHolder.image);
-    boolean isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(mAct, cursor.getString(cursor.getColumnIndex(_ID)), CONTENT_URI_DRINK_SAVED);
+    boolean isInDatabase = ContentProviderHelperMethods.isDrinkSavedInDb(mAct
+        , cursor.getString(cursor.getColumnIndex(_ID)));
     if (isInDatabase) {
       viewHolder.imageView.setImageResource(R.drawable.ic_fav_filled);
     } else {
@@ -80,7 +81,10 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
         public void onClick(View v) {
           Cursor cursor = getCursor();
           cursor.moveToPosition(getAdapterPosition());
-          boolean isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(mAct, cursor.getString(cursor.getColumnIndex(_ID)), CONTENT_URI_DRINK_SAVED);
+
+          String cocktailId = cursor.getString(cursor.getColumnIndex(_ID));
+
+          boolean isInDatabase = ContentProviderHelperMethods.isDrinkSavedInDb(mAct, cocktailId);
           if (isInDatabase) {
             Snackbar.make(imageView, mContext.getString(R.string.drink_deleted), Snackbar.LENGTH_LONG).show();
 

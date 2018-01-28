@@ -50,8 +50,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
   @Override
   public SearchViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
     View v = mInflater.inflate(R.layout.recycler_item_search, parent, false);
-    SearchViewHolder myViewHolder = new SearchViewHolder(v);
-    return myViewHolder;
+    return new SearchViewHolder(v);
   }
 
   @Override
@@ -64,7 +63,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
         .error(R.drawable.empty_glass)
         .into(holder.image);
 
-    isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(mAct, currentCocktail.getmId(), CONTENT_URI_DRINK_SAVED);
+    isInDatabase = ContentProviderHelperMethods.isDrinkSavedInDb(mAct, currentCocktail.getmId());
 
     if (isInDatabase) {
       holder.imageButton.setImageResource(R.drawable.ic_fav_filled);
@@ -77,7 +76,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
     holder.imageButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        isInDatabase = ContentProviderHelperMethods.isDrinkInDatabase(mAct, currentCocktail.getmId(), CONTENT_URI_DRINK_SAVED);
+        isInDatabase = ContentProviderHelperMethods.isDrinkSavedInDb(mAct, currentCocktail.getmId());
 
         if (isInDatabase) {
           holder.imageButton.setImageResource(R.drawable.ic_fav_filled);
@@ -135,9 +134,9 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
 
     public SearchViewHolder(View itemView) {
       super(itemView);
-      image = (ImageView) itemView.findViewById(R.id.list_search_icon);
-      textView = (TextView) itemView.findViewById(R.id.list_search_text);
-      imageButton = (ImageView) itemView.findViewById(R.id.list_search_fav);
+      image = itemView.findViewById(R.id.list_search_icon);
+      textView = itemView.findViewById(R.id.list_search_text);
+      imageButton = itemView.findViewById(R.id.list_search_fav);
     }
   }
 

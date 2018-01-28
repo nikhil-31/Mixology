@@ -9,6 +9,9 @@ public class CocktailURLs {
   // API Key
   private static String API_KEY = "2912";
 
+  // Base URL
+  public static String BASE_URL = "http://www.thecocktaildb.com/api/json/v1/" + API_KEY + "/";
+
   // Search using name
   public static String COCKTAIL_SEARCH_URL_BY_NAME = "http://www.thecocktaildb.com/api/json/v1/" + API_KEY + "/search.php?s=";
 

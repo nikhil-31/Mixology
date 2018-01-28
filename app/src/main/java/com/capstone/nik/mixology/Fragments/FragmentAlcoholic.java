@@ -14,16 +14,32 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.android.volley.RequestQueue;
+import com.birbit.android.jobqueue.JobManager;
 import com.capstone.nik.mixology.Adapters.DrinkCursorAdapter;
+import com.capstone.nik.mixology.Network.CocktailService;
+import com.capstone.nik.mixology.Network.CocktailURLs;
 import com.capstone.nik.mixology.Network.MyApplication;
+import com.capstone.nik.mixology.Network.remoteModel.Cocktails;
+import com.capstone.nik.mixology.Network.remoteModel.Drink;
 import com.capstone.nik.mixology.R;
+import com.capstone.nik.mixology.job.GetDrinkJob;
 import com.capstone.nik.mixology.utils.Utils;
 
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.capstone.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_ALCOHOLIC;
 import static com.capstone.nik.mixology.data.DrinkProvider.Alcoholic.CONTENT_URI_ALCOHOLIC;
@@ -41,6 +57,9 @@ public class FragmentAlcoholic extends Fragment implements LoaderManager.LoaderC
 
   @Inject
   RequestQueue mRequestQueue;
+
+  @Inject
+  JobManager mJobManager;
 
   public FragmentAlcoholic() {
   }
@@ -72,7 +91,8 @@ public class FragmentAlcoholic extends Fragment implements LoaderManager.LoaderC
     mDrinkAdapter = new DrinkCursorAdapter(null, mActivity);
     recyclerView.setAdapter(mDrinkAdapter);
 
-    Utils.sendNetworkJsonRequest(mActivity, COCKTAIL_SEARCH_URL_ALCOHOLIC, mRequestQueue, CONTENT_URI_ALCOHOLIC);
+    mJobManager.addJobInBackground(new GetDrinkJob(CONTENT_URI_ALCOHOLIC.toString(),"Alcoholic"));
+//    Utils.sendNetworkJsonRequest(mActivity, COCKTAIL_SEARCH_URL_ALCOHOLIC, mRequestQueue, CONTENT_URI_ALCOHOLIC);
     return rootView;
   }
 

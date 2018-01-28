@@ -25,7 +25,6 @@ import java.util.ArrayList;
 public class Utils {
 
   private static ArrayList<Cocktail> parseJSONResponse(JSONObject response) throws JSONException {
-
     final String DRINKS = "drinks";
     final String COCKTAIL_NAME = "strDrink";
     final String COCKTAIL_THUMBNAIL = "strDrinkThumb";
@@ -39,7 +38,6 @@ public class Utils {
     }
 
     JSONArray results = response.getJSONArray(DRINKS);
-
     for (int i = 0; i < results.length(); i++) {
 
       Cocktail cocktail = new Cocktail();
@@ -47,7 +45,6 @@ public class Utils {
       String Thumb = jsonObject.getString(COCKTAIL_THUMBNAIL);
 
       if (!Thumb.equals(STATE_NULL)) {
-
         if (jsonObject.getString(COCKTAIL_NAME).length() != 0 && !jsonObject.isNull(COCKTAIL_NAME)) {
           cocktail.setmDrinkName(jsonObject.getString(COCKTAIL_NAME));
         }
@@ -61,11 +58,10 @@ public class Utils {
       }
     }
     return data;
-
   }
 
   public static void sendNetworkJsonRequest(final Activity activity, String url, RequestQueue requestQueue, final Uri uri) {
-    final ArrayList<Cocktail> mCocktailArrayList = new ArrayList<>();
+    final ArrayList<Cocktail> cocktailArrayList = new ArrayList<>();
 
     JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET,
         url,
@@ -74,8 +70,8 @@ public class Utils {
           @Override
           public void onResponse(JSONObject response) {
             try {
-              mCocktailArrayList.addAll(Utils.parseJSONResponse(response));
-              ContentProviderHelperMethods.insertBulkData(uri, mCocktailArrayList, activity);
+              cocktailArrayList.addAll(Utils.parseJSONResponse(response));
+              ContentProviderHelperMethods.insertBulkData(uri, cocktailArrayList, activity);
             } catch (JSONException e) {
               e.printStackTrace();
             }

@@ -25,7 +25,7 @@ public class ContentProviderHelperMethods {
 
   public static final String ACTION_DATABASE_UPDATED = "com.example.nik.mixology.utils.ACTION_DATA_UPDATED";
 
-  public static ArrayList<Cocktail> getDrinkListFromDatabase(Activity mAct, Uri uri) {
+  public static ArrayList<Cocktail> getDrinkListFromDatabase(Context mAct, Uri uri) {
     ArrayList<Cocktail> drinkList = new ArrayList<>();
 
     Cocktail cocktail;
@@ -51,7 +51,7 @@ public class ContentProviderHelperMethods {
     return drinkList;
   }
 
-  public static boolean isDrinkInDatabase(Activity mAct, String id, Uri contentUri) {
+  public static boolean isDrinkInDatabase(Context mAct, String id, Uri contentUri) {
 
     ArrayList<Cocktail> list = new ArrayList<>(getDrinkListFromDatabase(mAct, contentUri));
 
@@ -64,7 +64,7 @@ public class ContentProviderHelperMethods {
     return false;
   }
 
-  static void insertBulkData(Uri uri, ArrayList<Cocktail> mArrayList, Activity mAct) {
+  public static void insertBulkData(Uri uri, ArrayList<Cocktail> mArrayList, Context mAct) {
     Vector<ContentValues> cVVector = new Vector<ContentValues>(mArrayList.size());
 
     final String _id = "_id";

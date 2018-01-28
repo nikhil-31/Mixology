@@ -36,7 +36,7 @@ public class MyApplication extends Application {
 
   @Override
   public void onCreate() {
-    super.onCreate();
+    super.onCreate(); 
     sInstance = this;
     Fabric.with(this, new Crashlytics());
 
@@ -45,9 +45,9 @@ public class MyApplication extends Application {
         .applicationModule(new ApplicationModule(this))
         .build();
 
-    if (BuildConfig.DEBUG) {
-      Stetho.initializeWithDefaults(this);
-    }
+//    if (BuildConfig.DEBUG) {
+    Stetho.initializeWithDefaults(this);
+//    }
 
     if (LeakCanary.isInAnalyzerProcess(this)) {
       return;

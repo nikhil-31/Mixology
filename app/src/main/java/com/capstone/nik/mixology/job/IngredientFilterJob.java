@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.birbit.android.jobqueue.Job;
@@ -16,7 +17,6 @@ import com.capstone.nik.mixology.Network.CocktailService;
 import com.capstone.nik.mixology.Network.CocktailURLs;
 import com.capstone.nik.mixology.Network.remoteModel.Cocktails;
 import com.capstone.nik.mixology.Network.remoteModel.Drink;
-import com.capstone.nik.mixology.utils.ContentProviderHelperMethods;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,12 +36,13 @@ import static com.capstone.nik.mixology.data.AlcoholicColumn._ID;
  * Created by nik on 1/28/2018.
  */
 
-public class GetDrinkJob extends Job {
+public class IngredientFilterJob extends Job {
+  private static final String TAG = "IngredientFilterJob";
 
   private Uri uri;
   private String filter;
 
-  public GetDrinkJob(String uri, String filter) {
+  public IngredientFilterJob(String uri, String filter) {
     super(new Params(1000).requireNetwork().groupBy("get_drink"));
     this.uri = Uri.parse(uri);
     this.filter = filter;
@@ -61,7 +62,7 @@ public class GetDrinkJob extends Job {
     Retrofit retrofit = builder.build();
 
     CocktailService service = retrofit.create(CocktailService.class);
-    Call<Cocktails> listCall = service.getCocktails(filter);
+    Call<Cocktails> listCall = service.getIngredientFilter(filter);
 
     listCall.enqueue(new Callback<Cocktails>() {
       @Override
@@ -70,23 +71,14 @@ public class GetDrinkJob extends Job {
 
         if (cocktails != null) {
           List<Drink> drinks = cocktails.getDrinks();
-
           insertBulkData(uri, drinks, getApplicationContext());
-//          for (int i = 0; i < drinks.size(); i++) {
-//            Drink drink = drinks.get(i);
-//
-//            String name = drink.getStrDrink();
-//            String thumb = drink.getStrDrinkThumb();
-//            String id = drink.getIdDrink();
-//
-//            stringBuilder.append(name);
-//          }
         }
       }
 
       @Override
       public void onFailure(@NonNull Call<Cocktails> call, @NonNull Throwable t) {
-        Toast.makeText(getApplicationContext(), "Failure", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), "Throwable " + t, Toast.LENGTH_SHORT).show();
+        Log.v(TAG, "Error: ", t);
       }
     });
   }

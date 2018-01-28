@@ -16,15 +16,15 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.android.volley.RequestQueue;
+import com.birbit.android.jobqueue.JobManager;
 import com.capstone.nik.mixology.Adapters.DrinkCursorAdapter;
 import com.capstone.nik.mixology.Network.MyApplication;
 import com.capstone.nik.mixology.R;
-import com.capstone.nik.mixology.utils.Utils;
+import com.capstone.nik.mixology.job.DrinkTypeFilterJob;
 
 
 import javax.inject.Inject;
 
-import static com.capstone.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_COCKTAIL;
 import static com.capstone.nik.mixology.data.DrinkProvider.Cocktail.CONTENT_URI_COCKTAIL;
 
 /**
@@ -39,6 +39,9 @@ public class FragmentCocktail extends Fragment implements LoaderManager.LoaderCa
   // Volley
   @Inject
   RequestQueue mRequestQueue;
+
+  @Inject
+  JobManager mJobManager;
 
   public FragmentCocktail() {
   }
@@ -70,7 +73,7 @@ public class FragmentCocktail extends Fragment implements LoaderManager.LoaderCa
     mDrinkAdapter = new DrinkCursorAdapter(null, mActivity);
     recyclerView.setAdapter(mDrinkAdapter);
 
-    Utils.sendNetworkJsonRequest(mActivity, COCKTAIL_SEARCH_URL_COCKTAIL, mRequestQueue, CONTENT_URI_COCKTAIL);
+    mJobManager.addJobInBackground(new DrinkTypeFilterJob(CONTENT_URI_COCKTAIL.toString(), "Cocktail"));
     return rootView;
   }
 

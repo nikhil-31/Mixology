@@ -16,15 +16,15 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.android.volley.RequestQueue;
+import com.birbit.android.jobqueue.JobManager;
 import com.capstone.nik.mixology.Adapters.DrinkCursorAdapter;
 
 import com.capstone.nik.mixology.Network.MyApplication;
 import com.capstone.nik.mixology.R;
-import com.capstone.nik.mixology.utils.Utils;
+import com.capstone.nik.mixology.job.GlassTypeFilterJob;
 
 import javax.inject.Inject;
 
-import static com.capstone.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_HIGHBALL_GLASS;
 import static com.capstone.nik.mixology.data.DrinkProvider.ChampagneFlute.CONTENT_URI_HIGHBALL_GLASS;
 
 /**
@@ -39,6 +39,8 @@ public class FragmentHighballGlass extends Fragment implements LoaderManager.Loa
   // Volley
   @Inject
   RequestQueue mRequestQueue;
+  @Inject
+  JobManager mJobManager;
 
   public FragmentHighballGlass() {
   }
@@ -70,7 +72,7 @@ public class FragmentHighballGlass extends Fragment implements LoaderManager.Loa
     mDrinkAdapter = new DrinkCursorAdapter(null, mActivity);
     recyclerView.setAdapter(mDrinkAdapter);
 
-    Utils.sendNetworkJsonRequest(mActivity, COCKTAIL_SEARCH_URL_HIGHBALL_GLASS, mRequestQueue, CONTENT_URI_HIGHBALL_GLASS);
+    mJobManager.addJobInBackground(new GlassTypeFilterJob(CONTENT_URI_HIGHBALL_GLASS.toString(), "Highball glass"));
     return rootView;
   }
 

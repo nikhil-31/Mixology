@@ -16,14 +16,18 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.android.volley.RequestQueue;
+import com.birbit.android.jobqueue.JobManager;
 import com.capstone.nik.mixology.Adapters.DrinkCursorAdapter;
 import com.capstone.nik.mixology.Network.MyApplication;
 import com.capstone.nik.mixology.R;
+import com.capstone.nik.mixology.job.GlassTypeFilterJob;
+import com.capstone.nik.mixology.job.IngredientFilterJob;
 import com.capstone.nik.mixology.utils.Utils;
 
 import javax.inject.Inject;
 
 import static com.capstone.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_INGREDIENT_GIN;
+import static com.capstone.nik.mixology.data.DrinkProvider.CocktailGlass.CONTENT_URI_COCKTAIL_GLASS;
 import static com.capstone.nik.mixology.data.DrinkProvider.Gin.CONTENT_URI_GIN;
 
 /**
@@ -39,6 +43,9 @@ public class FragmentGin extends Fragment implements LoaderManager.LoaderCallbac
   // Volley
   @Inject
   RequestQueue mRequestQueue;
+
+  @Inject
+  JobManager mJobManager;
 
   public FragmentGin() {
   }
@@ -70,7 +77,8 @@ public class FragmentGin extends Fragment implements LoaderManager.LoaderCallbac
     mDrinkAdapter = new DrinkCursorAdapter(null, mActivity);
     mRecyclerView.setAdapter(mDrinkAdapter);
 
-    Utils.sendNetworkJsonRequest(mActivity, COCKTAIL_SEARCH_URL_INGREDIENT_GIN, mRequestQueue, CONTENT_URI_GIN);
+    mJobManager.addJobInBackground(new IngredientFilterJob(CONTENT_URI_GIN.toString(), "Gin"));
+
     return rootView;
   }
 

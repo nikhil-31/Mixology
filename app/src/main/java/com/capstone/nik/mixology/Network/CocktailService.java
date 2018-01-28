@@ -4,7 +4,6 @@ import com.capstone.nik.mixology.Network.remoteModel.Cocktails;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
-import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 /**
@@ -13,7 +12,20 @@ import retrofit2.http.Query;
 
 public interface CocktailService {
 
-  @GET("filter.php?a=Alcoholic")
-  Call<Cocktails> getCocktails(@Query("a") String filter);
+  // Has Alcohol Filter
+  @GET("filter.php")
+  Call<Cocktails> getAlcoholFilter(@Query("a") String filter);
+
+  // Glass Type Filter
+  @GET("filter.php")
+  Call<Cocktails> getGlassFilter(@Query("g") String filter);
+
+  // Ingredient Filter
+  @GET("filter.php")
+  Call<Cocktails> getIngredientFilter(@Query("i") String filter);
+
+  // Drink Category (Type) Filter
+  @GET("filter.php")
+  Call<Cocktails> getDrinkTypeFilter(@Query("c") String filter);
 
 }

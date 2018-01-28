@@ -17,14 +17,18 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.android.volley.RequestQueue;
+import com.birbit.android.jobqueue.JobManager;
 import com.capstone.nik.mixology.Adapters.DrinkCursorAdapter;
 import com.capstone.nik.mixology.Network.MyApplication;
 import com.capstone.nik.mixology.R;
+import com.capstone.nik.mixology.job.AlcoholFilterJob;
+import com.capstone.nik.mixology.job.DrinkTypeFilterJob;
 import com.capstone.nik.mixology.utils.Utils;
 
 import javax.inject.Inject;
 
 import static com.capstone.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_ORDINARY;
+import static com.capstone.nik.mixology.data.DrinkProvider.NonAlcoholic.CONTENT_URI_NON_ALCOHOLIC;
 import static com.capstone.nik.mixology.data.DrinkProvider.OrdinaryDrink.CONTENT_URI_ORDINARY_DRINK;
 
 /**
@@ -39,6 +43,8 @@ public class FragmentOrdinaryDrink extends Fragment implements LoaderManager.Loa
   // Volley
   @Inject
   RequestQueue mRequestQueue;
+  @Inject
+  JobManager mJobManager;
 
   public FragmentOrdinaryDrink() {
   }
@@ -70,7 +76,7 @@ public class FragmentOrdinaryDrink extends Fragment implements LoaderManager.Loa
     mDrinkAdapter = new DrinkCursorAdapter(null, mActivity);
     mRecyclerView.setAdapter(mDrinkAdapter);
 
-    Utils.sendNetworkJsonRequest(mActivity, COCKTAIL_SEARCH_URL_ORDINARY, mRequestQueue, CONTENT_URI_ORDINARY_DRINK);
+    mJobManager.addJobInBackground(new DrinkTypeFilterJob(CONTENT_URI_ORDINARY_DRINK.toString(), "Ordinary_Drink"));
     return rootView;
   }
 

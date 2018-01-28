@@ -16,14 +16,18 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.android.volley.RequestQueue;
+import com.birbit.android.jobqueue.JobManager;
 import com.capstone.nik.mixology.Adapters.DrinkCursorAdapter;
 import com.capstone.nik.mixology.Network.MyApplication;
 import com.capstone.nik.mixology.R;
+import com.capstone.nik.mixology.job.DrinkTypeFilterJob;
+import com.capstone.nik.mixology.job.IngredientFilterJob;
 import com.capstone.nik.mixology.utils.Utils;
 
 import javax.inject.Inject;
 
 import static com.capstone.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_INGREDIENT_VODKA;
+import static com.capstone.nik.mixology.data.DrinkProvider.OrdinaryDrink.CONTENT_URI_ORDINARY_DRINK;
 import static com.capstone.nik.mixology.data.DrinkProvider.Vodka.CONTENT_URI_VODKA;
 
 /**
@@ -39,6 +43,8 @@ public class FragmentVodka extends Fragment implements LoaderManager.LoaderCallb
   // Volley
   @Inject
   RequestQueue mRequestQueue;
+  @Inject
+  JobManager mJobManager;
 
   public FragmentVodka() {
   }
@@ -70,7 +76,8 @@ public class FragmentVodka extends Fragment implements LoaderManager.LoaderCallb
     mDrinkAdapter = new DrinkCursorAdapter(null, mActivity);
     recyclerView.setAdapter(mDrinkAdapter);
 
-    Utils.sendNetworkJsonRequest(mActivity, COCKTAIL_SEARCH_URL_INGREDIENT_VODKA, mRequestQueue, CONTENT_URI_VODKA);
+    mJobManager.addJobInBackground(new IngredientFilterJob(CONTENT_URI_VODKA.toString(), "Vodka"));
+
     return rootView;
   }
 

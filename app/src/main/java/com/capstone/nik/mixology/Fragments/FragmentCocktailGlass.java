@@ -17,14 +17,18 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.android.volley.RequestQueue;
+import com.birbit.android.jobqueue.JobManager;
 import com.capstone.nik.mixology.Adapters.DrinkCursorAdapter;
 import com.capstone.nik.mixology.Network.MyApplication;
 import com.capstone.nik.mixology.R;
+import com.capstone.nik.mixology.job.DrinkTypeFilterJob;
+import com.capstone.nik.mixology.job.GlassTypeFilterJob;
 import com.capstone.nik.mixology.utils.Utils;
 
 import javax.inject.Inject;
 
 import static com.capstone.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_COCKTAIL_GLASS;
+import static com.capstone.nik.mixology.data.DrinkProvider.Cocktail.CONTENT_URI_COCKTAIL;
 import static com.capstone.nik.mixology.data.DrinkProvider.CocktailGlass.CONTENT_URI_COCKTAIL_GLASS;
 
 /**
@@ -40,6 +44,9 @@ public class FragmentCocktailGlass extends Fragment implements LoaderManager.Loa
   // Volley
   @Inject
   RequestQueue mRequestQueue;
+
+  @Inject
+  JobManager mJobManager;
 
   public FragmentCocktailGlass() {
   }
@@ -71,6 +78,7 @@ public class FragmentCocktailGlass extends Fragment implements LoaderManager.Loa
     mDrinkAdapter = new DrinkCursorAdapter(null, mActivity);
     recyclerView.setAdapter(mDrinkAdapter);
 
+    mJobManager.addJobInBackground(new GlassTypeFilterJob(CONTENT_URI_COCKTAIL_GLASS.toString(), "Cocktail_glass"));
     Utils.sendNetworkJsonRequest(mActivity, COCKTAIL_SEARCH_URL_COCKTAIL_GLASS, mRequestQueue, CONTENT_URI_COCKTAIL_GLASS);
     return rootView;
   }

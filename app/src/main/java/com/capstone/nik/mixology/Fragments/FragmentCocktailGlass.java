@@ -79,7 +79,6 @@ public class FragmentCocktailGlass extends Fragment implements LoaderManager.Loa
     recyclerView.setAdapter(mDrinkAdapter);
 
     mJobManager.addJobInBackground(new GlassTypeFilterJob(CONTENT_URI_COCKTAIL_GLASS.toString(), "Cocktail_glass"));
-    Utils.sendNetworkJsonRequest(mActivity, COCKTAIL_SEARCH_URL_COCKTAIL_GLASS, mRequestQueue, CONTENT_URI_COCKTAIL_GLASS);
     return rootView;
   }
 

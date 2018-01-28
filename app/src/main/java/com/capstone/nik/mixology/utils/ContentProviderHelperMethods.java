@@ -52,7 +52,6 @@ public class ContentProviderHelperMethods {
   }
 
   public static boolean isDrinkInDatabase(Context mAct, String id, Uri contentUri) {
-
     ArrayList<Cocktail> list = new ArrayList<>(getDrinkListFromDatabase(mAct, contentUri));
 
     for (Cocktail listItem : list) {
@@ -60,35 +59,7 @@ public class ContentProviderHelperMethods {
         return true;
       }
     }
-
     return false;
-  }
-
-  public static void insertBulkData(Uri uri, ArrayList<Cocktail> mArrayList, Context mAct) {
-    Vector<ContentValues> cVVector = new Vector<ContentValues>(mArrayList.size());
-
-    final String _id = "_id";
-    final String Name = "name";
-    final String Thumb = "thumb";
-
-    for (Cocktail cocktail : mArrayList) {
-      ContentValues contentValues = new ContentValues();
-      String id = cocktail.getmDrinkId();
-      boolean isThere = ContentProviderHelperMethods.isDrinkInDatabase(mAct, id, uri);
-
-      if (!isThere) {
-        contentValues.put(_id, cocktail.getmDrinkId());
-        contentValues.put(Name, cocktail.getmDrinkName());
-        contentValues.put(Thumb, cocktail.getmDrinkThumb());
-
-        cVVector.add(contentValues);
-      }
-    }
-    if (cVVector.size() > 0) {
-      ContentValues[] cvArray = new ContentValues[cVVector.size()];
-      cVVector.toArray(cvArray);
-      mAct.getContentResolver().bulkInsert(uri, cvArray);
-    }
   }
 
   public static void insertData(Activity mAct, String id, ContentValues cv) {
@@ -99,7 +70,6 @@ public class ContentProviderHelperMethods {
   public static void deleteData(Activity mAct, String id) {
     mAct.getContentResolver().delete(withId(id), null, null);
     updateWidgets(mAct);
-
   }
 
   private static void updateWidgets(Context context) {

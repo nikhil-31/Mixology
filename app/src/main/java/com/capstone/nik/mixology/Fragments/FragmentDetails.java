@@ -131,7 +131,6 @@ public class FragmentDetails extends Fragment {
     ingredientsRecyclerView.setNestedScrollingEnabled(false);
 
     LinearLayoutManager linearLayoutManager = new LinearLayoutManager(mActivity, LinearLayoutManager.VERTICAL, false);
-
     ingredientsRecyclerView.setLayoutManager(linearLayoutManager);
     ingredientsRecyclerView.setAdapter(mIngredientsAdapter);
 

@@ -67,59 +67,9 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
 
     if (isInDatabase) {
       holder.imageButton.setImageResource(R.drawable.ic_fav_filled);
-
     } else {
       holder.imageButton.setImageResource(R.drawable.ic_fav_unfilled_black);
-
     }
-
-    holder.imageButton.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        isInDatabase = ContentProviderHelperMethods.isDrinkSavedInDb(mAct, currentCocktail.getmId());
-
-        if (isInDatabase) {
-          holder.imageButton.setImageResource(R.drawable.ic_fav_filled);
-
-          Snackbar.make(holder.imageButton, mAct.getString(R.string.drink_deleted), Snackbar.LENGTH_LONG).show();
-
-          String id = currentCocktail.getmId();
-          ContentProviderHelperMethods.deleteData(mAct, id);
-
-          holder.imageButton.setImageResource(R.drawable.ic_fav_unfilled_black);
-
-        } else {
-          holder.imageButton.setImageResource(R.drawable.ic_fav_unfilled_black);
-
-          Snackbar.make(holder.imageButton, mAct.getString(R.string.drink_added), Snackbar.LENGTH_LONG).show();
-
-          ContentValues cv = new ContentValues();
-          cv.put(_ID, currentCocktail.getmId());
-          cv.put(DRINK_NAME, currentCocktail.getmName());
-          cv.put(DRINK_THUMB, currentCocktail.getmThumb());
-
-          String id = currentCocktail.getmId();
-          ContentProviderHelperMethods.insertData(mAct, id, cv);
-
-          holder.imageButton.setImageResource(R.drawable.ic_fav_filled);
-        }
-      }
-    });
-
-    final Cocktail cocktail = new Cocktail();
-    cocktail.setmDrinkName(currentCocktail.getmName());
-    cocktail.setmDrinkId(currentCocktail.getmId());
-    cocktail.setmDrinkThumb(currentCocktail.getmThumb());
-
-    holder.itemView.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        if (mAdapterCallback != null) {
-          mAdapterCallback.onItemSelected(cocktail);
-        }
-      }
-    });
-
   }
 
   @Override
@@ -137,6 +87,57 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
       image = itemView.findViewById(R.id.list_search_icon);
       textView = itemView.findViewById(R.id.list_search_text);
       imageButton = itemView.findViewById(R.id.list_search_fav);
+
+      imageButton.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+          final CocktailDetails currentCocktail = mCocktailDetails.get(getAdapterPosition());
+
+          isInDatabase = ContentProviderHelperMethods.isDrinkSavedInDb(mAct, currentCocktail.getmId());
+
+          if (isInDatabase) {
+            imageButton.setImageResource(R.drawable.ic_fav_filled);
+
+            Snackbar.make(imageButton, mAct.getString(R.string.drink_deleted), Snackbar.LENGTH_LONG).show();
+
+            String id = currentCocktail.getmId();
+            ContentProviderHelperMethods.deleteData(mAct, id);
+
+            imageButton.setImageResource(R.drawable.ic_fav_unfilled_black);
+
+          } else {
+            imageButton.setImageResource(R.drawable.ic_fav_unfilled_black);
+
+            Snackbar.make(imageButton, mAct.getString(R.string.drink_added), Snackbar.LENGTH_LONG).show();
+
+            ContentValues cv = new ContentValues();
+            cv.put(_ID, currentCocktail.getmId());
+            cv.put(DRINK_NAME, currentCocktail.getmName());
+            cv.put(DRINK_THUMB, currentCocktail.getmThumb());
+
+            String id = currentCocktail.getmId();
+            ContentProviderHelperMethods.insertData(mAct, id, cv);
+
+            imageButton.setImageResource(R.drawable.ic_fav_filled);
+          }
+        }
+      });
+
+      itemView.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+          final CocktailDetails currentCocktail = mCocktailDetails.get(getAdapterPosition());
+
+          final Cocktail cocktail = new Cocktail();
+          cocktail.setmDrinkName(currentCocktail.getmName());
+          cocktail.setmDrinkId(currentCocktail.getmId());
+          cocktail.setmDrinkThumb(currentCocktail.getmThumb());
+
+          if (mAdapterCallback != null) {
+            mAdapterCallback.onItemSelected(cocktail);
+          }
+        }
+      });
     }
   }
 

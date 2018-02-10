@@ -159,7 +159,8 @@ public class FragmentRandomixer extends Fragment {
     mInstructionsText.setText(mCocktailDetails.getmInstructions());
     mAlcoholicText.setText(mCocktailDetails.getmAlcoholic());
 
-    Picasso.with(mActivity).load(mCocktailDetails.getmThumb()).error(R.drawable.empty_glass)
+    String url = "http://" + mCocktailDetails.getmThumb();
+    Picasso.with(mActivity).load(url).error(R.drawable.empty_glass)
         .into(mDrinkImage);
 
     mInstruction.setText(getResources().getString(R.string.Instructions));

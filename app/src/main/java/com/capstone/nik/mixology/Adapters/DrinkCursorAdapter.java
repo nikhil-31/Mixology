@@ -50,17 +50,7 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
     viewHolder.textView.setText(cursor.getString(cursor.getColumnIndex(DRINK_NAME)));
     String url = "http://" + cursor.getString(cursor.getColumnIndex(DRINK_THUMB)).trim();
 
-    Picasso picasso = new Picasso.Builder(mAct)
-        .listener(new Picasso.Listener() {
-          @Override
-          public void onImageLoadFailed(Picasso picasso, Uri uri, Exception exception) {
-            //Here your log
-            Log.v(TAG, "Error ," + exception);
-          }
-        })
-        .build();
-
-    picasso.load(url).error(R.drawable.empty_glass).into(viewHolder.image);
+    Picasso.with(mAct).load(url).error(R.drawable.empty_glass).into(viewHolder.image);
 
     boolean isInDatabase = ContentProviderHelperMethods.isDrinkSavedInDb(mAct
         , cursor.getString(cursor.getColumnIndex(_ID)));

@@ -128,11 +128,13 @@ public class IngredientFilterJob extends Job {
       String id = drink.getIdDrink();
       boolean isThere = isDrinkInDatabase(id, drinkList);
 
-      if (!isThere) {
-        contentValues.put(_id, drink.getIdDrink());
-        contentValues.put(Name, drink.getStrDrink());
-        contentValues.put(Thumb, drink.getStrDrinkThumb());
-        cVVector.add(contentValues);
+      if (drink.getStrDrinkThumb() != null && !drink.getStrDrinkThumb().equals("") && !drink.getStrDrinkThumb().equals("null")) {
+        if (!isThere) {
+          contentValues.put(_id, drink.getIdDrink());
+          contentValues.put(Name, drink.getStrDrink());
+          contentValues.put(Thumb, drink.getStrDrinkThumb());
+          cVVector.add(contentValues);
+        }
       }
     }
     if (cVVector.size() > 0) {

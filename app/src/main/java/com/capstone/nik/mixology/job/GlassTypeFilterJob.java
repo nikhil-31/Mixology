@@ -64,6 +64,7 @@ public class GlassTypeFilterJob extends Job {
     CocktailService service = retrofit.create(CocktailService.class);
     Call<Cocktails> listCall = service.getGlassFilter(filter);
 
+
     listCall.enqueue(new Callback<Cocktails>() {
       @Override
       public void onResponse(@NonNull Call<Cocktails> call, @NonNull Response<Cocktails> response) {
@@ -128,12 +129,15 @@ public class GlassTypeFilterJob extends Job {
       String id = drink.getIdDrink();
       boolean isThere = isDrinkInDatabase(id, drinkList);
 
-      if (!isThere) {
-        contentValues.put(_id, drink.getIdDrink());
-        contentValues.put(Name, drink.getStrDrink());
-        contentValues.put(Thumb, drink.getStrDrinkThumb());
-        cVVector.add(contentValues);
+      if (drink.getStrDrinkThumb() != null && !drink.getStrDrinkThumb().equals("") && !drink.getStrDrinkThumb().equals("null")) {
+        if (!isThere) {
+          contentValues.put(_id, drink.getIdDrink());
+          contentValues.put(Name, drink.getStrDrink());
+          contentValues.put(Thumb, drink.getStrDrinkThumb());
+          cVVector.add(contentValues);
+        }
       }
+
     }
     if (cVVector.size() > 0) {
       ContentValues[] cvArray = new ContentValues[cVVector.size()];

@@ -44,7 +44,7 @@ public class FragmentSearch extends Fragment {
   public FragmentSearch() {
   }
 
-  private String Query;
+  private String mQuery;
   private TextView mEmptyView;
   private RecyclerView mRecyclerView;
   private SearchAdapter mSearchAdapter;
@@ -63,7 +63,7 @@ public class FragmentSearch extends Fragment {
 
     Bundle extras = mActivity.getIntent().getExtras();
     if (extras != null) {
-      Query = extras.getString(getString(R.string.search_intent_query));
+      mQuery = extras.getString(getString(R.string.search_intent_query));
     }
 
     mRecyclerView = rootView.findViewById(R.id.recycler_search);
@@ -80,23 +80,18 @@ public class FragmentSearch extends Fragment {
         @Override
         public void onMySearchTaskCompleted(ArrayList<CocktailDetails> cocktailDetailsArrayList) {
           if (cocktailDetailsArrayList == null) {
-
             mRecyclerView.setVisibility(View.GONE);
             mEmptyView.setVisibility(View.VISIBLE);
           } else {
-
             mSearchAdapter.setCocktailList(cocktailDetailsArrayList);
           }
         }
-
       };
-
       MySearchTask mySearchTask = new MySearchTask(onTaskCompleted);
-      mySearchTask.execute(COCKTAIL_SEARCH_URL_BY_NAME + Query);
+      mySearchTask.execute(COCKTAIL_SEARCH_URL_BY_NAME + mQuery);
     } else {
       Toast.makeText(mActivity, R.string.no_network_available, Toast.LENGTH_LONG).show();
     }
-
     return rootView;
   }
 
@@ -104,8 +99,7 @@ public class FragmentSearch extends Fragment {
     ConnectivityManager cm = (ConnectivityManager) mActivity.getSystemService(Context.CONNECTIVITY_SERVICE);
     assert cm != null;
     NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-    return activeNetwork != null &&
-        activeNetwork.isConnectedOrConnecting();
+    return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
   }
 
   @Override
@@ -131,7 +125,6 @@ public class FragmentSearch extends Fragment {
       String drinkJsonStr = null;
 
       try {
-
         String StringURL = params[0];
         URL url = new URL(StringURL);
 
@@ -142,23 +135,19 @@ public class FragmentSearch extends Fragment {
         InputStream inputStream = urlConnection.getInputStream();
         StringBuffer buffer = new StringBuffer();
         if (inputStream == null) {
-
           return null;
         }
         reader = new BufferedReader(new InputStreamReader(inputStream));
 
         String line;
         while ((line = reader.readLine()) != null) {
-
           buffer.append(line + "\n");
         }
 
         if (buffer.length() == 0) {
           return null;
         }
-
         drinkJsonStr = buffer.toString();
-
       } catch (IOException e) {
         e.printStackTrace();
       } finally {

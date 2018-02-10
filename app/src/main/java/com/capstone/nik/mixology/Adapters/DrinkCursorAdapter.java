@@ -4,14 +4,18 @@ import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
+import android.nfc.Tag;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.capstone.nik.mixology.Model.Cocktail;
 import com.capstone.nik.mixology.R;
 import com.capstone.nik.mixology.utils.ContentProviderHelperMethods;
@@ -28,27 +32,36 @@ import static com.capstone.nik.mixology.data.DrinkProvider.SavedDrink.CONTENT_UR
  */
 
 public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAdapter.ViewHolder> {
+  private static final String TAG = "DrinkCursorAdapter";
 
-  private Context mContext;
   private LayoutInflater inflater;
   private Activity mAct;
   private OnAdapterItemSelectedListener mAdapterCallback;
 
   public DrinkCursorAdapter(Cursor cursor, Activity activity) {
     super(activity, cursor);
-    this.mContext = activity;
     this.mAct = activity;
-    inflater = LayoutInflater.from(mContext);
+    inflater = LayoutInflater.from(mAct);
     mAdapterCallback = (OnAdapterItemSelectedListener) mAct;
   }
 
   @Override
   public void onBindViewHolder(final ViewHolder viewHolder, final Cursor cursor) {
     viewHolder.textView.setText(cursor.getString(cursor.getColumnIndex(DRINK_NAME)));
-    Picasso.with(mContext)
-        .load(cursor.getString(cursor.getColumnIndex(DRINK_THUMB)))
-        .error(R.drawable.empty_glass)
-        .into(viewHolder.image);
+    String url = "http://" + cursor.getString(cursor.getColumnIndex(DRINK_THUMB)).trim();
+
+    Picasso picasso = new Picasso.Builder(mAct)
+        .listener(new Picasso.Listener() {
+          @Override
+          public void onImageLoadFailed(Picasso picasso, Uri uri, Exception exception) {
+            //Here your log
+            Log.v(TAG, "Error ," + exception);
+          }
+        })
+        .build();
+
+    picasso.load(url).error(R.drawable.empty_glass).into(viewHolder.image);
+
     boolean isInDatabase = ContentProviderHelperMethods.isDrinkSavedInDb(mAct
         , cursor.getString(cursor.getColumnIndex(_ID)));
     if (isInDatabase) {
@@ -86,14 +99,14 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
 
           boolean isInDatabase = ContentProviderHelperMethods.isDrinkSavedInDb(mAct, cocktailId);
           if (isInDatabase) {
-            Snackbar.make(imageView, mContext.getString(R.string.drink_deleted), Snackbar.LENGTH_LONG).show();
+            Snackbar.make(imageView, mAct.getString(R.string.drink_deleted), Snackbar.LENGTH_LONG).show();
 
             String id = cursor.getString(cursor.getColumnIndex(_ID));
             ContentProviderHelperMethods.deleteData(mAct, id);
 
             imageView.setImageResource(R.drawable.ic_fav_unfilled_black);
           } else {
-            Snackbar.make(imageView, mContext.getString(R.string.drink_added), Snackbar.LENGTH_LONG).show();
+            Snackbar.make(imageView, mAct.getString(R.string.drink_added), Snackbar.LENGTH_LONG).show();
 
             ContentValues cv = new ContentValues();
             cv.put(_ID, cursor.getString(cursor.getColumnIndex(_ID)));

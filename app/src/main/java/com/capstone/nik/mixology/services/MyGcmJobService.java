@@ -21,7 +21,6 @@ public class MyGcmJobService extends GcmJobSchedulerService {
   @NonNull
   @Override
   protected JobManager getJobManager() {
-//    return MyApplication.getInstance().getJobManager();
     ((MyApplication) getApplication()).getApplicationComponent().inject(this);
     return mJobManager;
   }

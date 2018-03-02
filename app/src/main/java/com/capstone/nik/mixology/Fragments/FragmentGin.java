@@ -25,8 +25,6 @@ import com.capstone.nik.mixology.job.IngredientFilterJob;
 
 import javax.inject.Inject;
 
-import static com.capstone.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_INGREDIENT_GIN;
-import static com.capstone.nik.mixology.data.DrinkProvider.CocktailGlass.CONTENT_URI_COCKTAIL_GLASS;
 import static com.capstone.nik.mixology.data.DrinkProvider.Gin.CONTENT_URI_GIN;
 
 /**
@@ -38,10 +36,6 @@ public class FragmentGin extends Fragment implements LoaderManager.LoaderCallbac
 
   private DrinkCursorAdapter mDrinkAdapter;
   private Activity mActivity;
-
-  // Volley
-  @Inject
-  RequestQueue mRequestQueue;
 
   @Inject
   JobManager mJobManager;

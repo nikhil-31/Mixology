@@ -151,7 +151,7 @@ public class FragmentDetails extends Fragment {
     mDrinkName.setText(cocktail.getmDrinkName());
 
     Picasso.with(mActivity)
-        .load("http://" + cocktail.getmDrinkThumb())
+        .load(cocktail.getmDrinkThumb())
         .error(R.drawable.empty_glass)
         .into(mDrinkImage);
 

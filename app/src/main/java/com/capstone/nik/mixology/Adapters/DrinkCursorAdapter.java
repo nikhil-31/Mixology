@@ -48,7 +48,7 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
   @Override
   public void onBindViewHolder(final ViewHolder viewHolder, final Cursor cursor) {
     viewHolder.textView.setText(cursor.getString(cursor.getColumnIndex(DRINK_NAME)));
-    String url = "http://" + cursor.getString(cursor.getColumnIndex(DRINK_THUMB)).trim();
+    String url = cursor.getString(cursor.getColumnIndex(DRINK_THUMB)).trim();
 
     Picasso.with(mAct).load(url).error(R.drawable.empty_glass).into(viewHolder.image);
 

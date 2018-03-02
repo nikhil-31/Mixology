@@ -40,9 +40,6 @@ public class FragmentAlcoholic extends Fragment implements LoaderManager.LoaderC
   private Activity mActivity;
 
   @Inject
-  RequestQueue mRequestQueue;
-
-  @Inject
   JobManager mJobManager;
 
   public FragmentAlcoholic() {
@@ -75,7 +72,7 @@ public class FragmentAlcoholic extends Fragment implements LoaderManager.LoaderC
     mDrinkAdapter = new DrinkCursorAdapter(null, mActivity);
     recyclerView.setAdapter(mDrinkAdapter);
 
-    mJobManager.addJobInBackground(new AlcoholFilterJob(CONTENT_URI_ALCOHOLIC.toString(),"Alcoholic"));
+    mJobManager.addJobInBackground(new AlcoholFilterJob(CONTENT_URI_ALCOHOLIC.toString(), "Alcoholic"));
     return rootView;
   }
 

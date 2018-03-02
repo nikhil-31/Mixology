@@ -36,9 +36,6 @@ public class FragmentVodka extends Fragment implements LoaderManager.LoaderCallb
   private DrinkCursorAdapter mDrinkAdapter;
   private Activity mActivity;
 
-  // Volley
-  @Inject
-  RequestQueue mRequestQueue;
   @Inject
   JobManager mJobManager;
 

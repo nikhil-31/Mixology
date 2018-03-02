@@ -22,14 +22,14 @@ public class CocktailURLs {
   public static String COCKTAIL_URL_RANDOM = "https://www.thecocktaildb.com/api/json/v1/" + API_KEY + "/random.php";
 
   // Nav Drawer Filter URL
-  public static String COCKTAIL_SEARCH_URL_INGREDIENT_GIN = "http://www.thecocktaildb.com/api/json/v1/" + API_KEY + "/filter.php?i=Gin";
-  public static String COCKTAIL_SEARCH_URL_INGREDIENT_VODKA = "http://www.thecocktaildb.com/api/json/v1/" + API_KEY + "/filter.php?i=Vodka";
-  public static String COCKTAIL_SEARCH_URL_ALCOHOLIC = "http://www.thecocktaildb.com/api/json/v1/" + API_KEY + "/filter.php?a=Alcoholic";
-  public static String COCKTAIL_SEARCH_URL_NON_ALCOHOLIC = "http://www.thecocktaildb.com/api/json/v1/" + API_KEY + "/filter.php?a=Non_Alcoholic";
-  public static String COCKTAIL_SEARCH_URL_COCKTAIL_GLASS = "http://www.thecocktaildb.com/api/json/v1/" + API_KEY + "/filter.php?g=Cocktail_glass";
-  public static String COCKTAIL_SEARCH_URL_COCKTAIL = "http://www.thecocktaildb.com/api/json/v1/" + API_KEY + "/filter.php?c=Cocktail";
-  public static String COCKTAIL_SEARCH_URL_ORDINARY = "http://www.thecocktaildb.com/api/json/v1/" + API_KEY + "/filter.php?c=Ordinary_Drink";
-  public static String COCKTAIL_SEARCH_URL_HIGHBALL_GLASS = "http://www.thecocktaildb.com/api/json/v1/" + API_KEY + "/filter.php?g=Highball%20glass";
+  public static String COCKTAIL_SEARCH_URL_INGREDIENT_GIN = "https://www.thecocktaildb.com/api/json/v1/" + API_KEY + "/filter.php?i=Gin";
+  public static String COCKTAIL_SEARCH_URL_INGREDIENT_VODKA = "https://www.thecocktaildb.com/api/json/v1/" + API_KEY + "/filter.php?i=Vodka";
+  public static String COCKTAIL_SEARCH_URL_ALCOHOLIC = "https://www.thecocktaildb.com/api/json/v1/" + API_KEY + "/filter.php?a=Alcoholic";
+  public static String COCKTAIL_SEARCH_URL_NON_ALCOHOLIC = "https://www.thecocktaildb.com/api/json/v1/" + API_KEY + "/filter.php?a=Non_Alcoholic";
+  public static String COCKTAIL_SEARCH_URL_COCKTAIL_GLASS = "https://www.thecocktaildb.com/api/json/v1/" + API_KEY + "/filter.php?g=Cocktail_glass";
+  public static String COCKTAIL_SEARCH_URL_COCKTAIL = "https://www.thecocktaildb.com/api/json/v1/" + API_KEY + "/filter.php?c=Cocktail";
+  public static String COCKTAIL_SEARCH_URL_ORDINARY = "https://www.thecocktaildb.com/api/json/v1/" + API_KEY + "/filter.php?c=Ordinary_Drink";
+  public static String COCKTAIL_SEARCH_URL_HIGHBALL_GLASS = "https://www.thecocktaildb.com/api/json/v1/" + API_KEY + "/filter.php?g=Highball%20glass";
 
   // Ingredients URL
   public static String COCKTAIL_INGREDIENTS_URL = "https://www.thecocktaildb.com/images/ingredients/";

@@ -39,8 +39,6 @@ public class FragmentNonAlcoholic extends Fragment implements LoaderManager.Load
   private Activity mActivity;
 
   @Inject
-  RequestQueue mRequestQueue;
-  @Inject
   JobManager mJobManager;
 
   public FragmentNonAlcoholic() {

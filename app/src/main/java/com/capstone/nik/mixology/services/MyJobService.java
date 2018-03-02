@@ -20,7 +20,6 @@ public class MyJobService extends FrameworkJobSchedulerService {
   @NonNull
   @Override
   protected JobManager getJobManager() {
-//    return MyApplication.getInstance().getJobManager();
     ((MyApplication) getApplication()).getApplicationComponent().inject(this);
     return mJobManager;
   }

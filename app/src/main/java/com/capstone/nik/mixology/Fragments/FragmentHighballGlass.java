@@ -36,9 +36,6 @@ public class FragmentHighballGlass extends Fragment implements LoaderManager.Loa
   private DrinkCursorAdapter mDrinkAdapter;
   private Activity mActivity;
 
-  // Volley
-  @Inject
-  RequestQueue mRequestQueue;
   @Inject
   JobManager mJobManager;
 

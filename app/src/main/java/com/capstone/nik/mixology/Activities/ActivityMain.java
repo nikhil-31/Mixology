@@ -44,7 +44,7 @@ import java.util.Arrays;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-// Repo moved from gitHub to bitbucket private repo
+// Released version 11 to play store to fix all of the bugs
 public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapter.OnAdapterItemSelectedListener,
     NavigationView.OnNavigationItemSelectedListener {
 

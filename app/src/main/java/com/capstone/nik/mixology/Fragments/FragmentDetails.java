@@ -4,11 +4,11 @@ import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -50,7 +50,6 @@ import static com.capstone.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL
 import static com.capstone.nik.mixology.data.AlcoholicColumn.DRINK_NAME;
 import static com.capstone.nik.mixology.data.AlcoholicColumn.DRINK_THUMB;
 import static com.capstone.nik.mixology.data.AlcoholicColumn._ID;
-import static com.capstone.nik.mixology.data.DrinkProvider.SavedDrink.CONTENT_URI_DRINK_SAVED;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -151,7 +150,7 @@ public class FragmentDetails extends Fragment {
     mDrinkName.setText(cocktail.getmDrinkName());
 
     Picasso.with(mActivity)
-        .load("http://" + cocktail.getmDrinkThumb())
+        .load(cocktail.getmDrinkThumb())
         .error(R.drawable.empty_glass)
         .into(mDrinkImage);
 

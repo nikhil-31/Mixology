@@ -59,7 +59,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
     final CocktailDetails currentCocktail = mCocktailDetails.get(position);
     holder.textView.setText(currentCocktail.getmName());
     Picasso.with(mAct)
-        .load("http://" +currentCocktail.getmThumb())
+        .load(currentCocktail.getmThumb())
         .error(R.drawable.empty_glass)
         .into(holder.image);
 

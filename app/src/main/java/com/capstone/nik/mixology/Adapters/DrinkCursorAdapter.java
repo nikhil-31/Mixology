@@ -2,20 +2,15 @@ package com.capstone.nik.mixology.Adapters;
 
 import android.app.Activity;
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
-import android.net.Uri;
-import android.nfc.Tag;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.capstone.nik.mixology.Model.Cocktail;
 import com.capstone.nik.mixology.R;
 import com.capstone.nik.mixology.utils.ContentProviderHelperMethods;
@@ -25,7 +20,6 @@ import com.squareup.picasso.Picasso;
 import static com.capstone.nik.mixology.data.AlcoholicColumn.DRINK_NAME;
 import static com.capstone.nik.mixology.data.AlcoholicColumn.DRINK_THUMB;
 import static com.capstone.nik.mixology.data.AlcoholicColumn._ID;
-import static com.capstone.nik.mixology.data.DrinkProvider.SavedDrink.CONTENT_URI_DRINK_SAVED;
 
 /**
  * Created by nik on 12/19/2016.
@@ -48,7 +42,7 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
   @Override
   public void onBindViewHolder(final ViewHolder viewHolder, final Cursor cursor) {
     viewHolder.textView.setText(cursor.getString(cursor.getColumnIndex(DRINK_NAME)));
-    String url = "http://" + cursor.getString(cursor.getColumnIndex(DRINK_THUMB)).trim();
+    String url = cursor.getString(cursor.getColumnIndex(DRINK_THUMB)).trim();
 
     Picasso.with(mAct).load(url).error(R.drawable.empty_glass).into(viewHolder.image);
 

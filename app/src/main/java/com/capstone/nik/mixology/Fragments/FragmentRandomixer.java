@@ -42,7 +42,6 @@ import static com.capstone.nik.mixology.Network.CocktailURLs.COCKTAIL_URL_RANDOM
 import static com.capstone.nik.mixology.data.AlcoholicColumn.DRINK_NAME;
 import static com.capstone.nik.mixology.data.AlcoholicColumn.DRINK_THUMB;
 import static com.capstone.nik.mixology.data.AlcoholicColumn._ID;
-import static com.capstone.nik.mixology.data.DrinkProvider.SavedDrink.CONTENT_URI_DRINK_SAVED;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -159,7 +158,7 @@ public class FragmentRandomixer extends Fragment {
     mInstructionsText.setText(mCocktailDetails.getmInstructions());
     mAlcoholicText.setText(mCocktailDetails.getmAlcoholic());
 
-    String url = "http://" + mCocktailDetails.getmThumb();
+    String url = mCocktailDetails.getmThumb();
     Picasso.with(mActivity).load(url).error(R.drawable.empty_glass)
         .into(mDrinkImage);
 

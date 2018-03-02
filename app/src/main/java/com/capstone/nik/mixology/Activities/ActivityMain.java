@@ -18,29 +18,26 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.capstone.nik.mixology.Adapters.DrinkCursorAdapter;
-import com.capstone.nik.mixology.Fragments.FragmentDetails;
 import com.capstone.nik.mixology.Fragments.FragmentAlcoholic;
-import com.capstone.nik.mixology.Fragments.FragmentHighballGlass;
 import com.capstone.nik.mixology.Fragments.FragmentCocktail;
 import com.capstone.nik.mixology.Fragments.FragmentCocktailGlass;
+import com.capstone.nik.mixology.Fragments.FragmentDetails;
 import com.capstone.nik.mixology.Fragments.FragmentGin;
+import com.capstone.nik.mixology.Fragments.FragmentHighballGlass;
+import com.capstone.nik.mixology.Fragments.FragmentNonAlcoholic;
 import com.capstone.nik.mixology.Fragments.FragmentOrdinaryDrink;
 import com.capstone.nik.mixology.Fragments.FragmentRandomixer;
 import com.capstone.nik.mixology.Fragments.FragmentSavedDrink;
 import com.capstone.nik.mixology.Fragments.FragmentVodka;
-import com.capstone.nik.mixology.Fragments.FragmentNonAlcoholic;
 import com.capstone.nik.mixology.Model.Cocktail;
 import com.capstone.nik.mixology.R;
-
 import com.crashlytics.android.Crashlytics;
 import com.firebase.ui.auth.AuthUI;
-
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.crash.FirebaseCrash;
 import com.squareup.picasso.Picasso;
 
 import java.util.Arrays;

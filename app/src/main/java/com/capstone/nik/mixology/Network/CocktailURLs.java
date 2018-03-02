@@ -10,16 +10,16 @@ public class CocktailURLs {
   private static String API_KEY = "2912";
 
   // Base URL
-  public static String BASE_URL = "http://www.thecocktaildb.com/api/json/v1/" + API_KEY + "/";
+  public static String BASE_URL = "https://www.thecocktaildb.com/api/json/v1/" + API_KEY + "/";
 
   // Search using name
-  public static String COCKTAIL_SEARCH_URL_BY_NAME = "http://www.thecocktaildb.com/api/json/v1/" + API_KEY + "/search.php?s=";
+  public static String COCKTAIL_SEARCH_URL_BY_NAME = "https://www.thecocktaildb.com/api/json/v1/" + API_KEY + "/search.php?s=";
 
   // Search using id
-  public static String COCKTAIL_SEARCH_URL_BY_ID = "http://www.thecocktaildb.com/api/json/v1/" + API_KEY + "/lookup.php?i=";
+  public static String COCKTAIL_SEARCH_URL_BY_ID = "https://www.thecocktaildb.com/api/json/v1/" + API_KEY + "/lookup.php?i=";
 
   // Randomixer URL
-  public static String COCKTAIL_URL_RANDOM = "http://www.thecocktaildb.com/api/json/v1/" + API_KEY + "/random.php";
+  public static String COCKTAIL_URL_RANDOM = "https://www.thecocktaildb.com/api/json/v1/" + API_KEY + "/random.php";
 
   // Nav Drawer Filter URL
   public static String COCKTAIL_SEARCH_URL_INGREDIENT_GIN = "http://www.thecocktaildb.com/api/json/v1/" + API_KEY + "/filter.php?i=Gin";
@@ -32,7 +32,7 @@ public class CocktailURLs {
   public static String COCKTAIL_SEARCH_URL_HIGHBALL_GLASS = "http://www.thecocktaildb.com/api/json/v1/" + API_KEY + "/filter.php?g=Highball%20glass";
 
   // Ingredients URL
-  public static String COCKTAIL_INGREDIENTS_URL = "http://www.thecocktaildb.com/images/ingredients/";
+  public static String COCKTAIL_INGREDIENTS_URL = "https://www.thecocktaildb.com/images/ingredients/";
   public static String COCKTAIL_INGREDIENT_PNG_SMALL = "-Small.png";
 
 

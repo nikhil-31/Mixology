@@ -144,7 +144,6 @@ public class FragmentRandomixer extends Fragment {
       public void onRefresh() {
         sendJsonRequest();
         mSwipeToRefreshLayout.setRefreshing(false);
-
       }
     });
 
@@ -195,6 +194,7 @@ public class FragmentRandomixer extends Fragment {
         }, new Response.ErrorListener() {
       @Override
       public void onErrorResponse(VolleyError error) {
+        error.printStackTrace();
         Toast.makeText(mActivity, getString(R.string.no_network_available), Toast.LENGTH_LONG).show();
       }
     });

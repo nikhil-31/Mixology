@@ -74,6 +74,7 @@
   <string name="detail_share_instructions">Instructions: </string>
   <string name="detail_share_ingredients">Ingredients: </string>
   <string name="add_a_drink">Add a drink !!! Its lonely here.</string>
+  <string name="cocktail_image">cocktail_image</string>
 
 
 </resources>

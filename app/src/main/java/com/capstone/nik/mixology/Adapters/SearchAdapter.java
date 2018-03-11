@@ -12,11 +12,13 @@ import android.widget.TextView;
 
 import com.capstone.nik.mixology.Model.Cocktail;
 import com.capstone.nik.mixology.Model.CocktailDetails;
+import com.capstone.nik.mixology.Network.remoteModel.Drink;
 import com.capstone.nik.mixology.R;
 import com.capstone.nik.mixology.utils.ContentProviderHelperMethods;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.capstone.nik.mixology.data.AlcoholicColumn.DRINK_NAME;
 import static com.capstone.nik.mixology.data.AlcoholicColumn.DRINK_THUMB;
@@ -31,7 +33,7 @@ import static com.capstone.nik.mixology.data.DrinkProvider.SavedDrink.CONTENT_UR
 public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchViewHolder> {
 
   private LayoutInflater mInflater;
-  private ArrayList<CocktailDetails> mCocktailDetails = new ArrayList<>();
+  private List<Drink> mCocktailDetails = new ArrayList<>();
   private boolean isInDatabase;
   private Activity mAct;
   private OnAdapterItemSelectedListener mAdapterCallback;
@@ -42,7 +44,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
     mAdapterCallback = (OnAdapterItemSelectedListener) mAct;
   }
 
-  public void setCocktailList(ArrayList<CocktailDetails> cocktailList) {
+  public void setCocktailList(List<Drink> cocktailList) {
     mCocktailDetails = cocktailList;
     notifyDataSetChanged();
   }
@@ -56,14 +58,14 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
   @Override
   public void onBindViewHolder(final SearchViewHolder holder, int position) {
 
-    final CocktailDetails currentCocktail = mCocktailDetails.get(position);
-    holder.textView.setText(currentCocktail.getmName());
+    Drink currentCocktail = mCocktailDetails.get(position);
+    holder.textView.setText(currentCocktail.getStrDrink());
     Picasso.with(mAct)
-        .load(currentCocktail.getmThumb())
+        .load(currentCocktail.getStrDrinkThumb())
         .error(R.drawable.empty_glass)
         .into(holder.image);
 
-    isInDatabase = ContentProviderHelperMethods.isDrinkSavedInDb(mAct, currentCocktail.getmId());
+    isInDatabase = ContentProviderHelperMethods.isDrinkSavedInDb(mAct, currentCocktail.getIdDrink());
 
     if (isInDatabase) {
       holder.imageButton.setImageResource(R.drawable.ic_fav_filled);
@@ -91,16 +93,16 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
       imageButton.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-          final CocktailDetails currentCocktail = mCocktailDetails.get(getAdapterPosition());
+          final Drink currentCocktail = mCocktailDetails.get(getAdapterPosition());
 
-          isInDatabase = ContentProviderHelperMethods.isDrinkSavedInDb(mAct, currentCocktail.getmId());
+          isInDatabase = ContentProviderHelperMethods.isDrinkSavedInDb(mAct, currentCocktail.getIdDrink());
 
           if (isInDatabase) {
             imageButton.setImageResource(R.drawable.ic_fav_filled);
 
             Snackbar.make(imageButton, mAct.getString(R.string.drink_deleted), Snackbar.LENGTH_LONG).show();
 
-            String id = currentCocktail.getmId();
+            String id = currentCocktail.getIdDrink();
             ContentProviderHelperMethods.deleteData(mAct, id);
 
             imageButton.setImageResource(R.drawable.ic_fav_unfilled_black);
@@ -111,11 +113,11 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
             Snackbar.make(imageButton, mAct.getString(R.string.drink_added), Snackbar.LENGTH_LONG).show();
 
             ContentValues cv = new ContentValues();
-            cv.put(_ID, currentCocktail.getmId());
-            cv.put(DRINK_NAME, currentCocktail.getmName());
-            cv.put(DRINK_THUMB, currentCocktail.getmThumb());
+            cv.put(_ID, currentCocktail.getIdDrink());
+            cv.put(DRINK_NAME, currentCocktail.getStrDrink());
+            cv.put(DRINK_THUMB, currentCocktail.getStrDrinkThumb());
 
-            String id = currentCocktail.getmId();
+            String id = currentCocktail.getIdDrink();
             ContentProviderHelperMethods.insertData(mAct, id, cv);
 
             imageButton.setImageResource(R.drawable.ic_fav_filled);
@@ -126,12 +128,12 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
       itemView.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-          final CocktailDetails currentCocktail = mCocktailDetails.get(getAdapterPosition());
+          final Drink currentCocktail = mCocktailDetails.get(getAdapterPosition());
 
           final Cocktail cocktail = new Cocktail();
-          cocktail.setmDrinkName(currentCocktail.getmName());
-          cocktail.setmDrinkId(currentCocktail.getmId());
-          cocktail.setmDrinkThumb(currentCocktail.getmThumb());
+          cocktail.setmDrinkName(currentCocktail.getStrDrink());
+          cocktail.setmDrinkId(currentCocktail.getIdDrink());
+          cocktail.setmDrinkThumb(currentCocktail.getStrDrinkThumb());
 
           if (mAdapterCallback != null) {
             mAdapterCallback.onItemSelected(cocktail);

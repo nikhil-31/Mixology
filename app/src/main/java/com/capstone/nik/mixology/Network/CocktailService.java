@@ -28,4 +28,7 @@ public interface CocktailService {
   @GET("filter.php")
   Call<Cocktails> getDrinkTypeFilter(@Query("c") String filter);
 
+  // Search
+  @GET("search.php")
+  Call<Cocktails> getSearchResults(@Query("s") String search);
 }

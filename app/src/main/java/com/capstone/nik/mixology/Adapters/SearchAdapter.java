@@ -11,7 +11,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.capstone.nik.mixology.Model.Cocktail;
-import com.capstone.nik.mixology.Model.CocktailDetails;
 import com.capstone.nik.mixology.Network.remoteModel.Drink;
 import com.capstone.nik.mixology.R;
 import com.capstone.nik.mixology.utils.ContentProviderHelperMethods;
@@ -23,8 +22,6 @@ import java.util.List;
 import static com.capstone.nik.mixology.data.AlcoholicColumn.DRINK_NAME;
 import static com.capstone.nik.mixology.data.AlcoholicColumn.DRINK_THUMB;
 import static com.capstone.nik.mixology.data.AlcoholicColumn._ID;
-import static com.capstone.nik.mixology.data.DrinkProvider.SavedDrink.CONTENT_URI_DRINK_SAVED;
-
 
 /**
  * Created by nik on 12/28/2016.
@@ -79,12 +76,12 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
     return mCocktailDetails.size();
   }
 
-  public class SearchViewHolder extends RecyclerView.ViewHolder {
+  class SearchViewHolder extends RecyclerView.ViewHolder {
     ImageView image;
     TextView textView;
     ImageView imageButton;
 
-    public SearchViewHolder(View itemView) {
+    SearchViewHolder(View itemView) {
       super(itemView);
       image = itemView.findViewById(R.id.list_search_icon);
       textView = itemView.findViewById(R.id.list_search_text);

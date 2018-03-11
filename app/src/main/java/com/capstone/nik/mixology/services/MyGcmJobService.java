@@ -24,6 +24,4 @@ public class MyGcmJobService extends GcmJobSchedulerService {
     ((MyApplication) getApplication()).getApplicationComponent().inject(this);
     return mJobManager;
   }
-
-
 }

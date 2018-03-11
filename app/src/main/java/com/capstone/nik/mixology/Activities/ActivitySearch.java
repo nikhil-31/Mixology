@@ -36,14 +36,11 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class ActivitySearch extends AppCompatActivity implements SearchAdapter.OnAdapterItemSelectedListener {
   private static final String TAG = "ActivitySearch";
 
-  private String mQuery;
-
   private TextView mEmptyView;
   private RecyclerView mRecyclerView;
 
   private CocktailService service;
   private SearchAdapter mSearchAdapter;
-
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -90,15 +87,12 @@ public class ActivitySearch extends AppCompatActivity implements SearchAdapter.O
       @Override
       public boolean onQueryTextSubmit(String query) {
         query = query.toLowerCase();
-
         sendQuery(query);
         return false;
       }
 
       @Override
       public boolean onQueryTextChange(String query) {
-
-
         return false;
       }
     });
@@ -106,7 +100,6 @@ public class ActivitySearch extends AppCompatActivity implements SearchAdapter.O
   }
 
   private void sendQuery(String mQuery) {
-
 
     Call<Cocktails> listCall = service.getSearchResults(mQuery);
     listCall.enqueue(new Callback<Cocktails>() {
@@ -124,7 +117,6 @@ public class ActivitySearch extends AppCompatActivity implements SearchAdapter.O
             mEmptyView.setVisibility(View.VISIBLE);
           }
         }
-
       }
 
       @Override
@@ -138,9 +130,9 @@ public class ActivitySearch extends AppCompatActivity implements SearchAdapter.O
   public void onItemSelected(Cocktail id) {
     FragmentDetails detailsFragment = (FragmentDetails) getSupportFragmentManager().findFragmentById(R.id.fragment_details);
     if (detailsFragment == null) {
-      Intent mCocktailDetailIntent = new Intent(this, ActivityDetails.class);
-      mCocktailDetailIntent.putExtra(getString(R.string.details_intent_cocktail), id);
-      startActivity(mCocktailDetailIntent);
+      Intent intent = new Intent(this, ActivityDetails.class);
+      intent.putExtra(getString(R.string.details_intent_cocktail), id);
+      startActivity(intent);
     }
   }
 }

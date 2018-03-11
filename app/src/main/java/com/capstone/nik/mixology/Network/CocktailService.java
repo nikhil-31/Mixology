@@ -31,4 +31,9 @@ public interface CocktailService {
   // Search
   @GET("search.php")
   Call<Cocktails> getSearchResults(@Query("s") String search);
+
+  //Randomixer
+  @GET("random.php")
+  Call<Cocktails> getRandomixer();
+
 }

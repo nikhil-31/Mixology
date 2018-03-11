@@ -16,18 +16,14 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 
-import com.android.volley.RequestQueue;
 import com.birbit.android.jobqueue.JobManager;
 import com.capstone.nik.mixology.Adapters.DrinkCursorAdapter;
 import com.capstone.nik.mixology.Network.MyApplication;
 import com.capstone.nik.mixology.R;
 import com.capstone.nik.mixology.job.AlcoholFilterJob;
-import com.capstone.nik.mixology.job.GlassTypeFilterJob;
 
 import javax.inject.Inject;
 
-import static com.capstone.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_NON_ALCOHOLIC;
-import static com.capstone.nik.mixology.data.DrinkProvider.ChampagneFlute.CONTENT_URI_HIGHBALL_GLASS;
 import static com.capstone.nik.mixology.data.DrinkProvider.NonAlcoholic.CONTENT_URI_NON_ALCOHOLIC;
 
 

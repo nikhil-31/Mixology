@@ -48,7 +48,6 @@ public class ContentProviderHelperMethods {
       while (cursor.moveToNext());
     }
     cursor.close();
-
     return drinkList;
   }
 
@@ -63,14 +62,14 @@ public class ContentProviderHelperMethods {
     return false;
   }
 
-  public static void insertData(Activity mAct, String id, ContentValues cv) {
-    mAct.getContentResolver().insert(withId(id), cv);
-    updateWidgets(mAct);
+  public static void insertData(Activity activity, String id, ContentValues cv) {
+    activity.getContentResolver().insert(withId(id), cv);
+    updateWidgets(activity);
   }
 
-  public static void deleteData(Activity mAct, String id) {
-    mAct.getContentResolver().delete(withId(id), null, null);
-    updateWidgets(mAct);
+  public static void deleteData(Activity activity, String id) {
+    activity.getContentResolver().delete(withId(id), null, null);
+    updateWidgets(activity);
   }
 
   private static void updateWidgets(Context context) {

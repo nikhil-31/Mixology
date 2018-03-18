@@ -13,6 +13,7 @@
   <string name="content_desc_Add_Delete_button">Add or delete</string>
   <string name="content_desc_up_navigation">Up navigation</string>
   <string name="content_desc_sponsored">Sponsored</string>
+  <string name="content_desc_ingredients_image">Ingredients Image</string>
 
   <!-- static data set in details fragment -->
   <string name="Instructions">Instructions</string>
@@ -55,16 +56,16 @@
   <string name="banner_test" translatable="false">ca-app-pub-3940256099942544/6300978111</string>
 
   <!-- Navigation drawer menu items and title for main activity toolbar based on which fragment is present-->
-  <string name="saved_cocktails">#Saved Cocktails</string>
-  <string name="randomixer">#Randomixer</string>
-  <string name="non_alcoholic">#Non Alcoholic</string>
-  <string name="alcoholic">#Alcoholic</string>
-  <string name="cocktail">#Cocktail</string>
-  <string name="ordinary_drink">#Ordinary Drink</string>
-  <string name="gin">#Gin</string>
-  <string name="vodka">#Vodka</string>
-  <string name="cocktail_glass">#Cocktail Glass</string>
-  <string name="highball_glass">#Highball Glass</string>
+  <string name="saved_cocktails">Saved Cocktails</string>
+  <string name="randomixer">Randomixer</string>
+  <string name="non_alcoholic">Non Alcoholic</string>
+  <string name="alcoholic">Alcoholic</string>
+  <string name="cocktail">Cocktail</string>
+  <string name="ordinary_drink">Ordinary Drink</string>
+  <string name="gin">Gin</string>
+  <string name="vodka">Vodka</string>
+  <string name="cocktail_glass">Cocktail Glass</string>
+  <string name="highball_glass">Highball Glass</string>
 
   <!-- Share Intent detail fragment that shares data to many different apps -->
   <string name="detail_share_via">Share Via</string>
@@ -73,7 +74,9 @@
   <string name="detail_share_alcoholic">Alcohol Content: </string>
   <string name="detail_share_instructions">Instructions: </string>
   <string name="detail_share_ingredients">Ingredients: </string>
-  <string name="add_a_drink">Add a drink !!! Its lonely here.</string>
 
+  <!-- Empty String -->
+  <string name="add_a_drink">Add a drink !!! Its lonely here.</string>
+  <string name="cocktail_image">cocktail_image</string>
 
 </resources>

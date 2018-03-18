@@ -15,12 +15,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.android.volley.RequestQueue;
 import com.birbit.android.jobqueue.JobManager;
 import com.capstone.nik.mixology.Adapters.DrinkCursorAdapter;
 import com.capstone.nik.mixology.Network.MyApplication;
 import com.capstone.nik.mixology.R;
-import com.capstone.nik.mixology.job.GlassTypeFilterJob;
 import com.capstone.nik.mixology.job.IngredientFilterJob;
 
 import javax.inject.Inject;

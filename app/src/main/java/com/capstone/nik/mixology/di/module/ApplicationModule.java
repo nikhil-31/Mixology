@@ -5,8 +5,6 @@ import android.content.Context;
 import android.os.Build;
 import android.util.Log;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.Volley;
 import com.birbit.android.jobqueue.JobManager;
 import com.birbit.android.jobqueue.config.Configuration;
 import com.birbit.android.jobqueue.log.CustomLogger;
@@ -38,12 +36,6 @@ public class ApplicationModule {
   @Singleton
   Context provideApplication() {
     return application;
-  }
-
-  @Provides
-  @Singleton
-  RequestQueue provideRequestQueue() {
-    return Volley.newRequestQueue(application);
   }
 
   @Provides

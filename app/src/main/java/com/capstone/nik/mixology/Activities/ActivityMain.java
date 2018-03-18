@@ -53,7 +53,6 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
   private static final String SELECTED_ID = "selected";
 
   private int mNavItemSelected;
-  private Toolbar toolbar;
   private NavigationView navigationView = null;
 
   // Firebase instance variables
@@ -79,9 +78,9 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
     //TODO - Uncomment original Ad
 //    MobileAds.initialize(getApplicationContext(), "ca-app-pub-3940256099942544/6300978111");
 
-    AdView mAdView = findViewById(R.id.adView);
+    AdView adView = findViewById(R.id.adView);
     AdRequest adRequest = new AdRequest.Builder().build();
-    mAdView.loadAd(adRequest);
+    adView.loadAd(adRequest);
 
     //Default UserName
     mUsername = ANONYMOUS;
@@ -90,7 +89,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
     mFirebaseAuth = FirebaseAuth.getInstance();
 
     // Initializing the toolbar
-    toolbar = findViewById(R.id.toolbar);
+    Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
 
     // Initializes the Navigation Drawer
@@ -118,43 +117,43 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
     mAuthStateListener = new FirebaseAuth.AuthStateListener() {
       @Override
       public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-        FirebaseUser user = firebaseAuth.getCurrentUser();
-        if (user != null) {
-          // User is signed in
-          Crashlytics.setUserEmail(user.getEmail());
-          if (user.getPhotoUrl() != null) {    // If the user is signed and there is a photo available
-            onSignedInInitialize(user.getDisplayName(), user.getEmail(), user.getPhotoUrl());
-          } else {
-            onSignedInInitialize(user.getEmail());
-
-          }
-        } else {
-          // User is signed out
-          onSignedOutTeardown();
-
-          // If the version is higher than lollipop then set the style in firebase or set no style
-          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            startActivityForResult(
-                AuthUI.getInstance()
-                    .createSignInIntentBuilder()
-                    .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
-                        new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
-                    .setLogo(R.drawable.icon)
-                    .setTheme(R.style.AppThemeFirebaseAuth)
-                    .setIsSmartLockEnabled(false)
-                    .build(),
-                RC_SIGN_IN);
-          } else {
-            startActivityForResult(AuthUI.getInstance()
-                    .createSignInIntentBuilder()
-                    .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
-                        new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
-                    .setLogo(R.drawable.icon)
-                    .setIsSmartLockEnabled(false)
-                    .build(),
-                RC_SIGN_IN);
-          }
-        }
+//        FirebaseUser user = firebaseAuth.getCurrentUser();
+//        if (user != null) {
+//          // User is signed in
+//          Crashlytics.setUserEmail(user.getEmail());
+//          if (user.getPhotoUrl() != null) {    // If the user is signed and there is a photo available
+//            onSignedInInitialize(user.getDisplayName(), user.getEmail(), user.getPhotoUrl());
+//          } else {
+//            onSignedInInitialize(user.getEmail());
+//
+//          }
+//        } else {
+//          // User is signed out
+//          onSignedOutTeardown();
+//
+//          // If the version is higher than lollipop then set the style in firebase or set no style
+//          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//            startActivityForResult(
+//                AuthUI.getInstance()
+//                    .createSignInIntentBuilder()
+//                    .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
+//                        new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
+//                    .setLogo(R.drawable.icon)
+//                    .setTheme(R.style.AppThemeFirebaseAuth)
+//                    .setIsSmartLockEnabled(false)
+//                    .build(),
+//                RC_SIGN_IN);
+//          } else {
+//            startActivityForResult(AuthUI.getInstance()
+//                    .createSignInIntentBuilder()
+//                    .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
+//                        new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
+//                    .setLogo(R.drawable.icon)
+//                    .setIsSmartLockEnabled(false)
+//                    .build(),
+//                RC_SIGN_IN);
+//          }
+//        }
       }
     };
 

@@ -61,12 +61,12 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
     return new ViewHolder(v);
   }
 
-  public class ViewHolder extends RecyclerView.ViewHolder {
-    ImageView image;
-    TextView textView;
-    final ImageView imageView;
+  class ViewHolder extends RecyclerView.ViewHolder {
+    private ImageView image;
+    private TextView textView;
+    private ImageView imageView;
 
-    public ViewHolder(View itemView) {
+    ViewHolder(View itemView) {
       super(itemView);
 
       image = itemView.findViewById(R.id.cocktail_image);

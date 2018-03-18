@@ -23,10 +23,9 @@ import static com.capstone.nik.mixology.Network.CocktailURLs.COCKTAIL_INGREDIENT
 
 public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.MyViewHolder> {
 
-  ArrayList<Measures> mMeasuresArrayList = new ArrayList<>();
+  private ArrayList<Measures> mMeasuresArrayList = new ArrayList<>();
   private Context context;
   private LayoutInflater inflater;
-
 
   public IngredientsAdapter(Context context) {
     this.context = context;
@@ -37,7 +36,6 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
     this.mMeasuresArrayList = measuresList;
     notifyDataSetChanged();
   }
-
 
   @Override
   public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -55,8 +53,7 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
     String ingredient = measures.getIngredient();
     String in = ingredient.replaceAll(" ", "%20");
 
-    Picasso.with(context)
-        .load(COCKTAIL_INGREDIENTS_URL + in + COCKTAIL_INGREDIENT_PNG_SMALL)
+    Picasso.with(context).load(COCKTAIL_INGREDIENTS_URL + in + COCKTAIL_INGREDIENT_PNG_SMALL)
         .error(R.drawable.vodka1)
         .into(holder.mIngredientsImage);
 
@@ -67,17 +64,17 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
     return mMeasuresArrayList.size();
   }
 
-  public class MyViewHolder extends RecyclerView.ViewHolder {
+  class MyViewHolder extends RecyclerView.ViewHolder {
     ImageView mIngredientsImage;
     TextView mIngredientText;
     TextView mMeasureText;
 
-    public MyViewHolder(View itemView) {
+    MyViewHolder(View itemView) {
       super(itemView);
 
-      mIngredientsImage = (ImageView) itemView.findViewById(R.id.list_ingredients_icon);
-      mIngredientText = (TextView) itemView.findViewById(R.id.list_ingredient_text);
-      mMeasureText = (TextView) itemView.findViewById(R.id.list_measure_text);
+      mIngredientsImage = itemView.findViewById(R.id.list_ingredients_icon);
+      mIngredientText = itemView.findViewById(R.id.list_ingredient_text);
+      mMeasureText = itemView.findViewById(R.id.list_measure_text);
 
     }
   }

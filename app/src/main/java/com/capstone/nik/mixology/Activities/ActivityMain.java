@@ -32,17 +32,12 @@ import com.capstone.nik.mixology.Fragments.FragmentNonAlcoholic;
 import com.capstone.nik.mixology.Model.Cocktail;
 import com.capstone.nik.mixology.R;
 
-import com.crashlytics.android.Crashlytics;
-import com.firebase.ui.auth.AuthUI;
-
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
-
-import java.util.Arrays;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -55,7 +50,6 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
   private static final String SELECTED_ID = "selected";
 
   private int mNavItemSelected;
-  private Toolbar toolbar;
   private NavigationView navigationView = null;
 
   // Firebase instance variables
@@ -77,13 +71,13 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
     setContentView(R.layout.activity_navigation_drawer);
 
     // Admob integration with my id
-    MobileAds.initialize(getApplicationContext(), "ca-app-pub-3940256099942544~3347511713");
+//    MobileAds.initialize(getApplicationContext(), "ca-app-pub-3940256099942544~3347511713");
     //TODO - Uncomment original Ad
-//    MobileAds.initialize(getApplicationContext(), "ca-app-pub-3940256099942544/6300978111");
+    MobileAds.initialize(getApplicationContext(), "ca-app-pub-3940256099942544/6300978111");
 
-    AdView mAdView = findViewById(R.id.adView);
+    AdView adView = findViewById(R.id.adView);
     AdRequest adRequest = new AdRequest.Builder().build();
-    mAdView.loadAd(adRequest);
+    adView.loadAd(adRequest);
 
     //Default UserName
     mUsername = ANONYMOUS;
@@ -92,7 +86,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
     mFirebaseAuth = FirebaseAuth.getInstance();
 
     // Initializing the toolbar
-    toolbar = findViewById(R.id.toolbar);
+    Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
 
     // Initializes the Navigation Drawer

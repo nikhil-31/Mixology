@@ -95,9 +95,9 @@ public class FragmentDetails extends Fragment {
 
     setHasOptionsMenu(true);
 
-    MobileAds.initialize(applicationContext, "ca-app-pub-3940256099942544~3347511713");
+//    MobileAds.initialize(applicationContext, "ca-app-pub-3940256099942544~3347511713");
     //TODO - Uncomment original Ad
-//    MobileAds.initialize(applicationContext, "ca-app-pub-3940256099942544/6300978111");
+    MobileAds.initialize(applicationContext, "ca-app-pub-3940256099942544/6300978111");
 
     AdView adView = view.findViewById(R.id.adViewDetails);
     AdRequest adRequest = new AdRequest.Builder().build();
@@ -153,15 +153,11 @@ public class FragmentDetails extends Fragment {
   private void startNetworkRequest(final Cocktail cocktail) {
     mCocktailId = cocktail.getmDrinkId();
 
+    // Sends request to get data from the network
     sendJsonRequest(mCocktailId);
 
     mToolbar.setTitle(cocktail.getmDrinkName());
-//    mDrinkName.setText(cocktail.getmDrinkName());
-
-    Picasso.with(mActivity)
-        .load(cocktail.getmDrinkThumb())
-        .error(R.drawable.empty_glass)
-        .into(mDrinkImage);
+    Picasso.with(mActivity).load(cocktail.getmDrinkThumb()).error(R.drawable.empty_glass).into(mDrinkImage);
 
   }
 
@@ -223,13 +219,8 @@ public class FragmentDetails extends Fragment {
 
     final Drink drink = drinkList.get(0);
 
-//    mToolbar.setTitle(drink.getStrDrink());
-
     mInstructionsText.setText(drink.getStrInstructions());
     mAlcoholicText.setText(drink.getStrAlcoholic());
-
-    String url = drink.getStrDrinkThumb();
-//    Picasso.with(mActivity).load(url).error(R.drawable.empty_glass).into(mDrinkImage);
 
     mInstruction.setText(getResources().getString(R.string.Instructions));
     mIngredients.setText(getResources().getString(R.string.Ingredients));
@@ -380,8 +371,6 @@ public class FragmentDetails extends Fragment {
     if (isAdded() && mActivity != null) {
       shareRecipe(measuresArrayList, drink);
     }
-
-
     mIngredientsAdapter.setMeasuresList(measuresArrayList);
   }
 

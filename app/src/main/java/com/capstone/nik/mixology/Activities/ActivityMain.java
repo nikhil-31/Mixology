@@ -62,6 +62,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
 
   // Username
   private String mUsername;
+
   private View mHeader;
 
   // Views for the navigation header
@@ -233,7 +234,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
   @Override
   public void onBackPressed() {
     // This is will close the drawer after something is selected.
-    DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+    DrawerLayout drawer = findViewById(R.id.drawer_layout);
     if (drawer.isDrawerOpen(GravityCompat.START)) {
       drawer.closeDrawer(GravityCompat.START);
     } else {
@@ -279,7 +280,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
 
     if (id == R.id.action_sign_out) {
       FirebaseAuth.getInstance().signOut();
-
+      mUsername = ANONYMOUS;
       FirebaseAuth.AuthStateListener authListener = new FirebaseAuth.AuthStateListener() {
         @Override
         public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -298,10 +299,10 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
     // Check is the detail fragment is present in the main activity.
     FragmentDetails detailsFragment = (FragmentDetails) getSupportFragmentManager().findFragmentById(R.id.fragment);
     if (detailsFragment == null) {
-      Intent mCocktailDetailIntent = new Intent(this, ActivityDetails.class);
-      mCocktailDetailIntent.putExtra(getString(R.string.details_intent_cocktail), cocktail);
-      startActivity(mCocktailDetailIntent);
-    } else {
+      Intent intent = new Intent(this, ActivityDetails.class);
+      intent.putExtra(getString(R.string.details_intent_cocktail), cocktail);
+      startActivity(intent);
+    } else if (detailsFragment.isAdded()) {
       detailsFragment.updateContent(cocktail);
     }
   }
@@ -367,13 +368,15 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
       setTitle(getString(R.string.cocktail));
     } else if (id == R.id.Saved_Cocktails) {
       FragmentSavedDrink fragment = new FragmentSavedDrink();
-      android.support.v4.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+      android.support.v4.app.FragmentTransaction fragmentTransaction =
+          getSupportFragmentManager().beginTransaction();
       fragmentTransaction.replace(R.id.fragment_container, fragment);
       fragmentTransaction.commit();
       setTitle(getString(R.string.saved_cocktails));
     } else if (id == R.id.nav_randomixer) {
       FragmentRandomixer fragment = new FragmentRandomixer();
-      android.support.v4.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+      android.support.v4.app.FragmentTransaction fragmentTransaction =
+          getSupportFragmentManager().beginTransaction();
       fragmentTransaction.replace(R.id.fragment_container, fragment);
       fragmentTransaction.commit();
       setTitle(getString(R.string.randomixer));

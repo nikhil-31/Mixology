@@ -149,7 +149,6 @@ public class FragmentDetails extends Fragment {
     Retrofit retrofit = builder.build();
     service = retrofit.create(CocktailService.class);
 
-
     if (cocktail != null) {
       startNetworkRequest(cocktail);
     }
@@ -157,7 +156,9 @@ public class FragmentDetails extends Fragment {
   }
 
   public void updateContent(Cocktail cocktail) {
-    startNetworkRequest(cocktail);
+    if (isAdded()) {
+      startNetworkRequest(cocktail);
+    }
   }
 
   private void startNetworkRequest(final Cocktail cocktail) {
@@ -227,8 +228,7 @@ public class FragmentDetails extends Fragment {
 
   public void setUIData(List<Drink> drinkList) {
 
-    Animation bottomUp = AnimationUtils.loadAnimation(getContext(),
-        R.anim.bottom_up);
+    Animation bottomUp = AnimationUtils.loadAnimation(getContext(), R.anim.bottom_up);
 
     mLinearBottom.startAnimation(bottomUp);
     mLinearBottom.setVisibility(View.VISIBLE);

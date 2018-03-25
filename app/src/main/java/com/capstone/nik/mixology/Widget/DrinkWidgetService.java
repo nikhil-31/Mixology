@@ -18,7 +18,6 @@ import com.capstone.nik.mixology.R;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
-import java.util.Objects;
 
 import static com.capstone.nik.mixology.data.AlcoholicColumn.DRINK_NAME;
 import static com.capstone.nik.mixology.data.AlcoholicColumn.DRINK_THUMB;
@@ -116,7 +115,7 @@ public class DrinkWidgetService extends RemoteViewsService {
         return null;
       }
 
-      RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.list_item_widget);
+      RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_item_list);
       mCursor.moveToPosition(position);
 
       remoteViews.setTextViewText(R.id.list_widget_text, mCursor.getString(mCursor.getColumnIndex(DRINK_NAME)));

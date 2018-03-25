@@ -18,19 +18,20 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.capstone.nik.mixology.Adapters.DrinkCursorAdapter;
+import com.capstone.nik.mixology.Fragments.FragmentDetails;
 import com.capstone.nik.mixology.Fragments.FragmentAlcoholic;
+import com.capstone.nik.mixology.Fragments.FragmentHighballGlass;
 import com.capstone.nik.mixology.Fragments.FragmentCocktail;
 import com.capstone.nik.mixology.Fragments.FragmentCocktailGlass;
-import com.capstone.nik.mixology.Fragments.FragmentDetails;
 import com.capstone.nik.mixology.Fragments.FragmentGin;
-import com.capstone.nik.mixology.Fragments.FragmentHighballGlass;
-import com.capstone.nik.mixology.Fragments.FragmentNonAlcoholic;
 import com.capstone.nik.mixology.Fragments.FragmentOrdinaryDrink;
 import com.capstone.nik.mixology.Fragments.FragmentRandomixer;
 import com.capstone.nik.mixology.Fragments.FragmentSavedDrink;
 import com.capstone.nik.mixology.Fragments.FragmentVodka;
+import com.capstone.nik.mixology.Fragments.FragmentNonAlcoholic;
 import com.capstone.nik.mixology.Model.Cocktail;
 import com.capstone.nik.mixology.R;
+
 import com.crashlytics.android.Crashlytics;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.ads.AdRequest;
@@ -44,7 +45,7 @@ import java.util.Arrays;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-// Released version 11 to play store to fix all of the bugs
+// Repo moved from gitHub to bit bucket private repo
 public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapter.OnAdapterItemSelectedListener,
     NavigationView.OnNavigationItemSelectedListener {
 
@@ -61,6 +62,8 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
 
   // Username
   private String mUsername;
+
+  // Navigation header view
   private View mHeader;
 
   // Views for the navigation header
@@ -74,9 +77,9 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
     setContentView(R.layout.activity_navigation_drawer);
 
     // Admob integration with my id
-    MobileAds.initialize(getApplicationContext(), "ca-app-pub-3940256099942544~3347511713");
+//    MobileAds.initialize(getApplicationContext(), "ca-app-pub-3940256099942544~3347511713");
     //TODO - Uncomment original Ad
-//    MobileAds.initialize(getApplicationContext(), "ca-app-pub-3940256099942544/6300978111");
+    MobileAds.initialize(getApplicationContext(), "ca-app-pub-3940256099942544/6300978111");
 
     AdView adView = findViewById(R.id.adView);
     AdRequest adRequest = new AdRequest.Builder().build();
@@ -117,50 +120,51 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
     mAuthStateListener = new FirebaseAuth.AuthStateListener() {
       @Override
       public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-//        FirebaseUser user = firebaseAuth.getCurrentUser();
-//        if (user != null) {
-//          // User is signed in
-//          Crashlytics.setUserEmail(user.getEmail());
-//          if (user.getPhotoUrl() != null) {    // If the user is signed and there is a photo available
-//            onSignedInInitialize(user.getDisplayName(), user.getEmail(), user.getPhotoUrl());
-//          } else {
-//            onSignedInInitialize(user.getEmail());
-//
-//          }
-//        } else {
-//          // User is signed out
-//          onSignedOutTeardown();
-//
-//          // If the version is higher than lollipop then set the style in firebase or set no style
-//          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//            startActivityForResult(
-//                AuthUI.getInstance()
-//                    .createSignInIntentBuilder()
-//                    .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
-//                        new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
-//                    .setLogo(R.drawable.icon)
-//                    .setTheme(R.style.AppThemeFirebaseAuth)
-//                    .setIsSmartLockEnabled(false)
-//                    .build(),
-//                RC_SIGN_IN);
-//          } else {
-//            startActivityForResult(AuthUI.getInstance()
-//                    .createSignInIntentBuilder()
-//                    .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
-//                        new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
-//                    .setLogo(R.drawable.icon)
-//                    .setIsSmartLockEnabled(false)
-//                    .build(),
-//                RC_SIGN_IN);
-//          }
-//        }
+        FirebaseUser user = firebaseAuth.getCurrentUser();
+        if (user != null) {
+          // User is signed in
+          Crashlytics.setUserEmail(user.getEmail());
+          if (user.getPhotoUrl() != null) {    // If the user is signed and there is a photo available
+            onSignedInInitialize(user.getDisplayName(), user.getEmail(), user.getPhotoUrl());
+          } else {
+            onSignedInInitialize(user.getEmail());
+
+          }
+        } else {
+          // User is signed out
+          onSignedOutTeardown();
+
+          // If the version is higher than lollipop then set the style in firebase or set no style
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            startActivityForResult(
+                AuthUI.getInstance()
+                    .createSignInIntentBuilder()
+                    .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
+                        new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
+                    .setLogo(R.drawable.login_screen_image)
+                    .setTheme(R.style.AppThemeFirebaseAuth)
+                    .setIsSmartLockEnabled(false)
+                    .build(),
+                RC_SIGN_IN);
+          } else {
+            startActivityForResult(AuthUI.getInstance()
+                    .createSignInIntentBuilder()
+                    .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
+                        new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
+                    .setLogo(R.drawable.login_screen_image)
+                    .setIsSmartLockEnabled(false)
+                    .build(),
+                RC_SIGN_IN);
+          }
+        }
       }
     };
 
     // Restoring the title after rotation
-    if (savedInstanceState != null) {
+    if (savedInstanceState != null && getSupportActionBar() != null) {
       String title = savedInstanceState.getString("TITLE");
       getSupportActionBar().setTitle(title);
+
     }
   }
 
@@ -185,23 +189,18 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
     if (mUsername != null && !user.isEmpty()) {
       mUsername = user;
       mProfileNameText.setText(mUsername);
-
     }
     if (email != null && !email.isEmpty()) {
       mProfileEmailText.setText(email);
     }
-
     if (imageUrl != null) {
-      Picasso.with(getApplicationContext())
-          .load(imageUrl)
-          .error(R.drawable.emptyprofile)
-          .into(mProfileImage);
+      Picasso.with(getApplicationContext()).load(imageUrl).error(R.drawable.empty_profile).into(mProfileImage);
     }
   }
 
   private void onSignedInInitialize(String email) {
     Picasso.with(getApplicationContext())
-        .load(R.drawable.emptyprofile)
+        .load(R.drawable.empty_profile)
         .into(mProfileImage);
 
     if (email != null && !email.isEmpty()) {
@@ -232,7 +231,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
   @Override
   public void onBackPressed() {
     // This is will close the drawer after something is selected.
-    DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+    DrawerLayout drawer = findViewById(R.id.drawer_layout);
     if (drawer.isDrawerOpen(GravityCompat.START)) {
       drawer.closeDrawer(GravityCompat.START);
     } else {
@@ -278,7 +277,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
 
     if (id == R.id.action_sign_out) {
       FirebaseAuth.getInstance().signOut();
-
+      mUsername = ANONYMOUS;
       FirebaseAuth.AuthStateListener authListener = new FirebaseAuth.AuthStateListener() {
         @Override
         public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -297,10 +296,10 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
     // Check is the detail fragment is present in the main activity.
     FragmentDetails detailsFragment = (FragmentDetails) getSupportFragmentManager().findFragmentById(R.id.fragment);
     if (detailsFragment == null) {
-      Intent mCocktailDetailIntent = new Intent(this, ActivityDetails.class);
-      mCocktailDetailIntent.putExtra(getString(R.string.details_intent_cocktail), cocktail);
-      startActivity(mCocktailDetailIntent);
-    } else {
+      Intent intent = new Intent(this, ActivityDetails.class);
+      intent.putExtra(getString(R.string.details_intent_cocktail), cocktail);
+      startActivity(intent);
+    } else if (detailsFragment.isAdded()) {
       detailsFragment.updateContent(cocktail);
     }
   }
@@ -366,13 +365,15 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
       setTitle(getString(R.string.cocktail));
     } else if (id == R.id.Saved_Cocktails) {
       FragmentSavedDrink fragment = new FragmentSavedDrink();
-      android.support.v4.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+      android.support.v4.app.FragmentTransaction fragmentTransaction =
+          getSupportFragmentManager().beginTransaction();
       fragmentTransaction.replace(R.id.fragment_container, fragment);
       fragmentTransaction.commit();
       setTitle(getString(R.string.saved_cocktails));
     } else if (id == R.id.nav_randomixer) {
       FragmentRandomixer fragment = new FragmentRandomixer();
-      android.support.v4.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+      android.support.v4.app.FragmentTransaction fragmentTransaction =
+          getSupportFragmentManager().beginTransaction();
       fragmentTransaction.replace(R.id.fragment_container, fragment);
       fragmentTransaction.commit();
       setTitle(getString(R.string.randomixer));

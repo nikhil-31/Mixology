@@ -17,7 +17,10 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -65,13 +68,19 @@ public class FragmentDetails extends Fragment {
   private TextView mAlcoholicText;
   private TextView mInstruction;
   private TextView mIngredients;
-  private ImageView mDrinkImage;
   private TextView mDrinkName;
+
   private Toolbar mToolbar;
+
   private IngredientsAdapter mIngredientsAdapter;
+
+  private ImageView mDrinkImage;
   private ImageView mDetailIcon;
+
   private boolean isInDatabase;
+
   private Activity mActivity;
+  private LinearLayout mLinearBottom;
   private CocktailService service;
 
   public FragmentDetails() {
@@ -94,9 +103,9 @@ public class FragmentDetails extends Fragment {
 
     setHasOptionsMenu(true);
 
-    MobileAds.initialize(applicationContext, "ca-app-pub-3940256099942544~3347511713");
+//    MobileAds.initialize(applicationContext, "ca-app-pub-3940256099942544~3347511713");
     //TODO - Uncomment original Ad
-//    MobileAds.initialize(applicationContext, "ca-app-pub-3940256099942544/6300978111");
+    MobileAds.initialize(applicationContext, "ca-app-pub-3940256099942544/6300978111");
 
     AdView adView = view.findViewById(R.id.adViewDetails);
     AdRequest adRequest = new AdRequest.Builder().build();
@@ -122,6 +131,7 @@ public class FragmentDetails extends Fragment {
     mIngredients = view.findViewById(R.id.detail_ingredients_text);
     mDrinkName = view.findViewById(R.id.detail_name);
     mDetailIcon = view.findViewById(R.id.detail_fav_button);
+    mLinearBottom = view.findViewById(R.id.linear_bottom);
 
     mIngredientsAdapter = new IngredientsAdapter(mActivity);
     RecyclerView ingredientsRecyclerView = view.findViewById(R.id.recycler_ingredients);
@@ -138,7 +148,6 @@ public class FragmentDetails extends Fragment {
     Retrofit retrofit = builder.build();
     service = retrofit.create(CocktailService.class);
 
-
     if (cocktail != null) {
       startNetworkRequest(cocktail);
     }
@@ -146,7 +155,9 @@ public class FragmentDetails extends Fragment {
   }
 
   public void updateContent(Cocktail cocktail) {
-    startNetworkRequest(cocktail);
+    if (isAdded()) {
+      startNetworkRequest(cocktail);
+    }
   }
 
   private void startNetworkRequest(final Cocktail cocktail) {
@@ -215,6 +226,11 @@ public class FragmentDetails extends Fragment {
   }
 
   public void setUIData(List<Drink> drinkList) {
+
+    Animation bottomUp = AnimationUtils.loadAnimation(getContext(), R.anim.bottom_up);
+
+    mLinearBottom.startAnimation(bottomUp);
+    mLinearBottom.setVisibility(View.VISIBLE);
 
     final Drink drink = drinkList.get(0);
 

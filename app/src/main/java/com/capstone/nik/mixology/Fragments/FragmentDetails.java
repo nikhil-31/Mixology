@@ -103,9 +103,9 @@ public class FragmentDetails extends Fragment {
 
     setHasOptionsMenu(true);
 
-//    MobileAds.initialize(applicationContext, "ca-app-pub-3940256099942544~3347511713");
+    MobileAds.initialize(applicationContext, "ca-app-pub-3940256099942544~3347511713");
     //TODO - Uncomment original Ad
-    MobileAds.initialize(applicationContext, "ca-app-pub-3940256099942544/6300978111");
+//    MobileAds.initialize(applicationContext, "ca-app-pub-3940256099942544/6300978111");
 
     AdView adView = view.findViewById(R.id.adViewDetails);
     AdRequest adRequest = new AdRequest.Builder().build();

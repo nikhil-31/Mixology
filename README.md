@@ -15,7 +15,9 @@ for both phones and tablets. The user can also search through the extensive data
 
 * Picasso
 * Android support Library
-* Volley
+* Retrofit
+* Dagger 2
+* Android Priority Job Queue
 * Schematic
 * Firebase Auth
 * Firebase Ads

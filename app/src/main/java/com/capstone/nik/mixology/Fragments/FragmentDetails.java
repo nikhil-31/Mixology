@@ -103,9 +103,9 @@ public class FragmentDetails extends Fragment {
 
     setHasOptionsMenu(true);
 
-    MobileAds.initialize(applicationContext, "ca-app-pub-3940256099942544~3347511713");
+//    MobileAds.initialize(applicationContext, "ca-app-pub-3940256099942544~3347511713");
     //TODO - Uncomment original Ad
-//    MobileAds.initialize(applicationContext, "ca-app-pub-3940256099942544/6300978111");
+    MobileAds.initialize(applicationContext, "ca-app-pub-3940256099942544/6300978111");
 
     AdView adView = view.findViewById(R.id.adViewDetails);
     AdRequest adRequest = new AdRequest.Builder().build();
@@ -140,7 +140,6 @@ public class FragmentDetails extends Fragment {
     LinearLayoutManager linearLayoutManager = new LinearLayoutManager(mActivity, LinearLayoutManager.VERTICAL, false);
     ingredientsRecyclerView.setLayoutManager(linearLayoutManager);
     ingredientsRecyclerView.setAdapter(mIngredientsAdapter);
-
 
     final Retrofit.Builder builder = new Retrofit.Builder().baseUrl(CocktailURLs.BASE_URL)
         .addConverterFactory(GsonConverterFactory.create());

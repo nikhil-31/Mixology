@@ -41,7 +41,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -77,9 +78,9 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
     setContentView(R.layout.activity_navigation_drawer);
 
     // Admob integration with my id
-    MobileAds.initialize(getApplicationContext(), "ca-app-pub-3940256099942544~3347511713");
+//    MobileAds.initialize(getApplicationContext(), "ca-app-pub-3940256099942544~3347511713");
     //TODO - Uncomment original Ad
-//    MobileAds.initialize(getApplicationContext(), "ca-app-pub-3940256099942544/6300978111");
+    MobileAds.initialize(getApplicationContext(), "ca-app-pub-3940256099942544/6300978111");
 
     AdView adView = findViewById(R.id.adView);
     AdRequest adRequest = new AdRequest.Builder().build();
@@ -136,11 +137,11 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
 
           // If the version is higher than lollipop then set the style in firebase or set no style
           if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+
             startActivityForResult(
                 AuthUI.getInstance()
                     .createSignInIntentBuilder()
-                    .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
-                        new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
+                    .setAvailableProviders(getSelectedProviders())
                     .setLogo(R.drawable.login_screen_image)
                     .setTheme(R.style.AppThemeFirebaseAuth)
                     .setIsSmartLockEnabled(false)
@@ -149,8 +150,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
           } else {
             startActivityForResult(AuthUI.getInstance()
                     .createSignInIntentBuilder()
-                    .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
-                        new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
+                    .setAvailableProviders(getSelectedProviders())
                     .setLogo(R.drawable.login_screen_image)
                     .setIsSmartLockEnabled(false)
                     .build(),
@@ -174,9 +174,19 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
     // Saving the title
     outState.putInt(SELECTED_ID, mNavItemSelected);
     if (getSupportActionBar() != null) {
-      String title = getSupportActionBar().getTitle().toString();
-      outState.putString("TITLE", title);
+      CharSequence charSequence = getSupportActionBar().getTitle();
+      if (charSequence != null) {
+        String title = charSequence.toString();
+        outState.putString("TITLE", title);
+      }
     }
+  }
+
+  private List<AuthUI.IdpConfig> getSelectedProviders() {
+    List<AuthUI.IdpConfig> selectedProviders = new ArrayList<>();
+    selectedProviders.add(new AuthUI.IdpConfig.GoogleBuilder().build());
+    selectedProviders.add(new AuthUI.IdpConfig.EmailBuilder().build());
+    return selectedProviders;
   }
 
   // When the user signs out the user name is set to anonymous.

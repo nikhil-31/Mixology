@@ -33,7 +33,7 @@ import com.capstone.nik.mixology.Model.Cocktail;
 import com.capstone.nik.mixology.R;
 
 import com.crashlytics.android.Crashlytics;
-import com.firebase.ui.auth.AuthUI;
+//import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
@@ -78,9 +78,9 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
     setContentView(R.layout.activity_navigation_drawer);
 
     // Admob integration with my id
-//    MobileAds.initialize(getApplicationContext(), "ca-app-pub-3940256099942544~3347511713");
+    MobileAds.initialize(getApplicationContext(), "ca-app-pub-3940256099942544~3347511713");
     //TODO - Uncomment original Ad
-    MobileAds.initialize(getApplicationContext(), "ca-app-pub-3940256099942544/6300978111");
+//    MobileAds.initialize(getApplicationContext(), "ca-app-pub-3940256099942544/6300978111");
 
     AdView adView = findViewById(R.id.adView);
     AdRequest adRequest = new AdRequest.Builder().build();
@@ -135,27 +135,27 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
           // User is signed out
           onSignedOutTeardown();
 
-          // If the version is higher than lollipop then set the style in firebase or set no style
-          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-
-            startActivityForResult(
-                AuthUI.getInstance()
-                    .createSignInIntentBuilder()
-                    .setAvailableProviders(getSelectedProviders())
-                    .setLogo(R.drawable.login_screen_image)
-                    .setTheme(R.style.AppThemeFirebaseAuth)
-                    .setIsSmartLockEnabled(false)
-                    .build(),
-                RC_SIGN_IN);
-          } else {
-            startActivityForResult(AuthUI.getInstance()
-                    .createSignInIntentBuilder()
-                    .setAvailableProviders(getSelectedProviders())
-                    .setLogo(R.drawable.login_screen_image)
-                    .setIsSmartLockEnabled(false)
-                    .build(),
-                RC_SIGN_IN);
-          }
+//          // If the version is higher than lollipop then set the style in firebase or set no style
+//          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//
+//            startActivityForResult(
+//                AuthUI.getInstance()
+//                    .createSignInIntentBuilder()
+//                    .setAvailableProviders(getSelectedProviders())
+//                    .setLogo(R.drawable.login_screen_image)
+//                    .setTheme(R.style.AppThemeFirebaseAuth)
+//                    .setIsSmartLockEnabled(false)
+//                    .build(),
+//                RC_SIGN_IN);
+//          } else {
+//            startActivityForResult(AuthUI.getInstance()
+//                    .createSignInIntentBuilder()
+//                    .setAvailableProviders(getSelectedProviders())
+//                    .setLogo(R.drawable.login_screen_image)
+//                    .setIsSmartLockEnabled(false)
+//                    .build(),
+//                RC_SIGN_IN);
+//          }
         }
       }
     };
@@ -182,12 +182,12 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
     }
   }
 
-  private List<AuthUI.IdpConfig> getSelectedProviders() {
-    List<AuthUI.IdpConfig> selectedProviders = new ArrayList<>();
-    selectedProviders.add(new AuthUI.IdpConfig.GoogleBuilder().build());
-    selectedProviders.add(new AuthUI.IdpConfig.EmailBuilder().build());
-    return selectedProviders;
-  }
+//  private List<AuthUI.IdpConfig> getSelectedProviders() {
+//    List<AuthUI.IdpConfig> selectedProviders = new ArrayList<>();
+//    selectedProviders.add(new AuthUI.IdpConfig.GoogleBuilder().build());
+//    selectedProviders.add(new AuthUI.IdpConfig.EmailBuilder().build());
+//    return selectedProviders;
+//  }
 
   // When the user signs out the user name is set to anonymous.
   private void onSignedOutTeardown() {

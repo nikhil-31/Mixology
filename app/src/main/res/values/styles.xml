@@ -26,4 +26,48 @@
     <item name="android:background">@color/white</item>
   </style>
 
+  <style name="FirebaseUI.Button" parent="@style/Widget.AppCompat.Button.Colored">
+    <item name="android:layout_width">wrap_content</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:layout_gravity">end</item>
+  </style>
+
+  <style name="FirebaseUI.Button.AccountChooser">
+    <item name="android:layout_width">match_parent</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:textAllCaps">false</item>
+    <item name="android:drawablePadding">@dimen/fui_auth_method_button_drawablePadding</item>
+    <item name="android:textStyle">bold</item>
+    <item name="android:paddingLeft">12dp</item>
+    <item name="android:paddingRight">12dp</item>
+    <item name="android:layout_marginTop">@dimen/fui_auth_method_button_margin</item>
+    <item name="android:layout_marginBottom">@dimen/fui_auth_method_button_margin</item>
+    <item name="android:gravity">left|center_vertical</item>
+    <item name="android:typeface">normal</item>
+    <item name="android:foreground">?android:attr/selectableItemBackground</item>
+  </style>
+
+  <style name="FirebaseUI.Button.AccountChooser.GoogleButton">
+    <item name="drawableStartCompat">@drawable/fui_ic_googleg_color_24dp</item>
+    <item name="android:background">@drawable/fui_idp_button_background_google</item>
+    <item name="android:textColor">#757575</item>
+  </style>
+
+  <style name="FirebaseUI.Button.AccountChooser.FacebookButton">
+    <item name="drawableStartCompat">@drawable/fui_ic_facebook_white_22dp</item>
+    <item name="android:background">@drawable/fui_idp_button_background_facebook</item>
+    <item name="android:textColor">#FFFFFFFF</item>
+  </style>
+
+  <style name="FirebaseUI.Button.AccountChooser.EmailButton">
+    <item name="drawableStartCompat">@drawable/fui_ic_mail_white_24dp</item>
+    <item name="android:background">@drawable/fui_idp_button_background_email</item>
+    <item name="android:textColor">#ffffff</item>
+  </style>
+
+  <style name="FirebaseUI.Button.AccountChooser.PhoneButton">
+    <item name="drawableStartCompat">@drawable/fui_ic_phone_white_24dp</item>
+    <item name="android:background">@drawable/fui_idp_button_background_phone</item>
+    <item name="android:textColor">#ffffff</item>
+  </style>
 </resources>

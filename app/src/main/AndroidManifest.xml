@@ -8,34 +8,44 @@
   <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
   <application
-    android:name="com.capstone.nik.mixology.Network.MyApplication"
+    android:name=".Network.MyApplication"
     android:allowBackup="true"
     android:fullBackupContent="@xml/backup_descriptor"
     android:icon="@drawable/app_icon"
     android:label="@string/app_name"
     android:supportsRtl="true"
     android:theme="@style/AppTheme"
-    tools:ignore="InnerclassSeparator">
-
+    tools:ignore="GoogleAppIndexingWarning,InnerclassSeparator">
     <meta-data
       android:name="com.google.android.gms.version"
       android:value="@integer/google_play_services_version" />
 
-    <activity
-      android:name="com.capstone.nik.mixology.Activities.ActivityMain"
+    <meta-data
+      android:name="com.google.android.gms.ads.APPLICATION_ID"
+      android:value="@string/admob_key"/>
+
+    <activity android:name=".Activities.ActivityLogin"
       android:label="@string/app_name"
       android:screenOrientation="portrait"
       android:theme="@style/AppTheme.NoActionBar">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
+
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
+    </activity>
+
+    <activity
+      android:name=".Activities.ActivityMain"
+      android:label="@string/app_name"
+      android:screenOrientation="portrait"
+      android:theme="@style/AppTheme.NoActionBar">
 
     </activity>
     <activity
-      android:name="com.capstone.nik.mixology.Activities.ActivityDetails"
+      android:name=".Activities.ActivityDetails"
       android:label="@string/title_activity_details"
-      android:parentActivityName="com.capstone.nik.mixology.Activities.ActivityMain"
+      android:parentActivityName=".Activities.ActivityMain"
       android:screenOrientation="portrait"
       android:theme="@style/AppTheme.NoActionBar">
       <meta-data
@@ -49,9 +59,9 @@
       android:exported="false" />
 
     <activity
-      android:name="com.capstone.nik.mixology.Activities.ActivitySearch"
+      android:name=".Activities.ActivitySearch"
       android:label="@string/title_activity_search"
-      android:parentActivityName="com.capstone.nik.mixology.Activities.ActivityMain"
+      android:parentActivityName=".Activities.ActivityMain"
       android:screenOrientation="portrait"
       android:theme="@style/AppTheme.NoActionBar">
       <meta-data
@@ -60,19 +70,20 @@
     </activity>
 
     <receiver
-      android:name="com.capstone.nik.mixology.Widget.DrinkWidgetProvider"
+      android:name=".Widget.DrinkWidgetProvider"
       android:label="@string/widget_name">
       <intent-filter>
         <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
         <action android:name="com.example.nik.mixology.utils.ACTION_DATA_UPDATED" />
       </intent-filter>
+
       <meta-data
         android:name="android.appwidget.provider"
         android:resource="@xml/cocktail_app_widget_info" />
     </receiver>
 
     <service
-      android:name="com.capstone.nik.mixology.Widget.DrinkWidgetService"
+      android:name=".Widget.DrinkWidgetService"
       android:exported="false"
       android:permission="android.permission.BIND_REMOTEVIEWS" />
 

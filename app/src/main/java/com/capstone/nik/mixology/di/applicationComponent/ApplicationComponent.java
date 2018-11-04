@@ -4,6 +4,7 @@ import com.capstone.nik.mixology.Fragments.FragmentAlcoholic;
 import com.capstone.nik.mixology.Fragments.FragmentCocktail;
 import com.capstone.nik.mixology.Fragments.FragmentCocktailGlass;
 import com.capstone.nik.mixology.Fragments.FragmentDetails;
+import com.capstone.nik.mixology.Fragments.FragmentDrink;
 import com.capstone.nik.mixology.Fragments.FragmentGin;
 import com.capstone.nik.mixology.Fragments.FragmentHighballGlass;
 import com.capstone.nik.mixology.Fragments.FragmentNonAlcoholic;
@@ -49,4 +50,5 @@ public interface ApplicationComponent {
 
   void inject(MyJobService target);
 
+  void inject(FragmentDrink target);
 }

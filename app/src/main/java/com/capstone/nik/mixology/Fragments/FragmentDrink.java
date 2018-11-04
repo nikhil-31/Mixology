@@ -1,12 +1,14 @@
 package com.capstone.nik.mixology.Fragments;
 
+
 import android.app.Activity;
 import android.database.Cursor;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.os.Bundle;
-
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -19,40 +21,61 @@ import com.capstone.nik.mixology.Network.MyApplication;
 import com.capstone.nik.mixology.R;
 import com.capstone.nik.mixology.job.AlcoholFilterJob;
 
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-
 import javax.inject.Inject;
 
 import static com.capstone.nik.mixology.data.DrinkProvider.Alcoholic.CONTENT_URI_ALCOHOLIC;
 
 /**
- * A placeholder fragment containing a simple view.
+ * A simple {@link Fragment} subclass.
+ * Use the {@link FragmentDrink#newInstance} factory method to
+ * create an instance of this fragment.
  */
-public class FragmentAlcoholic extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
-  private static final String LOG_TAG = FragmentAlcoholic.class.getSimpleName();
+public class FragmentDrink extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
+  private static final String TAG = "FragmentDrink";
+
+  // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+  private static final String ARG_PARAM1 = "param1";
+  private static final String ARG_PARAM2 = "param2";
+
+  private String mParam1;
+  private String mParam2;
 
   private static final int CURSOR_LOADER_ID = 0;
+  private static final int CURSOR_LOADER_ID_ = 1;
 
-  private DrinkCursorAdapter mDrinkAdapter;
   private Activity mActivity;
 
   @Inject
   JobManager mJobManager;
 
-  public FragmentAlcoholic() {
+  public FragmentDrink() {
+    // Required empty public constructor
+  }
+
+  /**
+   * Use this factory method to create a new instance of
+   * this fragment using the provided parameters.
+   *
+   * @param param1 Parameter 1.
+   * @param param2 Parameter 2.
+   * @return A new instance of fragment FragmentDrink.
+   */
+  public static FragmentDrink newInstance(String param1, String param2) {
+    FragmentDrink fragment = new FragmentDrink();
+    Bundle args = new Bundle();
+    args.putString(ARG_PARAM1, param1);
+    args.putString(ARG_PARAM2, param2);
+    fragment.setArguments(args);
+    return fragment;
   }
 
   @Override
-  public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-    super.onActivityCreated(savedInstanceState);
-    getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
-  }
-
-  @Override
-  public void onCreate(@Nullable Bundle savedInstanceState) {
+  public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    if (getArguments() != null) {
+      mParam1 = getArguments().getString(ARG_PARAM1);
+      mParam2 = getArguments().getString(ARG_PARAM2);
+    }
     mActivity = getActivity();
     if (mActivity != null) {
       ((MyApplication) mActivity.getApplication()).getApplicationComponent().inject(this);
@@ -62,43 +85,45 @@ public class FragmentAlcoholic extends Fragment implements LoaderManager.LoaderC
   @Override
   public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                            Bundle savedInstanceState) {
-    View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+    // Inflate the layout for this fragment
+    View rootView =  inflater.inflate(R.layout.fragment_main, container, false);
+
     RecyclerView recyclerView = rootView.findViewById(R.id.recycler_main);
 
     GridLayoutManager gridLayoutManager = new GridLayoutManager(mActivity, 2);
     recyclerView.setLayoutManager(gridLayoutManager);
 
-    mDrinkAdapter = new DrinkCursorAdapter(null, mActivity);
+    DrinkCursorAdapter mDrinkAdapter = new DrinkCursorAdapter(null, mActivity);
     recyclerView.setAdapter(mDrinkAdapter);
 
     mJobManager.addJobInBackground(new AlcoholFilterJob(CONTENT_URI_ALCOHOLIC.toString(), "Alcoholic"));
+
+
     return rootView;
   }
+
 
   @Override
   public void onResume() {
     super.onResume();
     getLoaderManager().restartLoader(CURSOR_LOADER_ID, null, this);
+
   }
+
 
   @NonNull
   @Override
-  public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-    return new CursorLoader(mActivity
-        , CONTENT_URI_ALCOHOLIC
-        , null
-        , null
-        , null
-        , null);
+  public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
+    return null;
   }
 
   @Override
   public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
-    mDrinkAdapter.swapCursor(data);
+
   }
 
   @Override
   public void onLoaderReset(@NonNull Loader<Cursor> loader) {
-    mDrinkAdapter.swapCursor(null);
+
   }
 }

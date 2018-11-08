@@ -8,12 +8,13 @@
   <string name="action_search">Search</string>
   <string name="detail_action_share">Share</string>
 
-  <!-- Content Description -->
+  <!-- Content Description for accessibility -->
   <string name="content_desc_drink_image">Image of the cocktail</string>
   <string name="content_desc_Add_Delete_button">Add or delete</string>
   <string name="content_desc_up_navigation">Up navigation</string>
   <string name="content_desc_sponsored">Sponsored</string>
   <string name="content_desc_ingredients_image">Ingredients Image</string>
+  <string name="content_desc_logo_img">Logo Image</string>
 
   <!-- static data set in details fragment -->
   <string name="Instructions">Instructions</string>
@@ -86,12 +87,20 @@
   <string name="admob_key">ca-app-pub-3940256099942544~3347511713</string>
 
   <!-- Login screen-->
-  <string name="sign_in">Sign IN</string>
+  <string name="sign_in">Sign In</string>
   <string name="username">Username</string>
   <string name="password">Password</string>
-  <string name="forgot_password_login">forgot Password ?</string>
+  <string name="forgot_password_login">Forgot Password?</string>
   <string name="login">LOGIN</string>
   <string name="or_sign_in_with">or sign in with</string>
+  <string name="login_username_password_invalid">Either the username or the password is invalid</string>
+  <string name="login_user_not_present">Please Sign Up to use Mobile Repair Service</string>
+  <string name="login_message_login">Logging you in..</string>
+  <string name="login_google_sign_in_failed">Google Sign In failed, Please Try Again</string>
+  <string name="login_progress_msg">Logging you in..</string>
+
+  <!-- Privacy policy -->
+  <string name="privacy_policy">By signing-in, I accept <a href="https://nikhil-31.github.io/Mixology/">Privacy Policy</a></string>
 
   <!-- Auth method picker -->
   <string name="fui_sign_in_with_google" translation_description="Sign in button text">Sign in with Google</string>
@@ -99,5 +108,6 @@
   <string name="fui_sign_in_with_twitter" translation_description="Sign in button text">Sign in with Twitter</string>
   <string name="fui_sign_in_with_email" translation_description="Sign in button text">Sign up with Email</string>
   <string name="fui_sign_in_with_phone" translation_description="Sign in button text">Sign in with Phone</string>
+
 
 </resources>

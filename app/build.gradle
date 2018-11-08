@@ -52,11 +52,6 @@ dependencies {
   implementation 'com.squareup.picasso:picasso:2.5.2'
   implementation 'de.hdodenhof:circleimageview:2.1.0'
 
-  // Firebase Auth Login
-//  implementation ('com.firebaseui:firebase-ui-auth:4.0.0'){
-//    exclude group: 'com.android.support', module: 'support-v4'
-//    exclude group: 'com.android.support', module: 'cardview-v7'
-//  }
   implementation('com.google.firebase:firebase-auth:16.0.5') {
     exclude group: 'om.google.android.gms', module: 'play-services-base'
     exclude group: 'com.android.support', module: 'support-v4'
@@ -71,6 +66,8 @@ dependencies {
     exclude group: 'com.android.support', module: 'customtabs'
   }
   implementation 'com.google.android.gms:play-services-gcm:16.0.0'
+  // Google auth
+  implementation 'com.google.android.gms:play-services-auth:16.0.1'
 
   // Fabric crashlytics and answers
   implementation('com.crashlytics.sdk.android:crashlytics:2.8.0@aar') {
@@ -90,6 +87,10 @@ dependencies {
   implementation 'javax.inject:javax.inject:1'
   compileOnly 'javax.annotation:jsr250-api:1.0'
   annotationProcessor 'com.google.dagger:dagger-compiler:2.8'
+
+  // Butterknife
+  implementation 'com.jakewharton:butterknife:8.8.1'
+  annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
 
   // Leak Canary
   debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.5.4'

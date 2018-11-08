@@ -104,6 +104,7 @@ public class ActivityLogin extends AppCompatActivity {
       }
     };
 
+    // Login in button on click
     mLoginButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
@@ -111,6 +112,7 @@ public class ActivityLogin extends AppCompatActivity {
       }
     });
 
+    // Forgot password button on click
     mForgotPassword.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
@@ -119,7 +121,7 @@ public class ActivityLogin extends AppCompatActivity {
       }
     });
 
-
+    // Sign up with email button on click
     mEmailSignUp.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
@@ -128,6 +130,7 @@ public class ActivityLogin extends AppCompatActivity {
       }
     });
 
+    // Sign in with google button
     mGoogleSignIn.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
@@ -136,15 +139,19 @@ public class ActivityLogin extends AppCompatActivity {
         mProgress.show();
       }
     });
-
-
   }
 
+  /**
+   * Start google sign IN process
+   */
   private void googleSignIn() {
     Intent signInIntent = mGoogleSignInClient.getSignInIntent();
     startActivityForResult(signInIntent, RC_SIGN_IN);
   }
 
+  /**
+   * Login with email and password
+   */
   private void checkLogin() {
     String email = mEmailEditText.getText().toString().trim();
     String password = mPasswordEditText.getText().toString().trim();
@@ -197,6 +204,9 @@ public class ActivityLogin extends AppCompatActivity {
     }
   }
 
+  /**
+   * Authentication google login with firebase login
+   */
   private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
     AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
     mFirebaseAuth.signInWithCredential(credential).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -218,6 +228,9 @@ public class ActivityLogin extends AppCompatActivity {
     });
   }
 
+  /**
+   * Set login views as visible
+   */
   private void setLogin() {
     mLoginLinear.setVisibility(View.VISIBLE);
     mEmailSignUp.setVisibility(View.VISIBLE);

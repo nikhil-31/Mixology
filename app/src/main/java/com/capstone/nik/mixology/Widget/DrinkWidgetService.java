@@ -141,7 +141,7 @@ public class DrinkWidgetService extends RemoteViewsService {
       cocktail.setmDrinkName(mCursor.getString(mCursor.getColumnIndex(DRINK_NAME)));
       cocktail.setmDrinkThumb(mCursor.getString(mCursor.getColumnIndex(DRINK_THUMB)));
 
-      fillInIntent.putExtra(getString(R.string.details_intent_cocktail), cocktail);
+      fillInIntent.putExtra(getString(R.string.intent_details_intent_cocktail), cocktail);
       remoteViews.setOnClickFillInIntent(R.id.widget_list_item, fillInIntent);
 
       return remoteViews;

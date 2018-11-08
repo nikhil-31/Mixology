@@ -11,9 +11,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
-import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.capstone.nik.mixology.Adapters.SearchAdapter;
 import com.capstone.nik.mixology.Fragments.FragmentDetails;
@@ -24,7 +22,6 @@ import com.capstone.nik.mixology.Network.remoteModel.Cocktails;
 import com.capstone.nik.mixology.Network.remoteModel.Drink;
 import com.capstone.nik.mixology.R;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -48,7 +45,7 @@ public class ActivitySearch extends AppCompatActivity implements SearchAdapter.O
     setContentView(R.layout.activity_search);
     Toolbar toolbar = findViewById(R.id.toolbar);
 
-    String query = getIntent().getStringExtra(getString(R.string.search_intent_query));
+    String query = getIntent().getStringExtra(getString(R.string.intent_search_intent_query));
     String queryAdjusted = query.replaceAll("%20", " ");
 
     setSupportActionBar(toolbar);
@@ -131,7 +128,7 @@ public class ActivitySearch extends AppCompatActivity implements SearchAdapter.O
     FragmentDetails detailsFragment = (FragmentDetails) getSupportFragmentManager().findFragmentById(R.id.fragment_details);
     if (detailsFragment == null) {
       Intent intent = new Intent(this, ActivityDetails.class);
-      intent.putExtra(getString(R.string.details_intent_cocktail), id);
+      intent.putExtra(getString(R.string.intent_details_intent_cocktail), id);
       startActivity(intent);
     }
   }

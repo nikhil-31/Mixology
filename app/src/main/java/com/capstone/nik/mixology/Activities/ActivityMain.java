@@ -2,7 +2,6 @@ package com.capstone.nik.mixology.Activities;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -40,9 +39,6 @@ import com.google.android.gms.ads.MobileAds;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -264,7 +260,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
         String queryAdjusted = query.replaceAll(" ", "%20");
 
         Intent intent = new Intent(getApplicationContext(), ActivitySearch.class);
-        intent.putExtra(getString(R.string.search_intent_query), queryAdjusted);
+        intent.putExtra(getString(R.string.intent_search_intent_query), queryAdjusted);
         startActivity(intent);
 
         return false;
@@ -307,7 +303,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
     FragmentDetails detailsFragment = (FragmentDetails) getSupportFragmentManager().findFragmentById(R.id.fragment);
     if (detailsFragment == null) {
       Intent intent = new Intent(this, ActivityDetails.class);
-      intent.putExtra(getString(R.string.details_intent_cocktail), cocktail);
+      intent.putExtra(getString(R.string.intent_details_intent_cocktail), cocktail);
       startActivity(intent);
     } else if (detailsFragment.isAdded()) {
       detailsFragment.updateContent(cocktail);
@@ -323,70 +319,70 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
           getSupportFragmentManager().beginTransaction();
       fragmentTransaction.replace(R.id.fragment_container, fragment);
       fragmentTransaction.commit();
-      setTitle(getString(R.string.alcoholic));
+      setTitle(getString(R.string.nav_item_alcoholic));
     } else if (id == R.id.nav_Non_Alcoholic) {
       FragmentNonAlcoholic fragment = new FragmentNonAlcoholic();
       android.support.v4.app.FragmentTransaction fragmentTransaction =
           getSupportFragmentManager().beginTransaction();
       fragmentTransaction.replace(R.id.fragment_container, fragment);
       fragmentTransaction.commit();
-      setTitle(getString(R.string.non_alcoholic));
+      setTitle(getString(R.string.nav_item_non_alcoholic));
     } else if (id == R.id.nav_gin) {
       FragmentGin fragment = new FragmentGin();
       android.support.v4.app.FragmentTransaction fragmentTransaction =
           getSupportFragmentManager().beginTransaction();
       fragmentTransaction.replace(R.id.fragment_container, fragment);
       fragmentTransaction.commit();
-      setTitle(getString(R.string.gin));
+      setTitle(getString(R.string.nav_item_gin));
     } else if (id == R.id.nav_vodka) {
       FragmentVodka fragment = new FragmentVodka();
       android.support.v4.app.FragmentTransaction fragmentTransaction =
           getSupportFragmentManager().beginTransaction();
       fragmentTransaction.replace(R.id.fragment_container, fragment);
       fragmentTransaction.commit();
-      setTitle(getString(R.string.vodka));
+      setTitle(getString(R.string.nav_item_vodka));
     } else if (id == R.id.nav_cocktail_glass) {
       FragmentCocktailGlass fragment = new FragmentCocktailGlass();
       android.support.v4.app.FragmentTransaction fragmentTransaction =
           getSupportFragmentManager().beginTransaction();
       fragmentTransaction.replace(R.id.fragment_container, fragment);
       fragmentTransaction.commit();
-      setTitle(getString(R.string.cocktail_glass));
+      setTitle(getString(R.string.nav_item_cocktail_glass));
     } else if (id == R.id.nav_Highball_Glass) {
       FragmentHighballGlass fragment = new FragmentHighballGlass();
       android.support.v4.app.FragmentTransaction fragmentTransaction =
           getSupportFragmentManager().beginTransaction();
       fragmentTransaction.replace(R.id.fragment_container, fragment);
       fragmentTransaction.commit();
-      setTitle(getString(R.string.highball_glass));
+      setTitle(getString(R.string.nav_item_highball_glass));
     } else if (id == R.id.nav_Ordinary_Drink) {
       FragmentOrdinaryDrink fragment = new FragmentOrdinaryDrink();
       android.support.v4.app.FragmentTransaction fragmentTransaction =
           getSupportFragmentManager().beginTransaction();
       fragmentTransaction.replace(R.id.fragment_container, fragment);
       fragmentTransaction.commit();
-      setTitle(getString(R.string.ordinary_drink));
+      setTitle(getString(R.string.nav_item_ordinary_drink));
     } else if (id == R.id.nav_Cocktail) {
       FragmentCocktail fragment = new FragmentCocktail();
       android.support.v4.app.FragmentTransaction fragmentTransaction =
           getSupportFragmentManager().beginTransaction();
       fragmentTransaction.replace(R.id.fragment_container, fragment);
       fragmentTransaction.commit();
-      setTitle(getString(R.string.cocktail));
+      setTitle(getString(R.string.nav_item_cocktail));
     } else if (id == R.id.Saved_Cocktails) {
       FragmentSavedDrink fragment = new FragmentSavedDrink();
       android.support.v4.app.FragmentTransaction fragmentTransaction =
           getSupportFragmentManager().beginTransaction();
       fragmentTransaction.replace(R.id.fragment_container, fragment);
       fragmentTransaction.commit();
-      setTitle(getString(R.string.saved_cocktails));
+      setTitle(getString(R.string.nav_item_saved_cocktails));
     } else if (id == R.id.nav_randomixer) {
       FragmentRandomixer fragment = new FragmentRandomixer();
       android.support.v4.app.FragmentTransaction fragmentTransaction =
           getSupportFragmentManager().beginTransaction();
       fragmentTransaction.replace(R.id.fragment_container, fragment);
       fragmentTransaction.commit();
-      setTitle(getString(R.string.randomixer));
+      setTitle(getString(R.string.nav_item_randomixer));
     }
     DrawerLayout drawer = findViewById(R.id.drawer_layout);
     drawer.closeDrawer(GravityCompat.START);

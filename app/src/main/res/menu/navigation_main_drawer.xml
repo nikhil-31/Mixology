@@ -3,13 +3,13 @@
 
   <item
     android:id="@+id/Saved_Cocktails"
-    android:title="@string/saved_cocktails" />
+    android:title="@string/nav_item_saved_cocktails" />
 
   <item android:title="@string/nav_title_inspire_me">
     <menu>
       <item
         android:id="@+id/nav_randomixer"
-        android:title="@string/randomixer" />
+        android:title="@string/nav_item_randomixer" />
     </menu>
   </item>
 
@@ -18,11 +18,11 @@
       <item
         android:id="@+id/nav_Alcoholic"
         android:state_activated="true"
-        android:title="@string/alcoholic" />
+        android:title="@string/nav_item_alcoholic" />
       <item
         android:id="@+id/nav_Non_Alcoholic"
         android:state_activated="true"
-        android:title="@string/non_alcoholic" />
+        android:title="@string/nav_item_non_alcoholic" />
     </menu>
   </item>
 
@@ -32,12 +32,12 @@
       <item
         android:id="@+id/nav_Cocktail"
         android:state_activated="true"
-        android:title="@string/cocktail" />
+        android:title="@string/nav_item_cocktail" />
 
       <item
         android:id="@+id/nav_Ordinary_Drink"
         android:state_activated="true"
-        android:title="@string/ordinary_drink" />
+        android:title="@string/nav_item_ordinary_drink" />
     </menu>
   </item>
 
@@ -47,12 +47,12 @@
       <item
         android:id="@+id/nav_gin"
         android:state_activated="true"
-        android:title="@string/gin" />
+        android:title="@string/nav_item_gin" />
 
       <item
         android:id="@+id/nav_vodka"
         android:state_activated="true"
-        android:title="@string/vodka" />
+        android:title="@string/nav_item_vodka" />
     </menu>
   </item>
 
@@ -61,12 +61,12 @@
       <item
         android:id="@+id/nav_cocktail_glass"
         android:state_activated="true"
-        android:title="@string/cocktail_glass" />
+        android:title="@string/nav_item_cocktail_glass" />
 
       <item
         android:id="@+id/nav_Highball_Glass"
         android:state_activated="true"
-        android:title="@string/highball_glass" />
+        android:title="@string/nav_item_highball_glass" />
     </menu>
   </item>
 

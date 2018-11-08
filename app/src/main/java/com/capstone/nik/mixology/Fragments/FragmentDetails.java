@@ -22,7 +22,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.capstone.nik.mixology.Adapters.IngredientsAdapter;
 import com.capstone.nik.mixology.Model.Cocktail;
@@ -49,7 +48,6 @@ import retrofit2.Callback;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import static com.capstone.nik.mixology.Network.CocktailURLs.COCKTAIL_SEARCH_URL_BY_ID;
 import static com.capstone.nik.mixology.data.AlcoholicColumn.DRINK_NAME;
 import static com.capstone.nik.mixology.data.AlcoholicColumn.DRINK_THUMB;
 import static com.capstone.nik.mixology.data.AlcoholicColumn._ID;
@@ -99,7 +97,7 @@ public class FragmentDetails extends Fragment {
   public View onCreateView(@NonNull final LayoutInflater inflater, final ViewGroup container,
                            Bundle savedInstanceState) {
     View view = inflater.inflate(R.layout.fragment_activity_details, container, false);
-    Cocktail cocktail = mActivity.getIntent().getParcelableExtra(getString(R.string.details_intent_cocktail));
+    Cocktail cocktail = mActivity.getIntent().getParcelableExtra(getString(R.string.intent_details_intent_cocktail));
 
     setHasOptionsMenu(true);
 

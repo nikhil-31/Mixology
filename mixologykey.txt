@@ -1,0 +1,5 @@
+keystore - mixKeystore
+password - ufcs7^@jdq3
+
+key - mixology
+password - vkdx$!78u5#

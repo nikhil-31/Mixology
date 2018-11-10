@@ -18,7 +18,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.capstone.nik.mixology.Adapters.DrinkCursorAdapter;
-import com.capstone.nik.mixology.Network.MyApplication;
 import com.capstone.nik.mixology.R;
 import com.capstone.nik.mixology.utils.ContentProviderHelperMethods;
 
@@ -65,7 +64,7 @@ public class FragmentSavedDrink extends Fragment implements LoaderManager.Loader
     if (ContentProviderHelperMethods.getDrinkListFromDatabase(mActivity).size() == 0) {
       recyclerView.setVisibility(View.INVISIBLE);
       emptyTextView.setVisibility(View.VISIBLE);
-      emptyTextView.setText(getString(R.string.add_a_drink));
+      emptyTextView.setText(getString(R.string.empty_string_add_a_drink));
     }
     return rootView;
   }

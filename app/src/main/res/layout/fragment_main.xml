@@ -23,7 +23,7 @@
     android:id="@+id/empty_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:contentDescription="@string/add_a_drink"
+    android:contentDescription="@string/empty_string_add_a_drink"
     android:gravity="center"
     android:textSize="20sp"
     android:visibility="gone" />

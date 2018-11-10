@@ -17,7 +17,7 @@
       android:id="@+id/cocktail_image"
       android:layout_width="match_parent"
       android:layout_height="300dp"
-      android:contentDescription="@string/cocktail_image"
+      android:contentDescription="@string/empty_string_cocktail_image"
       android:scaleType="centerCrop" />
 
     <LinearLayout

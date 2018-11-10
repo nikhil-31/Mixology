@@ -152,8 +152,8 @@ public class FragmentRandomixer extends Fragment {
     String url = drink.getStrDrinkThumb();
     Picasso.with(mActivity).load(url).error(R.drawable.empty_glass).into(mDrinkImage);
 
-    mInstruction.setText(getResources().getString(R.string.Instructions));
-    mIngredients.setText(getResources().getString(R.string.Ingredients));
+    mInstruction.setText(getResources().getString(R.string.detail_screen_instructions));
+    mIngredients.setText(getResources().getString(R.string.detail_screen_ingredients));
 
     mDrinkName.setText(drink.getStrDrink());
     isInDatabase = ContentProviderHelperMethods.isDrinkSavedInDb(mActivity, drink.getIdDrink());

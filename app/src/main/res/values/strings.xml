@@ -19,8 +19,8 @@
   <string name="content_desc_logo_img">Logo Image</string>
 
   <!-- static data set in details fragment -->
-  <string name="Instructions">Instructions</string>
-  <string name="Ingredients">Ingredients</string>
+  <string name="detail_screen_instructions">Instructions</string>
+  <string name="detail_screen_ingredients">Ingredients</string>
 
   <!-- Intents -->
   <string name="intent_search_intent_query" translatable="false">Query</string>
@@ -79,8 +79,8 @@
   <string name="detail_share_ingredients">Ingredients: </string>
 
   <!-- Empty String -->
-  <string name="add_a_drink">Add a drink !!! Its lonely here.</string>
-  <string name="cocktail_image">cocktail_image</string>
+  <string name="empty_string_add_a_drink">Add a drink !!! Its lonely here.</string>
+  <string name="empty_string_cocktail_image">cocktail_image</string>
 
   <!-- Admob keys -->
   <!-- This is the production key -->
@@ -102,7 +102,9 @@
   <string name="login_progress_msg">Logging you in…</string>
 
   <!-- Privacy policy -->
-  <string name="privacy_policy">By signing-in, I accept <a href="https://nikhil-31.github.io/Mixology/">Privacy Policy</a></string>
+  <string name="privacy_policy_sign_in">By signing-in, I accept</string>
+  <string name="privacy_policy_sign_up">By signing-up, I accept</string>
+  <string name="privacy_policy_link">Privacy-Policy</string>
 
   <!-- Auth method picker -->
   <string name="fui_sign_in_with_google" translation_description="Sign in button text">Sign in with Google</string>

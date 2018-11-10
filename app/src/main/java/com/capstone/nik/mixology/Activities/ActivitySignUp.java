@@ -2,14 +2,19 @@ package com.capstone.nik.mixology.Activities;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Html;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.capstone.nik.mixology.R;
@@ -34,6 +39,10 @@ public class ActivitySignUp extends AppCompatActivity {
   Button signUpTextView;
   @BindView(R.id.sign_up_back)
   ImageView signUpBack;
+  @BindView(R.id.finish_sign_up_terms_and_conditions)
+  TextView mPrivacyPolicy;
+  @BindView(R.id.finish_sign_up_linear_layout)
+  LinearLayout mPrivacyPolicyLink;
 
   private FirebaseAuth mFirebaseAuth;
 
@@ -65,7 +74,14 @@ public class ActivitySignUp extends AppCompatActivity {
         startActivity(gotoSignIn);
       }
     });
-    
+
+    mPrivacyPolicyLink.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://nikhil-31.github.io/Mixology/"));
+        startActivity(browserIntent);
+      }
+    });
   }
 
   /**
@@ -108,5 +124,5 @@ public class ActivitySignUp extends AppCompatActivity {
       Toast.makeText(this, R.string.sign_up_all_fields_required, Toast.LENGTH_SHORT).show();
     }
   }
-  
+
 }

@@ -282,17 +282,10 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
     int id = item.getItemId();
 
     if (id == R.id.action_sign_out) {
-      FirebaseAuth.getInstance().signOut();
+      mFirebaseAuth.signOut();
       mUsername = ANONYMOUS;
-      FirebaseAuth.AuthStateListener authListener = new FirebaseAuth.AuthStateListener() {
-        @Override
-        public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-          FirebaseUser user = firebaseAuth.getCurrentUser();
-          if (user == null) {
-            finish();
-          }
-        }
-      };
+      Intent intent = new Intent(ActivityMain.this, ActivityLogin.class);
+      startActivity(intent);
     }
     return super.onOptionsItemSelected(item);
   }

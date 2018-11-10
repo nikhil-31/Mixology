@@ -13,6 +13,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,6 +34,7 @@ import com.capstone.nik.mixology.Network.remoteModel.Cocktails;
 import com.capstone.nik.mixology.Network.remoteModel.Drink;
 import com.capstone.nik.mixology.R;
 import com.capstone.nik.mixology.utils.ContentProviderHelperMethods;
+import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
@@ -56,6 +58,7 @@ import static com.capstone.nik.mixology.data.AlcoholicColumn._ID;
  * A placeholder fragment containing a simple view.
  */
 public class FragmentDetails extends Fragment {
+  private static final String TAG = "FragmentDetails";
 
   @Inject
   Context applicationContext;
@@ -101,13 +104,44 @@ public class FragmentDetails extends Fragment {
 
     setHasOptionsMenu(true);
 
-    MobileAds.initialize(applicationContext, "ca-app-pub-3940256099942544~3347511713");
-    //TODO - Uncomment original Ad
-//    MobileAds.initialize(applicationContext, "ca-app-pub-3940256099942544/6300978111");
+    MobileAds.initialize(applicationContext, getString(R.string.admob_app_id));
 
     AdView adView = view.findViewById(R.id.adViewDetails);
     AdRequest adRequest = new AdRequest.Builder().build();
     adView.loadAd(adRequest);
+    adView.setAdListener(new AdListener() {
+      @Override
+      public void onAdLoaded() {
+        // Code to be executed when an ad finishes loading.
+        Log.d(TAG, "onAdLoaded: ");
+      }
+
+      @Override
+      public void onAdFailedToLoad(int errorCode) {
+        // Code to be executed when an ad request fails.
+        Log.d(TAG, "onAdFailedToLoad: " + errorCode);
+      }
+
+      @Override
+      public void onAdOpened() {
+        // Code to be executed when an ad opens an overlay that
+        // covers the screen.
+        Log.d(TAG, "onAdOpened: ");
+      }
+
+      @Override
+      public void onAdLeftApplication() {
+        // Code to be executed when the user has left the app.
+        Log.d(TAG, "onAdLeftApplication: ");
+      }
+
+      @Override
+      public void onAdClosed() {
+        // Code to be executed when when the user is about to return
+        // to the app after tapping on an ad.
+        Log.d(TAG, "onAdClosed: ");
+      }
+    });
 
     mToolbar = view.findViewById(R.id.toolbar);
 

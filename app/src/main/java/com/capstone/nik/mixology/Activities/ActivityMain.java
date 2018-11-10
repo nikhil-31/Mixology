@@ -11,6 +11,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,6 +34,7 @@ import com.capstone.nik.mixology.R;
 
 import com.crashlytics.android.Crashlytics;
 //import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
@@ -45,6 +47,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 // Repo moved from gitHub to bit bucket private repo
 public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapter.OnAdapterItemSelectedListener,
     NavigationView.OnNavigationItemSelectedListener {
+  private static final String TAG = "ActivityMain";
 
   public static final int RC_SIGN_IN = 1;
   private static final String ANONYMOUS = "anonymous";
@@ -73,14 +76,45 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_navigation_drawer);
 
-    // Admob integration with my id
-    MobileAds.initialize(getApplicationContext(), "ca-app-pub-3940256099942544~3347511713");
-    //TODO - Uncomment original Ad
-//    MobileAds.initialize(getApplicationContext(), "ca-app-pub-3940256099942544/6300978111");
+    MobileAds.initialize(getApplicationContext(), getString(R.string.admob_app_id));
 
     AdView adView = findViewById(R.id.adView);
     AdRequest adRequest = new AdRequest.Builder().build();
     adView.loadAd(adRequest);
+
+    adView.setAdListener(new AdListener() {
+      @Override
+      public void onAdLoaded() {
+        // Code to be executed when an ad finishes loading.
+        Log.d(TAG, "onAdLoaded: ");
+      }
+
+      @Override
+      public void onAdFailedToLoad(int errorCode) {
+        // Code to be executed when an ad request fails.
+        Log.d(TAG, "onAdFailedToLoad: " + errorCode);
+      }
+
+      @Override
+      public void onAdOpened() {
+        // Code to be executed when an ad opens an overlay that
+        // covers the screen.
+        Log.d(TAG, "onAdOpened: ");
+      }
+
+      @Override
+      public void onAdLeftApplication() {
+        // Code to be executed when the user has left the app.
+        Log.d(TAG, "onAdLeftApplication: ");
+      }
+
+      @Override
+      public void onAdClosed() {
+        // Code to be executed when when the user is about to return
+        // to the app after tapping on an ad.
+        Log.d(TAG, "onAdClosed: ");
+      }
+    });
 
     //Default UserName
     mUsername = ANONYMOUS;
@@ -130,28 +164,6 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
         } else {
           // User is signed out
           onSignedOutTeardown();
-
-//          // If the version is higher than lollipop then set the style in firebase or set no style
-//          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//
-//            startActivityForResult(
-//                AuthUI.getInstance()
-//                    .createSignInIntentBuilder()
-//                    .setAvailableProviders(getSelectedProviders())
-//                    .setLogo(R.drawable.login_screen_image)
-//                    .setTheme(R.style.AppThemeFirebaseAuth)
-//                    .setIsSmartLockEnabled(false)
-//                    .build(),
-//                RC_SIGN_IN);
-//          } else {
-//            startActivityForResult(AuthUI.getInstance()
-//                    .createSignInIntentBuilder()
-//                    .setAvailableProviders(getSelectedProviders())
-//                    .setLogo(R.drawable.login_screen_image)
-//                    .setIsSmartLockEnabled(false)
-//                    .build(),
-//                RC_SIGN_IN);
-//          }
         }
       }
     };
@@ -177,13 +189,6 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
       }
     }
   }
-
-//  private List<AuthUI.IdpConfig> getSelectedProviders() {
-//    List<AuthUI.IdpConfig> selectedProviders = new ArrayList<>();
-//    selectedProviders.add(new AuthUI.IdpConfig.GoogleBuilder().build());
-//    selectedProviders.add(new AuthUI.IdpConfig.EmailBuilder().build());
-//    return selectedProviders;
-//  }
 
   // When the user signs out the user name is set to anonymous.
   private void onSignedOutTeardown() {

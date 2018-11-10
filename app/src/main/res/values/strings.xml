@@ -53,7 +53,6 @@
   <string name="action_sign_out">Sign Out</string>
 
   <!-- Admob ad unit id -->
-  // TODO - Change before releasing
   <string name="banner_ad_unit_id" translatable="false">ca-app-pub-3113257282676296/3350546766</string>
   <string name="banner_ad_unit_id_details" translatable="false">ca-app-pub-3113257282676296/2081424367</string>
   <string name="banner_test" translatable="false">ca-app-pub-3940256099942544/6300978111</string>
@@ -83,10 +82,9 @@
   <string name="empty_string_cocktail_image">cocktail_image</string>
 
   <!-- Admob keys -->
-  <!-- This is the production key -->
-  <!--<string name="admob_key">ca-app-pub-3940256099942544/6300978111</string>-->
-  <!-- This is the test key-->
-  <string name="admob_key">ca-app-pub-3940256099942544~3347511713</string>
+  <string name="admob_app_id">ca-app-pub-3113257282676296~5106481563</string>
+  <!-- Test admob app id -->
+  <!--<string name="admob_key">ca-app-pub-3940256099942544~3347511713</string>-->
 
   <!-- Login screen-->
   <string name="login_sign_in_button_text">Sign In</string>

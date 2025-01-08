@@ -24,58 +24,58 @@ import static com.capstone.nik.mixology.data.DrinkProvider.SavedDrink.withId;
 
 public class ContentProviderHelperMethods {
 
-  public static final String ACTION_DATABASE_UPDATED = "com.example.nik.mixology.utils.ACTION_DATA_UPDATED";
+    public static final String ACTION_DATABASE_UPDATED = "com.example.nik.mixology.utils.ACTION_DATA_UPDATED";
 
-  public static ArrayList<Cocktail> getDrinkListFromDatabase(Context context) {
-    ArrayList<Cocktail> drinkList = new ArrayList<>();
+    public static ArrayList<Cocktail> getDrinkListFromDatabase(Context context) {
+        ArrayList<Cocktail> drinkList = new ArrayList<>();
 
-    Cursor cursor = context.getContentResolver().query(CONTENT_URI_DRINK_SAVED
-        , null
-        , null
-        , null
-        , null);
+        Cursor cursor = context.getContentResolver().query(CONTENT_URI_DRINK_SAVED
+                , null
+                , null
+                , null
+                , null);
 
-    assert cursor != null;
-    if (cursor.moveToFirst()) {
-      do {
-        Cocktail cocktail = new Cocktail();
-        cocktail.setmDrinkId(cursor.getString(cursor.getColumnIndex(_ID)));
-        cocktail.setmDrinkName(cursor.getString(cursor.getColumnIndex(DRINK_NAME)));
-        cocktail.setmDrinkThumb(cursor.getString(cursor.getColumnIndex(DRINK_THUMB)));
+        assert cursor != null;
+        if (cursor.moveToFirst()) {
+            do {
+                Cocktail cocktail = new Cocktail();
+                cocktail.setmDrinkId(cursor.getString(cursor.getColumnIndex(_ID)));
+                cocktail.setmDrinkName(cursor.getString(cursor.getColumnIndex(DRINK_NAME)));
+                cocktail.setmDrinkThumb(cursor.getString(cursor.getColumnIndex(DRINK_THUMB)));
 
-        drinkList.add(cocktail);
-      }
-      while (cursor.moveToNext());
+                drinkList.add(cocktail);
+            }
+            while (cursor.moveToNext());
+        }
+        cursor.close();
+        return drinkList;
     }
-    cursor.close();
-    return drinkList;
-  }
 
-  public static boolean isDrinkSavedInDb(Context context, String id) {
-    ArrayList<Cocktail> drinkList = new ArrayList<>(getDrinkListFromDatabase(context));
+    public static boolean isDrinkSavedInDb(Context context, String id) {
+        ArrayList<Cocktail> drinkList = new ArrayList<>(getDrinkListFromDatabase(context));
 
-    for (Cocktail listItem : drinkList) {
-      if (listItem.getmDrinkId().equals(id)) {
-        return true;
-      }
+        for (Cocktail listItem : drinkList) {
+            if (listItem.getmDrinkId().equals(id)) {
+                return true;
+            }
+        }
+        return false;
     }
-    return false;
-  }
 
-  public static void insertData(Activity activity, String id, ContentValues cv) {
-    activity.getContentResolver().insert(withId(id), cv);
-    updateWidgets(activity);
-  }
+    public static void insertData(Activity activity, String id, ContentValues cv) {
+        activity.getContentResolver().insert(withId(id), cv);
+        updateWidgets(activity);
+    }
 
-  public static void deleteData(Activity activity, String id) {
-    activity.getContentResolver().delete(withId(id), null, null);
-    updateWidgets(activity);
-  }
+    public static void deleteData(Activity activity, String id) {
+        activity.getContentResolver().delete(withId(id), null, null);
+        updateWidgets(activity);
+    }
 
-  private static void updateWidgets(Context context) {
-    // Setting the package ensures that only components in our app will receive the broadcast
-    Intent dataUpdatedIntent = new Intent(ACTION_DATABASE_UPDATED).setPackage(context.getPackageName());
-    context.sendBroadcast(dataUpdatedIntent);
-  }
+    private static void updateWidgets(Context context) {
+        // Setting the package ensures that only components in our app will receive the broadcast
+        Intent dataUpdatedIntent = new Intent(ACTION_DATABASE_UPDATED).setPackage(context.getPackageName());
+        context.sendBroadcast(dataUpdatedIntent);
+    }
 
 }

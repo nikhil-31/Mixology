@@ -56,7 +56,7 @@ This product uses TheCocktailDb API.
 
 ![cocktaildb_logo](https://cloud.githubusercontent.com/assets/19944703/21918710/443d7db0-d97a-11e6-8e92-b3b0758338e1.png)
 
-
+ 
 ## License
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 

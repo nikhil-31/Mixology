@@ -26,29 +26,29 @@ import dagger.Component;
 @Component(modules = ApplicationModule.class)
 public interface ApplicationComponent {
 
-  void inject(FragmentAlcoholic target);
+    void inject(FragmentAlcoholic target);
 
-  void inject(FragmentCocktail target);
+    void inject(FragmentCocktail target);
 
-  void inject(FragmentCocktailGlass target);
+    void inject(FragmentCocktailGlass target);
 
-  void inject(FragmentDetails target);
+    void inject(FragmentDetails target);
 
-  void inject(FragmentGin target);
+    void inject(FragmentGin target);
 
-  void inject(FragmentHighballGlass target);
+    void inject(FragmentHighballGlass target);
 
-  void inject(FragmentNonAlcoholic target);
+    void inject(FragmentNonAlcoholic target);
 
-  void inject(FragmentOrdinaryDrink target);
+    void inject(FragmentOrdinaryDrink target);
 
-  void inject(FragmentRandomixer target);
+    void inject(FragmentRandomixer target);
 
-  void inject(FragmentVodka target);
+    void inject(FragmentVodka target);
 
-  void inject(MyGcmJobService target);
+    void inject(MyGcmJobService target);
 
-  void inject(MyJobService target);
+    void inject(MyJobService target);
 
-  void inject(FragmentDrink target);
+    void inject(FragmentDrink target);
 }

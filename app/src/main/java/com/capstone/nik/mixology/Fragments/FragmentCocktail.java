@@ -30,71 +30,71 @@ import static com.capstone.nik.mixology.data.DrinkProvider.Cocktail.CONTENT_URI_
  * A simple {@link Fragment} subclass.
  */
 public class FragmentCocktail extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
-  private static final int CURSOR_LOADER_ID = 0;
+    private static final int CURSOR_LOADER_ID = 0;
 
-  private DrinkCursorAdapter mDrinkAdapter;
-  private Activity mActivity;
+    private DrinkCursorAdapter mDrinkAdapter;
+    private Activity mActivity;
 
-  @Inject
-  JobManager mJobManager;
+    @Inject
+    JobManager mJobManager;
 
-  public FragmentCocktail() {
-  }
-
-  @Override
-  public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-    super.onActivityCreated(savedInstanceState);
-    getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
-  }
-
-  @Override
-  public void onCreate(@Nullable Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    mActivity = getActivity();
-    if (mActivity != null) {
-      ((MyApplication) mActivity.getApplication()).getApplicationComponent().inject(this);
+    public FragmentCocktail() {
     }
-  }
 
-  @Override
-  public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                           Bundle savedInstanceState) {
-    View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-    RecyclerView recyclerView = rootView.findViewById(R.id.recycler_main);
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
+    }
 
-    GridLayoutManager gridLayoutManager = new GridLayoutManager(mActivity, 2);
-    recyclerView.setLayoutManager(gridLayoutManager);
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mActivity = getActivity();
+        if (mActivity != null) {
+            ((MyApplication) mActivity.getApplication()).getApplicationComponent().inject(this);
+        }
+    }
 
-    mDrinkAdapter = new DrinkCursorAdapter(null, mActivity);
-    recyclerView.setAdapter(mDrinkAdapter);
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        RecyclerView recyclerView = rootView.findViewById(R.id.recycler_main);
 
-    mJobManager.addJobInBackground(new DrinkTypeFilterJob(CONTENT_URI_COCKTAIL.toString(), "Cocktail"));
-    return rootView;
-  }
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(mActivity, 2);
+        recyclerView.setLayoutManager(gridLayoutManager);
 
-  @Override
-  public void onResume() {
-    super.onResume();
-    getLoaderManager().restartLoader(CURSOR_LOADER_ID, null, this);
-  }
+        mDrinkAdapter = new DrinkCursorAdapter(null, mActivity);
+        recyclerView.setAdapter(mDrinkAdapter);
 
-  @Override
-  public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-    return new CursorLoader(mActivity
-        , CONTENT_URI_COCKTAIL
-        , null
-        , null
-        , null
-        , null);
-  }
+        mJobManager.addJobInBackground(new DrinkTypeFilterJob(CONTENT_URI_COCKTAIL.toString(), "Cocktail"));
+        return rootView;
+    }
 
-  @Override
-  public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-    mDrinkAdapter.swapCursor(data);
-  }
+    @Override
+    public void onResume() {
+        super.onResume();
+        getLoaderManager().restartLoader(CURSOR_LOADER_ID, null, this);
+    }
 
-  @Override
-  public void onLoaderReset(Loader<Cursor> loader) {
-    mDrinkAdapter.swapCursor(null);
-  }
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(mActivity
+                , CONTENT_URI_COCKTAIL
+                , null
+                , null
+                , null
+                , null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        mDrinkAdapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mDrinkAdapter.swapCursor(null);
+    }
 }

@@ -10,15 +10,15 @@ import java.util.List;
  */
 
 public class Cocktails {
-  @SerializedName("drinks")
-  @Expose
-  private List<Drink> drinks = null;
+    @SerializedName("drinks")
+    @Expose
+    private List<Drink> drinks = null;
 
-  public List<Drink> getDrinks() {
-    return drinks;
-  }
+    public List<Drink> getDrinks() {
+        return drinks;
+    }
 
-  public void setDrinks(List<Drink> drinks) {
-    this.drinks = drinks;
-  }
+    public void setDrinks(List<Drink> drinks) {
+        this.drinks = drinks;
+    }
 }

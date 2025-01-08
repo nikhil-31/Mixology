@@ -14,13 +14,13 @@ import javax.inject.Inject;
 
 public class MyJobService extends FrameworkJobSchedulerService {
 
-  @Inject
-  JobManager mJobManager;
+    @Inject
+    JobManager mJobManager;
 
-  @NonNull
-  @Override
-  protected JobManager getJobManager() {
-    ((MyApplication) getApplication()).getApplicationComponent().inject(this);
-    return mJobManager;
-  }
+    @NonNull
+    @Override
+    protected JobManager getJobManager() {
+        ((MyApplication) getApplication()).getApplicationComponent().inject(this);
+        return mJobManager;
+    }
 }

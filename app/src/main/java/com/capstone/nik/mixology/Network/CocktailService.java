@@ -13,31 +13,31 @@ import retrofit2.http.Query;
 
 public interface CocktailService {
 
-  // Has Alcohol Filter
-  @GET("filter.php")
-  Call<Cocktails> getAlcoholFilter(@Query("a") String filter);
+    // Has Alcohol Filter
+    @GET("filter.php")
+    Call<Cocktails> getAlcoholFilter(@Query("a") String filter);
 
-  // Glass Type Filter
-  @GET("filter.php")
-  Call<Cocktails> getGlassFilter(@Query("g") String filter);
+    // Glass Type Filter
+    @GET("filter.php")
+    Call<Cocktails> getGlassFilter(@Query("g") String filter);
 
-  // Ingredient Filter
-  @GET("filter.php")
-  Call<Cocktails> getIngredientFilter(@Query("i") String filter);
+    // Ingredient Filter
+    @GET("filter.php")
+    Call<Cocktails> getIngredientFilter(@Query("i") String filter);
 
-  // Drink Category (Type) Filter
-  @GET("filter.php")
-  Call<Cocktails> getDrinkTypeFilter(@Query("c") String filter);
+    // Drink Category (Type) Filter
+    @GET("filter.php")
+    Call<Cocktails> getDrinkTypeFilter(@Query("c") String filter);
 
-  // Search
-  @GET("search.php")
-  Call<Cocktails> getSearchResults(@Query("s") String search);
+    // Search
+    @GET("search.php")
+    Call<Cocktails> getSearchResults(@Query("s") String search);
 
-  //Randomixer
-  @GET("random.php")
-  Call<Cocktails> getRandomixer();
+    //Randomixer
+    @GET("random.php")
+    Call<Cocktails> getRandomixer();
 
-  // Search by id
-  @GET("lookup.php")
-  Call<Cocktails> getDrinkById(@Query("i") String id);
+    // Search by id
+    @GET("lookup.php")
+    Call<Cocktails> getDrinkById(@Query("i") String id);
 }

@@ -30,100 +30,100 @@ import static com.capstone.nik.mixology.data.DrinkProvider.Alcoholic.CONTENT_URI
  * Use the {@link FragmentDrink#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class FragmentDrink extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
-  private static final String TAG = "FragmentDrink";
+public class FragmentDrink extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+    private static final String TAG = "FragmentDrink";
 
-  // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-  private static final String ARG_PARAM1 = "param1";
-  private static final String ARG_PARAM2 = "param2";
+    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+    private static final String ARG_PARAM1 = "param1";
+    private static final String ARG_PARAM2 = "param2";
 
-  private String mParam1;
-  private String mParam2;
+    private String mParam1;
+    private String mParam2;
 
-  private static final int CURSOR_LOADER_ID = 0;
-  private static final int CURSOR_LOADER_ID_ = 1;
+    private static final int CURSOR_LOADER_ID = 0;
+    private static final int CURSOR_LOADER_ID_ = 1;
 
-  private Activity mActivity;
+    private Activity mActivity;
 
-  @Inject
-  JobManager mJobManager;
+    @Inject
+    JobManager mJobManager;
 
-  public FragmentDrink() {
-    // Required empty public constructor
-  }
-
-  /**
-   * Use this factory method to create a new instance of
-   * this fragment using the provided parameters.
-   *
-   * @param param1 Parameter 1.
-   * @param param2 Parameter 2.
-   * @return A new instance of fragment FragmentDrink.
-   */
-  public static FragmentDrink newInstance(String param1, String param2) {
-    FragmentDrink fragment = new FragmentDrink();
-    Bundle args = new Bundle();
-    args.putString(ARG_PARAM1, param1);
-    args.putString(ARG_PARAM2, param2);
-    fragment.setArguments(args);
-    return fragment;
-  }
-
-  @Override
-  public void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    if (getArguments() != null) {
-      mParam1 = getArguments().getString(ARG_PARAM1);
-      mParam2 = getArguments().getString(ARG_PARAM2);
+    public FragmentDrink() {
+        // Required empty public constructor
     }
-    mActivity = getActivity();
-    if (mActivity != null) {
-      ((MyApplication) mActivity.getApplication()).getApplicationComponent().inject(this);
+
+    /**
+     * Use this factory method to create a new instance of
+     * this fragment using the provided parameters.
+     *
+     * @param param1 Parameter 1.
+     * @param param2 Parameter 2.
+     * @return A new instance of fragment FragmentDrink.
+     */
+    public static FragmentDrink newInstance(String param1, String param2) {
+        FragmentDrink fragment = new FragmentDrink();
+        Bundle args = new Bundle();
+        args.putString(ARG_PARAM1, param1);
+        args.putString(ARG_PARAM2, param2);
+        fragment.setArguments(args);
+        return fragment;
     }
-  }
 
-  @Override
-  public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                           Bundle savedInstanceState) {
-    // Inflate the layout for this fragment
-    View rootView =  inflater.inflate(R.layout.fragment_main, container, false);
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            mParam1 = getArguments().getString(ARG_PARAM1);
+            mParam2 = getArguments().getString(ARG_PARAM2);
+        }
+        mActivity = getActivity();
+        if (mActivity != null) {
+            ((MyApplication) mActivity.getApplication()).getApplicationComponent().inject(this);
+        }
+    }
 
-    RecyclerView recyclerView = rootView.findViewById(R.id.recycler_main);
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-    GridLayoutManager gridLayoutManager = new GridLayoutManager(mActivity, 2);
-    recyclerView.setLayoutManager(gridLayoutManager);
+        RecyclerView recyclerView = rootView.findViewById(R.id.recycler_main);
 
-    DrinkCursorAdapter mDrinkAdapter = new DrinkCursorAdapter(null, mActivity);
-    recyclerView.setAdapter(mDrinkAdapter);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(mActivity, 2);
+        recyclerView.setLayoutManager(gridLayoutManager);
 
-    mJobManager.addJobInBackground(new AlcoholFilterJob(CONTENT_URI_ALCOHOLIC.toString(), "Alcoholic"));
+        DrinkCursorAdapter mDrinkAdapter = new DrinkCursorAdapter(null, mActivity);
+        recyclerView.setAdapter(mDrinkAdapter);
 
-
-    return rootView;
-  }
-
-
-  @Override
-  public void onResume() {
-    super.onResume();
-    getLoaderManager().restartLoader(CURSOR_LOADER_ID, null, this);
-
-  }
+        mJobManager.addJobInBackground(new AlcoholFilterJob(CONTENT_URI_ALCOHOLIC.toString(), "Alcoholic"));
 
 
-  @NonNull
-  @Override
-  public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
-    return null;
-  }
+        return rootView;
+    }
 
-  @Override
-  public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
 
-  }
+    @Override
+    public void onResume() {
+        super.onResume();
+        getLoaderManager().restartLoader(CURSOR_LOADER_ID, null, this);
 
-  @Override
-  public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+    }
 
-  }
+
+    @NonNull
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
+        return null;
+    }
+
+    @Override
+    public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
+
+    }
+
+    @Override
+    public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+
+    }
 }

@@ -10,13 +10,13 @@ import net.simonvt.schematic.annotation.PrimaryKey;
 
 public interface AlcoholicColumn {
 
-  @DataType(DataType.Type.INTEGER)
-  @PrimaryKey
-  String _ID = "_id";
-  @DataType(DataType.Type.TEXT)
-  @NotNull
-  String DRINK_NAME = "name";
-  @DataType(DataType.Type.TEXT)
-  @NotNull
-  String DRINK_THUMB = "thumb";
+    @DataType(DataType.Type.INTEGER)
+    @PrimaryKey
+    String _ID = "_id";
+    @DataType(DataType.Type.TEXT)
+    @NotNull
+    String DRINK_NAME = "name";
+    @DataType(DataType.Type.TEXT)
+    @NotNull
+    String DRINK_THUMB = "thumb";
 }

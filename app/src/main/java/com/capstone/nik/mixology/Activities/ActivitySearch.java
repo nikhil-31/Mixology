@@ -31,105 +31,105 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ActivitySearch extends AppCompatActivity implements SearchAdapter.OnAdapterItemSelectedListener {
-  private static final String TAG = "ActivitySearch";
+    private static final String TAG = "ActivitySearch";
 
-  private TextView mEmptyView;
-  private RecyclerView mRecyclerView;
+    private TextView mEmptyView;
+    private RecyclerView mRecyclerView;
 
-  private CocktailService service;
-  private SearchAdapter mSearchAdapter;
+    private CocktailService service;
+    private SearchAdapter mSearchAdapter;
 
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_search);
-    Toolbar toolbar = findViewById(R.id.toolbar);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_search);
+        Toolbar toolbar = findViewById(R.id.toolbar);
 
-    String query = getIntent().getStringExtra(getString(R.string.intent_search_intent_query));
-    String queryAdjusted = query.replaceAll("%20", " ");
+        String query = getIntent().getStringExtra(getString(R.string.intent_search_intent_query));
+        String queryAdjusted = query.replaceAll("%20", " ");
 
-    setSupportActionBar(toolbar);
-    if (getSupportActionBar() != null) {
-      getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-      getSupportActionBar().setTitle(queryAdjusted);
-    }
-
-    mRecyclerView = findViewById(R.id.recycler_search);
-    mEmptyView = findViewById(R.id.empty_view);
-
-    LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-    mRecyclerView.setLayoutManager(mLinearLayoutManager);
-
-    mSearchAdapter = new SearchAdapter(this);
-    mRecyclerView.setAdapter(mSearchAdapter);
-
-    final Retrofit.Builder builder = new Retrofit.Builder()
-        .baseUrl(CocktailURLs.BASE_URL)
-        .addConverterFactory(GsonConverterFactory.create());
-
-    Retrofit retrofit = builder.build();
-    service = retrofit.create(CocktailService.class);
-
-    sendQuery(queryAdjusted);
-  }
-
-
-  @Override
-  public boolean onCreateOptionsMenu(Menu menu) {
-    getMenuInflater().inflate(R.menu.menu_search, menu);
-
-    SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
-    searchView.setQueryHint(getResources().getString(R.string.action_search));
-    searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-      @Override
-      public boolean onQueryTextSubmit(String query) {
-        query = query.toLowerCase();
-        sendQuery(query);
-        return false;
-      }
-
-      @Override
-      public boolean onQueryTextChange(String query) {
-        return false;
-      }
-    });
-    return true;
-  }
-
-  private void sendQuery(String mQuery) {
-
-    Call<Cocktails> listCall = service.getSearchResults(mQuery);
-    listCall.enqueue(new Callback<Cocktails>() {
-      @Override
-      public void onResponse(@NonNull Call<Cocktails> call, @NonNull Response<Cocktails> response) {
-        Cocktails cocktails = response.body();
-        if (cocktails != null) {
-          List<Drink> drinks = cocktails.getDrinks();
-          if (drinks != null && drinks.size() != 0) {
-            mSearchAdapter.setCocktailList(drinks);
-            mRecyclerView.setVisibility(View.VISIBLE);
-            mEmptyView.setVisibility(View.GONE);
-          } else {
-            mRecyclerView.setVisibility(View.GONE);
-            mEmptyView.setVisibility(View.VISIBLE);
-          }
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle(queryAdjusted);
         }
-      }
 
-      @Override
-      public void onFailure(@NonNull Call<Cocktails> call, @NonNull Throwable t) {
-        Log.e(TAG, "Error", t);
-      }
-    });
-  }
+        mRecyclerView = findViewById(R.id.recycler_search);
+        mEmptyView = findViewById(R.id.empty_view);
 
-  @Override
-  public void onItemSelected(Cocktail id) {
-    FragmentDetails detailsFragment = (FragmentDetails) getSupportFragmentManager().findFragmentById(R.id.fragment_details);
-    if (detailsFragment == null) {
-      Intent intent = new Intent(this, ActivityDetails.class);
-      intent.putExtra(getString(R.string.intent_details_intent_cocktail), id);
-      startActivity(intent);
+        LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        mRecyclerView.setLayoutManager(mLinearLayoutManager);
+
+        mSearchAdapter = new SearchAdapter(this);
+        mRecyclerView.setAdapter(mSearchAdapter);
+
+        final Retrofit.Builder builder = new Retrofit.Builder()
+                .baseUrl(CocktailURLs.BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create());
+
+        Retrofit retrofit = builder.build();
+        service = retrofit.create(CocktailService.class);
+
+        sendQuery(queryAdjusted);
     }
-  }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_search, menu);
+
+        SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
+        searchView.setQueryHint(getResources().getString(R.string.action_search));
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                query = query.toLowerCase();
+                sendQuery(query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String query) {
+                return false;
+            }
+        });
+        return true;
+    }
+
+    private void sendQuery(String mQuery) {
+
+        Call<Cocktails> listCall = service.getSearchResults(mQuery);
+        listCall.enqueue(new Callback<Cocktails>() {
+            @Override
+            public void onResponse(@NonNull Call<Cocktails> call, @NonNull Response<Cocktails> response) {
+                Cocktails cocktails = response.body();
+                if (cocktails != null) {
+                    List<Drink> drinks = cocktails.getDrinks();
+                    if (drinks != null && drinks.size() != 0) {
+                        mSearchAdapter.setCocktailList(drinks);
+                        mRecyclerView.setVisibility(View.VISIBLE);
+                        mEmptyView.setVisibility(View.GONE);
+                    } else {
+                        mRecyclerView.setVisibility(View.GONE);
+                        mEmptyView.setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Cocktails> call, @NonNull Throwable t) {
+                Log.e(TAG, "Error", t);
+            }
+        });
+    }
+
+    @Override
+    public void onItemSelected(Cocktail id) {
+        FragmentDetails detailsFragment = (FragmentDetails) getSupportFragmentManager().findFragmentById(R.id.fragment_details);
+        if (detailsFragment == null) {
+            Intent intent = new Intent(this, ActivityDetails.class);
+            intent.putExtra(getString(R.string.intent_details_intent_cocktail), id);
+            startActivity(intent);
+        }
+    }
 }

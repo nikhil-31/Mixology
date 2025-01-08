@@ -53,7 +53,7 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
         String ingredient = measures.getIngredient();
         String in = ingredient.replaceAll(" ", "%20");
 
-        Picasso.with(context).load(COCKTAIL_INGREDIENTS_URL + in + COCKTAIL_INGREDIENT_PNG_SMALL)
+        Picasso.get().load(COCKTAIL_INGREDIENTS_URL + in + COCKTAIL_INGREDIENT_PNG_SMALL)
                 .error(R.drawable.error_ingredient_image)
                 .into(holder.mIngredientsImage);
 

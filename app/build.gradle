@@ -50,19 +50,20 @@ dependencies {
   implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
 
   // Image Loading
-  implementation 'com.squareup.picasso:picasso:2.5.2'
+  implementation 'com.squareup.picasso:picasso:2.71828'
   implementation 'de.hdodenhof:circleimageview:2.1.0'
 
-  implementation('com.google.firebase:firebase-auth:16.0.5') {
-    exclude group: 'om.google.android.gms', module: 'play-services-base'
-    exclude group: 'com.android.support', module: 'support-v4'
-    exclude group: 'com.android.support', module: 'support-compat'
-    exclude group: 'com.android.support', module: 'ssupport-media-compat'
-    exclude group: 'com.android.support', module: 'support-annotations'
-    exclude group: 'com.android.support', module: 'support-core-utils'
-    exclude group: 'com.android.support', module: 'support-core-ui'
-    exclude group: 'com.android.support', module: 'support-fragment'
-  }
+//  implementation('com.google.firebase:firebase-auth:16.0.5') {
+//    exclude group: 'om.google.android.gms', module: 'play-services-base'
+//    exclude group: 'com.android.support', module: 'support-v4'
+//    exclude group: 'com.android.support', module: 'support-compat'
+//    exclude group: 'com.android.support', module: 'ssupport-media-compat'
+//    exclude group: 'com.android.support', module: 'support-annotations'
+//    exclude group: 'com.android.support', module: 'support-core-utils'
+//    exclude group: 'com.android.support', module: 'support-core-ui'
+//    exclude group: 'com.android.support', module: 'support-fragment'
+//  }
+
   implementation('com.google.firebase:firebase-ads:17.0.0') {
     exclude group: 'com.android.support', module: 'customtabs'
   }

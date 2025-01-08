@@ -38,8 +38,8 @@ import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+//import com.google.firebase.auth.FirebaseAuth;
+//import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -57,8 +57,8 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
     private NavigationView navigationView = null;
 
     // Firebase instance variables
-    private FirebaseAuth mFirebaseAuth;
-    private FirebaseAuth.AuthStateListener mAuthStateListener;
+//    private FirebaseAuth mFirebaseAuth;
+//    private FirebaseAuth.AuthStateListener mAuthStateListener;
 
     // Username
     private String mUsername;
@@ -120,7 +120,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
         mUsername = ANONYMOUS;
 
         //Initialize Firebase components
-        mFirebaseAuth = FirebaseAuth.getInstance();
+//        mFirebaseAuth = FirebaseAuth.getInstance();
 
         // Initializing the toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -148,25 +148,25 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
         navigate(mNavItemSelected);
 
         // Checks if the user is signed in or not
-        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    // User is signed in
-//          Crashlytics.setUserEmail(user.getEmail());
-                    if (user.getPhotoUrl() != null) {    // If the user is signed and there is a photo available
-                        onSignedInInitialize(user.getDisplayName(), user.getEmail(), user.getPhotoUrl());
-                    } else {
-                        onSignedInInitialize(user.getEmail());
-
-                    }
-                } else {
-                    // User is signed out
-                    onSignedOutTeardown();
-                }
-            }
-        };
+//        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
+//            @Override
+//            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+//                FirebaseUser user = firebaseAuth.getCurrentUser();
+//                if (user != null) {
+//                    // User is signed in
+////          Crashlytics.setUserEmail(user.getEmail());
+//                    if (user.getPhotoUrl() != null) {    // If the user is signed and there is a photo available
+//                        onSignedInInitialize(user.getDisplayName(), user.getEmail(), user.getPhotoUrl());
+//                    } else {
+//                        onSignedInInitialize(user.getEmail());
+//
+//                    }
+//                } else {
+//                    // User is signed out
+//                    onSignedOutTeardown();
+//                }
+//            }
+//        };
 
         // Restoring the title after rotation
         if (savedInstanceState != null && getSupportActionBar() != null) {
@@ -205,12 +205,12 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
             mProfileEmailText.setText(email);
         }
         if (imageUrl != null) {
-            Picasso.with(getApplicationContext()).load(imageUrl).error(R.drawable.empty_profile).into(mProfileImage);
+            Picasso.get().load(imageUrl).error(R.drawable.empty_profile).into(mProfileImage);
         }
     }
 
     private void onSignedInInitialize(String email) {
-        Picasso.with(getApplicationContext())
+        Picasso.get()
                 .load(R.drawable.empty_profile)
                 .into(mProfileImage);
 
@@ -229,14 +229,14 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
     protected void onResume() {
         super.onResume();
         // Add the auth state listener when the activity is resumed.
-        mFirebaseAuth.addAuthStateListener(mAuthStateListener);
+//        mFirebaseAuth.addAuthStateListener(mAuthStateListener);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         // Auth state listener is removed when the activity is paused
-        mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
+//        mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
     }
 
     @Override
@@ -287,7 +287,7 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
         int id = item.getItemId();
 
         if (id == R.id.action_sign_out) {
-            mFirebaseAuth.signOut();
+//            mFirebaseAuth.signOut();
             mUsername = ANONYMOUS;
             Intent intent = new Intent(ActivityMain.this, ActivityLogin.class);
             startActivity(intent);

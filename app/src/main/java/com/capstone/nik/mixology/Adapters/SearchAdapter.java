@@ -57,7 +57,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
 
         Drink currentCocktail = mCocktailDetails.get(position);
         holder.textView.setText(currentCocktail.getStrDrink());
-        Picasso.with(mAct)
+        Picasso.get()
                 .load(currentCocktail.getStrDrinkThumb())
                 .error(R.drawable.empty_glass)
                 .into(holder.image);

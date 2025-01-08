@@ -198,7 +198,7 @@ public class FragmentDetails extends Fragment {
         sendJsonRequest(mCocktailId);
 
         mToolbar.setTitle(cocktail.getmDrinkName());
-        Picasso.with(mActivity).load(cocktail.getmDrinkThumb()).error(R.drawable.empty_glass).into(mDrinkImage);
+        Picasso.get().load(cocktail.getmDrinkThumb()).error(R.drawable.empty_glass).into(mDrinkImage);
 
     }
 

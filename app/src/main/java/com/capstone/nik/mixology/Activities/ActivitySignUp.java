@@ -15,9 +15,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.capstone.nik.mixology.R;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthUserCollisionException;
-import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
+//import com.google.firebase.auth.FirebaseAuth;
+//import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+//import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 
 
 public class ActivitySignUp extends AppCompatActivity {
@@ -30,7 +30,7 @@ public class ActivitySignUp extends AppCompatActivity {
     TextView mPrivacyPolicy;
     LinearLayout mPrivacyPolicyLink;
 
-    private FirebaseAuth mFirebaseAuth;
+//    private FirebaseAuth mFirebaseAuth;
 
     private ProgressDialog mProgress;
 
@@ -47,7 +47,7 @@ public class ActivitySignUp extends AppCompatActivity {
         mPrivacyPolicyLink = findViewById(R.id.finish_sign_up_linear_layout);
 
         // Firebase Authentication Variables
-        mFirebaseAuth = FirebaseAuth.getInstance();
+//        mFirebaseAuth = FirebaseAuth.getInstance();
 
         // Init progress dialog
         mProgress = new ProgressDialog(this);
@@ -82,25 +82,25 @@ public class ActivitySignUp extends AppCompatActivity {
             mProgress.setTitle(getString(R.string.sign_up_title_text));
             mProgress.show();
 
-            mFirebaseAuth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            mProgress.dismiss();
-
-                            Intent mainIntent = new Intent(ActivitySignUp.this, ActivityMain.class);
-                            mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                            startActivity(mainIntent);
-
-                        } else if (!task.isSuccessful()) {
-                            if (task.getException() instanceof FirebaseAuthUserCollisionException) {
-                                Toast.makeText(ActivitySignUp.this, R.string.sign_up_user_exists, Toast.LENGTH_SHORT).show();
-                            }
-                            if (task.getException() instanceof FirebaseAuthWeakPasswordException) {
-                                Toast.makeText(ActivitySignUp.this, R.string.sign_up_please_select_strong_password, Toast.LENGTH_SHORT).show();
-                            }
-                            mProgress.dismiss();
-                        }
-                    });
+//            mFirebaseAuth.createUserWithEmailAndPassword(email, password)
+//                    .addOnCompleteListener(task -> {
+//                        if (task.isSuccessful()) {
+//                            mProgress.dismiss();
+//
+//                            Intent mainIntent = new Intent(ActivitySignUp.this, ActivityMain.class);
+//                            mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                            startActivity(mainIntent);
+//
+//                        } else if (!task.isSuccessful()) {
+//                            if (task.getException() instanceof FirebaseAuthUserCollisionException) {
+//                                Toast.makeText(ActivitySignUp.this, R.string.sign_up_user_exists, Toast.LENGTH_SHORT).show();
+//                            }
+//                            if (task.getException() instanceof FirebaseAuthWeakPasswordException) {
+//                                Toast.makeText(ActivitySignUp.this, R.string.sign_up_please_select_strong_password, Toast.LENGTH_SHORT).show();
+//                            }
+//                            mProgress.dismiss();
+//                        }
+//                    });
         } else {
             Toast.makeText(this, R.string.sign_up_all_fields_required, Toast.LENGTH_SHORT).show();
         }

@@ -44,7 +44,7 @@ public class DrinkCursorAdapter extends CursorRecyclerViewAdapter<DrinkCursorAda
         viewHolder.textView.setText(cursor.getString(cursor.getColumnIndex(DRINK_NAME)));
         String url = cursor.getString(cursor.getColumnIndex(DRINK_THUMB)).trim();
 
-        Picasso.with(mAct).load(url).error(R.drawable.empty_glass).into(viewHolder.image);
+        Picasso.get().load(url).error(R.drawable.empty_glass).into(viewHolder.image);
 
         boolean isInDatabase = ContentProviderHelperMethods.isDrinkSavedInDb(mAct
                 , cursor.getString(cursor.getColumnIndex(_ID)));

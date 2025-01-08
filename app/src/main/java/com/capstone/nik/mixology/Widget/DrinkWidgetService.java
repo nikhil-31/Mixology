@@ -127,7 +127,7 @@ public class DrinkWidgetService extends RemoteViewsService {
                 remoteViews.setImageViewBitmap(R.id.list_widget_icon, icon);
             } else {
                 try {
-                    Bitmap bitmap = Picasso.with(context).load(thumbUrl).get();
+                    Bitmap bitmap = Picasso.get().load(thumbUrl).get();
                     remoteViews.setImageViewBitmap(R.id.list_widget_icon, bitmap);
                 } catch (IOException e) {
                     e.printStackTrace();

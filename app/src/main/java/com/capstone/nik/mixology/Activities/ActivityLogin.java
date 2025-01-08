@@ -3,7 +3,6 @@ package com.capstone.nik.mixology.Activities;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
@@ -24,15 +23,14 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
-import com.google.firebase.auth.FirebaseAuthInvalidUserException;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GoogleAuthProvider;
+//import com.google.firebase.auth.AuthCredential;
+//import com.google.firebase.auth.AuthResult;
+//import com.google.firebase.auth.FirebaseAuth;
+//import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+//import com.google.firebase.auth.FirebaseAuthInvalidUserException;
+//import com.google.firebase.auth.FirebaseUser;
+//import com.google.firebase.auth.GoogleAuthProvider;
 
 
 public class ActivityLogin extends AppCompatActivity {
@@ -56,8 +54,8 @@ public class ActivityLogin extends AppCompatActivity {
     private GoogleSignInClient mGoogleSignInClient;
 
     // Firebase auth state listener
-    private FirebaseAuth mFirebaseAuth;
-    private FirebaseAuth.AuthStateListener mAuthStateListener;
+//    private FirebaseAuth mFirebaseAuth;
+//    private FirebaseAuth.AuthStateListener mAuthStateListener;
 
     // Progress dialog
     private ProgressDialog mProgress;
@@ -80,7 +78,7 @@ public class ActivityLogin extends AppCompatActivity {
         mPrivacyPolicyLink = findViewById(R.id.login_privacy_policy_linear_layout);
 
         // Init firebase auth
-        mFirebaseAuth = FirebaseAuth.getInstance();
+//        mFirebaseAuth = FirebaseAuth.getInstance();
 
         // Init progress dialog
         mProgress = new ProgressDialog(this);
@@ -94,15 +92,15 @@ public class ActivityLogin extends AppCompatActivity {
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
         // Firebase Authentication Variables
-        mAuthStateListener = firebaseAuth -> {
-            FirebaseUser user = firebaseAuth.getCurrentUser();
-            if (user == null) {
-                setLogin();
-            } else {
-                Intent intent = new Intent(ActivityLogin.this, ActivityMain.class);
-                startActivity(intent);
-            }
-        };
+//        mAuthStateListener = firebaseAuth -> {
+//            FirebaseUser user = firebaseAuth.getCurrentUser();
+//            if (user == null) {
+//                setLogin();
+//            } else {
+//                Intent intent = new Intent(ActivityLogin.this, ActivityMain.class);
+//                startActivity(intent);
+//            }
+//        };
 
         // Login in button on click
         mLoginButton.setOnClickListener(v -> checkLogin());
@@ -151,23 +149,23 @@ public class ActivityLogin extends AppCompatActivity {
             mProgress.setTitle(getString(R.string.login_message_login));
             mProgress.show();
 
-            mFirebaseAuth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            mProgress.dismiss();
-                        } else if (!task.isSuccessful()) {
-                            try {
-                                throw task.getException();
-                            } catch (FirebaseAuthInvalidCredentialsException e) {
-                                Toast.makeText(ActivityLogin.this, getString(R.string.login_username_password_invalid), Toast.LENGTH_SHORT).show();
-                            } catch (FirebaseAuthInvalidUserException e) {
-                                Toast.makeText(ActivityLogin.this, getString(R.string.login_user_not_present), Toast.LENGTH_SHORT).show();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                            mProgress.dismiss();
-                        }
-                    });
+//            mFirebaseAuth.signInWithEmailAndPassword(email, password)
+//                    .addOnCompleteListener(task -> {
+//                        if (task.isSuccessful()) {
+//                            mProgress.dismiss();
+//                        } else if (!task.isSuccessful()) {
+//                            try {
+//                                throw task.getException();
+//                            } catch (FirebaseAuthInvalidCredentialsException e) {
+//                                Toast.makeText(ActivityLogin.this, getString(R.string.login_username_password_invalid), Toast.LENGTH_SHORT).show();
+//                            } catch (FirebaseAuthInvalidUserException e) {
+//                                Toast.makeText(ActivityLogin.this, getString(R.string.login_user_not_present), Toast.LENGTH_SHORT).show();
+//                            } catch (Exception e) {
+//                                e.printStackTrace();
+//                            }
+//                            mProgress.dismiss();
+//                        }
+//                    });
         }
     }
 
@@ -196,24 +194,22 @@ public class ActivityLogin extends AppCompatActivity {
      * Authentication google login with firebase login
      */
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
-        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
-        mFirebaseAuth.signInWithCredential(credential).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                if (task.isSuccessful()) {
-                    // Sign in success, update UI with the signed-in user's information
-                    Log.d(TAG, "signInWithCredential:success");
-                    FirebaseUser user = mFirebaseAuth.getCurrentUser();
+//        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
 
-                    Intent intent = new Intent(ActivityLogin.this, ActivityMain.class);
-                    startActivity(intent);
-
-                } else {
-                    Log.w(TAG, "signInWithCredential:failure", task.getException());
-                }
-                mProgress.dismiss();
-            }
-        });
+//        mFirebaseAuth.signInWithCredential(credential).addOnCompleteListener(this, task -> {
+//            if (task.isSuccessful()) {
+//                // Sign in success, update UI with the signed-in user's information
+//                Log.d(TAG, "signInWithCredential:success");
+//                FirebaseUser user = mFirebaseAuth.getCurrentUser();
+//
+//                Intent intent = new Intent(ActivityLogin.this, ActivityMain.class);
+//                startActivity(intent);
+//
+//            } else {
+//                Log.w(TAG, "signInWithCredential:failure", task.getException());
+//            }
+//            mProgress.dismiss();
+//        });
     }
 
     /**
@@ -228,12 +224,12 @@ public class ActivityLogin extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        mFirebaseAuth.addAuthStateListener(mAuthStateListener);
+//        mFirebaseAuth.addAuthStateListener(mAuthStateListener);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
+//        mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
     }
 }

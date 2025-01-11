@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  android:layout_width="match_parent"
-  android:layout_height="wrap_content"
-  android:gravity="center_vertical"
-  android:minHeight="?android:attr/listPreferredItemHeight"
-  android:orientation="horizontal"
-  android:paddingLeft="@dimen/abc_list_item_padding_horizontal_material"
-  android:paddingRight="@dimen/abc_list_item_padding_horizontal_material">
-
-  <ImageView
-    android:id="@+id/list_ingredients_icon"
-    android:layout_width="@dimen/list_icon"
-    android:layout_height="@dimen/list_icon"
-    android:contentDescription="@string/content_desc_ingredients_image"
-    android:layout_gravity="center"
-    android:layout_marginEnd="@dimen/abc_list_item_padding_horizontal_material" />
-
-  <TextView
-    android:id="@+id/list_ingredient_text"
-    android:layout_width="0dp"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_weight="7"
-    android:maxLines="1"
-    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-    android:textSize="20sp" />
+    android:gravity="center_vertical"
+    android:minHeight="?android:attr/listPreferredItemHeight"
+    android:orientation="horizontal"
+    android:paddingLeft="@dimen/abc_list_item_padding_horizontal_material"
+    android:paddingRight="@dimen/abc_list_item_padding_horizontal_material">
 
-  <TextView
-    android:id="@+id/list_measure_text"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:fontFamily="sans-serif-light"
-    android:textColor="@color/primary_text"
-    android:textSize="20sp" />
+    <ImageView
+        android:id="@+id/list_ingredients_icon"
+        android:layout_width="@dimen/list_icon"
+        android:layout_height="@dimen/list_icon"
+        android:layout_gravity="center"
+        android:layout_marginEnd="@dimen/abc_list_item_padding_horizontal_material"
+        android:contentDescription="@string/content_desc_ingredients_image" />
+
+    <TextView
+        android:id="@+id/list_ingredient_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="7"
+        android:maxLines="1"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/list_measure_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-light"
+        android:textColor="@color/primary_text"
+        android:textSize="20sp" />
 </LinearLayout>

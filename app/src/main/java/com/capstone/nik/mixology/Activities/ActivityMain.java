@@ -3,14 +3,19 @@ package com.capstone.nik.mixology.Activities;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SearchView;
-import android.support.v7.widget.Toolbar;
+
+import androidx.annotation.NonNull;
+
+import com.google.android.material.navigation.NavigationView;
+
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.FragmentTransaction;
+
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,10 +39,10 @@ import com.capstone.nik.mixology.R;
 
 //import com.crashlytics.android.Crashlytics;
 //import com.firebase.ui.auth.AuthUI;
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.MobileAds;
+//import com.google.android.gms.ads.AdListener;
+//import com.google.android.gms.ads.AdRequest;
+//import com.google.android.gms.ads.AdView;
+//import com.google.android.gms.ads.MobileAds;
 //import com.google.firebase.auth.FirebaseAuth;
 //import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
@@ -76,45 +81,45 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_navigation_drawer);
 
-        MobileAds.initialize(getApplicationContext(), getString(R.string.admob_app_id));
-
-        AdView adView = findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        adView.loadAd(adRequest);
-
-        adView.setAdListener(new AdListener() {
-            @Override
-            public void onAdLoaded() {
-                // Code to be executed when an ad finishes loading.
-                Log.d(TAG, "onAdLoaded: ");
-            }
-
-            @Override
-            public void onAdFailedToLoad(int errorCode) {
-                // Code to be executed when an ad request fails.
-                Log.d(TAG, "onAdFailedToLoad: " + errorCode);
-            }
-
-            @Override
-            public void onAdOpened() {
-                // Code to be executed when an ad opens an overlay that
-                // covers the screen.
-                Log.d(TAG, "onAdOpened: ");
-            }
-
-            @Override
-            public void onAdLeftApplication() {
-                // Code to be executed when the user has left the app.
-                Log.d(TAG, "onAdLeftApplication: ");
-            }
-
-            @Override
-            public void onAdClosed() {
-                // Code to be executed when when the user is about to return
-                // to the app after tapping on an ad.
-                Log.d(TAG, "onAdClosed: ");
-            }
-        });
+//        MobileAds.initialize(getApplicationContext(), getString(R.string.admob_app_id));
+//
+//        AdView adView = findViewById(R.id.adView);
+//        AdRequest adRequest = new AdRequest.Builder().build();
+//        adView.loadAd(adRequest);
+//
+//        adView.setAdListener(new AdListener() {
+//            @Override
+//            public void onAdLoaded() {
+//                // Code to be executed when an ad finishes loading.
+//                Log.d(TAG, "onAdLoaded: ");
+//            }
+//
+//            @Override
+//            public void onAdFailedToLoad(int errorCode) {
+//                // Code to be executed when an ad request fails.
+//                Log.d(TAG, "onAdFailedToLoad: " + errorCode);
+//            }
+//
+//            @Override
+//            public void onAdOpened() {
+//                // Code to be executed when an ad opens an overlay that
+//                // covers the screen.
+//                Log.d(TAG, "onAdOpened: ");
+//            }
+//
+//            @Override
+//            public void onAdLeftApplication() {
+//                // Code to be executed when the user has left the app.
+//                Log.d(TAG, "onAdLeftApplication: ");
+//            }
+//
+//            @Override
+//            public void onAdClosed() {
+//                // Code to be executed when when the user is about to return
+//                // to the app after tapping on an ad.
+//                Log.d(TAG, "onAdClosed: ");
+//            }
+//        });
 
         //Default UserName
         mUsername = ANONYMOUS;
@@ -313,70 +318,70 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
         navigationView.setCheckedItem(id);
         if (id == R.id.nav_Alcoholic) {
             FragmentAlcoholic fragment = new FragmentAlcoholic();
-            android.support.v4.app.FragmentTransaction fragmentTransaction =
+            FragmentTransaction fragmentTransaction =
                     getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
             setTitle(getString(R.string.nav_item_alcoholic));
         } else if (id == R.id.nav_Non_Alcoholic) {
             FragmentNonAlcoholic fragment = new FragmentNonAlcoholic();
-            android.support.v4.app.FragmentTransaction fragmentTransaction =
+            FragmentTransaction fragmentTransaction =
                     getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
             setTitle(getString(R.string.nav_item_non_alcoholic));
         } else if (id == R.id.nav_gin) {
             FragmentGin fragment = new FragmentGin();
-            android.support.v4.app.FragmentTransaction fragmentTransaction =
+            FragmentTransaction fragmentTransaction =
                     getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
             setTitle(getString(R.string.nav_item_gin));
         } else if (id == R.id.nav_vodka) {
             FragmentVodka fragment = new FragmentVodka();
-            android.support.v4.app.FragmentTransaction fragmentTransaction =
+            FragmentTransaction fragmentTransaction =
                     getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
             setTitle(getString(R.string.nav_item_vodka));
         } else if (id == R.id.nav_cocktail_glass) {
             FragmentCocktailGlass fragment = new FragmentCocktailGlass();
-            android.support.v4.app.FragmentTransaction fragmentTransaction =
+            FragmentTransaction fragmentTransaction =
                     getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
             setTitle(getString(R.string.nav_item_cocktail_glass));
         } else if (id == R.id.nav_Highball_Glass) {
             FragmentHighballGlass fragment = new FragmentHighballGlass();
-            android.support.v4.app.FragmentTransaction fragmentTransaction =
+            FragmentTransaction fragmentTransaction =
                     getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
             setTitle(getString(R.string.nav_item_highball_glass));
         } else if (id == R.id.nav_Ordinary_Drink) {
             FragmentOrdinaryDrink fragment = new FragmentOrdinaryDrink();
-            android.support.v4.app.FragmentTransaction fragmentTransaction =
+            FragmentTransaction fragmentTransaction =
                     getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
             setTitle(getString(R.string.nav_item_ordinary_drink));
         } else if (id == R.id.nav_Cocktail) {
             FragmentCocktail fragment = new FragmentCocktail();
-            android.support.v4.app.FragmentTransaction fragmentTransaction =
+            FragmentTransaction fragmentTransaction =
                     getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
             setTitle(getString(R.string.nav_item_cocktail));
         } else if (id == R.id.Saved_Cocktails) {
             FragmentSavedDrink fragment = new FragmentSavedDrink();
-            android.support.v4.app.FragmentTransaction fragmentTransaction =
+            FragmentTransaction fragmentTransaction =
                     getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();
             setTitle(getString(R.string.nav_item_saved_cocktails));
         } else if (id == R.id.nav_randomixer) {
             FragmentRandomixer fragment = new FragmentRandomixer();
-            android.support.v4.app.FragmentTransaction fragmentTransaction =
+            FragmentTransaction fragmentTransaction =
                     getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.commit();

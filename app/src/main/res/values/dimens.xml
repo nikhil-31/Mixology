@@ -1,27 +1,27 @@
 <resources>
-  <!-- Default screen margins, per the Android Design guidelines. -->
-  <dimen name="activity_horizontal_margin">8dp</dimen>
-  <dimen name="activity_vertical_margin">8dp</dimen>
-  <dimen name="fab_margin">16dp</dimen>
-  <dimen name="list_icon">40dp</dimen>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">8dp</dimen>
+    <dimen name="activity_vertical_margin">8dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="list_icon">40dp</dimen>
 
-  <dimen name="nav_header_vertical_spacing">16dp</dimen>
-  <dimen name="nav_header_height">190dp</dimen>
-  <dimen name="nav_bar_margin_left">16dp</dimen>
-  <dimen name="widget_margin">8dp</dimen>
-  <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="nav_header_vertical_spacing">16dp</dimen>
+    <dimen name="nav_header_height">190dp</dimen>
+    <dimen name="nav_bar_margin_left">16dp</dimen>
+    <dimen name="widget_margin">8dp</dimen>
+    <!-- Default screen margins, per the Android Design guidelines. -->
 
-  <dimen name="fui_auth_method_button_width">208dp</dimen>
-  <dimen name="fui_auth_method_button_margin">4dp</dimen>
-  <dimen name="fui_auth_method_button_drawablePadding">12dp</dimen>
+    <dimen name="fui_auth_method_button_width">208dp</dimen>
+    <dimen name="fui_auth_method_button_margin">4dp</dimen>
+    <dimen name="fui_auth_method_button_drawablePadding">12dp</dimen>
 
-  <dimen name="fui_body_padding_bottom">12dp</dimen>
-  <dimen name="fui_heading_padding_bottom">12dp</dimen>
-  <dimen name="fui_wrapper_padding_horiz">16dp</dimen>
-  <dimen name="fui_field_padding_vert">16dp</dimen>
+    <dimen name="fui_body_padding_bottom">12dp</dimen>
+    <dimen name="fui_heading_padding_bottom">12dp</dimen>
+    <dimen name="fui_wrapper_padding_horiz">16dp</dimen>
+    <dimen name="fui_field_padding_vert">16dp</dimen>
 
-  <dimen name="fui_button_inset_top">0dp</dimen>
-  <dimen name="fui_button_inset_bottom">3dp</dimen>
-  <dimen name="fui_button_inset_left">1dp</dimen>
-  <dimen name="fui_button_inset_right">2dp</dimen>
+    <dimen name="fui_button_inset_top">0dp</dimen>
+    <dimen name="fui_button_inset_bottom">3dp</dimen>
+    <dimen name="fui_button_inset_left">1dp</dimen>
+    <dimen name="fui_button_inset_right">2dp</dimen>
 </resources>

@@ -3,7 +3,8 @@ package com.capstone.nik.mixology.utils;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.DataSetObserver;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.util.Log;
 
 /**

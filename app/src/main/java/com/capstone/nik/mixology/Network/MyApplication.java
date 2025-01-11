@@ -6,7 +6,7 @@ import com.capstone.nik.mixology.di.applicationComponent.ApplicationComponent;
 import com.capstone.nik.mixology.di.applicationComponent.DaggerApplicationComponent;
 import com.capstone.nik.mixology.di.module.ApplicationModule;
 //import com.crashlytics.android.Crashlytics;
-import com.squareup.leakcanary.LeakCanary;
+//import com.squareup.leakcanary.LeakCanary;
 
 //import io.fabric.sdk.android.Fabric;
 
@@ -30,10 +30,10 @@ public class MyApplication extends Application {
                 .applicationModule(new ApplicationModule(this))
                 .build();
 
-        if (LeakCanary.isInAnalyzerProcess(this)) {
-            return;
-        }
-        LeakCanary.install(this);
+//        if (LeakCanary.isInAnalyzerProcess(this)) {
+//            return;
+//        }
+//        LeakCanary.install(this);
     }
 
     public ApplicationComponent getApplicationComponent() {

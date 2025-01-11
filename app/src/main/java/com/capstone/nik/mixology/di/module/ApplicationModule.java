@@ -10,10 +10,10 @@ import com.birbit.android.jobqueue.config.Configuration;
 import com.birbit.android.jobqueue.log.CustomLogger;
 import com.birbit.android.jobqueue.scheduling.FrameworkJobSchedulerService;
 import com.birbit.android.jobqueue.scheduling.GcmJobSchedulerService;
-import com.capstone.nik.mixology.services.MyGcmJobService;
+//import com.capstone.nik.mixology.services.MyGcmJobService;
 import com.capstone.nik.mixology.services.MyJobService;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
+//import com.google.android.gms.common.ConnectionResult;
+//import com.google.android.gms.common.GoogleApiAvailability;
 
 import javax.inject.Singleton;
 
@@ -78,11 +78,11 @@ public class ApplicationModule {
             builder.scheduler(FrameworkJobSchedulerService.createSchedulerFor(application,
                     MyJobService.class), false);
         } else {
-            int enableGcm = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(application);
-            if (enableGcm == ConnectionResult.SUCCESS) {
-                builder.scheduler(GcmJobSchedulerService.createSchedulerFor(application,
-                        MyGcmJobService.class), false);
-            }
+//            int enableGcm = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(application);
+//            if (enableGcm == ConnectionResult.SUCCESS) {
+//                builder.scheduler(GcmJobSchedulerService.createSchedulerFor(application,
+//                        MyGcmJobService.class), false);
+//            }
         }
         return new JobManager(builder.build());
     }

@@ -6,7 +6,6 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.app.TaskStackBuilder;
 import android.widget.RemoteViews;
 
 import com.capstone.nik.mixology.Activities.ActivityDetails;
@@ -14,6 +13,8 @@ import com.capstone.nik.mixology.Activities.ActivityMain;
 import com.capstone.nik.mixology.R;
 
 import static com.capstone.nik.mixology.utils.ContentProviderHelperMethods.ACTION_DATABASE_UPDATED;
+
+import androidx.core.app.TaskStackBuilder;
 
 /**
  * Created by nik on 12/30/2016.

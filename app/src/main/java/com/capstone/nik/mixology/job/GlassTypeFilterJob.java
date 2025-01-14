@@ -131,7 +131,8 @@ public class GlassTypeFilterJob extends Job {
             String id = drink.getIdDrink();
             boolean isThere = isDrinkInDatabase(id, drinkList);
 
-            if (drink.getStrDrinkThumb() != null && !drink.getStrDrinkThumb().equals("") && !drink.getStrDrinkThumb().equals("null")) {
+            if (drink.getStrDrinkThumb() != null && !drink.getStrDrinkThumb().isEmpty()
+                    && !drink.getStrDrinkThumb().equals("null")) {
                 if (!isThere) {
                     contentValues.put(_id, drink.getIdDrink());
                     contentValues.put(Name, drink.getStrDrink());
@@ -141,7 +142,7 @@ public class GlassTypeFilterJob extends Job {
             }
 
         }
-        if (cVVector.size() > 0) {
+        if (!cVVector.isEmpty()) {
             ContentValues[] cvArray = new ContentValues[cVVector.size()];
             cVVector.toArray(cvArray);
             mAct.getContentResolver().bulkInsert(uri, cvArray);

@@ -314,105 +314,105 @@ public class FragmentDetails extends Fragment {
 
         ArrayList<Measures> measuresArrayList = new ArrayList<>();
 
-        if (drink.getStrIngredient1() != null && !drink.getStrIngredient1().equals("")) {
+        if (drink.getStrIngredient1() != null && !drink.getStrIngredient1().isEmpty()) {
             Measures measure = new Measures();
             measure.setIngredient(drink.getStrIngredient1());
             measure.setMeasure(drink.getStrMeasure1());
             measuresArrayList.add(measure);
         }
 
-        if (drink.getStrIngredient2() != null && !drink.getStrIngredient2().equals("")) {
+        if (drink.getStrIngredient2() != null && !drink.getStrIngredient2().isEmpty()) {
             Measures measure = new Measures();
             measure.setIngredient(drink.getStrIngredient2());
             measure.setMeasure(drink.getStrMeasure2());
             measuresArrayList.add(measure);
         }
 
-        if (drink.getStrIngredient3() != null && !drink.getStrIngredient3().equals("")) {
+        if (drink.getStrIngredient3() != null && !drink.getStrIngredient3().isEmpty()) {
             Measures measure = new Measures();
             measure.setIngredient(drink.getStrIngredient3());
             measure.setMeasure(drink.getStrMeasure3());
             measuresArrayList.add(measure);
         }
 
-        if (drink.getStrIngredient4() != null && !drink.getStrIngredient4().equals("")) {
+        if (drink.getStrIngredient4() != null && !drink.getStrIngredient4().isEmpty()) {
             Measures measure = new Measures();
             measure.setIngredient(drink.getStrIngredient4());
             measure.setMeasure(drink.getStrMeasure4());
             measuresArrayList.add(measure);
         }
 
-        if (drink.getStrIngredient5() != null && !drink.getStrIngredient5().equals("")) {
+        if (drink.getStrIngredient5() != null && !drink.getStrIngredient5().isEmpty()) {
             Measures measure = new Measures();
             measure.setIngredient(drink.getStrIngredient5());
             measure.setMeasure(drink.getStrMeasure5());
             measuresArrayList.add(measure);
         }
 
-        if (drink.getStrIngredient6() != null && !drink.getStrIngredient6().equals("")) {
+        if (drink.getStrIngredient6() != null && !drink.getStrIngredient6().isEmpty()) {
             Measures measure = new Measures();
             measure.setIngredient(drink.getStrIngredient6());
             measure.setMeasure(drink.getStrMeasure6());
             measuresArrayList.add(measure);
         }
 
-        if (drink.getStrIngredient7() != null && !drink.getStrIngredient7().equals("")) {
+        if (drink.getStrIngredient7() != null && !drink.getStrIngredient7().isEmpty()) {
             Measures measure = new Measures();
             measure.setIngredient(drink.getStrIngredient7());
             measure.setMeasure(drink.getStrMeasure7());
             measuresArrayList.add(measure);
         }
 
-        if (drink.getStrIngredient8() != null && !drink.getStrIngredient8().equals("")) {
+        if (drink.getStrIngredient8() != null && !drink.getStrIngredient8().isEmpty()) {
             Measures measure = new Measures();
             measure.setIngredient(drink.getStrIngredient8());
             measure.setMeasure(drink.getStrMeasure8());
             measuresArrayList.add(measure);
         }
 
-        if (drink.getStrIngredient9() != null && !drink.getStrIngredient9().equals("")) {
+        if (drink.getStrIngredient9() != null && !drink.getStrIngredient9().isEmpty()) {
             Measures measure = new Measures();
             measure.setIngredient(drink.getStrIngredient9());
             measure.setMeasure(drink.getStrMeasure9());
             measuresArrayList.add(measure);
         }
 
-        if (drink.getStrIngredient10() != null && !drink.getStrIngredient10().equals("")) {
+        if (drink.getStrIngredient10() != null && !drink.getStrIngredient10().isEmpty()) {
             Measures measure = new Measures();
             measure.setIngredient(drink.getStrIngredient10());
             measure.setMeasure(drink.getStrMeasure10());
             measuresArrayList.add(measure);
         }
 
-        if (drink.getStrIngredient11() != null && !drink.getStrIngredient11().equals("")) {
+        if (drink.getStrIngredient11() != null && !drink.getStrIngredient11().isEmpty()) {
             Measures measure = new Measures();
             measure.setIngredient(drink.getStrIngredient11());
             measure.setMeasure(drink.getStrMeasure11());
             measuresArrayList.add(measure);
         }
 
-        if (drink.getStrIngredient12() != null && !drink.getStrIngredient12().equals("")) {
+        if (drink.getStrIngredient12() != null && !drink.getStrIngredient12().isEmpty()) {
             Measures measure = new Measures();
             measure.setIngredient(drink.getStrIngredient12());
             measure.setMeasure(drink.getStrMeasure12());
             measuresArrayList.add(measure);
         }
 
-        if (drink.getStrIngredient13() != null && !drink.getStrIngredient13().equals("")) {
+        if (drink.getStrIngredient13() != null && !drink.getStrIngredient13().isEmpty()) {
             Measures measure = new Measures();
             measure.setIngredient(drink.getStrIngredient13());
             measure.setMeasure(drink.getStrMeasure13());
             measuresArrayList.add(measure);
         }
 
-        if (drink.getStrIngredient14() != null && !drink.getStrIngredient14().equals("")) {
+        if (drink.getStrIngredient14() != null && !drink.getStrIngredient14().isEmpty()) {
             Measures measure = new Measures();
             measure.setIngredient(drink.getStrIngredient14());
             measure.setMeasure(drink.getStrMeasure14());
             measuresArrayList.add(measure);
         }
 
-        if (drink.getStrIngredient15() != null && !drink.getStrIngredient15().equals("")) {
+        if (drink.getStrIngredient15() != null && !drink.getStrIngredient15().isEmpty()) {
             Measures measure = new Measures();
             measure.setIngredient(drink.getStrIngredient15());
             measure.setMeasure(drink.getStrMeasure15());

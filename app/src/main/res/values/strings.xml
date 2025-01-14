@@ -127,4 +127,6 @@
     <string name="sign_up_please_select_strong_password">Please select a stronger password</string>
     <string name="sign_up_all_fields_required">Please fill in all the fields</string>
 
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>

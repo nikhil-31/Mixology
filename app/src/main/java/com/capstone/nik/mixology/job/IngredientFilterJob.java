@@ -130,7 +130,7 @@ public class IngredientFilterJob extends Job {
             String id = drink.getIdDrink();
             boolean isThere = isDrinkInDatabase(id, drinkList);
 
-            if (drink.getStrDrinkThumb() != null && !drink.getStrDrinkThumb().equals("") && !drink.getStrDrinkThumb().equals("null")) {
+            if (drink.getStrDrinkThumb() != null && !drink.getStrDrinkThumb().isEmpty() && !drink.getStrDrinkThumb().equals("null")) {
                 if (!isThere) {
                     contentValues.put(_id, drink.getIdDrink());
                     contentValues.put(Name, drink.getStrDrink());

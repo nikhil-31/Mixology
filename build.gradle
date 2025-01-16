@@ -1,5 +1,11 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
+//plugins {
+//    alias(libs.plugins.android.application)
+//    alias(libs.plugins.google.services)
+//    alias(libs.plugins.kotlin.android)
+//}
+
 buildscript {
     repositories {
         google()
@@ -11,12 +17,11 @@ buildscript {
         maven { url 'https://maven.fabric.io/public' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.7.3'
-        classpath 'com.google.gms:google-services:4.4.2'
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.24'
+        classpath libs.gradle
+        classpath libs.google.services
+        classpath libs.kotlin.gradle.plugin
     }
 }
-
 
 allprojects {
     repositories {

@@ -28,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -101,7 +102,9 @@ fun LoginScreen(
         )
         TextButton(
             onClick = onForgotPassword,
-            modifier = Modifier.align(Alignment.End),
+            modifier = Modifier
+                .align(Alignment.End)
+                .testTag("login_forgot_password"),
         ) {
             Text(stringResource(R.string.login_forgot_password), color = MixologyNavy)
         }
@@ -109,7 +112,8 @@ fun LoginScreen(
             onClick = { onLogin(email.trim(), password) },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(5.dp),
+                .padding(5.dp)
+                .testTag("login_submit"),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MixologyGray,
                 contentColor = MixologyText,
@@ -127,7 +131,8 @@ fun LoginScreen(
             onClick = onGoogleSignIn,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 40.dp, vertical = 4.dp),
+                .padding(horizontal = 40.dp, vertical = 4.dp)
+                .testTag("login_google"),
         ) {
             Text(stringResource(R.string.fui_sign_in_with_google), color = MixologyText)
         }
@@ -135,7 +140,8 @@ fun LoginScreen(
             onClick = onSignUp,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 40.dp, vertical = 4.dp),
+                .padding(horizontal = 40.dp, vertical = 4.dp)
+                .testTag("login_sign_up"),
             colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
         ) {
             Text(stringResource(R.string.fui_sign_in_with_email), color = MixologyNavy)
@@ -143,6 +149,7 @@ fun LoginScreen(
         Row(
             modifier = Modifier
                 .padding(top = 16.dp, bottom = 24.dp)
+                .testTag("login_privacy")
                 .clickable(onClick = onPrivacyPolicy),
             horizontalArrangement = Arrangement.Center,
         ) {

@@ -9,12 +9,7 @@
 buildscript {
     repositories {
         google()
-        jcenter()
-        maven {
-            url 'https://maven.google.com'
-        }
         mavenCentral()
-        maven { url 'https://maven.fabric.io/public' }
     }
     dependencies {
         classpath libs.gradle
@@ -26,12 +21,7 @@ buildscript {
 allprojects {
     repositories {
         google()
-        jcenter()
         mavenCentral()
-        maven { url 'https://maven.fabric.io/public' }
-        maven {
-            url 'https://maven.google.com'
-        }
     }
 }
 

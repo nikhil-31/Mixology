@@ -33,7 +33,6 @@ import com.capstone.nik.mixology.Adapters.IngredientsAdapter;
 import com.capstone.nik.mixology.Model.Cocktail;
 import com.capstone.nik.mixology.Model.Measures;
 import com.capstone.nik.mixology.Network.CocktailService;
-import com.capstone.nik.mixology.Network.CocktailURLs;
 import com.capstone.nik.mixology.Network.MyApplication;
 import com.capstone.nik.mixology.Network.remoteModel.Cocktails;
 import com.capstone.nik.mixology.Network.remoteModel.Drink;
@@ -52,8 +51,6 @@ import javax.inject.Inject;
 
 import retrofit2.Call;
 import retrofit2.Callback;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.capstone.nik.mixology.data.AlcoholicColumn.DRINK_NAME;
 import static com.capstone.nik.mixology.data.AlcoholicColumn.DRINK_THUMB;
@@ -67,6 +64,9 @@ public class FragmentDetails extends Fragment {
 
     @Inject
     Context applicationContext;
+
+    @Inject
+    CocktailService service;
 
     private String mCocktailId;
 
@@ -87,7 +87,6 @@ public class FragmentDetails extends Fragment {
 
     private Activity mActivity;
     private LinearLayout mLinearBottom;
-    private CocktailService service;
 
     public FragmentDetails() {
     }
@@ -177,12 +176,6 @@ public class FragmentDetails extends Fragment {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(mActivity, LinearLayoutManager.VERTICAL, false);
         ingredientsRecyclerView.setLayoutManager(linearLayoutManager);
         ingredientsRecyclerView.setAdapter(mIngredientsAdapter);
-
-        final Retrofit.Builder builder = new Retrofit.Builder().baseUrl(CocktailURLs.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create());
-
-        Retrofit retrofit = builder.build();
-        service = retrofit.create(CocktailService.class);
 
         if (cocktail != null) {
             startNetworkRequest(cocktail);

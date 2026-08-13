@@ -24,7 +24,6 @@ import android.widget.TextView;
 import com.capstone.nik.mixology.Adapters.IngredientsAdapter;
 import com.capstone.nik.mixology.Model.Measures;
 import com.capstone.nik.mixology.Network.CocktailService;
-import com.capstone.nik.mixology.Network.CocktailURLs;
 import com.capstone.nik.mixology.Network.MyApplication;
 import com.capstone.nik.mixology.Network.remoteModel.Cocktails;
 import com.capstone.nik.mixology.Network.remoteModel.Drink;
@@ -35,11 +34,10 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
 
 import retrofit2.Call;
 import retrofit2.Callback;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.capstone.nik.mixology.data.AlcoholicColumn.DRINK_NAME;
 import static com.capstone.nik.mixology.data.AlcoholicColumn.DRINK_THUMB;
@@ -67,7 +65,9 @@ public class FragmentRandomixer extends Fragment {
     private ImageView mDetailIcon;
 
     private boolean isInDatabase;
-    private CocktailService service;
+
+    @Inject
+    CocktailService service;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -102,12 +102,6 @@ public class FragmentRandomixer extends Fragment {
         ingredientsRecyclerView.setLayoutManager(linearLayoutManager);
         ingredientsRecyclerView.setAdapter(mIngredientsAdapter);
         ingredientsRecyclerView.setNestedScrollingEnabled(false);
-
-        final Retrofit.Builder builder = new Retrofit.Builder().baseUrl(CocktailURLs.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create());
-
-        Retrofit retrofit = builder.build();
-        service = retrofit.create(CocktailService.class);
 
         mSwipeToRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override

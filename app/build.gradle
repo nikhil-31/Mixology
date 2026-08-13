@@ -1,17 +1,21 @@
 apply plugin: 'com.android.application'
+apply plugin: 'org.jetbrains.kotlin.android'
 
-//plugins {
-//    alias(libs.plugins.android.application)
-//    alias(libs.plugins.google.services)
-//    alias(libs.plugins.kotlin.android)
-//}
+def keystorePropertiesFile = rootProject.file('keystore.properties')
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
-    signingConfigs {
-        config {
-            keyAlias 'mix'
-            keyPassword 'nikhil12345'
-            storeFile file("$rootDir/myKeystore.jks")
-            storePassword 'ABCD123'
+    if (keystorePropertiesFile.exists()) {
+        signingConfigs {
+            config {
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                storeFile rootProject.file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+            }
         }
     }
     defaultConfig {
@@ -21,24 +25,32 @@ android {
         minSdkVersion 21
         versionCode 14
         versionName "1.14"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        signingConfig signingConfigs.config
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        if (keystorePropertiesFile.exists()) {
+            signingConfig signingConfigs.config
+        }
     }
     buildTypes {
         release {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.config
+            if (keystorePropertiesFile.exists()) {
+                signingConfig signingConfigs.config
+            }
         }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    productFlavors {
+    kotlinOptions {
+        jvmTarget = "17"
     }
     namespace 'com.capstone.nik.mixology'
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
 }
 
 dependencies {
@@ -53,47 +65,18 @@ dependencies {
     implementation libs.lifecycle.livedata.ktx
     implementation libs.lifecycle.viewmodel.ktx
     implementation libs.material
+    implementation libs.kotlinx.coroutines.android
 
-    // Retrofit for network requests
     implementation libs.retrofit
     implementation libs.converter.gson
 
-    // Image Loading
     implementation libs.picasso
     implementation libs.circleimageview
 
-    // For loading and tinting drawables on older versions of the platform
     implementation libs.appcompat.resources
-    implementation libs.appcompat
 
-//  implementation('com.google.firebase:firebase-auth:16.0.5') {
-//    exclude group: 'om.google.android.gms', module: 'play-services-base'
-//    exclude group: 'com.android.support', module: 'support-v4'
-//    exclude group: 'com.android.support', module: 'support-compat'
-//    exclude group: 'com.android.support', module: 'ssupport-media-compat'
-//    exclude group: 'com.android.support', module: 'support-annotations'
-//    exclude group: 'com.android.support', module: 'support-core-utils'
-//    exclude group: 'com.android.support', module: 'support-core-ui'
-//    exclude group: 'com.android.support', module: 'support-fragment'
-//  }
-
-//    implementation('com.google.firebase:firebase-ads:17.0.0')
-    implementation libs.play.services.gcm
-    // Google auth
     implementation libs.play.services.auth
 
-    // Fabric crashlytics and answers
-//  implementation('com.crashlytics.sdk.android:crashlytics:2.8.0@aar') {
-//    transitive = true
-//  }
-//  implementation('com.crashlytics.sdk.android:answers:1.4.1@aar') {
-//    transitive = true
-//  }
-
-    // Job Priority Queue
-    implementation(libs.android.priority.jobqueue)
-
-    // Dagger 2
     implementation libs.dagger
     implementation libs.javax.inject
     implementation libs.core.ktx
@@ -101,28 +84,14 @@ dependencies {
     compileOnly libs.jsr250.api
     annotationProcessor libs.dagger.compiler
 
-    implementation(libs.fragment)
-    // Kotlin
-    implementation(libs.fragment.ktx)
-    // Compose
-    implementation(libs.fragment.compose)
-    // Testing Fragments in Isolation
-    debugImplementation(libs.fragment.testing)
+    implementation libs.fragment
+    implementation libs.fragment.ktx
+    debugImplementation libs.fragment.testing
 
-    implementation libs.androidx.activity.compose
-    implementation platform(libs.androidx.compose.bom)
-    implementation libs.androidx.ui
-    implementation libs.androidx.ui.graphics
-    implementation libs.androidx.ui.tooling.preview
-
-    // Schematic Data Storage
     implementation libs.schematic
     annotationProcessor libs.schematic.compiler
 
-    // Testing dependencies
     testImplementation libs.junit
-
 }
 
 apply plugin: 'com.google.gms.google-services'
-apply plugin: 'org.jetbrains.kotlin.android'

@@ -14,9 +14,8 @@ import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.fragment.app.Fragment;
 
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,18 +23,11 @@ import android.widget.TextView;
 
 import com.capstone.nik.mixology.Adapters.DrinkCursorAdapter;
 import com.capstone.nik.mixology.Fragments.FragmentDetails;
-import com.capstone.nik.mixology.Fragments.FragmentAlcoholic;
-import com.capstone.nik.mixology.Fragments.FragmentHighballGlass;
-import com.capstone.nik.mixology.Fragments.FragmentCocktail;
-import com.capstone.nik.mixology.Fragments.FragmentCocktailGlass;
-import com.capstone.nik.mixology.Fragments.FragmentGin;
-import com.capstone.nik.mixology.Fragments.FragmentOrdinaryDrink;
+import com.capstone.nik.mixology.Fragments.FragmentGrid;
 import com.capstone.nik.mixology.Fragments.FragmentRandomixer;
-import com.capstone.nik.mixology.Fragments.FragmentSavedDrink;
-import com.capstone.nik.mixology.Fragments.FragmentVodka;
-import com.capstone.nik.mixology.Fragments.FragmentNonAlcoholic;
 import com.capstone.nik.mixology.Model.Cocktail;
 import com.capstone.nik.mixology.R;
+import com.capstone.nik.mixology.data.DrinkFilter;
 
 //import com.crashlytics.android.Crashlytics;
 //import com.firebase.ui.auth.AuthUI;
@@ -316,77 +308,22 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
     // Navigate to the selected fragment when clicked in the navigation drawer.
     private void navigate(int id) {
         navigationView.setCheckedItem(id);
-        if (id == R.id.nav_Alcoholic) {
-            FragmentAlcoholic fragment = new FragmentAlcoholic();
-            FragmentTransaction fragmentTransaction =
-                    getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_container, fragment);
-            fragmentTransaction.commit();
-            setTitle(getString(R.string.nav_item_alcoholic));
-        } else if (id == R.id.nav_Non_Alcoholic) {
-            FragmentNonAlcoholic fragment = new FragmentNonAlcoholic();
-            FragmentTransaction fragmentTransaction =
-                    getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_container, fragment);
-            fragmentTransaction.commit();
-            setTitle(getString(R.string.nav_item_non_alcoholic));
-        } else if (id == R.id.nav_gin) {
-            FragmentGin fragment = new FragmentGin();
-            FragmentTransaction fragmentTransaction =
-                    getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_container, fragment);
-            fragmentTransaction.commit();
-            setTitle(getString(R.string.nav_item_gin));
-        } else if (id == R.id.nav_vodka) {
-            FragmentVodka fragment = new FragmentVodka();
-            FragmentTransaction fragmentTransaction =
-                    getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_container, fragment);
-            fragmentTransaction.commit();
-            setTitle(getString(R.string.nav_item_vodka));
-        } else if (id == R.id.nav_cocktail_glass) {
-            FragmentCocktailGlass fragment = new FragmentCocktailGlass();
-            FragmentTransaction fragmentTransaction =
-                    getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_container, fragment);
-            fragmentTransaction.commit();
-            setTitle(getString(R.string.nav_item_cocktail_glass));
-        } else if (id == R.id.nav_Highball_Glass) {
-            FragmentHighballGlass fragment = new FragmentHighballGlass();
-            FragmentTransaction fragmentTransaction =
-                    getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_container, fragment);
-            fragmentTransaction.commit();
-            setTitle(getString(R.string.nav_item_highball_glass));
-        } else if (id == R.id.nav_Ordinary_Drink) {
-            FragmentOrdinaryDrink fragment = new FragmentOrdinaryDrink();
-            FragmentTransaction fragmentTransaction =
-                    getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_container, fragment);
-            fragmentTransaction.commit();
-            setTitle(getString(R.string.nav_item_ordinary_drink));
-        } else if (id == R.id.nav_Cocktail) {
-            FragmentCocktail fragment = new FragmentCocktail();
-            FragmentTransaction fragmentTransaction =
-                    getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_container, fragment);
-            fragmentTransaction.commit();
-            setTitle(getString(R.string.nav_item_cocktail));
-        } else if (id == R.id.Saved_Cocktails) {
-            FragmentSavedDrink fragment = new FragmentSavedDrink();
-            FragmentTransaction fragmentTransaction =
-                    getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_container, fragment);
-            fragmentTransaction.commit();
-            setTitle(getString(R.string.nav_item_saved_cocktails));
+        DrinkFilter filter = DrinkFilter.fromNavId(id);
+        Fragment fragment;
+        if (filter != null) {
+            fragment = FragmentGrid.newInstance(filter);
+            setTitle(getString(filter.getTitleRes()));
         } else if (id == R.id.nav_randomixer) {
-            FragmentRandomixer fragment = new FragmentRandomixer();
-            FragmentTransaction fragmentTransaction =
-                    getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.fragment_container, fragment);
-            fragmentTransaction.commit();
+            fragment = new FragmentRandomixer();
             setTitle(getString(R.string.nav_item_randomixer));
+        } else {
+            DrawerLayout drawer = findViewById(R.id.drawer_layout);
+            drawer.closeDrawer(GravityCompat.START);
+            return;
         }
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .commit();
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
     }

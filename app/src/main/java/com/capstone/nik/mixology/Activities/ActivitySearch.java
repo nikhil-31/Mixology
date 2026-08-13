@@ -20,7 +20,7 @@ import com.capstone.nik.mixology.Adapters.SearchAdapter;
 import com.capstone.nik.mixology.Fragments.FragmentDetails;
 import com.capstone.nik.mixology.Model.Cocktail;
 import com.capstone.nik.mixology.Network.CocktailService;
-import com.capstone.nik.mixology.Network.CocktailURLs;
+import com.capstone.nik.mixology.Network.MyApplication;
 import com.capstone.nik.mixology.Network.remoteModel.Cocktails;
 import com.capstone.nik.mixology.Network.remoteModel.Drink;
 import com.capstone.nik.mixology.R;
@@ -30,8 +30,6 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ActivitySearch extends AppCompatActivity implements SearchAdapter.OnAdapterItemSelectedListener {
     private static final String TAG = "ActivitySearch";
@@ -66,12 +64,7 @@ public class ActivitySearch extends AppCompatActivity implements SearchAdapter.O
         mSearchAdapter = new SearchAdapter(this);
         mRecyclerView.setAdapter(mSearchAdapter);
 
-        final Retrofit.Builder builder = new Retrofit.Builder()
-                .baseUrl(CocktailURLs.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create());
-
-        Retrofit retrofit = builder.build();
-        service = retrofit.create(CocktailService.class);
+        service = ((MyApplication) getApplication()).getApplicationComponent().cocktailService();
 
         sendQuery(queryAdjusted);
     }

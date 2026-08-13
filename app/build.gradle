@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'org.jetbrains.kotlin.android'
+apply plugin: 'org.jetbrains.kotlin.plugin.compose'
 apply plugin: 'kotlin-kapt'
 
 def keystorePropertiesFile = rootProject.file('keystore.properties')
@@ -51,6 +52,7 @@ android {
     namespace 'com.capstone.nik.mixology'
     buildFeatures {
         buildConfig true
+        compose true
     }
     testOptions {
         unitTests.returnDefaultValues = true
@@ -68,9 +70,21 @@ dependencies {
     implementation libs.legacy.support.v4
     implementation libs.lifecycle.livedata.ktx
     implementation libs.lifecycle.viewmodel.ktx
+    implementation libs.lifecycle.viewmodel.compose
     implementation libs.lifecycle.runtime.ktx
+    implementation libs.lifecycle.runtime.compose
     implementation libs.material
     implementation libs.kotlinx.coroutines.android
+    implementation libs.activity.compose
+    implementation platform(libs.compose.bom)
+    implementation libs.compose.ui
+    implementation libs.compose.ui.tooling.preview
+    implementation libs.compose.material3
+    implementation libs.compose.material3.window.size
+    implementation libs.compose.material.icons.extended
+    implementation libs.navigation.compose
+    implementation libs.coil.compose
+    debugImplementation libs.compose.ui.tooling
 
     implementation libs.retrofit
     implementation libs.converter.gson

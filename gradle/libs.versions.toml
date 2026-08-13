@@ -1,7 +1,10 @@
 [versions]
+activityCompose = "1.9.3"
 appcompat = "1.7.0"
 cardview = "1.0.0"
 circleimageview = "2.1.0"
+coil = "2.7.0"
+composeBom = "2024.12.01"
 coordinatorlayout = "1.2.0"
 coreKtx = "1.15.0"
 dagger = "2.53.1"
@@ -16,6 +19,7 @@ kotlinGradlePlugin = "2.1.0"
 legacySupportV4 = "1.0.0"
 lifecycleLivedataKtx = "2.8.7"
 material = "1.12.0"
+navigationCompose = "2.8.5"
 picasso = "2.71828"
 playServicesAuth = "21.3.0"
 recyclerview = "1.4.0"
@@ -27,11 +31,21 @@ firebaseBom = "34.17.0"
 firebaseCrashlyticsGradle = "3.0.7"
 
 [libraries]
+activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
 appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 appcompat-resources = { module = "androidx.appcompat:appcompat-resources", version.ref = "appcompat" }
 cardview = { module = "androidx.cardview:cardview", version.ref = "cardview" }
 circleimageview = { module = "de.hdodenhof:circleimageview", version.ref = "circleimageview" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
+compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
+compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
+compose-material3 = { module = "androidx.compose.material3:material3" }
+compose-material3-window-size = { module = "androidx.compose.material3:material3-window-size-class" }
+compose-ui = { module = "androidx.compose.ui:ui" }
+compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
+kotlin-compose-compiler = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlinGradlePlugin" }
 coordinatorlayout = { module = "androidx.coordinatorlayout:coordinatorlayout", version.ref = "coordinatorlayout" }
 core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
@@ -49,8 +63,11 @@ kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", v
 legacy-support-v4 = { module = "androidx.legacy:legacy-support-v4", version.ref = "legacySupportV4" }
 lifecycle-livedata-ktx = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycleLivedataKtx" }
 lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleLivedataKtx" }
+lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleLivedataKtx" }
 lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleLivedataKtx" }
+lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleLivedataKtx" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
+navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 picasso = { module = "com.squareup.picasso:picasso", version.ref = "picasso" }
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
 recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerview" }

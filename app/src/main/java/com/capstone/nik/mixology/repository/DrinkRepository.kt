@@ -12,6 +12,7 @@ import com.capstone.nik.mixology.data.DrinkListItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.IOException
@@ -69,6 +70,29 @@ class DrinkRepository(
         if (entities.isNotEmpty()) {
             dao.cacheFilterResults(filter.name, entities)
         }
+    }
+
+    fun observeSavedIds(): Flow<Set<String>> = dao.observeSavedIds().map { it.toSet() }
+
+    @Throws(IOException::class)
+    suspend fun lookupDrink(id: String): Drink? = withContext(Dispatchers.IO) {
+        val response = service.getDrinkById(id).execute()
+        if (!response.isSuccessful) throw IOException("HTTP ${response.code()}")
+        response.body()?.drinks?.firstOrNull()
+    }
+
+    @Throws(IOException::class)
+    suspend fun randomDrink(): Drink? = withContext(Dispatchers.IO) {
+        val response = service.getRandomixer().execute()
+        if (!response.isSuccessful) throw IOException("HTTP ${response.code()}")
+        response.body()?.drinks?.firstOrNull()
+    }
+
+    @Throws(IOException::class)
+    suspend fun search(query: String): List<Drink> = withContext(Dispatchers.IO) {
+        val response = service.getSearchResults(query).execute()
+        if (!response.isSuccessful) throw IOException("HTTP ${response.code()}")
+        response.body()?.drinks.orEmpty()
     }
 
     suspend fun save(cocktail: Cocktail) {

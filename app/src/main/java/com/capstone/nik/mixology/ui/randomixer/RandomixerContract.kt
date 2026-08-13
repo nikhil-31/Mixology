@@ -12,7 +12,8 @@ data class RandomixerUiState(
 
 sealed interface RandomixerIntent {
     data object Refresh : RandomixerIntent
-    data object ToggleSaved : RandomixerIntent
+    data object SwipeSave : RandomixerIntent
+    data object SwipeDiscard : RandomixerIntent
 }
 
 sealed interface RandomixerEffect {

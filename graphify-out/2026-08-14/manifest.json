@@ -1,7 +1,7 @@
 {
   "app/build.gradle": {
-    "mtime": 1786656778.7976186,
-    "ast_hash": "b8dc48b5b406c730bec8a036eaa0267d",
+    "mtime": 1786657345.4876492,
+    "ast_hash": "4a9e6f72cbacd32af7a1aaee10e3cc95",
     "semantic_hash": ""
   },
   "app/google-services.json": {
@@ -405,23 +405,23 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreen.kt": {
-    "mtime": 1786655999.2274618,
-    "ast_hash": "0da7a8cce2b97af98c70e191b47a6e2d",
+    "mtime": 1786663068.3525376,
+    "ast_hash": "b605eb022252da2a6d8f6b8b809007d4",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/details/DrinkDetailsViewModel.kt": {
-    "mtime": 1786655997.0555382,
-    "ast_hash": "b1c0253b729de8f55d8f17a050a7da1c",
+    "mtime": 1786663004.0651715,
+    "ast_hash": "9d2abe30abd505d46c4b65e1272f70b2",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/grid/DrinkGridScreen.kt": {
-    "mtime": 1786655762.20244,
-    "ast_hash": "69f9c46bb4c4b5f425497035aa595820",
+    "mtime": 1786663064.586668,
+    "ast_hash": "86d176399cc8cdc89d98cb3aebcc85ec",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/grid/DrinkGridViewModel.kt": {
-    "mtime": 1786655727.411915,
-    "ast_hash": "3329d67d8caec58051ddb73ae05964ff",
+    "mtime": 1786662997.355679,
+    "ast_hash": "72f440cedc7cb56892657dea64e64b6e",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/main/DrawerDestination.kt": {
@@ -430,8 +430,8 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/main/MixologyApp.kt": {
-    "mtime": 1786656040.0842488,
-    "ast_hash": "e33cd93df3a5a8b581f3a87d5f6618dc",
+    "mtime": 1786663088.6253822,
+    "ast_hash": "03886c11828a50ac8217b7fda597f134",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/main/MixologyDrawer.kt": {
@@ -445,23 +445,23 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/randomixer/RandomixerScreen.kt": {
-    "mtime": 1786655770.2149665,
-    "ast_hash": "020f33cebf19a86b51609e60f61fa38d",
+    "mtime": 1786663074.3854609,
+    "ast_hash": "768718ff723dec420280ec4d30bc5c84",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/randomixer/RandomixerViewModel.kt": {
-    "mtime": 1786655769.805515,
-    "ast_hash": "f6e6ef6316a17ee1ae49b4b611497413",
+    "mtime": 1786663050.675975,
+    "ast_hash": "a805d2e638d92748db8ff29bd41320ed",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/search/SearchScreen.kt": {
-    "mtime": 1786656040.1643238,
-    "ast_hash": "338a30748d9954cf902e037061fcbd4c",
+    "mtime": 1786663072.662497,
+    "ast_hash": "0dabe3bb39c5d459c907a90e4892f433",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/search/SearchViewModel.kt": {
-    "mtime": 1786655858.667135,
-    "ast_hash": "86d53baab56dacbf677e1ff28bfa4301",
+    "mtime": 1786663044.9587483,
+    "ast_hash": "05a6b501b4b38f525419a32de41399b9",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/theme/Color.kt": {
@@ -480,8 +480,8 @@
     "semantic_hash": ""
   },
   "app/src/androidTest/java/com/capstone/nik/mixology/ActivityDetailsEspressoTest.kt": {
-    "mtime": 1786656841.4224083,
-    "ast_hash": "58232e159d3c416486f9bb275b6f3b82",
+    "mtime": 1786657321.084876,
+    "ast_hash": "0c0de73ab9d09e81d917f9128cb7331e",
     "semantic_hash": ""
   },
   "app/src/androidTest/java/com/capstone/nik/mixology/LoginActivityEspressoTest.kt": {
@@ -542,6 +542,46 @@
   "app/src/test/java/com/capstone/nik/mixology/ui/search/SearchScreenTest.kt": {
     "mtime": 1786657015.4729214,
     "ast_hash": "3685d75bbc28dbf980d7d79f107d7fe7",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/capstone/nik/mixology/ui/details/DrinkDetailsContract.kt": {
+    "mtime": 1786663003.8559906,
+    "ast_hash": "3c1644438963c5014196272a3ad10fa5",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/capstone/nik/mixology/ui/grid/DrinkGridContract.kt": {
+    "mtime": 1786662995.771019,
+    "ast_hash": "34b393261a9a360438e34624b6a5367a",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/capstone/nik/mixology/ui/main/MainContract.kt": {
+    "mtime": 1786663053.105885,
+    "ast_hash": "503767ff115312d6203a69b3a334d193",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/capstone/nik/mixology/ui/main/MainViewModel.kt": {
+    "mtime": 1786663053.2067585,
+    "ast_hash": "9415e67e41f59c0870c2c3dc788b0352",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/capstone/nik/mixology/ui/mvi/Mvi.kt": {
+    "mtime": 1786662991.2307546,
+    "ast_hash": "d9df32168da9d71a57348fec0c5390df",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/capstone/nik/mixology/ui/randomixer/RandomixerContract.kt": {
+    "mtime": 1786663049.0206685,
+    "ast_hash": "50770a37d061d82b07df053596e84439",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/capstone/nik/mixology/ui/search/SearchContract.kt": {
+    "mtime": 1786663043.7340736,
+    "ast_hash": "c42e655be43270c682b048b23c3dd247",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/capstone/nik/mixology/ui/main/MainViewModelTest.kt": {
+    "mtime": 1786663107.3831859,
+    "ast_hash": "b50c9c03b9aa680781f8ea3e037e3a93",
     "semantic_hash": ""
   }
 }

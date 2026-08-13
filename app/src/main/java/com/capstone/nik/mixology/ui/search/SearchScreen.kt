@@ -46,6 +46,7 @@ import com.capstone.nik.mixology.Model.Cocktail
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.ui.components.CircularDrinkImage
 import com.capstone.nik.mixology.ui.components.FavoriteButton
+import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 import com.capstone.nik.mixology.ui.theme.MixologyText
 
 @Composable
@@ -61,22 +62,25 @@ fun SearchRoute(
 
     LaunchedEffect(initialQuery) {
         if (initialQuery.isNotBlank()) {
-            viewModel.search(initialQuery)
+            viewModel.onIntent(SearchIntent.Search(initialQuery))
         }
     }
-    LaunchedEffect(viewModel) {
-        viewModel.userMessages.collect { resId ->
-            snackbarHostState.showSnackbar(context.getString(resId))
+    CollectMviEffects(viewModel.effects) { effect ->
+        when (effect) {
+            is SearchEffect.ShowMessageRes ->
+                snackbarHostState.showSnackbar(context.getString(effect.resId))
+            is SearchEffect.OpenDrink -> onDrinkClick(effect.cocktail)
+            SearchEffect.NavigateBack -> onBack()
         }
     }
 
     SearchScreen(
         state = state,
         snackbarHostState = snackbarHostState,
-        onBack = onBack,
-        onSearch = viewModel::search,
-        onDrinkClick = onDrinkClick,
-        onToggleSaved = viewModel::toggleSaved,
+        onBack = { viewModel.onIntent(SearchIntent.Back) },
+        onSearch = { viewModel.onIntent(SearchIntent.Search(it)) },
+        onDrinkClick = { viewModel.onIntent(SearchIntent.OpenDrink(it)) },
+        onToggleSaved = { viewModel.onIntent(SearchIntent.ToggleSaved(it)) },
     )
 }
 

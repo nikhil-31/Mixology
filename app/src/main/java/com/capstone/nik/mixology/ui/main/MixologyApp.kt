@@ -30,27 +30,26 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.capstone.nik.mixology.Model.Cocktail
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.ui.details.DrinkDetailsRoute
 import com.capstone.nik.mixology.ui.grid.DrinkGridRoute
+import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 import com.capstone.nik.mixology.ui.randomixer.RandomixerRoute
 import com.capstone.nik.mixology.ui.theme.MixologyGray
 import com.capstone.nik.mixology.ui.theme.MixologyText
@@ -63,47 +62,45 @@ fun MixologyApp(
     onOpenSearch: (String) -> Unit,
     onOpenDetails: (Cocktail) -> Unit,
     onSignOut: () -> Unit,
+    viewModel: MainViewModel = viewModel(),
 ) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val twoPane = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded
-    var selectedCocktail by remember { mutableStateOf<Cocktail?>(null) }
-    var searchOpen by rememberSaveable { mutableStateOf(false) }
-    var searchQuery by rememberSaveable { mutableStateOf("") }
-    var menuExpanded by remember { mutableStateOf(false) }
 
-    val backStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = backStackEntry?.destination?.route
-    val currentFilterName = backStackEntry?.arguments?.getString("filter")
-    val currentFilter = currentFilterName?.let { runCatching { DrinkFilter.valueOf(it) }.getOrNull() }
-    val title = when {
-        currentRoute == RANDOMIXER_ROUTE -> stringResource(R.string.nav_item_randomixer)
-        currentFilter != null -> stringResource(currentFilter.titleRes)
-        else -> stringResource(R.string.app_name)
+    CollectMviEffects(viewModel.effects) { effect ->
+        when (effect) {
+            is MainEffect.Navigate -> {
+                navController.navigate(effect.destination.route) {
+                    popUpTo(navController.graph.findStartDestination().id) {
+                        saveState = true
+                    }
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            }
+            MainEffect.OpenDrawer -> scope.launch { drawerState.open() }
+            MainEffect.CloseDrawer -> scope.launch { drawerState.close() }
+            is MainEffect.OpenSearch -> onOpenSearch(effect.query)
+            is MainEffect.OpenDetails -> onOpenDetails(effect.cocktail)
+            MainEffect.SignOut -> onSignOut()
+        }
     }
 
-    fun navigateTo(destination: DrawerDestination) {
-        navController.navigate(destination.route) {
-            popUpTo(navController.graph.findStartDestination().id) {
-                saveState = true
-            }
-            launchSingleTop = true
-            restoreState = true
-        }
-        if (destination is DrawerDestination.Filter) {
-            selectedCocktail = null
-        }
-        scope.launch { drawerState.close() }
+    val title = when (val destination = state.destination) {
+        DrawerDestination.Randomixer -> stringResource(R.string.nav_item_randomixer)
+        is DrawerDestination.Filter -> stringResource(destination.filter.titleRes)
     }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             MixologyDrawer(
-                selectedRoute = currentFilter?.let { gridRoute(it) } ?: currentRoute.orEmpty(),
-                onDestinationSelected = ::navigateTo,
+                selectedRoute = state.destination.route,
+                onDestinationSelected = { viewModel.onIntent(MainIntent.SelectDestination(it)) },
             )
         },
     ) {
@@ -111,10 +108,10 @@ fun MixologyApp(
             topBar = {
                 TopAppBar(
                     title = {
-                        if (searchOpen) {
+                        if (state.searchOpen) {
                             TextField(
-                                value = searchQuery,
-                                onValueChange = { searchQuery = it },
+                                value = state.searchQuery,
+                                onValueChange = { viewModel.onIntent(MainIntent.SearchQueryChanged(it)) },
                                 singleLine = true,
                                 placeholder = { Text(stringResource(R.string.action_search)) },
                                 colors = TextFieldDefaults.colors(
@@ -125,14 +122,7 @@ fun MixologyApp(
                                 ),
                                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                                 keyboardActions = KeyboardActions(
-                                    onSearch = {
-                                        val query = searchQuery.trim()
-                                        if (query.isNotEmpty()) {
-                                            onOpenSearch(query.replace(" ", "%20"))
-                                            searchOpen = false
-                                            searchQuery = ""
-                                        }
-                                    },
+                                    onSearch = { viewModel.onIntent(MainIntent.SubmitSearch) },
                                 ),
                                 modifier = Modifier.fillMaxWidth(),
                             )
@@ -141,7 +131,7 @@ fun MixologyApp(
                         }
                     },
                     navigationIcon = {
-                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                        IconButton(onClick = { viewModel.onIntent(MainIntent.OpenDrawer) }) {
                             Icon(
                                 imageVector = Icons.Default.Menu,
                                 contentDescription = stringResource(R.string.navigation_drawer_open),
@@ -150,40 +140,27 @@ fun MixologyApp(
                         }
                     },
                     actions = {
-                        IconButton(
-                            onClick = {
-                                if (searchOpen) {
-                                    val query = searchQuery.trim()
-                                    if (query.isNotEmpty()) {
-                                        onOpenSearch(query.replace(" ", "%20"))
-                                        searchOpen = false
-                                        searchQuery = ""
-                                    }
-                                } else {
-                                    searchOpen = true
-                                }
-                            },
-                        ) {
+                        IconButton(onClick = { viewModel.onIntent(MainIntent.ToggleSearch) }) {
                             Icon(
                                 imageVector = Icons.Default.Search,
                                 contentDescription = stringResource(R.string.action_search),
                                 tint = MixologyText,
                             )
                         }
-                        IconButton(onClick = { menuExpanded = true }) {
+                        IconButton(onClick = { viewModel.onIntent(MainIntent.OpenMenu) }) {
                             Icon(
                                 imageVector = Icons.Default.MoreVert,
                                 contentDescription = stringResource(R.string.action_sign_out),
                                 tint = MixologyText,
                             )
                         }
-                        DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
+                        DropdownMenu(
+                            expanded = state.menuExpanded,
+                            onDismissRequest = { viewModel.onIntent(MainIntent.DismissMenu) },
+                        ) {
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.action_sign_out)) },
-                                onClick = {
-                                    menuExpanded = false
-                                    onSignOut()
-                                },
+                                onClick = { viewModel.onIntent(MainIntent.SignOut) },
                             )
                         }
                     },
@@ -203,27 +180,24 @@ fun MixologyApp(
                     startDestination = gridRoute(DrinkFilter.ALCOHOLIC),
                     modifier = Modifier.weight(1f),
                 ) {
-                    composable(GRID_ROUTE) { entry ->
-                        val filter = DrinkFilter.valueOf(entry.arguments?.getString("filter")!!)
-                        DrinkGridRoute(
-                            filter = filter,
-                            snackbarHostState = snackbarHostState,
-                            onDrinkClick = { cocktail ->
-                                if (twoPane) {
-                                    selectedCocktail = cocktail
-                                } else {
-                                    onOpenDetails(cocktail)
-                                }
-                            },
-                        )
+                    DrinkFilter.entries.forEach { filter ->
+                        composable(gridRoute(filter)) {
+                            DrinkGridRoute(
+                                filter = filter,
+                                snackbarHostState = snackbarHostState,
+                                onDrinkClick = { cocktail ->
+                                    viewModel.onIntent(MainIntent.DrinkSelected(cocktail, twoPane))
+                                },
+                            )
+                        }
                     }
                     composable(RANDOMIXER_ROUTE) {
                         RandomixerRoute(snackbarHostState = snackbarHostState)
                     }
                 }
-                if (twoPane && currentRoute != RANDOMIXER_ROUTE) {
+                if (twoPane && state.destination !is DrawerDestination.Randomixer) {
                     Box(modifier = Modifier.weight(1f)) {
-                        val cocktail = selectedCocktail
+                        val cocktail = state.selectedCocktail
                         if (cocktail != null) {
                             DrinkDetailsRoute(
                                 cocktail = cocktail,

@@ -22,6 +22,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -35,6 +36,7 @@ import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.data.DrinkListItem
 import com.capstone.nik.mixology.ui.components.DrinkImage
 import com.capstone.nik.mixology.ui.components.FavoriteButton
+import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 import com.capstone.nik.mixology.ui.theme.MixologyText
 
 @Composable
@@ -42,40 +44,28 @@ fun DrinkGridRoute(
     filter: DrinkFilter,
     snackbarHostState: SnackbarHostState,
     onDrinkClick: (Cocktail) -> Unit,
-    viewModel: DrinkGridViewModel = viewModel(),
+    viewModel: DrinkGridViewModel = viewModel(key = filter.name),
 ) {
-    val drinks by viewModel.drinks.collectAsStateWithLifecycle()
-    val error by viewModel.error.collectAsStateWithLifecycle()
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     LaunchedEffect(filter) {
-        viewModel.bind(filter)
+        viewModel.onIntent(DrinkGridIntent.Bind(filter))
     }
-    LaunchedEffect(error) {
-        val message = error ?: return@LaunchedEffect
-        snackbarHostState.showSnackbar(message)
-        viewModel.errorShown()
+    CollectMviEffects(viewModel.effects) { effect ->
+        when (effect) {
+            is DrinkGridEffect.ShowMessage -> snackbarHostState.showSnackbar(effect.text)
+            is DrinkGridEffect.ShowMessageRes -> snackbarHostState.showSnackbar(context.getString(effect.resId))
+            is DrinkGridEffect.OpenDrink -> onDrinkClick(effect.cocktail)
+        }
     }
-    UserMessageCollector(viewModel, snackbarHostState)
 
     DrinkGridScreen(
         filter = filter,
-        drinks = drinks,
-        onDrinkClick = onDrinkClick,
-        onToggleSaved = viewModel::toggleSaved,
+        drinks = state.drinks,
+        onDrinkClick = { viewModel.onIntent(DrinkGridIntent.OpenDrink(it)) },
+        onToggleSaved = { viewModel.onIntent(DrinkGridIntent.ToggleSaved(it)) },
     )
-}
-
-@Composable
-private fun UserMessageCollector(
-    viewModel: DrinkGridViewModel,
-    snackbarHostState: SnackbarHostState,
-) {
-    val context = androidx.compose.ui.platform.LocalContext.current
-    LaunchedEffect(viewModel) {
-        viewModel.userMessages.collect { resId ->
-            snackbarHostState.showSnackbar(context.getString(resId))
-        }
-    }
 }
 
 @Composable

@@ -35,6 +35,7 @@ import com.capstone.nik.mixology.Model.Cocktail
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.ui.components.DrinkHeroImage
 import com.capstone.nik.mixology.ui.components.DrinkRecipeBody
+import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 import com.capstone.nik.mixology.ui.theme.MixologyText
 
 @Composable
@@ -48,21 +49,25 @@ fun DrinkDetailsRoute(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val shareLabel = stringResource(R.string.detail_share_via)
 
     LaunchedEffect(cocktail.getmDrinkId()) {
-        viewModel.load(cocktail)
+        viewModel.onIntent(DrinkDetailsIntent.Load(cocktail))
     }
-    LaunchedEffect(viewModel) {
-        viewModel.userMessages.collect { resId ->
-            snackbarHostState.showSnackbar(context.getString(resId))
+    CollectMviEffects(viewModel.effects) { effect ->
+        when (effect) {
+            is DrinkDetailsEffect.ShowMessageRes ->
+                snackbarHostState.showSnackbar(context.getString(effect.resId))
+            is DrinkDetailsEffect.ShareRecipe ->
+                context.startActivity(Intent.createChooser(effect.intent, shareLabel))
+            DrinkDetailsEffect.NavigateBack -> onBack()
         }
     }
 
-    val shareLabel = stringResource(R.string.detail_share_via)
     val content: @Composable () -> Unit = {
         DrinkDetailsContent(
             state = state,
-            onToggleSaved = viewModel::toggleSaved,
+            onToggleSaved = { viewModel.onIntent(DrinkDetailsIntent.ToggleSaved) },
         )
     }
 
@@ -70,12 +75,8 @@ fun DrinkDetailsRoute(
         DrinkDetailsScaffold(
             title = cocktail.getmDrinkName().orEmpty(),
             showUpNavigation = showUpNavigation,
-            onBack = onBack,
-            onShare = {
-                viewModel.shareIntent()?.let { intent ->
-                    context.startActivity(Intent.createChooser(intent, shareLabel))
-                }
-            },
+            onBack = { viewModel.onIntent(DrinkDetailsIntent.Back) },
+            onShare = { viewModel.onIntent(DrinkDetailsIntent.Share) },
             snackbarHostState = snackbarHostState,
             content = content,
         )

@@ -1,0 +1,60 @@
+package com.capstone.nik.mixology.ui.main
+
+import android.app.Application
+import com.capstone.nik.mixology.Model.Cocktail
+import com.capstone.nik.mixology.data.DrinkFilter
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+
+@RunWith(RobolectricTestRunner::class)
+@Config(application = Application::class, sdk = [34])
+class MainViewModelTest {
+
+    @Test
+    fun toggleSearch_opensSearchField() {
+        val viewModel = MainViewModel()
+        viewModel.onIntent(MainIntent.ToggleSearch)
+        assertTrue(viewModel.state.value.searchOpen)
+    }
+
+    @Test
+    fun searchQueryChanged_updatesState() {
+        val viewModel = MainViewModel()
+        viewModel.onIntent(MainIntent.SearchQueryChanged("gin"))
+        assertEquals("gin", viewModel.state.value.searchQuery)
+    }
+
+    @Test
+    fun drinkSelected_twoPane_setsSelectedCocktail() {
+        val viewModel = MainViewModel()
+        val cocktail = Cocktail("11007", "Margarita", "")
+        viewModel.onIntent(MainIntent.DrinkSelected(cocktail, twoPane = true))
+        assertEquals("11007", viewModel.state.value.selectedCocktail?.getmDrinkId())
+    }
+
+    @Test
+    fun selectFilterDestination_clearsSelectedCocktail() {
+        val viewModel = MainViewModel()
+        viewModel.onIntent(
+            MainIntent.DrinkSelected(Cocktail("11007", "Margarita", ""), twoPane = true),
+        )
+        viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Filter(DrinkFilter.GIN)))
+        assertNull(viewModel.state.value.selectedCocktail)
+        assertEquals("grid/GIN", viewModel.state.value.destination.route)
+    }
+
+    @Test
+    fun dismissMenu_hidesDropdown() {
+        val viewModel = MainViewModel()
+        viewModel.onIntent(MainIntent.OpenMenu)
+        assertTrue(viewModel.state.value.menuExpanded)
+        viewModel.onIntent(MainIntent.DismissMenu)
+        assertFalse(viewModel.state.value.menuExpanded)
+    }
+}

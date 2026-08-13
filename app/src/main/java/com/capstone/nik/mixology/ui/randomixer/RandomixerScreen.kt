@@ -10,7 +10,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,6 +18,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.capstone.nik.mixology.ui.components.DrinkHeroImage
 import com.capstone.nik.mixology.ui.components.DrinkRecipeBody
+import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,15 +29,16 @@ fun RandomixerRoute(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
-    LaunchedEffect(viewModel) {
-        viewModel.userMessages.collect { resId ->
-            snackbarHostState.showSnackbar(context.getString(resId))
+    CollectMviEffects(viewModel.effects) { effect ->
+        when (effect) {
+            is RandomixerEffect.ShowMessageRes ->
+                snackbarHostState.showSnackbar(context.getString(effect.resId))
         }
     }
 
     PullToRefreshBox(
         isRefreshing = state.loading && state.drink != null,
-        onRefresh = viewModel::refresh,
+        onRefresh = { viewModel.onIntent(RandomixerIntent.Refresh) },
         modifier = Modifier.fillMaxSize(),
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -51,7 +52,7 @@ fun RandomixerRoute(
                         instructions = drink.strInstructions,
                         ingredients = state.ingredients,
                         saved = state.saved,
-                        onToggleSaved = viewModel::toggleSaved,
+                        onToggleSaved = { viewModel.onIntent(RandomixerIntent.ToggleSaved) },
                     )
                 }
             }

@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'org.jetbrains.kotlin.android'
+apply plugin: 'kotlin-kapt'
 
 def keystorePropertiesFile = rootProject.file('keystore.properties')
 def keystoreProperties = new Properties()
@@ -67,6 +68,7 @@ dependencies {
     implementation libs.legacy.support.v4
     implementation libs.lifecycle.livedata.ktx
     implementation libs.lifecycle.viewmodel.ktx
+    implementation libs.lifecycle.runtime.ktx
     implementation libs.material
     implementation libs.kotlinx.coroutines.android
 
@@ -85,14 +87,15 @@ dependencies {
     implementation libs.core.ktx
 
     compileOnly libs.jsr250.api
-    annotationProcessor libs.dagger.compiler
+    kapt libs.dagger.compiler
 
     implementation libs.fragment
     implementation libs.fragment.ktx
     debugImplementation libs.fragment.testing
 
-    implementation libs.schematic
-    annotationProcessor libs.schematic.compiler
+    implementation libs.androidx.room.runtime
+    implementation libs.androidx.room.ktx
+    kapt libs.androidx.room.compiler
 
     implementation platform(libs.firebase.bom)
     implementation libs.firebase.crashlytics

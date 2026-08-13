@@ -1,7 +1,6 @@
 package com.capstone.nik.mixology.Adapters;
 
 import android.app.Activity;
-import android.content.ContentValues;
 
 import com.google.android.material.snackbar.Snackbar;
 
@@ -21,10 +20,6 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.capstone.nik.mixology.data.AlcoholicColumn.DRINK_NAME;
-import static com.capstone.nik.mixology.data.AlcoholicColumn.DRINK_THUMB;
-import static com.capstone.nik.mixology.data.AlcoholicColumn._ID;
 
 /**
  * Created by nik on 12/28/2016.
@@ -101,25 +96,21 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
                         imageButton.setImageResource(R.drawable.ic_fav_filled);
 
                         Snackbar.make(imageButton, mAct.getString(R.string.drink_deleted), Snackbar.LENGTH_LONG).show();
-
-                        String id = currentCocktail.getIdDrink();
-                        ContentProviderHelperMethods.deleteData(mAct, id);
-
+                        ContentProviderHelperMethods.deleteData(mAct, currentCocktail.getIdDrink());
                         imageButton.setImageResource(R.drawable.ic_fav_unfilled_black);
 
                     } else {
                         imageButton.setImageResource(R.drawable.ic_fav_unfilled_black);
 
                         Snackbar.make(imageButton, mAct.getString(R.string.drink_added), Snackbar.LENGTH_LONG).show();
-
-                        ContentValues cv = new ContentValues();
-                        cv.put(_ID, currentCocktail.getIdDrink());
-                        cv.put(DRINK_NAME, currentCocktail.getStrDrink());
-                        cv.put(DRINK_THUMB, currentCocktail.getStrDrinkThumb());
-
-                        String id = currentCocktail.getIdDrink();
-                        ContentProviderHelperMethods.insertData(mAct, id, cv);
-
+                        ContentProviderHelperMethods.insertData(
+                                mAct,
+                                new Cocktail(
+                                        currentCocktail.getIdDrink(),
+                                        currentCocktail.getStrDrink(),
+                                        currentCocktail.getStrDrinkThumb()
+                                )
+                        );
                         imageButton.setImageResource(R.drawable.ic_fav_filled);
                     }
                 }

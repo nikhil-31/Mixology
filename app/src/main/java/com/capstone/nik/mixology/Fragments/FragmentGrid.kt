@@ -1,6 +1,5 @@
 package com.capstone.nik.mixology.Fragments
 
-import android.database.Cursor
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,19 +9,22 @@ import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.loader.app.LoaderManager
-import androidx.loader.content.CursorLoader
-import androidx.loader.content.Loader
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.capstone.nik.mixology.Adapters.DrinkCursorAdapter
+import com.capstone.nik.mixology.Adapters.DrinkAdapter
+import com.capstone.nik.mixology.Activities.ActivityMain
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.DrinkFilter
+import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.launch
 
-class FragmentGrid : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
+class FragmentGrid : Fragment() {
 
     private val viewModel: FragmentGridViewModel by viewModels()
-    private lateinit var adapter: DrinkCursorAdapter
+    private lateinit var adapter: DrinkAdapter
     private lateinit var recyclerView: RecyclerView
     private lateinit var emptyView: TextView
 
@@ -39,49 +41,46 @@ class FragmentGrid : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
         emptyView = rootView.findViewById(R.id.empty_view)
 
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
-        adapter = DrinkCursorAdapter(null, requireActivity())
+        adapter = DrinkAdapter(
+            onItemSelected = { cocktail ->
+                (activity as? ActivityMain)?.onItemSelected(cocktail)
+            },
+            onToggleSaved = { item ->
+                val message = if (item.saved) R.string.drink_deleted else R.string.drink_added
+                Snackbar.make(recyclerView, message, Snackbar.LENGTH_LONG).show()
+                viewModel.toggleSaved(item)
+            },
+        )
         recyclerView.adapter = adapter
         return rootView
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        LoaderManager.getInstance(this).initLoader(LOADER_ID, null, this)
         viewModel.error.observe(viewLifecycleOwner) { message ->
             if (message != null) {
                 Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
                 viewModel.errorShown()
             }
         }
-        viewModel.refresh(filter)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        LoaderManager.getInstance(this).restartLoader(LOADER_ID, null, this)
-    }
-
-    override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
-        return CursorLoader(requireContext(), filter.contentUri, null, null, null, null)
-    }
-
-    override fun onLoadFinished(loader: Loader<Cursor>, data: Cursor?) {
-        adapter.swapCursor(data)
-        val empty = filter.showEmptySaved && (data == null || data.count == 0)
-        recyclerView.visibility = if (empty) View.INVISIBLE else View.VISIBLE
-        emptyView.visibility = if (empty) View.VISIBLE else View.GONE
-        if (empty) {
-            emptyView.setText(R.string.empty_string_add_a_drink)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.drinks.collect { items ->
+                    adapter.submitList(items)
+                    val empty = filter.showEmptySaved && items.isEmpty()
+                    recyclerView.visibility = if (empty) View.INVISIBLE else View.VISIBLE
+                    emptyView.visibility = if (empty) View.VISIBLE else View.GONE
+                    if (empty) {
+                        emptyView.setText(R.string.empty_string_add_a_drink)
+                    }
+                }
+            }
         }
-    }
-
-    override fun onLoaderReset(loader: Loader<Cursor>) {
-        adapter.swapCursor(null)
+        viewModel.bind(filter)
     }
 
     companion object {
         private const val ARG_FILTER = "filter"
-        private const val LOADER_ID = 0
 
         @JvmStatic
         fun newInstance(filter: DrinkFilter): FragmentGrid {

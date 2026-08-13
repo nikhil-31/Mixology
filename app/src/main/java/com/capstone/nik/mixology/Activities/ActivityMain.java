@@ -21,7 +21,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.capstone.nik.mixology.Adapters.DrinkCursorAdapter;
 import com.capstone.nik.mixology.Fragments.FragmentDetails;
 import com.capstone.nik.mixology.Fragments.FragmentGrid;
 import com.capstone.nik.mixology.Fragments.FragmentRandomixer;
@@ -42,8 +41,7 @@ import com.squareup.picasso.Picasso;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 // Repo moved from gitHub to bit bucket private repo
-public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapter.OnAdapterItemSelectedListener,
-        NavigationView.OnNavigationItemSelectedListener {
+public class ActivityMain extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = "ActivityMain";
 
     public static final int RC_SIGN_IN = 1;
@@ -292,7 +290,6 @@ public class ActivityMain extends AppCompatActivity implements DrinkCursorAdapte
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
     public void onItemSelected(Cocktail cocktail) {
         // Check is the detail fragment is present in the main activity.
         FragmentDetails detailsFragment = (FragmentDetails) getSupportFragmentManager().findFragmentById(R.id.fragment);

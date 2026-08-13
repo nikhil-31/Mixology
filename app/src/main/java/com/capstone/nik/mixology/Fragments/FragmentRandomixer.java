@@ -1,7 +1,6 @@
 package com.capstone.nik.mixology.Fragments;
 
 import android.app.Activity;
-import android.content.ContentValues;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -22,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.capstone.nik.mixology.Adapters.IngredientsAdapter;
+import com.capstone.nik.mixology.Model.Cocktail;
 import com.capstone.nik.mixology.Model.Measures;
 import com.capstone.nik.mixology.Network.CocktailService;
 import com.capstone.nik.mixology.Network.MyApplication;
@@ -39,10 +39,6 @@ import javax.inject.Inject;
 
 import retrofit2.Call;
 import retrofit2.Callback;
-
-import static com.capstone.nik.mixology.data.AlcoholicColumn.DRINK_NAME;
-import static com.capstone.nik.mixology.data.AlcoholicColumn.DRINK_THUMB;
-import static com.capstone.nik.mixology.data.AlcoholicColumn._ID;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -181,13 +177,10 @@ public class FragmentRandomixer extends Fragment {
                     mDetailIcon.setImageResource(R.drawable.ic_fav_unfilled_black);
 
                     Snackbar.make(mDetailIcon, getString(R.string.drink_added), Snackbar.LENGTH_LONG).show();
-
-                    ContentValues cv = new ContentValues();
-                    cv.put(_ID, drink.getIdDrink());
-                    cv.put(DRINK_NAME, drink.getStrDrink());
-                    cv.put(DRINK_THUMB, drink.getStrDrinkThumb());
-                    ContentProviderHelperMethods.insertData(mActivity, drink.getIdDrink(), cv);
-
+                    ContentProviderHelperMethods.insertData(
+                            mActivity,
+                            new Cocktail(drink.getIdDrink(), drink.getStrDrink(), drink.getStrDrinkThumb())
+                    );
                     mDetailIcon.setImageResource(R.drawable.ic_fav_filled);
                 }
             }

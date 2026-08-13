@@ -32,7 +32,8 @@ public class DrinkWidgetProvider extends AppWidgetProvider {
 
             // Create Intent to launch Main Activity
             Intent intent = new Intent(context, ActivityMain.class);
-            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+            int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
+            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, flags);
             views.setOnClickPendingIntent(R.id.widget, pendingIntent);
 
             views.setRemoteAdapter(R.id.widget_list, new Intent(context, DrinkWidgetService.class));
@@ -41,7 +42,7 @@ public class DrinkWidgetProvider extends AppWidgetProvider {
 
             PendingIntent clickPendingIntentTemplate = TaskStackBuilder.create(context)
                     .addNextIntentWithParentStack(clickIntentTemplate)
-                    .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+                    .getPendingIntent(0, flags);
             views.setPendingIntentTemplate(R.id.widget_list, clickPendingIntentTemplate);
 
             views.setEmptyView(R.id.widget_list, R.id.widget_empty);

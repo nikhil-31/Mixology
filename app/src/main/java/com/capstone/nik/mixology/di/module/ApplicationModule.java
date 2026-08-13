@@ -5,6 +5,8 @@ import android.content.Context;
 
 import com.capstone.nik.mixology.Network.CocktailService;
 import com.capstone.nik.mixology.Network.CocktailURLs;
+import com.capstone.nik.mixology.data.DrinkDao;
+import com.capstone.nik.mixology.data.MixologyDatabase;
 import com.capstone.nik.mixology.repository.DrinkRepository;
 
 import javax.inject.Singleton;
@@ -31,6 +33,18 @@ public class ApplicationModule {
 
     @Provides
     @Singleton
+    MixologyDatabase provideDatabase(Context context) {
+        return MixologyDatabase.create(context);
+    }
+
+    @Provides
+    @Singleton
+    DrinkDao provideDrinkDao(MixologyDatabase database) {
+        return database.drinkDao();
+    }
+
+    @Provides
+    @Singleton
     CocktailService provideCocktailService() {
         return new Retrofit.Builder()
                 .baseUrl(CocktailURLs.BASE_URL)
@@ -41,7 +55,7 @@ public class ApplicationModule {
 
     @Provides
     @Singleton
-    DrinkRepository provideDrinkRepository(Context context, CocktailService service) {
-        return new DrinkRepository(context, service);
+    DrinkRepository provideDrinkRepository(DrinkDao dao, CocktailService service, Context context) {
+        return new DrinkRepository(dao, service, context);
     }
 }

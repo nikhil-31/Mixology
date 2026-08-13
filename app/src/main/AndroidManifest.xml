@@ -23,11 +23,6 @@
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="@string/admob_app_id" />
 
-        <provider
-            android:name=".data.generated.DrinkProvider"
-            android:authorities="com.example.nik.mixology.data.DrinkProvider"
-            android:exported="false" />
-
         <activity
             android:name=".Activities.ActivityLogin"
             android:theme="@style/AppTheme.NoActionBar"/>

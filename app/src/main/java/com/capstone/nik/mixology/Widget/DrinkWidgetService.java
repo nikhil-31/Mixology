@@ -1,68 +1,37 @@
 package com.capstone.nik.mixology.Widget;
 
-
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Binder;
-import android.os.Build;
 import android.widget.AdapterView;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
 import com.capstone.nik.mixology.Model.Cocktail;
+import com.capstone.nik.mixology.Network.MyApplication;
 import com.capstone.nik.mixology.R;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
-
-import static com.capstone.nik.mixology.data.AlcoholicColumn.DRINK_NAME;
-import static com.capstone.nik.mixology.data.AlcoholicColumn.DRINK_THUMB;
-import static com.capstone.nik.mixology.data.AlcoholicColumn._ID;
-import static com.capstone.nik.mixology.data.DrinkProvider.SavedDrink.CONTENT_URI_DRINK_SAVED;
-
-import androidx.annotation.RequiresApi;
-
-/**
- * Created by nik on 12/31/2016.
- */
+import java.util.ArrayList;
+import java.util.List;
 
 public class DrinkWidgetService extends RemoteViewsService {
 
     @Override
     public RemoteViewsFactory onGetViewFactory(Intent intent) {
-
-        String[] projection = {
-                _ID,
-                DRINK_NAME,
-                DRINK_THUMB
-        };
-
-        Cursor cursor = this.getContentResolver().query(
-                CONTENT_URI_DRINK_SAVED,
-                projection,
-                null,
-                null,
-                null
-        );
-        assert cursor != null;
-        cursor.close();
-        return new WidgetDataProvider(this, intent, cursor);
+        return new WidgetDataProvider(this, intent);
     }
-
 
     public class WidgetDataProvider implements RemoteViewsFactory {
 
-        private Context context;
-        private Intent intent;
-        private Cursor mCursor = null;
+        private final Context context;
+        private List<Cocktail> drinks = new ArrayList<>();
 
-        WidgetDataProvider(Context context, Intent intent, Cursor cursor) {
+        WidgetDataProvider(Context context, Intent intent) {
             this.context = context;
-            this.intent = intent;
-            mCursor = cursor;
         }
 
         @Override
@@ -71,59 +40,35 @@ public class DrinkWidgetService extends RemoteViewsService {
 
         @Override
         public void onDataSetChanged() {
-
-            if (mCursor != null) {
-                mCursor.close();
-            }
-
             final long identityToken = Binder.clearCallingIdentity();
-
-            String[] projection = {
-                    _ID,
-                    DRINK_NAME,
-                    DRINK_THUMB
-            };
-
-            mCursor = DrinkWidgetService.this.getContentResolver().query(
-                    CONTENT_URI_DRINK_SAVED,
-                    projection,
-                    null,
-                    null,
-                    null);
-
+            drinks = ((MyApplication) getApplication()).getApplicationComponent()
+                    .drinkRepository()
+                    .getSavedSync();
             Binder.restoreCallingIdentity(identityToken);
         }
 
         @Override
         public void onDestroy() {
-            if (mCursor != null) {
-                mCursor.close();
-                mCursor = null;
-            }
+            drinks = new ArrayList<>();
         }
 
         @Override
         public int getCount() {
-            return mCursor == null ? 0 : mCursor.getCount();
+            return drinks.size();
         }
 
-        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
         @Override
         public RemoteViews getViewAt(int position) {
-
-            if (position == AdapterView.INVALID_POSITION ||
-                    mCursor == null || !mCursor.moveToPosition(position)) {
+            if (position == AdapterView.INVALID_POSITION || position >= drinks.size()) {
                 return null;
             }
 
+            Cocktail cocktail = drinks.get(position);
             RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_item_list);
-            mCursor.moveToPosition(position);
+            remoteViews.setTextViewText(R.id.list_widget_text, cocktail.getmDrinkName());
 
-            remoteViews.setTextViewText(R.id.list_widget_text, mCursor.getString(mCursor.getColumnIndex(DRINK_NAME)));
-
-            String thumbUrl = mCursor.getString(mCursor.getColumnIndex(DRINK_THUMB));
-
-            if (thumbUrl.equals("null")) {
+            String thumbUrl = cocktail.getmDrinkThumb();
+            if (thumbUrl == null || thumbUrl.equals("null") || thumbUrl.isEmpty()) {
                 Bitmap icon = BitmapFactory.decodeResource(context.getResources(), R.drawable.empty_glass);
                 remoteViews.setImageViewBitmap(R.id.list_widget_icon, icon);
             } else {
@@ -135,16 +80,9 @@ public class DrinkWidgetService extends RemoteViewsService {
                 }
             }
 
-            final Intent fillInIntent = new Intent();
-
-            Cocktail cocktail = new Cocktail();
-            cocktail.setmDrinkId(mCursor.getString(mCursor.getColumnIndex(_ID)));
-            cocktail.setmDrinkName(mCursor.getString(mCursor.getColumnIndex(DRINK_NAME)));
-            cocktail.setmDrinkThumb(mCursor.getString(mCursor.getColumnIndex(DRINK_THUMB)));
-
+            Intent fillInIntent = new Intent();
             fillInIntent.putExtra(getString(R.string.intent_details_intent_cocktail), cocktail);
             remoteViews.setOnClickFillInIntent(R.id.widget_list_item, fillInIntent);
-
             return remoteViews;
         }
 

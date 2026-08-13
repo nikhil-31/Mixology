@@ -1,7 +1,6 @@
 package com.capstone.nik.mixology.Fragments;
 
 import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -52,10 +51,6 @@ import javax.inject.Inject;
 
 import retrofit2.Call;
 import retrofit2.Callback;
-
-import static com.capstone.nik.mixology.data.AlcoholicColumn.DRINK_NAME;
-import static com.capstone.nik.mixology.data.AlcoholicColumn.DRINK_THUMB;
-import static com.capstone.nik.mixology.data.AlcoholicColumn._ID;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -295,13 +290,10 @@ public class FragmentDetails extends Fragment {
                     mDetailIcon.setImageResource(R.drawable.ic_fav_unfilled_black);
 
                     Snackbar.make(mDetailIcon, getString(R.string.drink_added), Snackbar.LENGTH_LONG).show();
-
-                    ContentValues cv = new ContentValues();
-                    cv.put(_ID, drink.getIdDrink());
-                    cv.put(DRINK_NAME, drink.getStrDrink());
-                    cv.put(DRINK_THUMB, drink.getStrDrinkThumb());
-                    ContentProviderHelperMethods.insertData(mActivity, drink.getIdDrink(), cv);
-
+                    ContentProviderHelperMethods.insertData(
+                            mActivity,
+                            new Cocktail(drink.getIdDrink(), drink.getStrDrink(), drink.getStrDrinkThumb())
+                    );
                     mDetailIcon.setImageResource(R.drawable.ic_fav_filled);
                 }
             }

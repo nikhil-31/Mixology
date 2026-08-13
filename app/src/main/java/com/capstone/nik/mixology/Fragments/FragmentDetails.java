@@ -38,6 +38,7 @@ import com.capstone.nik.mixology.Network.remoteModel.Cocktails;
 import com.capstone.nik.mixology.Network.remoteModel.Drink;
 import com.capstone.nik.mixology.R;
 import com.capstone.nik.mixology.utils.ContentProviderHelperMethods;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 //import com.google.android.gms.ads.AdListener;
 //import com.google.android.gms.ads.AdRequest;
 //import com.google.android.gms.ads.AdView;
@@ -249,7 +250,8 @@ public class FragmentDetails extends Fragment {
 
             @Override
             public void onFailure(@NonNull Call<Cocktails> call, @NonNull Throwable t) {
-
+                FirebaseCrashlytics.getInstance().recordException(
+                        t instanceof Exception ? (Exception) t : new Exception(t));
             }
         });
     }

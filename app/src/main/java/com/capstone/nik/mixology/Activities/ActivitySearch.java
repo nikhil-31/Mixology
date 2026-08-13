@@ -24,6 +24,7 @@ import com.capstone.nik.mixology.Network.MyApplication;
 import com.capstone.nik.mixology.Network.remoteModel.Cocktails;
 import com.capstone.nik.mixology.Network.remoteModel.Drink;
 import com.capstone.nik.mixology.R;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.util.List;
 
@@ -115,6 +116,8 @@ public class ActivitySearch extends AppCompatActivity implements SearchAdapter.O
             @Override
             public void onFailure(@NonNull Call<Cocktails> call, @NonNull Throwable t) {
                 Log.e(TAG, "Error", t);
+                FirebaseCrashlytics.getInstance().recordException(
+                        t instanceof Exception ? (Exception) t : new Exception(t));
             }
         });
     }

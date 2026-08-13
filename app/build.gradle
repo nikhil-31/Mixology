@@ -22,7 +22,7 @@ android {
         applicationId "com.capstone.nik.mixology"
         targetSdkVersion 35
         compileSdk 35
-        minSdkVersion 21
+        minSdkVersion 23
         versionCode 14
         versionName "1.14"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -48,6 +48,9 @@ android {
         jvmTarget = "17"
     }
     namespace 'com.capstone.nik.mixology'
+    buildFeatures {
+        buildConfig true
+    }
     testOptions {
         unitTests.returnDefaultValues = true
     }
@@ -91,7 +94,12 @@ dependencies {
     implementation libs.schematic
     annotationProcessor libs.schematic.compiler
 
+    implementation platform(libs.firebase.bom)
+    implementation libs.firebase.crashlytics
+    implementation libs.firebase.analytics
+
     testImplementation libs.junit
 }
 
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.crashlytics'

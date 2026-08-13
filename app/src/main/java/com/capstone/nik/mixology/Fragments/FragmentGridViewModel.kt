@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.capstone.nik.mixology.Network.MyApplication
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.DrinkFilter
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -27,6 +28,8 @@ class FragmentGridViewModel(application: Application) : AndroidViewModel(applica
                 repository.fetchAndCache(filter.contentUri, query, kind)
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to refresh ${filter.name}", e)
+                FirebaseCrashlytics.getInstance().log("Failed to refresh ${filter.name}")
+                FirebaseCrashlytics.getInstance().recordException(e)
                 _error.postValue(getApplication<Application>().getString(R.string.network_error))
             }
         }

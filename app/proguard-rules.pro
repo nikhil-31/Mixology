@@ -89,6 +89,8 @@
 -dontwarn sun.misc.**
 #-keep class com.google.gson.stream.** { *; }
 
+-keepattributes SourceFile,LineNumberTable
+-renamesourcefileattribute SourceFile
 -keep class com.capstone.nik.mixology.Network.remoteModel.** { *; }
 
 # Prevent proguard from stripping interface information from TypeAdapterFactory,

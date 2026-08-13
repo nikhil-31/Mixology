@@ -23,6 +23,8 @@ retrofit = "2.11.0"
 schematic = "0.6.3"
 espressoCore = "3.6.1"
 kotlinxCoroutines = "1.9.0"
+firebaseBom = "34.17.0"
+firebaseCrashlyticsGradle = "3.0.7"
 
 [libraries]
 appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
@@ -56,8 +58,13 @@ schematic = { module = "net.simonvt.schematic:schematic", version.ref = "schemat
 schematic-compiler = { module = "net.simonvt.schematic:schematic-compiler", version.ref = "schematic" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+firebase-crashlytics-gradle = { module = "com.google.firebase:firebase-crashlytics-gradle", version.ref = "firebaseCrashlyticsGradle" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "gradle" }
 google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlinGradlePlugin" }
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlyticsGradle" }

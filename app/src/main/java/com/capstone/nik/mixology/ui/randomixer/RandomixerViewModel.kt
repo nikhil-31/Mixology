@@ -11,6 +11,7 @@ import com.capstone.nik.mixology.ui.model.ingredientMeasures
 import com.capstone.nik.mixology.ui.mvi.MviAndroidViewModel
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class RandomixerViewModel(application: Application) :
@@ -72,6 +73,9 @@ class RandomixerViewModel(application: Application) :
             }
             try {
                 val drink = nextDrink(avoidId)
+                val saved = drink?.idDrink?.let { id ->
+                    repository.observeSavedIds().first().contains(id)
+                } ?: false
                 if (drink?.idDrink != null) {
                     savedJob = viewModelScope.launch {
                         repository.observeSavedIds().collect { ids ->
@@ -84,6 +88,7 @@ class RandomixerViewModel(application: Application) :
                         loading = false,
                         drink = drink,
                         ingredients = drink?.ingredientMeasures().orEmpty(),
+                        saved = saved,
                     )
                 }
             } catch (e: Exception) {

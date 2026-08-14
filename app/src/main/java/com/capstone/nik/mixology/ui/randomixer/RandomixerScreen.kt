@@ -4,24 +4,29 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
@@ -35,8 +40,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -52,6 +61,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.capstone.nik.mixology.Network.remoteModel.Drink
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.ui.components.DrinkImage
+import com.capstone.nik.mixology.ui.components.IngredientRow
 import com.capstone.nik.mixology.ui.model.IngredientMeasure
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 import com.capstone.nik.mixology.ui.theme.MixologyRed
@@ -93,12 +103,13 @@ fun RandomixerScreen(
             SwipeableDrinkCard(
                 drink = drink,
                 ingredients = state.ingredients,
+                saved = state.saved,
                 enabled = !state.loading,
                 onSwipedRight = onSave,
                 onSwipedLeft = onDiscard,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(start = 5.dp, top = 5.dp, end = 5.dp, bottom = 20.dp),
+                    .padding(start = 5.dp, top = 10.dp, end = 5.dp, bottom = 20.dp),
             )
         }
         if (state.loading) {
@@ -111,6 +122,7 @@ fun RandomixerScreen(
 private fun SwipeableDrinkCard(
     drink: Drink,
     ingredients: List<IngredientMeasure>,
+    saved: Boolean,
     enabled: Boolean,
     onSwipedRight: () -> Unit,
     onSwipedLeft: () -> Unit,
@@ -118,6 +130,7 @@ private fun SwipeableDrinkCard(
 ) {
     val drinkId = drink.idDrink.orEmpty()
     val offsetX = remember(drinkId) { Animatable(0f) }
+    val listState = remember(drinkId) { LazyListState() }
     val scope = rememberCoroutineScope()
     var settled by remember(drinkId) { mutableStateOf(false) }
     val screenWidthPx = with(LocalDensity.current) {
@@ -153,7 +166,10 @@ private fun SwipeableDrinkCard(
                 .draggable(
                     state = draggableState,
                     orientation = Orientation.Horizontal,
-                    enabled = enabled && !settled,
+                    enabled = enabled &&
+                        !settled &&
+                        listState.firstVisibleItemIndex == 0 &&
+                        listState.firstVisibleItemScrollOffset == 0,
                     onDragStopped = { velocity ->
                         if (settled) return@draggable
                         val shouldSave = offsetX.value > threshold || velocity > 1200f
@@ -168,7 +184,25 @@ private fun SwipeableDrinkCard(
                     },
                 ),
         ) {
-            DrinkSwipeCardContent(drink = drink, ingredients = ingredients)
+            LazyColumn(
+                state = listState,
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(bottom = 24.dp),
+            ) {
+                item(key = "photo") {
+                    DrinkSwipePhoto(
+                        drink = drink,
+                        ingredients = ingredients,
+                        saved = saved,
+                        modifier = Modifier
+                            .fillParentMaxHeight()
+                            .fillMaxWidth(),
+                    )
+                }
+                item(key = "details") {
+                    DrinkSwipeDetails(drink = drink, ingredients = ingredients)
+                }
+            }
             val progress = (offsetX.value / threshold).coerceIn(-1f, 1f)
             if (progress > 0f) {
                 SwipeStamp(
@@ -194,8 +228,20 @@ private fun SwipeableDrinkCard(
         }
         OverlayActionButtons(
             enabled = enabled && !settled,
+            saved = saved,
             onSave = { settle(toRight = true) },
             onDiscard = { settle(toRight = false) },
+            onInfo = {
+                scope.launch {
+                    val showingDetails = listState.firstVisibleItemIndex > 0 ||
+                        listState.firstVisibleItemScrollOffset > 0
+                    if (showingDetails) {
+                        listState.animateScrollToItem(0)
+                    } else {
+                        listState.animateScrollToItem(1)
+                    }
+                }
+            },
             modifier = Modifier
                 .align(Alignment.CenterEnd)
                 .padding(end = 5.dp),
@@ -206,8 +252,10 @@ private fun SwipeableDrinkCard(
 @Composable
 private fun OverlayActionButtons(
     enabled: Boolean,
+    saved: Boolean,
     onSave: () -> Unit,
     onDiscard: () -> Unit,
+    onInfo: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -215,31 +263,43 @@ private fun OverlayActionButtons(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        FloatingActionButton(
-            onClick = { if (enabled) onSave() },
-            containerColor = MaterialTheme.colorScheme.surface,
-            contentColor = MaterialTheme.colorScheme.primary,
-            shape = CircleShape,
-            elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 6.dp),
-            modifier = Modifier.size(56.dp),
+        val iconTint = MaterialTheme.colorScheme.primary
+        GlassCircleButton(
+            enabled = enabled,
+            onClick = onSave,
         ) {
             Icon(
-                imageVector = Icons.Filled.Favorite,
-                contentDescription = stringResource(R.string.content_desc_randomixer_save),
+                imageVector = if (saved) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                contentDescription = stringResource(
+                    if (saved) {
+                        R.string.content_desc_randomixer_saved
+                    } else {
+                        R.string.content_desc_randomixer_save
+                    },
+                ),
+                tint = iconTint,
                 modifier = Modifier.size(28.dp),
             )
         }
-        FloatingActionButton(
-            onClick = { if (enabled) onDiscard() },
-            containerColor = MaterialTheme.colorScheme.surface,
-            contentColor = MaterialTheme.colorScheme.primary,
-            shape = CircleShape,
-            elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 6.dp),
-            modifier = Modifier.size(56.dp),
+        GlassCircleButton(
+            enabled = enabled,
+            onClick = onDiscard,
         ) {
             Icon(
                 imageVector = Icons.Filled.Close,
                 contentDescription = stringResource(R.string.content_desc_randomixer_discard),
+                tint = iconTint,
+                modifier = Modifier.size(28.dp),
+            )
+        }
+        GlassCircleButton(
+            enabled = enabled,
+            onClick = onInfo,
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Info,
+                contentDescription = stringResource(R.string.content_desc_randomixer_info),
+                tint = iconTint,
                 modifier = Modifier.size(28.dp),
             )
         }
@@ -247,11 +307,72 @@ private fun OverlayActionButtons(
 }
 
 @Composable
-private fun DrinkSwipeCardContent(
+private fun GlassCircleButton(
+    enabled: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    Box(
+        modifier = modifier
+            .size(56.dp)
+            .shadow(
+                elevation = 12.dp,
+                shape = CircleShape,
+                ambientColor = Color.Black.copy(alpha = 0.28f),
+                spotColor = Color.Black.copy(alpha = 0.22f),
+            )
+            .clip(CircleShape)
+            .drawBehind {
+                drawCircle(color = Color.Black.copy(alpha = 0.22f))
+                drawCircle(
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            Color.White.copy(alpha = 0.52f),
+                            Color.White.copy(alpha = 0.14f),
+                            Color.White.copy(alpha = 0.30f),
+                        ),
+                        start = Offset(0f, 0f),
+                        end = Offset(size.width, size.height),
+                    ),
+                )
+                drawCircle(
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            Color.White.copy(alpha = 0.72f),
+                            Color.Transparent,
+                        ),
+                        center = Offset(size.width * 0.32f, size.height * 0.26f),
+                        radius = size.minDimension * 0.52f,
+                    ),
+                )
+                drawCircle(
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            Color.White.copy(alpha = 0.92f),
+                            Color.White.copy(alpha = 0.18f),
+                        ),
+                        start = Offset(0f, 0f),
+                        end = Offset(size.width, size.height),
+                    ),
+                    style = Stroke(width = 1.5.dp.toPx()),
+                )
+            }
+            .clickable(enabled = enabled, onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        content()
+    }
+}
+
+@Composable
+private fun DrinkSwipePhoto(
     drink: Drink,
     ingredients: List<IngredientMeasure>,
+    saved: Boolean,
+    modifier: Modifier = Modifier,
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = modifier) {
         DrinkImage(
             url = drink.strDrinkThumb,
             modifier = Modifier.fillMaxSize(),
@@ -271,43 +392,97 @@ private fun DrinkSwipeCardContent(
                 )
                 .padding(start = 20.dp, end = 88.dp, top = 48.dp, bottom = 24.dp),
         ) {
-                Column {
+            Column {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = drink.strDrink.orEmpty(),
+                        modifier = Modifier.weight(1f),
                         fontSize = 28.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White,
                     )
-                    if (!drink.strAlcoholic.isNullOrBlank()) {
-                        Text(
-                            text = drink.strAlcoholic,
-                            modifier = Modifier.padding(top = 4.dp),
-                            color = Color(0xFFFF8A80),
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium,
-                        )
-                    }
-                    if (ingredients.isNotEmpty()) {
-                        Text(
-                            text = ingredients.joinToString(" · ") { it.ingredient },
-                            modifier = Modifier.padding(top = 8.dp),
-                            color = Color.White.copy(alpha = 0.9f),
-                            fontSize = 14.sp,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
-                    if (!drink.strInstructions.isNullOrBlank()) {
-                        Text(
-                            text = drink.strInstructions,
-                            modifier = Modifier.padding(top = 8.dp),
-                            color = Color.White.copy(alpha = 0.85f),
-                            fontSize = 14.sp,
-                            maxLines = 3,
-                            overflow = TextOverflow.Ellipsis,
+                    if (saved) {
+                        Icon(
+                            imageVector = Icons.Filled.Favorite,
+                            contentDescription = null,
+                            tint = Color(0xFFFF8A80),
+                            modifier = Modifier
+                                .padding(start = 8.dp)
+                                .size(24.dp),
                         )
                     }
                 }
+                if (saved) {
+                    Text(
+                        text = stringResource(R.string.randomixer_already_saved),
+                        modifier = Modifier.padding(top = 4.dp),
+                        color = Color(0xFFFF8A80),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
+                if (!drink.strAlcoholic.isNullOrBlank()) {
+                    Text(
+                        text = drink.strAlcoholic,
+                        modifier = Modifier.padding(top = 4.dp),
+                        color = Color(0xFFFF8A80),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                    )
+                }
+                if (ingredients.isNotEmpty()) {
+                    Text(
+                        text = ingredients.joinToString(" · ") { it.ingredient },
+                        modifier = Modifier.padding(top = 8.dp),
+                        color = Color.White.copy(alpha = 0.9f),
+                        fontSize = 14.sp,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DrinkSwipeDetails(
+    drink: Drink,
+    ingredients: List<IngredientMeasure>,
+) {
+    val colors = MaterialTheme.colorScheme
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(colors.surface)
+            .padding(top = 8.dp, bottom = 16.dp),
+    ) {
+        if (!drink.strInstructions.isNullOrBlank()) {
+            Text(
+                text = stringResource(R.string.detail_screen_instructions),
+                modifier = Modifier.padding(start = 20.dp, top = 16.dp, bottom = 8.dp),
+                fontSize = 17.sp,
+                fontWeight = FontWeight.Bold,
+                color = colors.onSurface,
+            )
+            Text(
+                text = drink.strInstructions,
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp),
+                fontSize = 17.sp,
+                color = colors.onSurface,
+            )
+        }
+        if (ingredients.isNotEmpty()) {
+            Text(
+                text = stringResource(R.string.detail_screen_ingredients),
+                modifier = Modifier.padding(start = 20.dp, top = 16.dp, bottom = 8.dp),
+                fontSize = 17.sp,
+                fontWeight = FontWeight.Bold,
+                color = colors.onSurface,
+            )
+            ingredients.forEach { item ->
+                IngredientRow(item)
+            }
         }
     }
 }

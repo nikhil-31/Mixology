@@ -93,7 +93,10 @@
     <string name="randomixer_nope">NOPE</string>
     <string name="randomixer_swipe_hint">Swipe right to save · Swipe left to skip</string>
     <string name="content_desc_randomixer_save">Save this cocktail</string>
+    <string name="content_desc_randomixer_saved">Cocktail already saved</string>
     <string name="content_desc_randomixer_discard">Discard this cocktail</string>
+    <string name="content_desc_randomixer_info">Show drink details</string>
+    <string name="randomixer_already_saved">Saved</string>
 
     <string name="empty_string_add_a_drink">Add a drink !!! Its lonely here.</string>
     <string name="empty_string_cocktail_image">cocktail_image</string>

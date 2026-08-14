@@ -3,7 +3,6 @@ package com.capstone.nik.mixology.ui.main
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -21,8 +20,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
@@ -34,11 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -96,7 +89,6 @@ fun MixologyApp(
         DrawerDestination.Randomixer -> stringResource(R.string.nav_item_randomixer)
         DrawerDestination.Settings -> stringResource(R.string.nav_bottom_settings)
         is DrawerDestination.Filter -> when (destination.filter) {
-            DrinkFilter.ALCOHOLIC -> stringResource(R.string.nav_bottom_home)
             DrinkFilter.SAVED -> stringResource(R.string.nav_bottom_saved)
             else -> stringResource(destination.filter.titleRes)
         }
@@ -120,29 +112,7 @@ fun MixologyApp(
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = {
-                        if (state.searchOpen && showSearch) {
-                            TextField(
-                                value = state.searchQuery,
-                                onValueChange = { viewModel.onIntent(MainIntent.SearchQueryChanged(it)) },
-                                singleLine = true,
-                                placeholder = { Text(stringResource(R.string.action_search)) },
-                                colors = TextFieldDefaults.colors(
-                                    focusedContainerColor = Color.Transparent,
-                                    unfocusedContainerColor = Color.Transparent,
-                                    focusedIndicatorColor = Color.Transparent,
-                                    unfocusedIndicatorColor = Color.Transparent,
-                                ),
-                                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                                keyboardActions = KeyboardActions(
-                                    onSearch = { viewModel.onIntent(MainIntent.SubmitSearch) },
-                                ),
-                                modifier = Modifier.fillMaxWidth(),
-                            )
-                        } else {
-                            Text(title)
-                        }
-                    },
+                    title = { Text(title) },
                     navigationIcon = {
                         if (showSideNav) {
                             IconButton(onClick = { viewModel.onIntent(MainIntent.OpenDrawer) }) {
@@ -202,7 +172,7 @@ fun MixologyApp(
             ) {
                 NavHost(
                     navController = navController,
-                    startDestination = gridRoute(DrinkFilter.ALCOHOLIC),
+                    startDestination = HOT_ROUTE,
                     modifier = Modifier.weight(1f),
                 ) {
                     DrinkFilter.entries.forEach { filter ->

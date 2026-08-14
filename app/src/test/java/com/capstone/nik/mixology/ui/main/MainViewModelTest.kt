@@ -3,6 +3,12 @@ package com.capstone.nik.mixology.ui.main
 import android.app.Application
 import com.capstone.nik.mixology.Model.Cocktail
 import com.capstone.nik.mixology.data.DrinkFilter
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.yield
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -17,17 +23,16 @@ import org.robolectric.annotation.Config
 class MainViewModelTest {
 
     @Test
-    fun toggleSearch_opensSearchField() {
+    fun toggleSearch_opensSearch() = runBlocking {
         val viewModel = MainViewModel()
+        val deferred = CompletableDeferred<MainEffect>()
+        val job = launch { deferred.complete(viewModel.effects.first()) }
+        yield()
         viewModel.onIntent(MainIntent.ToggleSearch)
-        assertTrue(viewModel.state.value.searchOpen)
-    }
-
-    @Test
-    fun searchQueryChanged_updatesState() {
-        val viewModel = MainViewModel()
-        viewModel.onIntent(MainIntent.SearchQueryChanged("gin"))
-        assertEquals("gin", viewModel.state.value.searchQuery)
+        val effect = withTimeout(1_000) { deferred.await() }
+        job.cancel()
+        assertTrue(effect is MainEffect.OpenSearch)
+        assertEquals("", (effect as MainEffect.OpenSearch).query)
     }
 
     @Test

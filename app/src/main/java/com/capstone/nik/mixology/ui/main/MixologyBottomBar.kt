@@ -2,12 +2,10 @@ package com.capstone.nik.mixology.ui.main
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material.icons.filled.Whatshot
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Shuffle
 import androidx.compose.material.icons.outlined.Whatshot
@@ -33,12 +31,6 @@ data class BottomNavItem(
 )
 
 val bottomNavItems = listOf(
-    BottomNavItem(
-        titleRes = R.string.nav_bottom_home,
-        destination = DrawerDestination.Filter(DrinkFilter.ALCOHOLIC),
-        selectedIcon = Icons.Filled.Home,
-        unselectedIcon = Icons.Outlined.Home,
-    ),
     BottomNavItem(
         titleRes = R.string.nav_item_hot,
         destination = DrawerDestination.Hot,

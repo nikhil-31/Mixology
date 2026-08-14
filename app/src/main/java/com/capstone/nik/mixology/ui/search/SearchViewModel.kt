@@ -41,7 +41,7 @@ class SearchViewModel(application: Application) :
                     results = results,
                     empty = hasQueried && !isLoading && results.isEmpty(),
                 )
-            }.collect { setState { it } }
+            }.collect { newState -> setState { newState } }
         }
     }
 

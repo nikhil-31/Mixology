@@ -1,22 +1,17 @@
 package com.capstone.nik.mixology.ui.main
 
 import com.capstone.nik.mixology.Model.Cocktail
-import com.capstone.nik.mixology.data.DrinkFilter
 
 data class MainUiState(
-    val searchOpen: Boolean = false,
-    val searchQuery: String = "",
     val menuExpanded: Boolean = false,
     val selectedCocktail: Cocktail? = null,
-    val destination: DrawerDestination = DrawerDestination.Filter(DrinkFilter.ALCOHOLIC),
+    val destination: DrawerDestination = DrawerDestination.Hot,
 )
 
 sealed interface MainIntent {
     data object OpenDrawer : MainIntent
     data class SelectDestination(val destination: DrawerDestination) : MainIntent
     data object ToggleSearch : MainIntent
-    data class SearchQueryChanged(val query: String) : MainIntent
-    data object SubmitSearch : MainIntent
     data object OpenMenu : MainIntent
     data object DismissMenu : MainIntent
     data object SignOut : MainIntent

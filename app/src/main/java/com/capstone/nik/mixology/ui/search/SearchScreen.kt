@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -33,8 +34,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.res.stringResource
@@ -94,37 +97,43 @@ fun SearchScreen(
     onDrinkClick: (Cocktail) -> Unit,
     onToggleSaved: (SearchResultItem) -> Unit,
 ) {
-    var searching by remember { mutableStateOf(false) }
     var queryText by remember(state.query) { mutableStateOf(state.query) }
+    val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    LaunchedEffect(Unit) {
+        runCatching { focusRequester.requestFocus() }
+    }
+
+    fun submitSearch() {
+        onSearch(queryText)
+        keyboardController?.hide()
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
-                    if (searching) {
-                        TextField(
-                            value = queryText,
-                            onValueChange = { queryText = it },
-                            singleLine = true,
-                            placeholder = { Text(stringResource(R.string.action_search)) },
-                            colors = TextFieldDefaults.colors(
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent,
-                                focusedIndicatorColor = Color.Transparent,
-                                unfocusedIndicatorColor = Color.Transparent,
-                            ),
-                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                            keyboardActions = KeyboardActions(
-                                onSearch = {
-                                    onSearch(queryText)
-                                    searching = false
-                                },
-                            ),
-                            modifier = Modifier.fillMaxWidth(),
-                        )
-                    } else {
-                        Text(state.query.ifBlank { stringResource(R.string.action_search) })
-                    }
+                    TextField(
+                        value = queryText,
+                        onValueChange = { queryText = it },
+                        singleLine = true,
+                        placeholder = { Text(stringResource(R.string.action_search)) },
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            cursorColor = MaterialTheme.colorScheme.primary,
+                            focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                            unfocusedIndicatorColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                        ),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                        keyboardActions = KeyboardActions(onSearch = { submitSearch() }),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(focusRequester),
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -135,16 +144,7 @@ fun SearchScreen(
                     }
                 },
                 actions = {
-                    IconButton(
-                        onClick = {
-                            if (searching) {
-                                onSearch(queryText)
-                                searching = false
-                            } else {
-                                searching = true
-                            }
-                        },
-                    ) {
+                    IconButton(onClick = { submitSearch() }) {
                         Icon(
                             imageVector = Icons.Default.Search,
                             contentDescription = stringResource(R.string.action_search),
@@ -165,7 +165,8 @@ fun SearchScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding),
+                .padding(padding)
+                .imePadding(),
         ) {
             when {
                 state.loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
@@ -178,7 +179,10 @@ fun SearchScreen(
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 else -> LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(state.results, key = { it.drink.idDrink }) { item ->
+                    items(
+                        items = state.results,
+                        key = { item -> item.drink.idDrink ?: item.drink.strDrink.orEmpty() },
+                    ) { item ->
                         SearchRow(
                             item = item,
                             onClick = { onDrinkClick(item.toCocktail()) },

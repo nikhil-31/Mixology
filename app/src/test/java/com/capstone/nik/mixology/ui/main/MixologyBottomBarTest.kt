@@ -26,30 +26,27 @@ class MixologyBottomBarTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun showsHomeSavedAndRandomixer_andReportsSelection() {
+    fun showsHotSavedRandomixerAndSettings_andReportsSelection() {
         val selected = mutableListOf<DrawerDestination>()
         composeRule.setContent {
             MixologyTheme {
                 MixologyBottomBar(
-                    currentDestination = DrawerDestination.Filter(DrinkFilter.ALCOHOLIC),
+                    currentDestination = DrawerDestination.Hot,
                     onDestinationSelected = { selected.add(it) },
                 )
             }
         }
 
-        composeRule.onNodeWithText("Home").assertIsDisplayed()
         composeRule.onNodeWithText("Hot").assertIsDisplayed()
         composeRule.onNodeWithText("Saved").assertIsDisplayed()
         composeRule.onNodeWithText("Randomixer").assertIsDisplayed()
         composeRule.onNodeWithText("Settings").assertIsDisplayed()
-        composeRule.onNodeWithTag("bottom_Hot").performClick()
         composeRule.onNodeWithTag("bottom_Saved").performClick()
         composeRule.onNodeWithTag("bottom_Randomixer").performClick()
         composeRule.onNodeWithTag("bottom_Settings").performClick()
 
-        assertTrue(selected[0] is DrawerDestination.Hot)
-        assertEquals(DrinkFilter.SAVED, (selected[1] as DrawerDestination.Filter).filter)
-        assertTrue(selected[2] is DrawerDestination.Randomixer)
-        assertTrue(selected[3] is DrawerDestination.Settings)
+        assertEquals(DrinkFilter.SAVED, (selected[0] as DrawerDestination.Filter).filter)
+        assertTrue(selected[1] is DrawerDestination.Randomixer)
+        assertTrue(selected[2] is DrawerDestination.Settings)
     }
 }

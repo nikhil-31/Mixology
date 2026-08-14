@@ -57,7 +57,6 @@
     <string name="banner_ad_unit_id_details" translatable="false">ca-app-pub-3113257282676296/2081424367</string>
     <string name="banner_test" translatable="false">ca-app-pub-3940256099942544/6300978111</string>
 
-    <string name="nav_bottom_home">Home</string>
     <string name="nav_bottom_saved">Saved</string>
     <string name="nav_bottom_settings">Settings</string>
 

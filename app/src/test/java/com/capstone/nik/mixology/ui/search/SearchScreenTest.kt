@@ -7,9 +7,11 @@ import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import com.capstone.nik.mixology.Model.Cocktail
 import com.capstone.nik.mixology.Network.remoteModel.Drink
 import com.capstone.nik.mixology.ui.theme.MixologyTheme
@@ -120,5 +122,26 @@ class SearchScreenTest {
 
         composeRule.onNodeWithContentDescription("Up navigation").performClick()
         assertTrue(back)
+    }
+
+    @Test
+    fun searchIcon_submitsTypedQuery() {
+        val searched = mutableListOf<String>()
+        composeRule.setContent {
+            MixologyTheme {
+                SearchScreen(
+                    state = SearchUiState(),
+                    snackbarHostState = remember { SnackbarHostState() },
+                    onBack = {},
+                    onSearch = { searched.add(it) },
+                    onDrinkClick = {},
+                    onToggleSaved = {},
+                )
+            }
+        }
+
+        composeRule.onNode(hasSetTextAction()).performTextInput("gin")
+        composeRule.onNodeWithContentDescription("Search").performClick()
+        assertEquals(listOf("gin"), searched)
     }
 }

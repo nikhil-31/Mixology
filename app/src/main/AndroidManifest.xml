@@ -51,7 +51,8 @@
             android:name=".Activities.ActivitySearch"
             android:label="@string/title_activity_search"
             android:parentActivityName=".Activities.ActivityMain"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.capstone.nik.mixology.Activities.ActivityMain" />

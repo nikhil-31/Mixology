@@ -1,15 +1,15 @@
 package com.capstone.nik.mixology.ui.search
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
@@ -48,8 +48,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.capstone.nik.mixology.Model.Cocktail
 import com.capstone.nik.mixology.R
-import com.capstone.nik.mixology.ui.components.CircularDrinkImage
-import com.capstone.nik.mixology.ui.components.FavoriteButton
+import com.capstone.nik.mixology.ui.components.DrinkCard
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 
 @Composable
@@ -79,6 +78,7 @@ fun SearchRoute(
 
     SearchScreen(
         state = state,
+        initialQuery = initialQuery,
         snackbarHostState = snackbarHostState,
         onBack = { viewModel.onIntent(SearchIntent.Back) },
         onSearch = { viewModel.onIntent(SearchIntent.Search(it)) },
@@ -96,8 +96,11 @@ fun SearchScreen(
     onSearch: (String) -> Unit,
     onDrinkClick: (Cocktail) -> Unit,
     onToggleSaved: (SearchResultItem) -> Unit,
+    initialQuery: String = state.query,
 ) {
-    var queryText by remember(state.query) { mutableStateOf(state.query) }
+    var queryText by remember {
+        mutableStateOf(initialQuery.replace("%20", " "))
+    }
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -105,8 +108,15 @@ fun SearchScreen(
         runCatching { focusRequester.requestFocus() }
     }
 
+    fun emitSearch(value: String) {
+        val trimmed = value.trim()
+        if (trimmed.length >= SEARCH_MIN_CHARS || trimmed.isEmpty()) {
+            onSearch(value)
+        }
+    }
+
     fun submitSearch() {
-        onSearch(queryText)
+        emitSearch(queryText)
         keyboardController?.hide()
     }
 
@@ -116,7 +126,10 @@ fun SearchScreen(
                 title = {
                     TextField(
                         value = queryText,
-                        onValueChange = { queryText = it },
+                        onValueChange = { value ->
+                            queryText = value
+                            emitSearch(value)
+                        },
                         singleLine = true,
                         placeholder = { Text(stringResource(R.string.action_search)) },
                         colors = TextFieldDefaults.colors(
@@ -178,13 +191,19 @@ fun SearchScreen(
                     fontSize = 20.sp,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
-                else -> LazyColumn(modifier = Modifier.fillMaxSize()) {
+                else -> LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(3.dp, 3.dp, 3.dp, 50.dp),
+                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                ) {
                     items(
                         items = state.results,
                         key = { item -> item.drink.idDrink ?: item.drink.strDrink.orEmpty() },
                     ) { item ->
-                        SearchRow(
-                            item = item,
+                        DrinkCard(
+                            item = item.toListItem(),
                             onClick = { onDrinkClick(item.toCocktail()) },
                             onToggleSaved = { onToggleSaved(item) },
                         )
@@ -192,32 +211,5 @@ fun SearchScreen(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun SearchRow(
-    item: SearchResultItem,
-    onClick: () -> Unit,
-    onToggleSaved: () -> Unit,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 56.dp)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        CircularDrinkImage(url = item.drink.strDrinkThumb, size = 40.dp)
-        Text(
-            text = item.drink.strDrink.orEmpty(),
-            modifier = Modifier
-                .weight(1f)
-                .padding(horizontal = 16.dp),
-            fontSize = 20.sp,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-        FavoriteButton(saved = item.saved, onClick = onToggleSaved, size = 40)
     }
 }

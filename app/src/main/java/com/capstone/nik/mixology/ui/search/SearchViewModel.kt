@@ -8,9 +8,13 @@ import com.capstone.nik.mixology.Network.remoteModel.Drink
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.ui.mvi.MviAndroidViewModel
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlin.coroutines.cancellation.CancellationException
 
 class SearchViewModel(application: Application) :
     MviAndroidViewModel<SearchIntent, SearchUiState, SearchEffect>(
@@ -24,6 +28,7 @@ class SearchViewModel(application: Application) :
     private val loading = MutableStateFlow(false)
     private val queried = MutableStateFlow(false)
     private val query = MutableStateFlow("")
+    private var searchJob: Job? = null
 
     init {
         viewModelScope.launch {
@@ -56,20 +61,31 @@ class SearchViewModel(application: Application) :
 
     private fun search(rawQuery: String) {
         val adjusted = rawQuery.replace("%20", " ").trim()
-        if (adjusted.isEmpty()) return
+        searchJob?.cancel()
         query.value = adjusted
+        if (adjusted.length < SEARCH_MIN_CHARS) {
+            queried.value = false
+            drinks.value = emptyList()
+            loading.value = false
+            return
+        }
         queried.value = true
-        viewModelScope.launch {
+        searchJob = viewModelScope.launch {
+            delay(SEARCH_DEBOUNCE_MS)
             loading.value = true
             try {
                 drinks.value = repository.search(adjusted)
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 Log.e(TAG, "Search failed", e)
                 FirebaseCrashlytics.getInstance().recordException(e)
                 drinks.value = emptyList()
                 sendEffect(SearchEffect.ShowMessageRes(R.string.network_error))
             } finally {
-                loading.value = false
+                if (isActive) {
+                    loading.value = false
+                }
             }
         }
     }
@@ -88,5 +104,6 @@ class SearchViewModel(application: Application) :
 
     companion object {
         private const val TAG = "SearchViewModel"
+        private const val SEARCH_DEBOUNCE_MS = 250L
     }
 }

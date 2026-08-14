@@ -96,6 +96,7 @@ class SearchScreenTest {
         }
 
         composeRule.onNodeWithText("Mojito").assertIsDisplayed()
+        composeRule.onNodeWithText("Instructions").assertDoesNotExist()
         composeRule.onNodeWithText("Mojito").performClick()
         composeRule.onNodeWithContentDescription("Add or delete").performClick()
 
@@ -125,6 +126,28 @@ class SearchScreenTest {
     }
 
     @Test
+    fun typingSecondCharacter_triggersSearch() {
+        val searched = mutableListOf<String>()
+        composeRule.setContent {
+            MixologyTheme {
+                SearchScreen(
+                    state = SearchUiState(),
+                    snackbarHostState = remember { SnackbarHostState() },
+                    onBack = {},
+                    onSearch = { searched.add(it) },
+                    onDrinkClick = {},
+                    onToggleSaved = {},
+                )
+            }
+        }
+
+        composeRule.onNode(hasSetTextAction()).performTextInput("g")
+        assertTrue(searched.isEmpty())
+        composeRule.onNode(hasSetTextAction()).performTextInput("i")
+        assertEquals(listOf("gi"), searched)
+    }
+
+    @Test
     fun searchIcon_submitsTypedQuery() {
         val searched = mutableListOf<String>()
         composeRule.setContent {
@@ -141,6 +164,7 @@ class SearchScreenTest {
         }
 
         composeRule.onNode(hasSetTextAction()).performTextInput("gin")
+        searched.clear()
         composeRule.onNodeWithContentDescription("Search").performClick()
         assertEquals(listOf("gin"), searched)
     }

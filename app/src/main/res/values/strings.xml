@@ -57,9 +57,14 @@
     <string name="banner_ad_unit_id_details" translatable="false">ca-app-pub-3113257282676296/2081424367</string>
     <string name="banner_test" translatable="false">ca-app-pub-3940256099942544/6300978111</string>
 
-    <!-- Navigation drawer menu items and title for main activity toolbar based on which fragment is present-->
+    <string name="nav_bottom_home">Home</string>
+    <string name="nav_bottom_saved">Saved</string>
+
     <string name="nav_item_saved_cocktails">Saved Cocktails</string>
+    <string name="nav_item_hot">Hot</string>
     <string name="nav_item_randomixer">Randomixer</string>
+    <string name="action_see_all">See all</string>
+
     <string name="nav_item_non_alcoholic">Non Alcoholic</string>
     <string name="nav_item_alcoholic">Alcoholic</string>
     <string name="nav_item_cocktail">Cocktail</string>

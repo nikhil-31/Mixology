@@ -22,6 +22,8 @@ enum class DrinkFilter(
     SAVED(null, null, R.string.nav_item_saved_cocktails, showEmptySaved = true);
 
     companion object {
+        val catalogFilters: List<DrinkFilter> get() = entries.filter { it.kind != null }
+
         @JvmStatic
         fun fromNavId(@IdRes id: Int): DrinkFilter? = when (id) {
             R.id.nav_Alcoholic -> ALCOHOLIC

@@ -11,10 +11,10 @@ class MainViewModel : MviViewModel<MainIntent, MainUiState, MainEffect>(MainUiSt
                 setState {
                     copy(
                         destination = intent.destination,
-                        selectedCocktail = if (intent.destination is DrawerDestination.Filter) {
-                            null
-                        } else {
+                        selectedCocktail = if (intent.destination is DrawerDestination.Randomixer) {
                             selectedCocktail
+                        } else {
+                            null
                         },
                     )
                 }

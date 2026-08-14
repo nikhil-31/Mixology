@@ -49,6 +49,7 @@ import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.ui.details.DrinkDetailsRoute
 import com.capstone.nik.mixology.ui.grid.DrinkGridRoute
+import com.capstone.nik.mixology.ui.hot.HotRoute
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 import com.capstone.nik.mixology.ui.randomixer.RandomixerRoute
 import com.capstone.nik.mixology.ui.theme.MixologyGray
@@ -91,17 +92,27 @@ fun MixologyApp(
     }
 
     val title = when (val destination = state.destination) {
+        DrawerDestination.Hot -> stringResource(R.string.nav_item_hot)
         DrawerDestination.Randomixer -> stringResource(R.string.nav_item_randomixer)
-        is DrawerDestination.Filter -> stringResource(destination.filter.titleRes)
+        is DrawerDestination.Filter -> when (destination.filter) {
+            DrinkFilter.ALCOHOLIC -> stringResource(R.string.nav_bottom_home)
+            DrinkFilter.SAVED -> stringResource(R.string.nav_bottom_saved)
+            else -> stringResource(destination.filter.titleRes)
+        }
     }
+
+    val showSideNav = state.destination.showsSideNav()
 
     ModalNavigationDrawer(
         drawerState = drawerState,
+        gesturesEnabled = showSideNav,
         drawerContent = {
-            MixologyDrawer(
-                selectedRoute = state.destination.route,
-                onDestinationSelected = { viewModel.onIntent(MainIntent.SelectDestination(it)) },
-            )
+            if (showSideNav) {
+                MixologyDrawer(
+                    selectedRoute = state.destination.route,
+                    onDestinationSelected = { viewModel.onIntent(MainIntent.SelectDestination(it)) },
+                )
+            }
         },
     ) {
         Scaffold(
@@ -131,12 +142,14 @@ fun MixologyApp(
                         }
                     },
                     navigationIcon = {
-                        IconButton(onClick = { viewModel.onIntent(MainIntent.OpenDrawer) }) {
-                            Icon(
-                                imageVector = Icons.Default.Menu,
-                                contentDescription = stringResource(R.string.navigation_drawer_open),
-                                tint = MixologyText,
-                            )
+                        if (showSideNav) {
+                            IconButton(onClick = { viewModel.onIntent(MainIntent.OpenDrawer) }) {
+                                Icon(
+                                    imageVector = Icons.Default.Menu,
+                                    contentDescription = stringResource(R.string.navigation_drawer_open),
+                                    tint = MixologyText,
+                                )
+                            }
                         }
                     },
                     actions = {
@@ -168,6 +181,12 @@ fun MixologyApp(
                 )
             },
             snackbarHost = { SnackbarHost(snackbarHostState) },
+            bottomBar = {
+                MixologyBottomBar(
+                    currentDestination = state.destination,
+                    onDestinationSelected = { viewModel.onIntent(MainIntent.SelectDestination(it)) },
+                )
+            },
             containerColor = MixologyGray,
         ) { padding ->
             Row(
@@ -190,6 +209,17 @@ fun MixologyApp(
                                 },
                             )
                         }
+                    }
+                    composable(HOT_ROUTE) {
+                        HotRoute(
+                            snackbarHostState = snackbarHostState,
+                            onDrinkClick = { cocktail ->
+                                viewModel.onIntent(MainIntent.DrinkSelected(cocktail, twoPane))
+                            },
+                            onSeeAll = { filter ->
+                                viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Filter(filter)))
+                            },
+                        )
                     }
                     composable(RANDOMIXER_ROUTE) {
                         RandomixerRoute(snackbarHostState = snackbarHostState)

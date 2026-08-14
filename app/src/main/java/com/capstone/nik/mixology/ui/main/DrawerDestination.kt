@@ -6,6 +6,7 @@ import com.capstone.nik.mixology.data.DrinkFilter
 sealed class DrawerDestination(val route: String) {
     data class Filter(val filter: DrinkFilter) : DrawerDestination("grid/${filter.name}")
     data object Randomixer : DrawerDestination("randomixer")
+    data object Hot : DrawerDestination("hot")
 }
 
 data class DrawerSection(
@@ -25,7 +26,10 @@ val drawerSections = listOf(
     ),
     DrawerSection(
         titleRes = R.string.nav_title_inspire_me,
-        items = listOf(DrawerNavItem(R.string.nav_item_randomixer, DrawerDestination.Randomixer)),
+        items = listOf(
+            DrawerNavItem(R.string.nav_item_hot, DrawerDestination.Hot),
+            DrawerNavItem(R.string.nav_item_randomixer, DrawerDestination.Randomixer),
+        ),
     ),
     DrawerSection(
         titleRes = R.string.nav_title_alcoholic,
@@ -59,5 +63,14 @@ val drawerSections = listOf(
 
 const val GRID_ROUTE = "grid/{filter}"
 const val RANDOMIXER_ROUTE = "randomixer"
+const val HOT_ROUTE = "hot"
 
 fun gridRoute(filter: DrinkFilter) = "grid/${filter.name}"
+
+fun DrawerDestination.showsSideNav(): Boolean {
+    return when (this) {
+        DrawerDestination.Hot -> false
+        DrawerDestination.Randomixer -> false
+        is DrawerDestination.Filter -> filter != DrinkFilter.SAVED
+    }
+}

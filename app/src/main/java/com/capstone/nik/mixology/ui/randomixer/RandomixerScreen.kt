@@ -10,7 +10,6 @@ import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -20,8 +19,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -56,7 +53,6 @@ import com.capstone.nik.mixology.ui.components.DrinkImage
 import com.capstone.nik.mixology.ui.model.IngredientMeasure
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 import com.capstone.nik.mixology.ui.theme.MixologyRed
-import com.capstone.nik.mixology.ui.theme.MixologyText
 import kotlinx.coroutines.launch
 
 private val SaveGreen = Color(0xFF4CAF50)
@@ -92,26 +88,16 @@ fun RandomixerScreen(
     Box(modifier = Modifier.fillMaxSize()) {
         val drink = state.drink
         if (drink != null) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                SwipeableDrinkCard(
-                    drink = drink,
-                    ingredients = state.ingredients,
-                    enabled = !state.loading,
-                    onSwipedRight = onSave,
-                    onSwipedLeft = onDiscard,
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
-                )
-                Text(
-                    text = stringResource(R.string.randomixer_swipe_hint),
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(bottom = 12.dp),
-                    fontSize = 13.sp,
-                    color = MixologyText.copy(alpha = 0.7f),
-                )
-            }
+            SwipeableDrinkCard(
+                drink = drink,
+                ingredients = state.ingredients,
+                enabled = !state.loading,
+                onSwipedRight = onSave,
+                onSwipedLeft = onDiscard,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(start = 5.dp, top = 5.dp, end = 5.dp, bottom = 20.dp),
+            )
         }
         if (state.loading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -152,12 +138,10 @@ private fun SwipeableDrinkCard(
         scope.launch { offsetX.snapTo(offsetX.value + delta) }
     }
 
-    Column(modifier = modifier) {
+    Box(modifier = modifier.fillMaxSize()) {
         Box(
             modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .fillMaxSize()
                 .testTag("randomixer_card")
                 .graphicsLayer {
                     translationX = offsetX.value
@@ -205,41 +189,56 @@ private fun SwipeableDrinkCard(
                 )
             }
         }
-        Row(
+        OverlayActionButtons(
+            enabled = enabled && !settled,
+            onSave = { settle(toRight = true) },
+            onDiscard = { settle(toRight = false) },
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically,
+                .align(Alignment.CenterEnd)
+                .padding(end = 5.dp),
+        )
+    }
+}
+
+@Composable
+private fun OverlayActionButtons(
+    enabled: Boolean,
+    onSave: () -> Unit,
+    onDiscard: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        FloatingActionButton(
+            onClick = { if (enabled) onSave() },
+            containerColor = Color.White,
+            contentColor = MixologyRed,
+            shape = CircleShape,
+            elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 6.dp),
+            modifier = Modifier.size(56.dp),
         ) {
-            FloatingActionButton(
-                onClick = { if (enabled) settle(toRight = false) },
-                containerColor = Color.White,
-                contentColor = MixologyRed,
-                shape = CircleShape,
-                elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 4.dp),
-                modifier = Modifier.size(64.dp),
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Close,
-                    contentDescription = stringResource(R.string.content_desc_randomixer_discard),
-                    modifier = Modifier.size(32.dp),
-                )
-            }
-            FloatingActionButton(
-                onClick = { if (enabled) settle(toRight = true) },
-                containerColor = Color.White,
-                contentColor = MixologyRed,
-                shape = CircleShape,
-                elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 4.dp),
-                modifier = Modifier.size(64.dp),
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Favorite,
-                    contentDescription = stringResource(R.string.content_desc_randomixer_save),
-                    modifier = Modifier.size(32.dp),
-                )
-            }
+            Icon(
+                imageVector = Icons.Filled.Favorite,
+                contentDescription = stringResource(R.string.content_desc_randomixer_save),
+                modifier = Modifier.size(28.dp),
+            )
+        }
+        FloatingActionButton(
+            onClick = { if (enabled) onDiscard() },
+            containerColor = Color.White,
+            contentColor = MixologyRed,
+            shape = CircleShape,
+            elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 6.dp),
+            modifier = Modifier.size(56.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Close,
+                contentDescription = stringResource(R.string.content_desc_randomixer_discard),
+                modifier = Modifier.size(28.dp),
+            )
         }
     }
 }
@@ -249,32 +248,26 @@ private fun DrinkSwipeCardContent(
     drink: Drink,
     ingredients: List<IngredientMeasure>,
 ) {
-    Card(
-        modifier = Modifier.fillMaxSize(),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            DrinkImage(
-                url = drink.strDrinkThumb,
-                modifier = Modifier.fillMaxSize(),
-            )
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                Color.Black.copy(alpha = 0.55f),
-                                Color.Black.copy(alpha = 0.88f),
-                            ),
+    Box(modifier = Modifier.fillMaxSize()) {
+        DrinkImage(
+            url = drink.strDrinkThumb,
+            modifier = Modifier.fillMaxSize(),
+        )
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .fillMaxWidth()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            Color.Black.copy(alpha = 0.55f),
+                            Color.Black.copy(alpha = 0.88f),
                         ),
-                    )
-                    .padding(start = 20.dp, end = 20.dp, top = 48.dp, bottom = 20.dp),
-            ) {
+                    ),
+                )
+                .padding(start = 20.dp, end = 88.dp, top = 48.dp, bottom = 24.dp),
+        ) {
                 Column {
                     Text(
                         text = drink.strDrink.orEmpty(),
@@ -312,7 +305,6 @@ private fun DrinkSwipeCardContent(
                         )
                     }
                 }
-            }
         }
     }
 }

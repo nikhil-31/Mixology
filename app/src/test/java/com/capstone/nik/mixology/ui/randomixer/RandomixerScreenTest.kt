@@ -26,7 +26,7 @@ class RandomixerScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun showsDrinkAndSwipeHint() {
+    fun showsDrinkAndActionButtons() {
         composeRule.setContent {
             MixologyTheme {
                 RandomixerScreen(
@@ -39,7 +39,8 @@ class RandomixerScreenTest {
 
         composeRule.onNodeWithText("Margarita").assertIsDisplayed()
         composeRule.onNodeWithText("Alcoholic").assertIsDisplayed()
-        composeRule.onNodeWithText("Swipe right to save · Swipe left to skip").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("Save this cocktail").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("Discard this cocktail").assertIsDisplayed()
     }
 
     @Test

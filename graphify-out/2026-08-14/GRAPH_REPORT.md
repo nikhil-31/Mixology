@@ -1,16 +1,16 @@
 # Graph Report - Mixology  (2026-08-14)
 
 ## Corpus Check
-- 84 files · ~41,468 words
+- 85 files · ~41,707 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 594 nodes · 934 edges · 37 communities (30 shown, 7 thin omitted)
-- Extraction: 87% EXTRACTED · 13% INFERRED · 0% AMBIGUOUS · INFERRED: 123 edges (avg confidence: 0.8)
+- 598 nodes · 939 edges · 32 communities (26 shown, 6 thin omitted)
+- Extraction: 87% EXTRACTED · 13% INFERRED · 0% AMBIGUOUS · INFERRED: 125 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `b91229aa`
+- Built from commit: `2e81705b`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -24,7 +24,7 @@
 - WidgetDataProvider
 - MviAndroidViewModel
 - DrinkDetailsViewModel
-- SearchViewModel
+- SearchScreen
 - RandomixerViewModel
 - DrinkFilterTest
 - FilterKind
@@ -35,21 +35,16 @@
 - MainViewModel
 - DrinkWidgetProvider.java
 - DrinkImage
-- SearchScreen
-- .onCreate
-- .onCreate
 - Mixology
 - DrinkFilter
 - CocktailService
 - Measures
-- .onCreate
 - gradlew
-- ActivityLogin
 - custom.md
 
 ## God Nodes (most connected - your core abstractions)
 1. `Drink` - 96 edges
-2. `MixologyTheme()` - 30 edges
+2. `MixologyTheme()` - 32 edges
 3. `Cocktail` - 26 edges
 4. `DrinkRepository` - 20 edges
 5. `DrinkFilter` - 18 edges
@@ -62,23 +57,23 @@
 ## Surprising Connections (you probably didn't know these)
 - `hasUsableThumb()` --references--> `Drink`  [EXTRACTED]
   app/src/main/java/com/capstone/nik/mixology/repository/DrinkRepository.kt → app/src/main/java/com/capstone/nik/mixology/Network/remoteModel/Drink.java
-- `DrinkCard()` --calls--> `DrinkImage()`  [INFERRED]
-  app/src/main/java/com/capstone/nik/mixology/ui/grid/DrinkGridScreen.kt → app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkImage.kt
 - `HotDrinkCard()` --calls--> `DrinkImage()`  [INFERRED]
   app/src/main/java/com/capstone/nik/mixology/ui/hot/HotScreen.kt → app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkImage.kt
 - `DrinkSwipeCardContent()` --calls--> `DrinkImage()`  [INFERRED]
   app/src/main/java/com/capstone/nik/mixology/ui/randomixer/RandomixerScreen.kt → app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkImage.kt
 - `SearchRow()` --calls--> `CircularDrinkImage()`  [INFERRED]
   app/src/main/java/com/capstone/nik/mixology/ui/search/SearchScreen.kt → app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkImage.kt
+- `DrinkDetailsContent()` --calls--> `DrinkRecipeBody()`  [INFERRED]
+  app/src/main/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreen.kt → app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkRecipeBody.kt
 
 ## Import Cycles
 - None detected.
 
-## Communities (37 total, 7 thin omitted)
+## Communities (32 total, 6 thin omitted)
 
 ### Community 1 - "DrinkDao"
 Cohesion: 0.09
-Nodes (19): DrinkDao, Flow, DrinkEntity, from(), DrinkFilterCrossRef, create(), Callback, importLegacySavedDrinks() (+11 more)
+Nodes (20): DrinkDao, Flow, DrinkEntity, DrinkListItem, from(), DrinkFilterCrossRef, create(), Callback (+12 more)
 
 ### Community 2 - "Cocktail"
 Cohesion: 0.07
@@ -89,8 +84,8 @@ Cohesion: 0.13
 Nodes (17): HotCategory, HotEffect, HotIntent, HotUiState, Load, OpenDrink, OpenFilter, SeeAll (+9 more)
 
 ### Community 4 - "MixologyTheme"
-Cohesion: 0.27
-Nodes (4): Bundle, LoginScreen(), MixologyTheme(), LoginScreenTest
+Cohesion: 0.05
+Nodes (21): ActivityLogin, AppCompatActivity, Bundle, ActivityPasswordChange, AppCompatActivity, Bundle, ActivitySignUp, AppCompatActivity (+13 more)
 
 ### Community 6 - "WidgetDataProvider"
 Cohesion: 0.17
@@ -104,9 +99,9 @@ Nodes (11): AndroidViewModel, CollectMviEffects(), Flow, MviAndroidViewModel, Mv
 Cohesion: 0.11
 Nodes (17): Back, DrinkDetailsEffect, DrinkDetailsIntent, DrinkDetailsUiState, Load, NavigateBack, Share, ShareRecipe (+9 more)
 
-### Community 9 - "SearchViewModel"
-Cohesion: 0.17
-Nodes (10): Back, NavigateBack, OpenDrink, Search, SearchEffect, SearchIntent, SearchResultItem, ShowMessageRes (+2 more)
+### Community 9 - "SearchScreen"
+Cohesion: 0.10
+Nodes (19): ActivitySearch, AppCompatActivity, Bundle, Back, NavigateBack, OpenDrink, Search, SearchEffect (+11 more)
 
 ### Community 10 - "RandomixerViewModel"
 Cohesion: 0.09
@@ -117,40 +112,28 @@ Cohesion: 0.29
 Nodes (6): FilterKind, ALCOHOL, DRINK_TYPE, GLASS, INGREDIENT, hasUsableThumb()
 
 ### Community 13 - "MixologyApp"
-Cohesion: 0.07
-Nodes (19): ActivityMain, AppCompatActivity, Bundle, DrawerDestination, DrawerNavItem, DrawerSection, Filter, gridRoute() (+11 more)
+Cohesion: 0.08
+Nodes (16): DrawerDestination, DrawerNavItem, DrawerSection, Filter, gridRoute(), Hot, Randomixer, MixologyApp() (+8 more)
 
 ### Community 21 - "MainViewModel"
 Cohesion: 0.10
 Nodes (18): CloseDrawer, DismissMenu, DrinkSelected, MainEffect, MainIntent, MainUiState, Navigate, OpenDetails (+10 more)
 
 ### Community 22 - "DrinkWidgetProvider.java"
-Cohesion: 0.22
-Nodes (9): ActivityDetails, AppCompatActivity, Bundle, DrinkWidgetProvider, Context, Intent, Override, AppWidgetManager (+1 more)
+Cohesion: 0.15
+Nodes (12): ActivityDetails, AppCompatActivity, Bundle, ActivityMain, AppCompatActivity, Bundle, DrinkWidgetProvider, Context (+4 more)
 
 ### Community 23 - "DrinkImage"
 Cohesion: 0.14
-Nodes (13): CircularDrinkImage(), DrinkImage(), IngredientImage(), Modifier, DrinkHeroImage(), DrinkRecipeBody(), Modifier, FavoriteButton() (+5 more)
-
-### Community 24 - "SearchScreen"
-Cohesion: 0.32
-Nodes (6): SearchUiState, SnackbarHostState, SearchRoute(), SearchRow(), SearchScreen(), SearchScreenTest
-
-### Community 25 - ".onCreate"
-Cohesion: 0.20
-Nodes (5): ActivityPasswordChange, AppCompatActivity, Bundle, PasswordChangeScreen(), PasswordChangeScreenTest
-
-### Community 26 - ".onCreate"
-Cohesion: 0.20
-Nodes (5): ActivitySignUp, AppCompatActivity, Bundle, SignUpScreen(), SignUpScreenTest
+Nodes (14): CircularDrinkImage(), DrinkImage(), IngredientImage(), Modifier, DrinkHeroImage(), DrinkRecipeBody(), Modifier, FavoriteButton() (+6 more)
 
 ### Community 27 - "Mixology"
 Cohesion: 0.14
 Nodes (13): Credits, Details Screen, Libraries used, License, Main Screen, Mixology, Overview, Phone (+5 more)
 
 ### Community 28 - "DrinkFilter"
-Cohesion: 0.08
-Nodes (27): DrinkListItem, DrinkFilter, ALCOHOLIC, COCKTAIL, COCKTAIL_GLASS, GIN, HIGHBALL_GLASS, NON_ALCOHOLIC (+19 more)
+Cohesion: 0.09
+Nodes (21): DrinkFilter, ALCOHOLIC, COCKTAIL, COCKTAIL_GLASS, GIN, HIGHBALL_GLASS, NON_ALCOHOLIC, ORDINARY_DRINK (+13 more)
 
 ### Community 29 - "CocktailService"
 Cohesion: 0.33
@@ -159,10 +142,6 @@ Nodes (4): CocktailService, Cocktails, Call, GET
 ### Community 30 - "Measures"
 Cohesion: 0.21
 Nodes (5): Creator, Override, Parcel, Measures, Parcelable
-
-### Community 31 - ".onCreate"
-Cohesion: 0.40
-Nodes (3): ActivitySearch, AppCompatActivity, Bundle
 
 ### Community 32 - "gradlew"
 Cohesion: 0.60
@@ -175,21 +154,21 @@ Nodes (3): Describe the change, Optional Implementation, Why is this helpful
 ## Knowledge Gaps
 - **67 isolated node(s):** `ALCOHOLIC`, `NON_ALCOHOLIC`, `COCKTAIL`, `ORDINARY_DRINK`, `GIN` (+62 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **7 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **6 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Drink` connect `Drink` to `Cocktail`, `DrinkDetailsViewModel`, `RandomixerViewModel`, `DrinkFilterTest`, `FilterKind`, `SearchScreen`, `CocktailService`?**
-  _High betweenness centrality (0.315) - this node is a cross-community bridge._
-- **Why does `Cocktail` connect `Cocktail` to `DrinkDao`, `WidgetDataProvider`, `DrinkDetailsViewModel`, `SearchViewModel`, `CocktailService`, `Measures`?**
-  _High betweenness centrality (0.200) - this node is a cross-community bridge._
-- **Why does `MixologyTheme()` connect `MixologyTheme` to `HotViewModel`, `DrinkDetailsViewModel`, `RandomixerViewModel`, `MixologyApp`, `DrinkWidgetProvider.java`, `SearchScreen`, `.onCreate`, `.onCreate`, `DrinkFilter`, `.onCreate`?**
-  _High betweenness centrality (0.195) - this node is a cross-community bridge._
+- **Why does `Drink` connect `Drink` to `Cocktail`, `DrinkDetailsViewModel`, `SearchScreen`, `RandomixerViewModel`, `DrinkFilterTest`, `FilterKind`, `CocktailService`?**
+  _High betweenness centrality (0.314) - this node is a cross-community bridge._
+- **Why does `MixologyTheme()` connect `MixologyTheme` to `HotViewModel`, `DrinkDetailsViewModel`, `SearchScreen`, `RandomixerViewModel`, `MixologyApp`, `DrinkWidgetProvider.java`?**
+  _High betweenness centrality (0.205) - this node is a cross-community bridge._
+- **Why does `Cocktail` connect `Cocktail` to `DrinkDao`, `WidgetDataProvider`, `DrinkDetailsViewModel`, `SearchScreen`, `CocktailService`, `Measures`?**
+  _High betweenness centrality (0.198) - this node is a cross-community bridge._
 - **Are the 5 inferred relationships involving `Drink` (e.g. with `.hasUsableThumb_rejectsMissingAndLiteralNull()` and `.content_showsRecipe_andFavoriteClick()`) actually correct?**
   _`Drink` has 5 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 29 inferred relationships involving `MixologyTheme()` (e.g. with `.onCreate()` and `.onCreate()`) actually correct?**
-  _`MixologyTheme()` has 29 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 31 inferred relationships involving `MixologyTheme()` (e.g. with `.onCreate()` and `.onCreate()`) actually correct?**
+  _`MixologyTheme()` has 31 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `ALCOHOLIC`, `NON_ALCOHOLIC`, `COCKTAIL` to the rest of the system?**
   _67 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Drink` be split into smaller, more focused modules?**

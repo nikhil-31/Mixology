@@ -49,17 +49,23 @@ private val MixologyDarkColorScheme = darkColorScheme(
 
 @Composable
 fun MixologyTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean? = null,
     content: @Composable () -> Unit,
 ) {
-    val colorScheme = if (darkTheme) MixologyDarkColorScheme else MixologyLightColorScheme
+    val themeMode = rememberThemeMode()
+    val useDark = darkTheme ?: when (themeMode) {
+        ThemeMode.LIGHT -> false
+        ThemeMode.DARK -> true
+        ThemeMode.SYSTEM -> isSystemInDarkTheme()
+    }
+    val colorScheme = if (useDark) MixologyDarkColorScheme else MixologyLightColorScheme
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as? Activity)?.window ?: return@SideEffect
             WindowCompat.getInsetsController(window, view).apply {
-                isAppearanceLightStatusBars = !darkTheme
-                isAppearanceLightNavigationBars = !darkTheme
+                isAppearanceLightStatusBars = !useDark
+                isAppearanceLightNavigationBars = !useDark
             }
         }
     }

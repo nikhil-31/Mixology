@@ -53,6 +53,7 @@ import com.capstone.nik.mixology.ui.grid.DrinkGridRoute
 import com.capstone.nik.mixology.ui.hot.HotRoute
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 import com.capstone.nik.mixology.ui.randomixer.RandomixerRoute
+import com.capstone.nik.mixology.ui.settings.SettingsRoute
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3WindowSizeClassApi::class)
@@ -93,6 +94,7 @@ fun MixologyApp(
     val title = when (val destination = state.destination) {
         DrawerDestination.Hot -> stringResource(R.string.nav_item_hot)
         DrawerDestination.Randomixer -> stringResource(R.string.nav_item_randomixer)
+        DrawerDestination.Settings -> stringResource(R.string.nav_bottom_settings)
         is DrawerDestination.Filter -> when (destination.filter) {
             DrinkFilter.ALCOHOLIC -> stringResource(R.string.nav_bottom_home)
             DrinkFilter.SAVED -> stringResource(R.string.nav_bottom_saved)
@@ -101,6 +103,7 @@ fun MixologyApp(
     }
 
     val showSideNav = state.destination.showsSideNav()
+    val showSearch = state.destination !is DrawerDestination.Settings
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -118,7 +121,7 @@ fun MixologyApp(
             topBar = {
                 TopAppBar(
                     title = {
-                        if (state.searchOpen) {
+                        if (state.searchOpen && showSearch) {
                             TextField(
                                 value = state.searchQuery,
                                 onValueChange = { viewModel.onIntent(MainIntent.SearchQueryChanged(it)) },
@@ -151,11 +154,13 @@ fun MixologyApp(
                         }
                     },
                     actions = {
-                        IconButton(onClick = { viewModel.onIntent(MainIntent.ToggleSearch) }) {
-                            Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = stringResource(R.string.action_search),
-                            )
+                        if (showSearch) {
+                            IconButton(onClick = { viewModel.onIntent(MainIntent.ToggleSearch) }) {
+                                Icon(
+                                    imageVector = Icons.Default.Search,
+                                    contentDescription = stringResource(R.string.action_search),
+                                )
+                            }
                         }
                         IconButton(onClick = { viewModel.onIntent(MainIntent.OpenMenu) }) {
                             Icon(
@@ -225,8 +230,14 @@ fun MixologyApp(
                     composable(RANDOMIXER_ROUTE) {
                         RandomixerRoute(snackbarHostState = snackbarHostState)
                     }
+                    composable(SETTINGS_ROUTE) {
+                        SettingsRoute()
+                    }
                 }
-                if (twoPane && state.destination !is DrawerDestination.Randomixer) {
+                if (twoPane &&
+                    state.destination !is DrawerDestination.Randomixer &&
+                    state.destination !is DrawerDestination.Settings
+                ) {
                     Box(modifier = Modifier.weight(1f)) {
                         val cocktail = state.selectedCocktail
                         if (cocktail != null) {

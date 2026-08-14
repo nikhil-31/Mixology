@@ -14,6 +14,7 @@ class DrawerDestinationTest {
         assertEquals("grid/SAVED", DrawerDestination.Filter(DrinkFilter.SAVED).route)
         assertEquals("randomixer", DrawerDestination.Randomixer.route)
         assertEquals("hot", DrawerDestination.Hot.route)
+        assertEquals("settings", DrawerDestination.Settings.route)
     }
 
     @Test
@@ -32,5 +33,6 @@ class DrawerDestinationTest {
         assertTrue(DrawerDestination.Filter(DrinkFilter.GIN).showsSideNav())
         assertFalse(DrawerDestination.Filter(DrinkFilter.SAVED).showsSideNav())
         assertFalse(DrawerDestination.Randomixer.showsSideNav())
+        assertFalse(DrawerDestination.Settings.showsSideNav())
     }
 }

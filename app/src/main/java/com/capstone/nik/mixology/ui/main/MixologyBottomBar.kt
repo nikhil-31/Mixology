@@ -3,10 +3,12 @@ package com.capstone.nik.mixology.ui.main
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material.icons.filled.Whatshot
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Shuffle
 import androidx.compose.material.icons.outlined.Whatshot
 import androidx.compose.material3.Icon
@@ -55,12 +57,19 @@ val bottomNavItems = listOf(
         selectedIcon = Icons.Filled.Shuffle,
         unselectedIcon = Icons.Outlined.Shuffle,
     ),
+    BottomNavItem(
+        titleRes = R.string.nav_bottom_settings,
+        destination = DrawerDestination.Settings,
+        selectedIcon = Icons.Filled.Settings,
+        unselectedIcon = Icons.Outlined.Settings,
+    ),
 )
 
 fun DrawerDestination.isSelectedBottomNav(item: BottomNavItem): Boolean {
     return when (val tab = item.destination) {
         DrawerDestination.Randomixer -> this is DrawerDestination.Randomixer
         DrawerDestination.Hot -> this is DrawerDestination.Hot
+        DrawerDestination.Settings -> this is DrawerDestination.Settings
         is DrawerDestination.Filter -> this is DrawerDestination.Filter && filter == tab.filter
     }
 }

@@ -7,6 +7,7 @@ sealed class DrawerDestination(val route: String) {
     data class Filter(val filter: DrinkFilter) : DrawerDestination("grid/${filter.name}")
     data object Randomixer : DrawerDestination("randomixer")
     data object Hot : DrawerDestination("hot")
+    data object Settings : DrawerDestination("settings")
 }
 
 data class DrawerSection(
@@ -64,6 +65,7 @@ val drawerSections = listOf(
 const val GRID_ROUTE = "grid/{filter}"
 const val RANDOMIXER_ROUTE = "randomixer"
 const val HOT_ROUTE = "hot"
+const val SETTINGS_ROUTE = "settings"
 
 fun gridRoute(filter: DrinkFilter) = "grid/${filter.name}"
 
@@ -71,6 +73,7 @@ fun DrawerDestination.showsSideNav(): Boolean {
     return when (this) {
         DrawerDestination.Hot -> false
         DrawerDestination.Randomixer -> false
+        DrawerDestination.Settings -> false
         is DrawerDestination.Filter -> filter != DrinkFilter.SAVED
     }
 }

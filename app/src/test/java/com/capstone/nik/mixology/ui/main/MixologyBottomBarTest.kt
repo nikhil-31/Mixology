@@ -41,12 +41,15 @@ class MixologyBottomBarTest {
         composeRule.onNodeWithText("Hot").assertIsDisplayed()
         composeRule.onNodeWithText("Saved").assertIsDisplayed()
         composeRule.onNodeWithText("Randomixer").assertIsDisplayed()
+        composeRule.onNodeWithText("Settings").assertIsDisplayed()
         composeRule.onNodeWithTag("bottom_Hot").performClick()
         composeRule.onNodeWithTag("bottom_Saved").performClick()
         composeRule.onNodeWithTag("bottom_Randomixer").performClick()
+        composeRule.onNodeWithTag("bottom_Settings").performClick()
 
         assertTrue(selected[0] is DrawerDestination.Hot)
         assertEquals(DrinkFilter.SAVED, (selected[1] as DrawerDestination.Filter).filter)
         assertTrue(selected[2] is DrawerDestination.Randomixer)
+        assertTrue(selected[3] is DrawerDestination.Settings)
     }
 }

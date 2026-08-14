@@ -25,8 +25,8 @@ android {
         targetSdkVersion 35
         compileSdk 35
         minSdkVersion 23
-        versionCode 14
-        versionName "1.14"
+        versionCode 20
+        versionName "2.00"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         if (keystorePropertiesFile.exists()) {
             signingConfig signingConfigs.config

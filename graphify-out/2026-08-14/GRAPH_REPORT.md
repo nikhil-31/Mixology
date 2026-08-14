@@ -1,7 +1,7 @@
 # Graph Report - Mixology  (2026-08-14)
 
 ## Corpus Check
-- 84 files · ~41,443 words
+- 84 files · ~41,468 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary

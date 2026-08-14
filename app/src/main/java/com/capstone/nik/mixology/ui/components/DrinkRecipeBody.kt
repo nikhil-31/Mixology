@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -14,8 +15,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.ui.model.IngredientMeasure
-import com.capstone.nik.mixology.ui.theme.MixologyRed
-import com.capstone.nik.mixology.ui.theme.MixologyText
 
 @Composable
 fun DrinkRecipeBody(
@@ -39,7 +38,7 @@ fun DrinkRecipeBody(
                 text = name,
                 modifier = Modifier.weight(1f),
                 fontSize = 22.sp,
-                color = MixologyText,
+                color = MaterialTheme.colorScheme.onSurface,
             )
             FavoriteButton(saved = saved, onClick = onToggleSaved, size = 40)
         }
@@ -47,7 +46,7 @@ fun DrinkRecipeBody(
             Text(
                 text = alcoholic,
                 modifier = Modifier.padding(start = 20.dp, top = 4.dp),
-                color = MixologyRed,
+                color = MaterialTheme.colorScheme.primary,
                 fontSize = 17.sp,
             )
         }
@@ -55,19 +54,19 @@ fun DrinkRecipeBody(
             text = stringResource(R.string.detail_screen_instructions),
             modifier = Modifier.padding(start = 20.dp, top = 15.dp, bottom = 10.dp),
             fontSize = 17.sp,
-            color = MixologyText,
+            color = MaterialTheme.colorScheme.onSurface,
         )
         Text(
             text = instructions.orEmpty(),
             modifier = Modifier.padding(horizontal = 20.dp, vertical = 5.dp),
             fontSize = 17.sp,
-            color = MixologyText,
+            color = MaterialTheme.colorScheme.onSurface,
         )
         Text(
             text = stringResource(R.string.detail_screen_ingredients),
             modifier = Modifier.padding(start = 20.dp, top = 15.dp, bottom = 10.dp),
             fontSize = 17.sp,
-            color = MixologyText,
+            color = MaterialTheme.colorScheme.onSurface,
         )
         extraBottomContent()
         ingredients.forEach { item ->

@@ -14,6 +14,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -26,7 +27,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -36,7 +36,6 @@ import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.ui.components.DrinkHeroImage
 import com.capstone.nik.mixology.ui.components.DrinkRecipeBody
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
-import com.capstone.nik.mixology.ui.theme.MixologyText
 
 @Composable
 fun DrinkDetailsRoute(
@@ -98,14 +97,13 @@ fun DrinkDetailsScaffold(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(title, color = MixologyText) },
+                title = { Text(title) },
                 navigationIcon = {
                     if (showUpNavigation) {
                         IconButton(onClick = onBack) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = stringResource(R.string.content_desc_up_navigation),
-                                tint = MixologyText,
                             )
                         }
                     }
@@ -115,20 +113,19 @@ fun DrinkDetailsScaffold(
                         Icon(
                             imageVector = Icons.Default.Share,
                             contentDescription = stringResource(R.string.action_detail_share),
-                            tint = MixologyText,
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White,
-                    titleContentColor = MixologyText,
-                    actionIconContentColor = MixologyText,
-                    navigationIconContentColor = MixologyText,
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    actionIconContentColor = MaterialTheme.colorScheme.onSurface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
                 ),
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.surface,
     ) { padding ->
         Box(Modifier.padding(padding)) {
             content()

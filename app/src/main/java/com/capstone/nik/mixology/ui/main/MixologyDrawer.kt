@@ -27,16 +27,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.capstone.nik.mixology.R
-import com.capstone.nik.mixology.ui.theme.MixologyGray
-import com.capstone.nik.mixology.ui.theme.MixologyText
 
 @Composable
 fun MixologyDrawer(
     selectedRoute: String,
     onDestinationSelected: (DrawerDestination) -> Unit,
 ) {
+    val colors = MaterialTheme.colorScheme
     ModalDrawerSheet(
-        drawerContainerColor = Color.White,
+        drawerContainerColor = colors.surface,
         modifier = Modifier.statusBarsPadding(),
     ) {
         Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
@@ -57,7 +56,7 @@ fun MixologyDrawer(
                 Spacer(Modifier.height(16.dp))
                 Text(
                     text = stringResource(R.string.app_name),
-                    color = MixologyText,
+                    color = colors.onSurface,
                     fontSize = 14.sp,
                 )
             }
@@ -68,7 +67,7 @@ fun MixologyDrawer(
                         text = stringResource(titleRes),
                         modifier = Modifier.padding(horizontal = 28.dp, vertical = 8.dp),
                         style = MaterialTheme.typography.labelLarge,
-                        color = MixologyText,
+                        color = colors.onSurface,
                     )
                 }
                 section.items.forEach { item ->
@@ -77,7 +76,7 @@ fun MixologyDrawer(
                         selected = selectedRoute == item.destination.route,
                         onClick = { onDestinationSelected(item.destination) },
                         colors = NavigationDrawerItemDefaults.colors(
-                            selectedContainerColor = MixologyGray,
+                            selectedContainerColor = colors.surfaceVariant,
                             unselectedContainerColor = Color.Transparent,
                         ),
                         modifier = Modifier

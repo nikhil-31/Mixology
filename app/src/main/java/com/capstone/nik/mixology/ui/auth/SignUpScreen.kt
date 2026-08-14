@@ -1,6 +1,7 @@
 package com.capstone.nik.mixology.ui.auth
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,9 +35,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.capstone.nik.mixology.R
-import com.capstone.nik.mixology.ui.theme.MixologyGray
-import com.capstone.nik.mixology.ui.theme.MixologyNavy
-import com.capstone.nik.mixology.ui.theme.MixologyText
 
 @Composable
 fun SignUpScreen(
@@ -43,12 +42,14 @@ fun SignUpScreen(
     onSignUp: (email: String, password: String) -> Unit,
     onPrivacyPolicy: () -> Unit,
 ) {
+    val colors = MaterialTheme.colorScheme
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(colors.background)
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
     ) {
@@ -56,7 +57,7 @@ fun SignUpScreen(
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = stringResource(R.string.content_desc_up_navigation),
-                tint = MixologyText,
+                tint = colors.onBackground,
             )
         }
         Image(
@@ -68,7 +69,7 @@ fun SignUpScreen(
             text = stringResource(R.string.sign_up_create_new_account),
             modifier = Modifier.padding(top = 20.dp),
             fontSize = 18.sp,
-            color = MixologyText,
+            color = colors.onBackground,
         )
         OutlinedTextField(
             value = email,
@@ -97,8 +98,8 @@ fun SignUpScreen(
                 .fillMaxWidth()
                 .padding(top = 24.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = MixologyGray,
-                contentColor = MixologyText,
+                containerColor = colors.surfaceVariant,
+                contentColor = colors.onSurfaceVariant,
             ),
         ) {
             Text(stringResource(R.string.sign_up_button_text))
@@ -109,12 +110,12 @@ fun SignUpScreen(
                 .clickable(onClick = onPrivacyPolicy),
             horizontalArrangement = Arrangement.Center,
         ) {
-            Text(stringResource(R.string.privacy_policy_sign_up), fontSize = 12.sp, color = MixologyText)
+            Text(stringResource(R.string.privacy_policy_sign_up), fontSize = 12.sp, color = colors.onBackground)
             Text(
                 text = stringResource(R.string.privacy_policy_link),
                 modifier = Modifier.padding(start = 3.dp),
                 fontSize = 12.sp,
-                color = MixologyNavy,
+                color = colors.secondary,
             )
         }
     }

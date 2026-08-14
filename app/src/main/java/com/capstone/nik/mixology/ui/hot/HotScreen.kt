@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -25,7 +26,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -41,8 +41,6 @@ import com.capstone.nik.mixology.data.DrinkListItem
 import com.capstone.nik.mixology.ui.components.DrinkImage
 import com.capstone.nik.mixology.ui.components.FavoriteButton
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
-import com.capstone.nik.mixology.ui.theme.MixologyRed
-import com.capstone.nik.mixology.ui.theme.MixologyText
 
 @Composable
 fun HotRoute(
@@ -119,12 +117,12 @@ private fun HotCategoryRow(
                 modifier = Modifier.weight(1f),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = MixologyText,
+                color = MaterialTheme.colorScheme.onBackground,
             )
             TextButton(onClick = { onSeeAll(category.filter) }) {
                 Text(
                     text = stringResource(R.string.action_see_all),
-                    color = MixologyRed,
+                    color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.SemiBold,
                 )
             }
@@ -156,7 +154,7 @@ private fun HotDrinkCard(
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
     ) {
         Column {
             DrinkImage(
@@ -178,7 +176,7 @@ private fun HotDrinkCard(
                     overflow = TextOverflow.Ellipsis,
                     fontWeight = FontWeight.Bold,
                     fontSize = 13.sp,
-                    color = MixologyText,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 FavoriteButton(saved = item.saved, onClick = onToggleSaved, size = 28)
             }

@@ -1,6 +1,7 @@
 package com.capstone.nik.mixology.ui.auth
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,6 +17,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -27,7 +29,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -38,9 +39,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.capstone.nik.mixology.R
-import com.capstone.nik.mixology.ui.theme.MixologyGray
-import com.capstone.nik.mixology.ui.theme.MixologyNavy
-import com.capstone.nik.mixology.ui.theme.MixologyText
 
 @Composable
 fun LoginScreen(
@@ -50,12 +48,14 @@ fun LoginScreen(
     onGoogleSignIn: () -> Unit,
     onPrivacyPolicy: () -> Unit,
 ) {
+    val colors = MaterialTheme.colorScheme
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(colors.background)
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -73,7 +73,7 @@ fun LoginScreen(
             modifier = Modifier.padding(top = 10.dp),
             fontSize = 22.sp,
             fontWeight = FontWeight.Bold,
-            color = MixologyText,
+            color = colors.onBackground,
         )
         Text(
             text = stringResource(R.string.login_sign_in_button_text),
@@ -81,7 +81,7 @@ fun LoginScreen(
                 .fillMaxWidth()
                 .padding(top = 10.dp),
             fontSize = 16.sp,
-            color = MixologyText,
+            color = colors.onBackground,
         )
         OutlinedTextField(
             value = email,
@@ -106,7 +106,7 @@ fun LoginScreen(
                 .align(Alignment.End)
                 .testTag("login_forgot_password"),
         ) {
-            Text(stringResource(R.string.login_forgot_password), color = MixologyNavy)
+            Text(stringResource(R.string.login_forgot_password), color = colors.secondary)
         }
         Button(
             onClick = { onLogin(email.trim(), password) },
@@ -115,15 +115,15 @@ fun LoginScreen(
                 .padding(5.dp)
                 .testTag("login_submit"),
             colors = ButtonDefaults.buttonColors(
-                containerColor = MixologyGray,
-                contentColor = MixologyText,
+                containerColor = colors.surfaceVariant,
+                contentColor = colors.onSurfaceVariant,
             ),
         ) {
             Text(stringResource(R.string.login_button_text))
         }
         Text(
             text = stringResource(R.string.login_or_sign_in_with),
-            color = MixologyText,
+            color = colors.onBackground,
             textAlign = TextAlign.Center,
         )
         Spacer(Modifier.height(8.dp))
@@ -134,7 +134,7 @@ fun LoginScreen(
                 .padding(horizontal = 40.dp, vertical = 4.dp)
                 .testTag("login_google"),
         ) {
-            Text(stringResource(R.string.fui_sign_in_with_google), color = MixologyText)
+            Text(stringResource(R.string.fui_sign_in_with_google), color = colors.onBackground)
         }
         OutlinedButton(
             onClick = onSignUp,
@@ -142,9 +142,9 @@ fun LoginScreen(
                 .fillMaxWidth()
                 .padding(horizontal = 40.dp, vertical = 4.dp)
                 .testTag("login_sign_up"),
-            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = colors.secondary),
         ) {
-            Text(stringResource(R.string.fui_sign_in_with_email), color = MixologyNavy)
+            Text(stringResource(R.string.fui_sign_in_with_email), color = colors.secondary)
         }
         Row(
             modifier = Modifier
@@ -153,12 +153,12 @@ fun LoginScreen(
                 .clickable(onClick = onPrivacyPolicy),
             horizontalArrangement = Arrangement.Center,
         ) {
-            Text(stringResource(R.string.privacy_policy_sign_in), fontSize = 12.sp, color = MixologyText)
+            Text(stringResource(R.string.privacy_policy_sign_in), fontSize = 12.sp, color = colors.onBackground)
             Text(
                 text = stringResource(R.string.privacy_policy_link),
                 modifier = Modifier.padding(start = 3.dp),
                 fontSize = 12.sp,
-                color = MixologyNavy,
+                color = colors.secondary,
             )
         }
     }

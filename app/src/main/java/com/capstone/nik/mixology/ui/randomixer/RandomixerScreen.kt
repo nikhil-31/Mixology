@@ -23,6 +23,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -214,8 +215,8 @@ private fun OverlayActionButtons(
     ) {
         FloatingActionButton(
             onClick = { if (enabled) onSave() },
-            containerColor = Color.White,
-            contentColor = MixologyRed,
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.primary,
             shape = CircleShape,
             elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 6.dp),
             modifier = Modifier.size(56.dp),
@@ -228,8 +229,8 @@ private fun OverlayActionButtons(
         }
         FloatingActionButton(
             onClick = { if (enabled) onDiscard() },
-            containerColor = Color.White,
-            contentColor = MixologyRed,
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.primary,
             shape = CircleShape,
             elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 6.dp),
             modifier = Modifier.size(56.dp),

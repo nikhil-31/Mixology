@@ -16,6 +16,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -47,7 +48,6 @@ import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.ui.components.CircularDrinkImage
 import com.capstone.nik.mixology.ui.components.FavoriteButton
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
-import com.capstone.nik.mixology.ui.theme.MixologyText
 
 @Composable
 fun SearchRoute(
@@ -123,7 +123,7 @@ fun SearchScreen(
                             modifier = Modifier.fillMaxWidth(),
                         )
                     } else {
-                        Text(state.query.ifBlank { stringResource(R.string.action_search) }, color = MixologyText)
+                        Text(state.query.ifBlank { stringResource(R.string.action_search) })
                     }
                 },
                 navigationIcon = {
@@ -131,7 +131,6 @@ fun SearchScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.content_desc_up_navigation),
-                            tint = MixologyText,
                         )
                     }
                 },
@@ -149,15 +148,19 @@ fun SearchScreen(
                         Icon(
                             imageVector = Icons.Default.Search,
                             contentDescription = stringResource(R.string.action_search),
-                            tint = MixologyText,
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White),
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    actionIconContentColor = MaterialTheme.colorScheme.onSurface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                ),
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.surface,
     ) { padding ->
         Box(
             modifier = Modifier
@@ -172,7 +175,7 @@ fun SearchScreen(
                         .align(Alignment.Center)
                         .padding(24.dp),
                     fontSize = 20.sp,
-                    color = MixologyText,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 else -> LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(state.results, key = { it.drink.idDrink }) { item ->
@@ -209,7 +212,7 @@ private fun SearchRow(
                 .weight(1f)
                 .padding(horizontal = 16.dp),
             fontSize = 20.sp,
-            color = MixologyText,
+            color = MaterialTheme.colorScheme.onSurface,
         )
         FavoriteButton(saved = item.saved, onClick = onToggleSaved, size = 40)
     }

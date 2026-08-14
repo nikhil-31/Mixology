@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,7 +38,6 @@ import com.capstone.nik.mixology.data.DrinkListItem
 import com.capstone.nik.mixology.ui.components.DrinkImage
 import com.capstone.nik.mixology.ui.components.FavoriteButton
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
-import com.capstone.nik.mixology.ui.theme.MixologyText
 
 @Composable
 fun DrinkGridRoute(
@@ -82,7 +82,7 @@ fun DrinkGridScreen(
                 text = stringResource(R.string.empty_string_add_a_drink),
                 modifier = Modifier.align(Alignment.Center),
                 fontSize = 20.sp,
-                color = MixologyText,
+                color = MaterialTheme.colorScheme.onBackground,
             )
         } else {
             LazyVerticalGrid(
@@ -116,7 +116,7 @@ private fun DrinkCard(
             .clickable(onClick = onClick)
             .padding(1.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        colors = CardDefaults.cardColors(containerColor = androidx.compose.ui.graphics.Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = androidx.compose.foundation.shape.RoundedCornerShape(3.dp),
     ) {
         Column {
@@ -140,7 +140,7 @@ private fun DrinkCard(
                     overflow = TextOverflow.Ellipsis,
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
-                    color = MixologyText,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 FavoriteButton(saved = item.saved, onClick = onToggleSaved)
             }

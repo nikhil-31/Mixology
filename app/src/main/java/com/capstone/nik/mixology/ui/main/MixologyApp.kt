@@ -15,6 +15,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -52,8 +53,6 @@ import com.capstone.nik.mixology.ui.grid.DrinkGridRoute
 import com.capstone.nik.mixology.ui.hot.HotRoute
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 import com.capstone.nik.mixology.ui.randomixer.RandomixerRoute
-import com.capstone.nik.mixology.ui.theme.MixologyGray
-import com.capstone.nik.mixology.ui.theme.MixologyText
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3WindowSizeClassApi::class)
@@ -138,7 +137,7 @@ fun MixologyApp(
                                 modifier = Modifier.fillMaxWidth(),
                             )
                         } else {
-                            Text(title, color = MixologyText)
+                            Text(title)
                         }
                     },
                     navigationIcon = {
@@ -147,7 +146,6 @@ fun MixologyApp(
                                 Icon(
                                     imageVector = Icons.Default.Menu,
                                     contentDescription = stringResource(R.string.navigation_drawer_open),
-                                    tint = MixologyText,
                                 )
                             }
                         }
@@ -157,14 +155,12 @@ fun MixologyApp(
                             Icon(
                                 imageVector = Icons.Default.Search,
                                 contentDescription = stringResource(R.string.action_search),
-                                tint = MixologyText,
                             )
                         }
                         IconButton(onClick = { viewModel.onIntent(MainIntent.OpenMenu) }) {
                             Icon(
                                 imageVector = Icons.Default.MoreVert,
                                 contentDescription = stringResource(R.string.action_sign_out),
-                                tint = MixologyText,
                             )
                         }
                         DropdownMenu(
@@ -177,7 +173,12 @@ fun MixologyApp(
                             )
                         }
                     },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White),
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        titleContentColor = MaterialTheme.colorScheme.onSurface,
+                        actionIconContentColor = MaterialTheme.colorScheme.onSurface,
+                        navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                    ),
                 )
             },
             snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -187,7 +188,7 @@ fun MixologyApp(
                     onDestinationSelected = { viewModel.onIntent(MainIntent.SelectDestination(it)) },
                 )
             },
-            containerColor = MixologyGray,
+            containerColor = MaterialTheme.colorScheme.background,
         ) { padding ->
             Row(
                 modifier = Modifier

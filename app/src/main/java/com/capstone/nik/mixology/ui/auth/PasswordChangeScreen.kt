@@ -1,5 +1,6 @@
 package com.capstone.nik.mixology.ui.auth
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,6 +12,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,33 +26,33 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.capstone.nik.mixology.R
-import com.capstone.nik.mixology.ui.theme.MixologyGray
-import com.capstone.nik.mixology.ui.theme.MixologyText
 
 @Composable
 fun PasswordChangeScreen(
     onBack: () -> Unit,
     onReset: (email: String) -> Unit,
 ) {
+    val colors = MaterialTheme.colorScheme
     var email by rememberSaveable { mutableStateOf("") }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(colors.background)
             .padding(16.dp),
     ) {
         IconButton(onClick = onBack) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = stringResource(R.string.content_desc_up_navigation),
-                tint = MixologyText,
+                tint = colors.onBackground,
             )
         }
         Text(
             text = stringResource(R.string.reset_password_message),
             modifier = Modifier.padding(top = 16.dp),
             fontSize = 16.sp,
-            color = MixologyText,
+            color = colors.onBackground,
         )
         OutlinedTextField(
             value = email,
@@ -68,8 +70,8 @@ fun PasswordChangeScreen(
                 .fillMaxWidth()
                 .padding(top = 24.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = MixologyGray,
-                contentColor = MixologyText,
+                containerColor = colors.surfaceVariant,
+                contentColor = colors.onSurfaceVariant,
             ),
         ) {
             Text(stringResource(R.string.reset_password_button))

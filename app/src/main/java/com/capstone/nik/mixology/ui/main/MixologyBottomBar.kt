@@ -10,21 +10,18 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Shuffle
 import androidx.compose.material.icons.outlined.Whatshot
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.DrinkFilter
-import com.capstone.nik.mixology.ui.theme.MixologyGray
-import com.capstone.nik.mixology.ui.theme.MixologyRed
-import com.capstone.nik.mixology.ui.theme.MixologyText
 
 data class BottomNavItem(
     val titleRes: Int,
@@ -73,7 +70,8 @@ fun MixologyBottomBar(
     currentDestination: DrawerDestination,
     onDestinationSelected: (DrawerDestination) -> Unit,
 ) {
-    NavigationBar(containerColor = Color.White) {
+    val colors = MaterialTheme.colorScheme
+    NavigationBar(containerColor = colors.surface) {
         bottomNavItems.forEach { item ->
             val selected = currentDestination.isSelectedBottomNav(item)
             val label = stringResource(item.titleRes)
@@ -88,11 +86,11 @@ fun MixologyBottomBar(
                 },
                 label = { Text(label) },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = MixologyRed,
-                    selectedTextColor = MixologyRed,
-                    indicatorColor = MixologyGray,
-                    unselectedIconColor = MixologyText,
-                    unselectedTextColor = MixologyText,
+                    selectedIconColor = colors.primary,
+                    selectedTextColor = colors.primary,
+                    indicatorColor = colors.surfaceVariant,
+                    unselectedIconColor = colors.onSurface,
+                    unselectedTextColor = colors.onSurface,
                 ),
                 modifier = Modifier.testTag("bottom_$label"),
             )

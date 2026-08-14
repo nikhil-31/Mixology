@@ -19,7 +19,7 @@
             android:layout_marginLeft="@dimen/abc_list_item_padding_horizontal_material"
             android:gravity="center_vertical"
             android:text="@string/nav_item_saved_cocktails"
-            android:textColor="@android:color/black"
+            android:textColor="@color/primary_text"
             android:textSize="18sp" />
 
     </FrameLayout>

@@ -2,6 +2,7 @@ package com.capstone.nik.mixology.ui.randomixer
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
@@ -10,16 +11,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
@@ -39,6 +36,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
@@ -47,6 +45,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -54,7 +53,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.capstone.nik.mixology.Network.remoteModel.Drink
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.ui.components.DrinkImage
-import com.capstone.nik.mixology.ui.components.IngredientRow
 import com.capstone.nik.mixology.ui.model.IngredientMeasure
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 import com.capstone.nik.mixology.ui.theme.MixologyRed
@@ -257,59 +255,63 @@ private fun DrinkSwipeCardContent(
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.fillMaxSize()) {
             DrinkImage(
                 url = drink.strDrinkThumb,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(280.dp),
+                modifier = Modifier.fillMaxSize(),
             )
-            Column(
+            Box(
                 modifier = Modifier
+                    .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .weight(1f)
-                    .verticalScroll(rememberScrollState())
-                    .padding(bottom = 8.dp),
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                Color.Black.copy(alpha = 0.55f),
+                                Color.Black.copy(alpha = 0.88f),
+                            ),
+                        ),
+                    )
+                    .padding(start = 20.dp, end = 20.dp, top = 48.dp, bottom = 20.dp),
             ) {
-                Text(
-                    text = drink.strDrink.orEmpty(),
-                    modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 16.dp),
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MixologyText,
-                )
-                if (!drink.strAlcoholic.isNullOrBlank()) {
+                Column {
                     Text(
-                        text = drink.strAlcoholic,
-                        modifier = Modifier.padding(start = 20.dp, top = 4.dp),
-                        color = MixologyRed,
-                        fontSize = 17.sp,
+                        text = drink.strDrink.orEmpty(),
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
                     )
-                }
-                Text(
-                    text = stringResource(R.string.detail_screen_instructions),
-                    modifier = Modifier.padding(start = 20.dp, top = 12.dp, bottom = 6.dp),
-                    fontSize = 17.sp,
-                    color = MixologyText,
-                )
-                Text(
-                    text = drink.strInstructions.orEmpty(),
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp),
-                    fontSize = 16.sp,
-                    color = MixologyText,
-                )
-                if (ingredients.isNotEmpty()) {
-                    Text(
-                        text = stringResource(R.string.detail_screen_ingredients),
-                        modifier = Modifier.padding(start = 20.dp, top = 12.dp, bottom = 6.dp),
-                        fontSize = 17.sp,
-                        color = MixologyText,
-                    )
-                    ingredients.forEach { item ->
-                        IngredientRow(item)
+                    if (!drink.strAlcoholic.isNullOrBlank()) {
+                        Text(
+                            text = drink.strAlcoholic,
+                            modifier = Modifier.padding(top = 4.dp),
+                            color = Color(0xFFFF8A80),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                        )
+                    }
+                    if (ingredients.isNotEmpty()) {
+                        Text(
+                            text = ingredients.joinToString(" · ") { it.ingredient },
+                            modifier = Modifier.padding(top = 8.dp),
+                            color = Color.White.copy(alpha = 0.9f),
+                            fontSize = 14.sp,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                    if (!drink.strInstructions.isNullOrBlank()) {
+                        Text(
+                            text = drink.strInstructions,
+                            modifier = Modifier.padding(top = 8.dp),
+                            color = Color.White.copy(alpha = 0.85f),
+                            fontSize = 14.sp,
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis,
+                        )
                     }
                 }
-                Spacer(Modifier.height(8.dp))
             }
         }
     }

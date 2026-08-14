@@ -4,14 +4,12 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,7 +25,9 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -39,13 +39,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -109,7 +104,7 @@ fun RandomixerScreen(
                 onSwipedLeft = onDiscard,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(start = 5.dp, top = 10.dp, end = 5.dp, bottom = 20.dp),
+                    .padding(5.dp),
             )
         }
         if (state.loading) {
@@ -158,7 +153,6 @@ private fun SwipeableDrinkCard(
             modifier = Modifier
                 .fillMaxSize()
                 .testTag("randomixer_card")
-                .clip(RoundedCornerShape(5.dp))
                 .graphicsLayer {
                     translationX = offsetX.value
                     rotationZ = (offsetX.value / 60f).coerceIn(-18f, 18f)
@@ -187,7 +181,6 @@ private fun SwipeableDrinkCard(
             LazyColumn(
                 state = listState,
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = 24.dp),
             ) {
                 item(key = "photo") {
                     DrinkSwipePhoto(
@@ -263,8 +256,7 @@ private fun OverlayActionButtons(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val iconTint = MaterialTheme.colorScheme.primary
-        GlassCircleButton(
+        ActionCircleButton(
             enabled = enabled,
             onClick = onSave,
         ) {
@@ -277,29 +269,26 @@ private fun OverlayActionButtons(
                         R.string.content_desc_randomixer_save
                     },
                 ),
-                tint = iconTint,
                 modifier = Modifier.size(28.dp),
             )
         }
-        GlassCircleButton(
+        ActionCircleButton(
             enabled = enabled,
             onClick = onDiscard,
         ) {
             Icon(
                 imageVector = Icons.Filled.Close,
                 contentDescription = stringResource(R.string.content_desc_randomixer_discard),
-                tint = iconTint,
                 modifier = Modifier.size(28.dp),
             )
         }
-        GlassCircleButton(
+        ActionCircleButton(
             enabled = enabled,
             onClick = onInfo,
         ) {
             Icon(
                 imageVector = Icons.Outlined.Info,
                 contentDescription = stringResource(R.string.content_desc_randomixer_info),
-                tint = iconTint,
                 modifier = Modifier.size(28.dp),
             )
         }
@@ -307,59 +296,22 @@ private fun OverlayActionButtons(
 }
 
 @Composable
-private fun GlassCircleButton(
+private fun ActionCircleButton(
     enabled: Boolean,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
-    Box(
-        modifier = modifier
-            .size(56.dp)
-            .shadow(
-                elevation = 12.dp,
-                shape = CircleShape,
-                ambientColor = Color.Black.copy(alpha = 0.28f),
-                spotColor = Color.Black.copy(alpha = 0.22f),
-            )
-            .clip(CircleShape)
-            .drawBehind {
-                drawCircle(color = Color.Black.copy(alpha = 0.22f))
-                drawCircle(
-                    brush = Brush.linearGradient(
-                        colors = listOf(
-                            Color.White.copy(alpha = 0.52f),
-                            Color.White.copy(alpha = 0.14f),
-                            Color.White.copy(alpha = 0.30f),
-                        ),
-                        start = Offset(0f, 0f),
-                        end = Offset(size.width, size.height),
-                    ),
-                )
-                drawCircle(
-                    brush = Brush.radialGradient(
-                        colors = listOf(
-                            Color.White.copy(alpha = 0.72f),
-                            Color.Transparent,
-                        ),
-                        center = Offset(size.width * 0.32f, size.height * 0.26f),
-                        radius = size.minDimension * 0.52f,
-                    ),
-                )
-                drawCircle(
-                    brush = Brush.linearGradient(
-                        colors = listOf(
-                            Color.White.copy(alpha = 0.92f),
-                            Color.White.copy(alpha = 0.18f),
-                        ),
-                        start = Offset(0f, 0f),
-                        end = Offset(size.width, size.height),
-                    ),
-                    style = Stroke(width = 1.5.dp.toPx()),
-                )
-            }
-            .clickable(enabled = enabled, onClick = onClick),
-        contentAlignment = Alignment.Center,
+    FilledIconButton(
+        onClick = onClick,
+        enabled = enabled,
+        modifier = Modifier.size(56.dp),
+        shape = CircleShape,
+        colors = IconButtonDefaults.filledIconButtonColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.primary,
+            disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
+            disabledContentColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
+        ),
     ) {
         content()
     }

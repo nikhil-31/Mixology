@@ -1,16 +1,16 @@
 # Graph Report - Mixology  (2026-08-14)
 
 ## Corpus Check
-- 89 files · ~42,793 words
+- 89 files · ~42,658 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 624 nodes · 996 edges · 33 communities (27 shown, 6 thin omitted)
+- 624 nodes · 995 edges · 34 communities (28 shown, 6 thin omitted)
 - Extraction: 86% EXTRACTED · 14% INFERRED · 0% AMBIGUOUS · INFERRED: 142 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `1bcb6c69`
+- Built from commit: `8c739759`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -36,6 +36,7 @@
 - ThemeMode
 - DrinkWidgetProvider.java
 - Measures
+- .onCreate
 - .onCreate
 - Mixology
 - DrinkFilter
@@ -70,7 +71,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (33 total, 6 thin omitted)
+## Communities (34 total, 6 thin omitted)
 
 ### Community 1 - "DrinkDao"
 Cohesion: 0.09
@@ -81,8 +82,8 @@ Cohesion: 0.08
 Nodes (16): ApplicationComponent, Singleton, Override, MyApplication, DrinkRepository, FilterKind, ALCOHOL, DRINK_TYPE (+8 more)
 
 ### Community 3 - "MixologyTheme"
-Cohesion: 0.06
-Nodes (23): ActivityLogin, AppCompatActivity, Bundle, ActivityPasswordChange, AppCompatActivity, Bundle, ActivitySearch, AppCompatActivity (+15 more)
+Cohesion: 0.08
+Nodes (18): ActivityLogin, AppCompatActivity, Bundle, ActivitySearch, AppCompatActivity, Bundle, LoginScreen(), RandomixerUiState (+10 more)
 
 ### Community 4 - "DrinkListItem"
 Cohesion: 0.07
@@ -109,7 +110,7 @@ Cohesion: 0.21
 Nodes (8): RandomixerEffect, RandomixerIntent, Refresh, ShowMessageRes, SwipeDiscard, SwipeSave, Job, RandomixerViewModel
 
 ### Community 12 - "IngredientMeasure"
-Cohesion: 0.13
+Cohesion: 0.12
 Nodes (19): CircularDrinkImage(), DrinkImage(), IngredientImage(), Modifier, IngredientRow(), Modifier, IngredientMeasure, ingredientMeasures() (+11 more)
 
 ### Community 13 - "DrawerDestination"
@@ -133,6 +134,10 @@ Cohesion: 0.21
 Nodes (5): Creator, Override, Parcel, Measures, Parcelable
 
 ### Community 25 - ".onCreate"
+Cohesion: 0.20
+Nodes (5): ActivityPasswordChange, AppCompatActivity, Bundle, PasswordChangeScreen(), PasswordChangeScreenTest
+
+### Community 26 - ".onCreate"
 Cohesion: 0.20
 Nodes (5): ActivitySignUp, AppCompatActivity, Bundle, SignUpScreen(), SignUpScreenTest
 
@@ -166,7 +171,7 @@ _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `Drink` connect `Drink` to `DrinkRepository`, `MixologyTheme`, `DrinkDetailsViewModel`, `RandomixerViewModel`, `DrinkFilterTest`, `IngredientMeasure`, `CocktailService`?**
   _High betweenness centrality (0.309) - this node is a cross-community bridge._
-- **Why does `MixologyTheme()` connect `MixologyTheme` to `DrinkListItem`, `MviAndroidViewModel`, `DrinkDetailsViewModel`, `DrawerDestination`, `ThemeMode`, `DrinkWidgetProvider.java`, `.onCreate`?**
+- **Why does `MixologyTheme()` connect `MixologyTheme` to `DrinkListItem`, `MviAndroidViewModel`, `DrinkDetailsViewModel`, `DrawerDestination`, `ThemeMode`, `DrinkWidgetProvider.java`, `.onCreate`, `.onCreate`?**
   _High betweenness centrality (0.236) - this node is a cross-community bridge._
 - **Why does `Cocktail` connect `Cocktail` to `DrinkDao`, `DrinkRepository`, `DrinkListItem`, `DrinkDetailsViewModel`, `SearchViewModel`, `Measures`, `CocktailService`?**
   _High betweenness centrality (0.189) - this node is a cross-community bridge._

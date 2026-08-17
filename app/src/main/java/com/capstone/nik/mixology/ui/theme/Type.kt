@@ -8,7 +8,9 @@ import androidx.compose.ui.unit.sp
 val MixologyTypography = Typography(
     titleLarge = TextStyle(
         fontWeight = FontWeight.Bold,
-        fontSize = 22.sp,
+        fontSize = 30.sp,
+        lineHeight = 36.sp,
+        letterSpacing = (-0.2).sp,
     ),
     titleMedium = TextStyle(
         fontWeight = FontWeight.Bold,

@@ -16,3 +16,7 @@ val MixologyDarkSurfaceVariant = Color(0xFF1E2D42)
 val MixologyOnDark = Color(0xFFE8EAED)
 val MixologyOnDarkVariant = Color(0xFFC5CAD3)
 val MixologyDarkOutline = Color(0xFF4A5568)
+
+val PosterScrimStart = Color(0xE6000000)
+val PosterScrimCenter = Color(0x40000000)
+val PosterBadge = Color(0xE61A1614)

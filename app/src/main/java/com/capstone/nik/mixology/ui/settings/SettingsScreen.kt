@@ -24,12 +24,15 @@ import com.capstone.nik.mixology.ui.theme.ThemePreferences
 import com.capstone.nik.mixology.ui.theme.rememberThemeMode
 
 @Composable
-fun SettingsRoute() {
+fun SettingsRoute(
+    onSignOut: () -> Unit = {},
+) {
     val context = LocalContext.current
     val themeMode = rememberThemeMode()
     SettingsScreen(
         themeMode = themeMode,
         onThemeModeSelected = { ThemePreferences.set(context, it) },
+        onSignOut = onSignOut,
     )
 }
 
@@ -37,6 +40,7 @@ fun SettingsRoute() {
 fun SettingsScreen(
     themeMode: ThemeMode,
     onThemeModeSelected: (ThemeMode) -> Unit,
+    onSignOut: () -> Unit = {},
 ) {
     val colors = MaterialTheme.colorScheme
     Column(
@@ -72,6 +76,17 @@ fun SettingsScreen(
                 )
             }
         }
+        Text(
+            text = stringResource(R.string.action_sign_out),
+            color = colors.onBackground,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onSignOut)
+                .padding(top = 24.dp, bottom = 12.dp)
+                .testTag("settings_sign_out"),
+        )
     }
 }
 

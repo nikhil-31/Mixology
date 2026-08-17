@@ -1,6 +1,5 @@
 package com.capstone.nik.mixology.ui.hot
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,15 +7,11 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
@@ -29,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -38,8 +32,8 @@ import com.capstone.nik.mixology.Model.Cocktail
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.data.DrinkListItem
-import com.capstone.nik.mixology.ui.components.DrinkImage
-import com.capstone.nik.mixology.ui.components.FavoriteButton
+import com.capstone.nik.mixology.ui.components.DrinkCard
+import com.capstone.nik.mixology.ui.components.DrinkCardRailWidth
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 
 @Composable
@@ -132,53 +126,12 @@ private fun HotCategoryRow(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             items(category.drinks, key = { it.id }) { item ->
-                HotDrinkCard(
+                DrinkCard(
                     item = item,
                     onClick = { onDrinkClick(item.toCocktail()) },
                     onToggleSaved = { onToggleSaved(item) },
+                    modifier = Modifier.width(DrinkCardRailWidth),
                 )
-            }
-        }
-    }
-}
-
-@Composable
-private fun HotDrinkCard(
-    item: DrinkListItem,
-    onClick: () -> Unit,
-    onToggleSaved: () -> Unit,
-) {
-    Card(
-        modifier = Modifier
-            .width(148.dp)
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-    ) {
-        Column {
-            DrinkImage(
-                url = item.thumb,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(148.dp),
-            )
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = item.name,
-                    modifier = Modifier.weight(1f),
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 13.sp,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                FavoriteButton(saved = item.saved, onClick = onToggleSaved, size = 28)
             }
         }
     }

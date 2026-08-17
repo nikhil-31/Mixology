@@ -34,7 +34,7 @@ class ActivityDetailsEspressoTest {
     }
 
     @Test
-    fun cocktailExtra_showsDrinkNameInToolbar() {
+    fun cocktailExtra_showsDrinkName() {
         val context = ApplicationProvider.getApplicationContext<android.content.Context>()
         val intent = Intent(context, ActivityDetails::class.java).putExtra(
             context.getString(R.string.intent_details_intent_cocktail),

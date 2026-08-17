@@ -14,7 +14,6 @@ sealed interface MainIntent {
     data object ToggleSearch : MainIntent
     data object OpenMenu : MainIntent
     data object DismissMenu : MainIntent
-    data object SignOut : MainIntent
     data class DrinkSelected(val cocktail: Cocktail, val twoPane: Boolean) : MainIntent
 }
 
@@ -24,5 +23,4 @@ sealed interface MainEffect {
     data object CloseDrawer : MainEffect
     data class OpenSearch(val query: String) : MainEffect
     data class OpenDetails(val cocktail: Cocktail) : MainEffect
-    data object SignOut : MainEffect
 }

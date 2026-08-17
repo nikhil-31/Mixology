@@ -1,6 +1,5 @@
 package com.capstone.nik.mixology.data
 
-import androidx.annotation.IdRes
 import androidx.annotation.StringRes
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.repository.FilterKind
@@ -23,19 +22,5 @@ enum class DrinkFilter(
 
     companion object {
         val catalogFilters: List<DrinkFilter> get() = entries.filter { it.kind != null }
-
-        @JvmStatic
-        fun fromNavId(@IdRes id: Int): DrinkFilter? = when (id) {
-            R.id.nav_Alcoholic -> ALCOHOLIC
-            R.id.nav_Non_Alcoholic -> NON_ALCOHOLIC
-            R.id.nav_Cocktail -> COCKTAIL
-            R.id.nav_Ordinary_Drink -> ORDINARY_DRINK
-            R.id.nav_gin -> GIN
-            R.id.nav_vodka -> VODKA
-            R.id.nav_cocktail_glass -> COCKTAIL_GLASS
-            R.id.nav_Highball_Glass -> HIGHBALL_GLASS
-            R.id.Saved_Cocktails -> SAVED
-            else -> null
-        }
     }
 }

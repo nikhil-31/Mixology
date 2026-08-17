@@ -1,13 +1,20 @@
 package com.capstone.nik.mixology.ui.details
 
 import android.content.Intent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -26,11 +33,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.capstone.nik.mixology.Model.Cocktail
@@ -38,6 +46,8 @@ import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.ui.components.DrinkHeroImage
 import com.capstone.nik.mixology.ui.components.DrinkRecipeBody
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
+import com.capstone.nik.mixology.ui.theme.MixologyDetailsTitle
+import com.capstone.nik.mixology.ui.theme.PosterBadge
 
 @Composable
 fun DrinkDetailsRoute(
@@ -74,8 +84,8 @@ fun DrinkDetailsRoute(
 
     if (wrapInScaffold) {
         DrinkDetailsScaffold(
-            title = cocktail.getmDrinkName().orEmpty(),
             showUpNavigation = showUpNavigation,
+            edgeToEdge = false,
             onBack = { viewModel.onIntent(DrinkDetailsIntent.Back) },
             onShare = { viewModel.onIntent(DrinkDetailsIntent.Share) },
             snackbarHostState = snackbarHostState,
@@ -88,50 +98,50 @@ fun DrinkDetailsRoute(
 
 @Composable
 fun DrinkDetailsScaffold(
-    title: String,
     showUpNavigation: Boolean,
     onBack: () -> Unit,
     onShare: () -> Unit,
     snackbarHostState: SnackbarHostState,
     content: @Composable () -> Unit,
+    edgeToEdge: Boolean = showUpNavigation,
 ) {
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = MaterialTheme.colorScheme.surface,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { padding ->
-        Column(Modifier.padding(padding)) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding),
+        ) {
+            Box(
+                modifier = Modifier.then(
+                    if (edgeToEdge) Modifier.navigationBarsPadding() else Modifier,
+                ),
+            ) {
+                content()
+            }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 4.dp, end = 4.dp, top = 4.dp),
+                    .then(if (edgeToEdge) Modifier.statusBarsPadding() else Modifier)
+                    .padding(horizontal = 4.dp, vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 if (showUpNavigation) {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.content_desc_up_navigation),
-                        )
-                    }
-                }
-                Text(
-                    text = title,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 8.dp),
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Normal,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                IconButton(onClick = onShare) {
-                    Icon(
-                        imageVector = Icons.Default.Share,
-                        contentDescription = stringResource(R.string.action_detail_share),
+                    HeroActionButton(
+                        onClick = onBack,
+                        contentDescription = stringResource(R.string.content_desc_up_navigation),
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     )
                 }
-            }
-            Box(Modifier.weight(1f)) {
-                content()
+                Box(Modifier.weight(1f))
+                HeroActionButton(
+                    onClick = onShare,
+                    contentDescription = stringResource(R.string.action_detail_share),
+                    imageVector = Icons.Default.Share,
+                )
             }
         }
     }
@@ -146,11 +156,25 @@ fun DrinkDetailsContent(
     Box(modifier = Modifier.fillMaxSize()) {
         if (cocktail != null) {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                DrinkHeroImage(url = state.drink?.strDrinkThumb ?: cocktail.getmDrinkThumb())
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(356.dp),
+                ) {
+                    DrinkHeroImage(
+                        url = state.drink?.strDrinkThumb ?: cocktail.getmDrinkThumb(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(380.dp),
+                    )
+                }
                 if (state.drink != null) {
                     DrinkRecipeBody(
                         name = state.drink.strDrink.orEmpty(),
                         alcoholic = state.drink.strAlcoholic,
+                        glass = state.drink.strGlass,
+                        category = state.drink.strCategory,
+                        iba = state.drink.strIBA,
                         instructions = state.drink.strInstructions,
                         ingredients = state.ingredients,
                         saved = state.saved,
@@ -159,7 +183,12 @@ fun DrinkDetailsContent(
                 } else {
                     Text(
                         text = cocktail.getmDrinkName().orEmpty(),
-                        modifier = Modifier.padding(start = 20.dp, end = 16.dp, top = 20.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
+                            .background(MaterialTheme.colorScheme.surface)
+                            .padding(start = 20.dp, end = 16.dp, top = 24.dp, bottom = 24.dp),
+                        style = MixologyDetailsTitle,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
@@ -167,6 +196,30 @@ fun DrinkDetailsContent(
         }
         if (state.loading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+        }
+    }
+}
+
+@Composable
+private fun HeroActionButton(
+    onClick: () -> Unit,
+    contentDescription: String,
+    imageVector: ImageVector,
+) {
+    IconButton(onClick = onClick) {
+        Box(
+            modifier = Modifier
+                .size(32.dp)
+                .clip(RoundedCornerShape(20.dp))
+                .background(PosterBadge),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = imageVector,
+                contentDescription = contentDescription,
+                modifier = Modifier.size(20.dp),
+                tint = Color.White,
+            )
         }
     }
 }

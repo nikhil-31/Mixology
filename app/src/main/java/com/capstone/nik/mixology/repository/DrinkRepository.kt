@@ -13,7 +13,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.IOException
 
@@ -112,14 +111,6 @@ class DrinkRepository(
         notifyWidgets()
     }
 
-    fun isSavedBlocking(id: String): Boolean = runBlocking(Dispatchers.IO) {
-        dao.savedCountSync(id) > 0
-    }
-
-    fun saveBlocking(cocktail: Cocktail) = runBlocking(Dispatchers.IO) { save(cocktail) }
-
-    fun unsaveBlocking(id: String) = runBlocking(Dispatchers.IO) { unsave(id) }
-
     fun getSavedSync(): List<Cocktail> = dao.getSavedSync().map { it.toCocktail() }
 
     private fun notifyWidgets() {
@@ -129,7 +120,7 @@ class DrinkRepository(
     }
 
     companion object {
-        const val ACTION_DATABASE_UPDATED = "com.example.nik.mixology.utils.ACTION_DATA_UPDATED"
+        const val ACTION_DATABASE_UPDATED = "com.capstone.nik.mixology.action.DATABASE_UPDATED"
 
         fun hasUsableThumb(drink: Drink): Boolean {
             val thumb = drink.strDrinkThumb

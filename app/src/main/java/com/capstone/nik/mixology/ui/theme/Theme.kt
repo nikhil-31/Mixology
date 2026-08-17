@@ -30,21 +30,22 @@ private val MixologyLightColorScheme = lightColorScheme(
 )
 
 private val MixologyDarkColorScheme = darkColorScheme(
-    primary = MixologyRedLight,
-    onPrimary = Color.White,
-    primaryContainer = MixologyDarkSurfaceVariant,
-    onPrimaryContainer = MixologyOnDark,
-    secondary = MixologyNavyLight,
-    onSecondary = MixologyNavy,
+    primary = MixologyDarkPrimary,
+    onPrimary = MixologyDarkOnPrimary,
+    primaryContainer = MixologyDarkPrimaryContainer,
+    onPrimaryContainer = MixologyDarkOnPrimaryContainer,
+    secondary = MixologyDarkSecondary,
+    onSecondary = MixologyDarkOnSecondary,
     background = MixologyDarkBackground,
     onBackground = MixologyOnDark,
     surface = MixologyDarkSurface,
     onSurface = MixologyOnDark,
     surfaceVariant = MixologyDarkSurfaceVariant,
     onSurfaceVariant = MixologyOnDarkVariant,
+    surfaceContainer = MixologyDarkSurfaceContainer,
     outline = MixologyDarkOutline,
-    error = MixologyRedLight,
-    onError = Color.White,
+    error = MixologyDarkPrimary,
+    onError = MixologyDarkOnPrimary,
 )
 
 @Composable

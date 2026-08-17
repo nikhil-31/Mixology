@@ -15,63 +15,16 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning,InnerclassSeparator">
 
-        <meta-data
-            android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version" />
-
-        <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="@string/admob_app_id" />
-
-        <activity
-            android:name=".Activities.ActivityLogin"
-            android:theme="@style/AppTheme.NoActionBar"/>
-
         <activity
             android:name=".Activities.ActivityMain"
             android:exported="true"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:launchMode="singleTop"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".Activities.ActivityDetails"
-            android:label="@string/title_activity_details"
-            android:parentActivityName=".Activities.ActivityMain"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.capstone.nik.mixology.Activities.ActivityMain" />
-        </activity>
-
-        <activity
-            android:name=".Activities.ActivitySearch"
-            android:label="@string/title_activity_search"
-            android:parentActivityName=".Activities.ActivityMain"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustResize">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.capstone.nik.mixology.Activities.ActivityMain" />
-        </activity>
-
-        <activity
-            android:name=".Activities.ActivityPasswordChange"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.capstone.nik.mixology.Activities.ActivityLogin" />
-        </activity>
-
-        <activity
-            android:name=".Activities.ActivitySignUp"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.capstone.nik.mixology.Activities.ActivityLogin" />
         </activity>
 
         <receiver
@@ -80,7 +33,7 @@
             android:label="@string/widget_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="com.example.nik.mixology.utils.ACTION_DATA_UPDATED" />
+                <action android:name="com.capstone.nik.mixology.action.DATABASE_UPDATED" />
             </intent-filter>
 
             <meta-data

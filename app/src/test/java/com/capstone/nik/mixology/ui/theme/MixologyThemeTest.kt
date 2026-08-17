@@ -38,13 +38,19 @@ class MixologyThemeTest {
     fun darkTheme_usesDarkPalette() {
         var background = Color.Unspecified
         var onSurface = Color.Unspecified
+        var primary = Color.Unspecified
+        var secondary = Color.Unspecified
         composeRule.setContent {
             MixologyTheme(darkTheme = true) {
                 background = MaterialTheme.colorScheme.background
                 onSurface = MaterialTheme.colorScheme.onSurface
+                primary = MaterialTheme.colorScheme.primary
+                secondary = MaterialTheme.colorScheme.secondary
             }
         }
         assertEquals(MixologyDarkBackground, background)
         assertEquals(MixologyOnDark, onSurface)
+        assertEquals(MixologyDarkPrimary, primary)
+        assertEquals(MixologyDarkSecondary, secondary)
     }
 }

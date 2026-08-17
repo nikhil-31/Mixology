@@ -55,6 +55,19 @@ class MainViewModelTest {
     }
 
     @Test
+    fun drinkSelected_phone_opensDetails() = runBlocking {
+        val viewModel = MainViewModel()
+        val deferred = CompletableDeferred<MainEffect>()
+        val job = launch { deferred.complete(viewModel.effects.first()) }
+        yield()
+        viewModel.onIntent(MainIntent.DrinkSelected(Cocktail("11007", "Margarita", ""), twoPane = false))
+        val effect = withTimeout(1_000) { deferred.await() }
+        job.cancel()
+        assertTrue(effect is MainEffect.OpenDetails)
+        assertEquals("11007", (effect as MainEffect.OpenDetails).cocktail.getmDrinkId())
+    }
+
+    @Test
     fun dismissMenu_hidesDropdown() {
         val viewModel = MainViewModel()
         viewModel.onIntent(MainIntent.OpenMenu)

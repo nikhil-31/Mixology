@@ -24,10 +24,6 @@ class MainViewModel : MviViewModel<MainIntent, MainUiState, MainEffect>(MainUiSt
             MainIntent.ToggleSearch -> sendEffect(MainEffect.OpenSearch(""))
             MainIntent.OpenMenu -> setState { copy(menuExpanded = true) }
             MainIntent.DismissMenu -> setState { copy(menuExpanded = false) }
-            MainIntent.SignOut -> {
-                setState { copy(menuExpanded = false) }
-                sendEffect(MainEffect.SignOut)
-            }
             is MainIntent.DrinkSelected -> {
                 if (intent.twoPane) {
                     setState { copy(selectedCocktail = intent.cocktail) }

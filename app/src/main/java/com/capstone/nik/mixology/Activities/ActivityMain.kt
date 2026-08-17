@@ -7,37 +7,37 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
-import com.capstone.nik.mixology.R
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import com.capstone.nik.mixology.Model.Cocktail
+import com.capstone.nik.mixology.ui.drinkExtra
 import com.capstone.nik.mixology.ui.main.MixologyApp
 import com.capstone.nik.mixology.ui.theme.MixologyTheme
 
 class ActivityMain : AppCompatActivity() {
 
+    private var pendingDrink by mutableStateOf<Cocktail?>(null)
+
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        pendingDrink = intent.drinkExtra()
         enableEdgeToEdge()
         setContent {
             MixologyTheme {
                 MixologyApp(
                     windowSizeClass = calculateWindowSizeClass(this),
-                    onOpenSearch = { query ->
-                        startActivity(
-                            Intent(this, ActivitySearch::class.java)
-                                .putExtra(getString(R.string.intent_search_intent_query), query),
-                        )
-                    },
-                    onOpenDetails = { cocktail ->
-                        startActivity(
-                            Intent(this, ActivityDetails::class.java)
-                                .putExtra(getString(R.string.intent_details_intent_cocktail), cocktail),
-                        )
-                    },
-                    onSignOut = {
-                        startActivity(Intent(this, ActivityLogin::class.java))
-                    },
+                    pendingDrink = pendingDrink,
+                    onPendingDrinkConsumed = { pendingDrink = null },
                 )
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        pendingDrink = intent.drinkExtra()
     }
 }

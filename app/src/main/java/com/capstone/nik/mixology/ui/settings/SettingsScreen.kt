@@ -1,5 +1,7 @@
 package com.capstone.nik.mixology.ui.settings
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,20 +21,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.capstone.nik.mixology.R
+import com.capstone.nik.mixology.ui.PRIVACY_POLICY_URL
 import com.capstone.nik.mixology.ui.theme.ThemeMode
 import com.capstone.nik.mixology.ui.theme.ThemePreferences
 import com.capstone.nik.mixology.ui.theme.rememberThemeMode
 
 @Composable
-fun SettingsRoute(
-    onSignOut: () -> Unit = {},
-) {
+fun SettingsRoute() {
     val context = LocalContext.current
     val themeMode = rememberThemeMode()
     SettingsScreen(
         themeMode = themeMode,
         onThemeModeSelected = { ThemePreferences.set(context, it) },
-        onSignOut = onSignOut,
+        onPrivacyPolicy = {
+            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(PRIVACY_POLICY_URL)))
+        },
     )
 }
 
@@ -40,7 +43,7 @@ fun SettingsRoute(
 fun SettingsScreen(
     themeMode: ThemeMode,
     onThemeModeSelected: (ThemeMode) -> Unit,
-    onSignOut: () -> Unit = {},
+    onPrivacyPolicy: () -> Unit = {},
 ) {
     val colors = MaterialTheme.colorScheme
     Column(
@@ -77,15 +80,15 @@ fun SettingsScreen(
             }
         }
         Text(
-            text = stringResource(R.string.action_sign_out),
+            text = stringResource(R.string.privacy_policy_link),
             color = colors.onBackground,
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable(onClick = onSignOut)
+                .clickable(onClick = onPrivacyPolicy)
                 .padding(top = 24.dp, bottom = 12.dp)
-                .testTag("settings_sign_out"),
+                .testTag("settings_privacy_policy"),
         )
     }
 }

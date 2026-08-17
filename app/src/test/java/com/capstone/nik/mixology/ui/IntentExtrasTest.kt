@@ -15,11 +15,11 @@ import org.robolectric.annotation.Config
 class IntentExtrasTest {
 
     @Test
-    fun getCocktailExtra_returnsParcelledCocktail() {
+    fun drinkExtra_returnsIdNameAndThumb() {
         val cocktail = Cocktail("11007", "Margarita", "https://example.com/m.jpg")
-        val intent = Intent().putExtra("Cocktail", cocktail)
+        val intent = Intent().putDrinkExtra(cocktail)
 
-        val restored = intent.getCocktailExtra("Cocktail")
+        val restored = intent.drinkExtra()
 
         assertEquals("11007", restored?.getmDrinkId())
         assertEquals("Margarita", restored?.getmDrinkName())
@@ -27,7 +27,8 @@ class IntentExtrasTest {
     }
 
     @Test
-    fun getCocktailExtra_returnsNullWhenMissing() {
-        assertNull(Intent().getCocktailExtra("Cocktail"))
+    fun drinkExtra_returnsNullWhenIdMissing() {
+        assertNull(Intent().drinkExtra())
+        assertNull(Intent().putExtra(DrinkIntents.EXTRA_ID, " ").drinkExtra())
     }
 }

@@ -29,9 +29,6 @@ interface DrinkDao {
     @Query("SELECT * FROM drinks WHERE saved = 1 ORDER BY name")
     fun getSavedSync(): List<DrinkEntity>
 
-    @Query("SELECT COUNT(*) FROM drinks WHERE id = :id AND saved = 1")
-    fun savedCountSync(id: String): Int
-
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertDrinks(drinks: List<DrinkEntity>)
 

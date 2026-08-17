@@ -23,7 +23,7 @@ import com.capstone.nik.mixology.data.DrinkListItem
 import com.capstone.nik.mixology.ui.theme.PosterScrimCenter
 import com.capstone.nik.mixology.ui.theme.PosterScrimStart
 
-val DrinkCardRailWidth = 168.dp
+val DrinkCardRailWidth = 140.dp
 
 @Composable
 fun DrinkCard(
@@ -42,7 +42,7 @@ fun DrinkCard(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(3f / 4f),
+                .aspectRatio(1f),
         ) {
             DrinkImage(
                 url = item.thumb,
@@ -51,7 +51,7 @@ fun DrinkCard(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(96.dp)
+                    .height(72.dp)
                     .align(Alignment.BottomCenter)
                     .background(
                         Brush.verticalGradient(

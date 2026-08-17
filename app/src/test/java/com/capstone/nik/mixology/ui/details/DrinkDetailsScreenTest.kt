@@ -32,13 +32,12 @@ class DrinkDetailsScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun scaffold_showsTitleShareAndBack() {
+    fun scaffold_showsShareAndBack() {
         var back = false
         var share = false
         composeRule.setContent {
             MixologyTheme {
                 DrinkDetailsScaffold(
-                    title = "Margarita",
                     showUpNavigation = true,
                     onBack = { back = true },
                     onShare = { share = true },
@@ -48,7 +47,6 @@ class DrinkDetailsScreenTest {
             }
         }
 
-        composeRule.onNodeWithText("Margarita").assertIsDisplayed()
         composeRule.onNodeWithContentDescription("Up navigation").performClick()
         composeRule.onNodeWithContentDescription("Share").performClick()
 
@@ -63,6 +61,9 @@ class DrinkDetailsScreenTest {
             idDrink = "11007"
             strDrink = "Margarita"
             strAlcoholic = "Alcoholic"
+            strGlass = "Cocktail glass"
+            strCategory = "Ordinary Drink"
+            strIBA = "Contemporary Classics"
             strInstructions = "Shake and strain."
             strDrinkThumb = ""
         }
@@ -83,9 +84,12 @@ class DrinkDetailsScreenTest {
         composeRule.onNodeWithText("Margarita").assertIsDisplayed()
         composeRule.onNodeWithContentDescription("Add or delete").performClick()
         composeRule.onNodeWithText("Alcoholic").performScrollTo().assertIsDisplayed()
-        composeRule.onNodeWithText("Instructions").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Cocktail glass").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Ordinary Drink").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Contemporary Classics").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("INSTRUCTIONS").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("Shake and strain.").performScrollTo().assertIsDisplayed()
-        composeRule.onNodeWithText("Ingredients").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("INGREDIENTS").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("Tequila").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("1 1/2 oz").performScrollTo().assertIsDisplayed()
 
@@ -107,5 +111,29 @@ class DrinkDetailsScreenTest {
         }
 
         composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
+    }
+
+    @Test
+    fun content_numberedInstructions_showsSteps() {
+        val drink = Drink().apply {
+            idDrink = "11007"
+            strDrink = "Margarita"
+            strInstructions = "1. Shake with ice. 2. Strain into the glass."
+            strDrinkThumb = ""
+        }
+        composeRule.setContent {
+            MixologyTheme {
+                DrinkDetailsContent(
+                    state = DrinkDetailsUiState(
+                        cocktail = Cocktail("11007", "Margarita", ""),
+                        drink = drink,
+                    ),
+                    onToggleSaved = {},
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("Shake with ice.").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Strain into the glass.").performScrollTo().assertIsDisplayed()
     }
 }

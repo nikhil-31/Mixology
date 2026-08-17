@@ -42,6 +42,7 @@ class SettingsScreenTest {
         composeRule.onNodeWithText("Dark").assertIsDisplayed()
         composeRule.onNodeWithTag("settings_theme_dark").performClick()
         composeRule.onNodeWithTag("settings_theme_light").performClick()
+        composeRule.onNodeWithText("Privacy policy").assertIsDisplayed()
 
         assertEquals(listOf(ThemeMode.DARK, ThemeMode.LIGHT), selected)
     }

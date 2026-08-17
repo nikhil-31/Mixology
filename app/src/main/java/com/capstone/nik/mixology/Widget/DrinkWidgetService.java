@@ -12,6 +12,7 @@ import android.widget.RemoteViewsService;
 import com.capstone.nik.mixology.Model.Cocktail;
 import com.capstone.nik.mixology.Network.MyApplication;
 import com.capstone.nik.mixology.R;
+import com.capstone.nik.mixology.ui.DrinkIntents;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
@@ -81,7 +82,9 @@ public class DrinkWidgetService extends RemoteViewsService {
             }
 
             Intent fillInIntent = new Intent();
-            fillInIntent.putExtra(getString(R.string.intent_details_intent_cocktail), cocktail);
+            fillInIntent.putExtra(DrinkIntents.EXTRA_ID, cocktail.getmDrinkId());
+            fillInIntent.putExtra(DrinkIntents.EXTRA_NAME, cocktail.getmDrinkName());
+            fillInIntent.putExtra(DrinkIntents.EXTRA_THUMB, cocktail.getmDrinkThumb());
             remoteViews.setOnClickFillInIntent(R.id.widget_list_item, fillInIntent);
             return remoteViews;
         }

@@ -9,6 +9,13 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
+def localPropertiesFile = rootProject.file('local.properties')
+def localProperties = new Properties()
+if (localPropertiesFile.exists()) {
+    localProperties.load(new FileInputStream(localPropertiesFile))
+}
+def cocktailDbApiKey = localProperties.getProperty('COCKTAIL_DB_API_KEY', '1')
+
 android {
     if (keystorePropertiesFile.exists()) {
         signingConfigs {
@@ -28,6 +35,7 @@ android {
         versionCode 20
         versionName "2.00"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField "String", "COCKTAIL_DB_API_KEY", "\"${cocktailDbApiKey}\""
         if (keystorePropertiesFile.exists()) {
             signingConfig signingConfigs.config
         }
@@ -66,16 +74,6 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
     implementation libs.appcompat
-    implementation libs.cardview
-    implementation libs.recyclerview
-    implementation libs.gridlayout
-    implementation libs.coordinatorlayout
-    implementation libs.legacy.support.v4
-    implementation libs.lifecycle.livedata.ktx
-    implementation libs.lifecycle.viewmodel.ktx
-    implementation libs.lifecycle.viewmodel.compose
-    implementation libs.lifecycle.runtime.ktx
-    implementation libs.lifecycle.runtime.compose
     implementation libs.material
     implementation libs.kotlinx.coroutines.android
     implementation libs.activity.compose
@@ -90,15 +88,15 @@ dependencies {
     debugImplementation libs.compose.ui.tooling
     debugImplementation libs.compose.ui.test.manifest
 
+    implementation libs.lifecycle.viewmodel.ktx
+    implementation libs.lifecycle.viewmodel.compose
+    implementation libs.lifecycle.runtime.ktx
+    implementation libs.lifecycle.runtime.compose
+
     implementation libs.retrofit
     implementation libs.converter.gson
 
     implementation libs.picasso
-    implementation libs.circleimageview
-
-    implementation libs.appcompat.resources
-
-    implementation libs.play.services.auth
 
     implementation libs.dagger
     implementation libs.javax.inject
@@ -106,9 +104,6 @@ dependencies {
 
     compileOnly libs.jsr250.api
     kapt libs.dagger.compiler
-
-    implementation libs.fragment
-    implementation libs.fragment.ktx
 
     implementation libs.androidx.room.runtime
     implementation libs.androidx.room.ktx

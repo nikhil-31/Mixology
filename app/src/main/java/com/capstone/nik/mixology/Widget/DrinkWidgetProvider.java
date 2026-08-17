@@ -8,13 +8,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.RemoteViews;
 
-import com.capstone.nik.mixology.Activities.ActivityDetails;
 import com.capstone.nik.mixology.Activities.ActivityMain;
 import com.capstone.nik.mixology.R;
-
-import static com.capstone.nik.mixology.utils.ContentProviderHelperMethods.ACTION_DATABASE_UPDATED;
-
-import androidx.core.app.TaskStackBuilder;
+import com.capstone.nik.mixology.repository.DrinkRepository;
+import com.capstone.nik.mixology.ui.DrinkIntents;
 
 /**
  * Created by nik on 12/30/2016.
@@ -30,7 +27,6 @@ public class DrinkWidgetProvider extends AppWidgetProvider {
 
             RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_list);
 
-            // Create Intent to launch Main Activity
             Intent intent = new Intent(context, ActivityMain.class);
             int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
             PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, flags);
@@ -38,11 +34,12 @@ public class DrinkWidgetProvider extends AppWidgetProvider {
 
             views.setRemoteAdapter(R.id.widget_list, new Intent(context, DrinkWidgetService.class));
 
-            Intent clickIntentTemplate = new Intent(context, ActivityDetails.class);
+            Intent clickIntentTemplate = new Intent(context, ActivityMain.class)
+                    .setAction(DrinkIntents.ACTION_OPEN_DRINK)
+                    .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-            PendingIntent clickPendingIntentTemplate = TaskStackBuilder.create(context)
-                    .addNextIntentWithParentStack(clickIntentTemplate)
-                    .getPendingIntent(0, flags);
+            PendingIntent clickPendingIntentTemplate = PendingIntent.getActivity(
+                    context, 1, clickIntentTemplate, flags);
             views.setPendingIntentTemplate(R.id.widget_list, clickPendingIntentTemplate);
 
             views.setEmptyView(R.id.widget_list, R.id.widget_empty);
@@ -53,7 +50,7 @@ public class DrinkWidgetProvider extends AppWidgetProvider {
     @Override
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
-        if (ACTION_DATABASE_UPDATED.equals(intent.getAction())) {
+        if (DrinkRepository.ACTION_DATABASE_UPDATED.equals(intent.getAction())) {
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
             int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
                     new ComponentName(context, getClass()));

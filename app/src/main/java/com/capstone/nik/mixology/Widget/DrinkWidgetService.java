@@ -9,15 +9,17 @@ import android.widget.AdapterView;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
-import com.capstone.nik.mixology.Model.Cocktail;
-import com.capstone.nik.mixology.Network.MyApplication;
 import com.capstone.nik.mixology.R;
+import com.capstone.nik.mixology.data.Drink;
+import com.capstone.nik.mixology.di.WidgetEntryPoint;
 import com.capstone.nik.mixology.ui.DrinkIntents;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import dagger.hilt.android.EntryPointAccessors;
 
 public class DrinkWidgetService extends RemoteViewsService {
 
@@ -29,7 +31,7 @@ public class DrinkWidgetService extends RemoteViewsService {
     public class WidgetDataProvider implements RemoteViewsFactory {
 
         private final Context context;
-        private List<Cocktail> drinks = new ArrayList<>();
+        private List<Drink> drinks = new ArrayList<>();
 
         WidgetDataProvider(Context context, Intent intent) {
             this.context = context;
@@ -42,9 +44,10 @@ public class DrinkWidgetService extends RemoteViewsService {
         @Override
         public void onDataSetChanged() {
             final long identityToken = Binder.clearCallingIdentity();
-            drinks = ((MyApplication) getApplication()).getApplicationComponent()
-                    .drinkRepository()
-                    .getSavedSync();
+            drinks = EntryPointAccessors.fromApplication(
+                    context.getApplicationContext(),
+                    WidgetEntryPoint.class
+            ).drinkRepository().getSavedSync();
             Binder.restoreCallingIdentity(identityToken);
         }
 
@@ -64,11 +67,11 @@ public class DrinkWidgetService extends RemoteViewsService {
                 return null;
             }
 
-            Cocktail cocktail = drinks.get(position);
+            Drink cocktail = drinks.get(position);
             RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_item_list);
-            remoteViews.setTextViewText(R.id.list_widget_text, cocktail.getmDrinkName());
+            remoteViews.setTextViewText(R.id.list_widget_text, cocktail.getName());
 
-            String thumbUrl = cocktail.getmDrinkThumb();
+            String thumbUrl = cocktail.getThumb();
             if (thumbUrl == null || thumbUrl.equals("null") || thumbUrl.isEmpty()) {
                 Bitmap icon = BitmapFactory.decodeResource(context.getResources(), R.drawable.empty_glass);
                 remoteViews.setImageViewBitmap(R.id.list_widget_icon, icon);
@@ -82,9 +85,9 @@ public class DrinkWidgetService extends RemoteViewsService {
             }
 
             Intent fillInIntent = new Intent();
-            fillInIntent.putExtra(DrinkIntents.EXTRA_ID, cocktail.getmDrinkId());
-            fillInIntent.putExtra(DrinkIntents.EXTRA_NAME, cocktail.getmDrinkName());
-            fillInIntent.putExtra(DrinkIntents.EXTRA_THUMB, cocktail.getmDrinkThumb());
+            fillInIntent.putExtra(DrinkIntents.EXTRA_ID, cocktail.getId());
+            fillInIntent.putExtra(DrinkIntents.EXTRA_NAME, cocktail.getName());
+            fillInIntent.putExtra(DrinkIntents.EXTRA_THUMB, cocktail.getThumb());
             remoteViews.setOnClickFillInIntent(R.id.widget_list_item, fillInIntent);
             return remoteViews;
         }

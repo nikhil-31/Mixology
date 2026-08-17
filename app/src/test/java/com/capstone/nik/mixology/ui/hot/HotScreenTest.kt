@@ -5,9 +5,8 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import com.capstone.nik.mixology.Model.Cocktail
+import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
-import com.capstone.nik.mixology.data.DrinkListItem
 import com.capstone.nik.mixology.ui.theme.MixologyTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -36,7 +35,7 @@ class HotScreenTest {
                         categories = listOf(
                             HotCategory(
                                 filter = DrinkFilter.GIN,
-                                drinks = listOf(DrinkListItem("11000", "Mojito", "", saved = false)),
+                                drinks = listOf(Drink("11000", "Mojito", "", saved = false)),
                             ),
                         ),
                     ),
@@ -55,7 +54,7 @@ class HotScreenTest {
 
     @Test
     fun drinkClick_reportsCocktail() {
-        val clicked = mutableListOf<Cocktail>()
+        val clicked = mutableListOf<Drink>()
         composeRule.setContent {
             MixologyTheme {
                 HotScreen(
@@ -64,7 +63,7 @@ class HotScreenTest {
                         categories = listOf(
                             HotCategory(
                                 filter = DrinkFilter.ALCOHOLIC,
-                                drinks = listOf(DrinkListItem("11007", "Margarita", "", saved = false)),
+                                drinks = listOf(Drink("11007", "Margarita", "", saved = false)),
                             ),
                         ),
                     ),
@@ -76,6 +75,6 @@ class HotScreenTest {
         }
 
         composeRule.onNodeWithText("Margarita").performClick()
-        assertEquals("11007", clicked.single().getmDrinkId())
+        assertEquals("11007", clicked.single().id)
     }
 }

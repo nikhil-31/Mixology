@@ -12,8 +12,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
-import com.capstone.nik.mixology.Model.Cocktail
-import com.capstone.nik.mixology.Network.remoteModel.Drink
+import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.ui.theme.MixologyTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -72,19 +71,15 @@ class SearchScreenTest {
 
     @Test
     fun results_clickOpensDrink_andFavoriteToggles() {
-        val clicked = mutableListOf<Cocktail>()
-        val toggled = mutableListOf<SearchResultItem>()
-        val drink = Drink().apply {
-            idDrink = "11000"
-            strDrink = "Mojito"
-            strDrinkThumb = ""
-        }
+        val clicked = mutableListOf<Drink>()
+        val toggled = mutableListOf<Drink>()
+        val drink = Drink("11000", "Mojito", "", saved = false)
         composeRule.setContent {
             MixologyTheme {
                 SearchScreen(
                     state = SearchUiState(
                         query = "mojito",
-                        results = listOf(SearchResultItem(drink, saved = false)),
+                        results = listOf(drink),
                     ),
                     snackbarHostState = remember { SnackbarHostState() },
                     onBack = {},
@@ -100,8 +95,8 @@ class SearchScreenTest {
         composeRule.onNodeWithText("Mojito").performClick()
         composeRule.onNodeWithContentDescription("Add or delete").performClick()
 
-        assertEquals("11000", clicked.single().getmDrinkId())
-        assertEquals("Mojito", toggled.single().drink.strDrink)
+        assertEquals("11000", clicked.single().id)
+        assertEquals("Mojito", toggled.single().name)
         assertTrue(!toggled.single().saved)
     }
 

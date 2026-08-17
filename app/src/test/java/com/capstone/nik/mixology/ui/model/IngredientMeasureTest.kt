@@ -1,7 +1,7 @@
 package com.capstone.nik.mixology.ui.model
 
 import com.capstone.nik.mixology.Network.CocktailURLs
-import com.capstone.nik.mixology.Network.remoteModel.Drink
+import com.capstone.nik.mixology.Network.remoteModel.CocktailDbDrink
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -10,15 +10,15 @@ class IngredientMeasureTest {
 
     @Test
     fun ingredientMeasures_skipsBlankSlots_andKeepsPairs() {
-        val drink = Drink().apply {
-            strIngredient1 = "Tequila"
-            strMeasure1 = "1 1/2 oz"
-            strIngredient2 = "  Lime juice  "
-            strMeasure2 = "1 oz"
-            strIngredient3 = ""
-            strMeasure3 = "ignored"
-            strIngredient4 = null
-        }
+        val drink = CocktailDbDrink(
+            strIngredient1 = "Tequila",
+            strMeasure1 = "1 1/2 oz",
+            strIngredient2 = "  Lime juice  ",
+            strMeasure2 = "1 oz",
+            strIngredient3 = "",
+            strMeasure3 = "ignored",
+            strIngredient4 = null,
+        )
 
         val measures = drink.ingredientMeasures()
 

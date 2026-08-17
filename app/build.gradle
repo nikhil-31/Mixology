@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'org.jetbrains.kotlin.android'
 apply plugin: 'org.jetbrains.kotlin.plugin.compose'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'dagger.hilt.android.plugin'
 
 def keystorePropertiesFile = rootProject.file('keystore.properties')
 def keystoreProperties = new Properties()
@@ -70,6 +71,10 @@ android {
     }
 }
 
+kapt {
+    correctErrorTypes true
+}
+
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
@@ -95,15 +100,16 @@ dependencies {
 
     implementation libs.retrofit
     implementation libs.converter.gson
+    implementation libs.okhttp
+    implementation libs.okhttp.logging
 
     implementation libs.picasso
 
-    implementation libs.dagger
-    implementation libs.javax.inject
+    implementation libs.hilt.android
+    implementation libs.hilt.navigation.compose
     implementation libs.core.ktx
 
-    compileOnly libs.jsr250.api
-    kapt libs.dagger.compiler
+    kapt libs.hilt.compiler
 
     implementation libs.androidx.room.runtime
     implementation libs.androidx.room.ktx

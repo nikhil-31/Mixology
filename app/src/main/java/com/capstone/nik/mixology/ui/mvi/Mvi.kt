@@ -1,11 +1,9 @@
 package com.capstone.nik.mixology.ui.mvi
 
-import android.app.Application
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.Flow
@@ -24,29 +22,6 @@ interface MviStore<I, S, E> {
 }
 
 abstract class MviViewModel<I, S, E>(initialState: S) : ViewModel(), MviStore<I, S, E> {
-    private val _state = MutableStateFlow(initialState)
-    override val state: StateFlow<S> = _state.asStateFlow()
-
-    private val _effects = MutableSharedFlow<E>(extraBufferCapacity = 64)
-    override val effects: Flow<E> = _effects.asSharedFlow()
-
-    protected val currentState: S get() = _state.value
-
-    protected fun setState(reducer: S.() -> S) {
-        _state.update(reducer)
-    }
-
-    protected fun sendEffect(effect: E) {
-        if (!_effects.tryEmit(effect)) {
-            viewModelScope.launch { _effects.emit(effect) }
-        }
-    }
-}
-
-abstract class MviAndroidViewModel<I, S, E>(
-    application: Application,
-    initialState: S,
-) : AndroidViewModel(application), MviStore<I, S, E> {
     private val _state = MutableStateFlow(initialState)
     override val state: StateFlow<S> = _state.asStateFlow()
 

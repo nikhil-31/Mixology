@@ -1,10 +1,10 @@
 package com.capstone.nik.mixology.ui.main
 
-import com.capstone.nik.mixology.Model.Cocktail
+import com.capstone.nik.mixology.data.Drink
 
 data class MainUiState(
     val menuExpanded: Boolean = false,
-    val selectedCocktail: Cocktail? = null,
+    val selectedDrink: Drink? = null,
     val destination: DrawerDestination = DrawerDestination.Hot,
 )
 
@@ -14,7 +14,7 @@ sealed interface MainIntent {
     data object ToggleSearch : MainIntent
     data object OpenMenu : MainIntent
     data object DismissMenu : MainIntent
-    data class DrinkSelected(val cocktail: Cocktail, val twoPane: Boolean) : MainIntent
+    data class DrinkSelected(val drink: Drink, val twoPane: Boolean) : MainIntent
 }
 
 sealed interface MainEffect {
@@ -22,5 +22,5 @@ sealed interface MainEffect {
     data object OpenDrawer : MainEffect
     data object CloseDrawer : MainEffect
     data class OpenSearch(val query: String) : MainEffect
-    data class OpenDetails(val cocktail: Cocktail) : MainEffect
+    data class OpenDetails(val drink: Drink) : MainEffect
 }

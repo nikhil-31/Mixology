@@ -44,9 +44,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.capstone.nik.mixology.Model.Cocktail
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.capstone.nik.mixology.R
+import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.ui.components.DrinkCard
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 
@@ -54,8 +54,8 @@ import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 fun SearchRoute(
     initialQuery: String,
     onBack: () -> Unit,
-    onDrinkClick: (Cocktail) -> Unit,
-    viewModel: SearchViewModel = viewModel(),
+    onDrinkClick: (Drink) -> Unit,
+    viewModel: SearchViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -70,7 +70,7 @@ fun SearchRoute(
         when (effect) {
             is SearchEffect.ShowMessageRes ->
                 snackbarHostState.showSnackbar(context.getString(effect.resId))
-            is SearchEffect.OpenDrink -> onDrinkClick(effect.cocktail)
+            is SearchEffect.OpenDrink -> onDrinkClick(effect.drink)
             SearchEffect.NavigateBack -> onBack()
         }
     }
@@ -92,8 +92,8 @@ fun SearchScreen(
     snackbarHostState: SnackbarHostState,
     onBack: () -> Unit,
     onSearch: (String) -> Unit,
-    onDrinkClick: (Cocktail) -> Unit,
-    onToggleSaved: (SearchResultItem) -> Unit,
+    onDrinkClick: (Drink) -> Unit,
+    onToggleSaved: (Drink) -> Unit,
     initialQuery: String = state.query,
 ) {
     var queryText by remember {
@@ -188,11 +188,11 @@ fun SearchScreen(
                     ) {
                         items(
                             items = state.results,
-                            key = { item -> item.drink.idDrink ?: item.drink.strDrink.orEmpty() },
+                            key = { item -> item.id },
                         ) { item ->
                             DrinkCard(
-                                item = item.toListItem(),
-                                onClick = { onDrinkClick(item.toCocktail()) },
+                                item = item,
+                                onClick = { onDrinkClick(item) },
                                 onToggleSaved = { onToggleSaved(item) },
                             )
                         }

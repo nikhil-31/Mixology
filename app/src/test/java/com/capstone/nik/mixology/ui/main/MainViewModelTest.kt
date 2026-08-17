@@ -1,7 +1,7 @@
 package com.capstone.nik.mixology.ui.main
 
 import android.app.Application
-import com.capstone.nik.mixology.Model.Cocktail
+import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.first
@@ -36,21 +36,21 @@ class MainViewModelTest {
     }
 
     @Test
-    fun drinkSelected_twoPane_setsSelectedCocktail() {
+    fun drinkSelected_twoPane_setsSelectedDrink() {
         val viewModel = MainViewModel()
-        val cocktail = Cocktail("11007", "Margarita", "")
-        viewModel.onIntent(MainIntent.DrinkSelected(cocktail, twoPane = true))
-        assertEquals("11007", viewModel.state.value.selectedCocktail?.getmDrinkId())
+        val drink = Drink("11007", "Margarita", "")
+        viewModel.onIntent(MainIntent.DrinkSelected(drink, twoPane = true))
+        assertEquals("11007", viewModel.state.value.selectedDrink?.id)
     }
 
     @Test
-    fun selectFilterDestination_clearsSelectedCocktail() {
+    fun selectFilterDestination_clearsSelectedDrink() {
         val viewModel = MainViewModel()
         viewModel.onIntent(
-            MainIntent.DrinkSelected(Cocktail("11007", "Margarita", ""), twoPane = true),
+            MainIntent.DrinkSelected(Drink("11007", "Margarita", ""), twoPane = true),
         )
         viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Filter(DrinkFilter.GIN)))
-        assertNull(viewModel.state.value.selectedCocktail)
+        assertNull(viewModel.state.value.selectedDrink)
         assertEquals("grid/GIN", viewModel.state.value.destination.route)
     }
 
@@ -60,11 +60,11 @@ class MainViewModelTest {
         val deferred = CompletableDeferred<MainEffect>()
         val job = launch { deferred.complete(viewModel.effects.first()) }
         yield()
-        viewModel.onIntent(MainIntent.DrinkSelected(Cocktail("11007", "Margarita", ""), twoPane = false))
+        viewModel.onIntent(MainIntent.DrinkSelected(Drink("11007", "Margarita", ""), twoPane = false))
         val effect = withTimeout(1_000) { deferred.await() }
         job.cancel()
         assertTrue(effect is MainEffect.OpenDetails)
-        assertEquals("11007", (effect as MainEffect.OpenDetails).cocktail.getmDrinkId())
+        assertEquals("11007", (effect as MainEffect.OpenDetails).drink.id)
     }
 
     @Test

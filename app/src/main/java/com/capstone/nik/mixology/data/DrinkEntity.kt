@@ -1,8 +1,9 @@
 package com.capstone.nik.mixology.data
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.capstone.nik.mixology.Model.Cocktail
+import com.capstone.nik.mixology.ui.model.IngredientMeasure
 
 @Entity(tableName = "drinks")
 data class DrinkEntity(
@@ -10,26 +11,42 @@ data class DrinkEntity(
     val name: String,
     val thumb: String,
     val saved: Boolean = false,
+    val alcoholic: String? = null,
+    val glass: String? = null,
+    val category: String? = null,
+    val iba: String? = null,
+    val instructions: String? = null,
+    val video: String? = null,
+    val ingredients: List<IngredientMeasure>? = null,
+    @ColumnInfo(defaultValue = "0")
+    val recipeUpdatedAt: Long = 0L,
 ) {
-    fun toCocktail(): Cocktail = Cocktail(id, name, thumb)
+    fun toDrink(savedOverride: Boolean? = null): Drink = Drink(
+        id = id,
+        name = name,
+        thumb = thumb,
+        saved = savedOverride ?: saved,
+        alcoholic = alcoholic,
+        glass = glass,
+        category = category,
+        iba = iba,
+        instructions = instructions,
+        video = video,
+        ingredients = ingredients.orEmpty(),
+    )
 }
 
-data class DrinkListItem(
-    val id: String,
-    val name: String,
-    val thumb: String,
-    val saved: Boolean,
-) {
-    fun toCocktail(): Cocktail = Cocktail(id, name, thumb)
-
-    companion object {
-        fun from(entity: DrinkEntity, savedIds: Set<String>): DrinkListItem {
-            return DrinkListItem(
-                id = entity.id,
-                name = entity.name,
-                thumb = entity.thumb,
-                saved = entity.id in savedIds || entity.saved,
-            )
-        }
-    }
-}
+fun Drink.toEntity(): DrinkEntity = DrinkEntity(
+    id = id,
+    name = name,
+    thumb = thumb,
+    saved = saved,
+    alcoholic = alcoholic,
+    glass = glass,
+    category = category,
+    iba = iba,
+    instructions = instructions,
+    video = video,
+    ingredients = ingredients,
+    recipeUpdatedAt = if (hasRecipe) System.currentTimeMillis() else 0L,
+)

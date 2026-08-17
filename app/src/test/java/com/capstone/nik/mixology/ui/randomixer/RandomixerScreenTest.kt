@@ -9,7 +9,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
-import com.capstone.nik.mixology.Network.remoteModel.Drink
+import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.ui.model.IngredientMeasure
 import com.capstone.nik.mixology.ui.theme.MixologyTheme
 import org.junit.Assert.assertEquals
@@ -137,14 +137,14 @@ class RandomixerScreenTest {
     }
 
     private fun sampleState(saved: Boolean = false) = RandomixerUiState(
-        drink = Drink().apply {
-            idDrink = "11007"
-            strDrink = "Margarita"
-            strAlcoholic = "Alcoholic"
-            strInstructions = "Shake and strain."
-            strDrinkThumb = ""
-        },
-        ingredients = listOf(IngredientMeasure("Tequila", "1 1/2 oz")),
+        drink = Drink(
+            id = "11007",
+            name = "Margarita",
+            thumb = "",
+            alcoholic = "Alcoholic",
+            instructions = "Shake and strain.",
+            ingredients = listOf(IngredientMeasure("Tequila", "1 1/2 oz")),
+        ),
         saved = saved,
     )
 }

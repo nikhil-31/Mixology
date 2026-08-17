@@ -8,9 +8,8 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import com.capstone.nik.mixology.Model.Cocktail
+import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
-import com.capstone.nik.mixology.data.DrinkListItem
 import com.capstone.nik.mixology.ui.theme.MixologyTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -63,14 +62,14 @@ class DrinkGridScreenTest {
 
     @Test
     fun showsDrinkNames_andClickSelectsCocktail() {
-        val clicked = mutableListOf<Cocktail>()
+        val clicked = mutableListOf<Drink>()
         composeRule.setContent {
             MixologyTheme {
                 DrinkGridScreen(
                     filter = DrinkFilter.ALCOHOLIC,
                     drinks = listOf(
-                        DrinkListItem("11007", "Margarita", "", saved = false),
-                        DrinkListItem("11000", "Mojito", "", saved = true),
+                        Drink("11007", "Margarita", "", saved = false),
+                        Drink("11000", "Mojito", "", saved = true),
                     ),
                     onDrinkClick = { clicked.add(it) },
                     onToggleSaved = {},
@@ -83,18 +82,18 @@ class DrinkGridScreenTest {
         composeRule.onNodeWithText("Margarita").performClick()
 
         assertEquals(1, clicked.size)
-        assertEquals("11007", clicked[0].getmDrinkId())
-        assertEquals("Margarita", clicked[0].getmDrinkName())
+        assertEquals("11007", clicked[0].id)
+        assertEquals("Margarita", clicked[0].name)
     }
 
     @Test
     fun favoriteButton_togglesSavedDrink() {
-        val toggled = mutableListOf<DrinkListItem>()
+        val toggled = mutableListOf<Drink>()
         composeRule.setContent {
             MixologyTheme {
                 DrinkGridScreen(
                     filter = DrinkFilter.ALCOHOLIC,
-                    drinks = listOf(DrinkListItem("11007", "Margarita", "", saved = false)),
+                    drinks = listOf(Drink("11007", "Margarita", "", saved = false)),
                     onDrinkClick = {},
                     onToggleSaved = { toggled.add(it) },
                 )

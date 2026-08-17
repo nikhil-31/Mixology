@@ -1,12 +1,11 @@
 package com.capstone.nik.mixology.ui.hot
 
-import com.capstone.nik.mixology.Model.Cocktail
+import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
-import com.capstone.nik.mixology.data.DrinkListItem
 
 data class HotCategory(
     val filter: DrinkFilter,
-    val drinks: List<DrinkListItem>,
+    val drinks: List<Drink>,
 )
 
 data class HotUiState(
@@ -18,13 +17,13 @@ data class HotUiState(
 
 sealed interface HotIntent {
     data object Load : HotIntent
-    data class ToggleSaved(val item: DrinkListItem) : HotIntent
-    data class OpenDrink(val cocktail: Cocktail) : HotIntent
+    data class ToggleSaved(val item: Drink) : HotIntent
+    data class OpenDrink(val drink: Drink) : HotIntent
     data class SeeAll(val filter: DrinkFilter) : HotIntent
 }
 
 sealed interface HotEffect {
     data class ShowMessageRes(val resId: Int) : HotEffect
-    data class OpenDrink(val cocktail: Cocktail) : HotEffect
+    data class OpenDrink(val drink: Drink) : HotEffect
     data class OpenFilter(val filter: DrinkFilter) : HotEffect
 }

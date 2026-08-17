@@ -6,15 +6,18 @@ import android.util.Log
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.runBlocking
 import java.util.concurrent.Executors
 
 @Database(
     entities = [DrinkEntity::class, DrinkFilterCrossRef::class],
-    version = 1,
+    version = 2,
     exportSchema = false,
 )
+@TypeConverters(IngredientListConverter::class)
 abstract class MixologyDatabase : RoomDatabase() {
 
     abstract fun drinkDao(): DrinkDao
@@ -25,6 +28,17 @@ abstract class MixologyDatabase : RoomDatabase() {
         private const val PREFS = "mixology"
         private const val PREF_LEGACY_IMPORTED = "legacy_saved_imported"
 
+        private val MIGRATION_1_2 = Migration(1, 2) { db ->
+            db.execSQL("ALTER TABLE drinks ADD COLUMN alcoholic TEXT")
+            db.execSQL("ALTER TABLE drinks ADD COLUMN glass TEXT")
+            db.execSQL("ALTER TABLE drinks ADD COLUMN category TEXT")
+            db.execSQL("ALTER TABLE drinks ADD COLUMN iba TEXT")
+            db.execSQL("ALTER TABLE drinks ADD COLUMN instructions TEXT")
+            db.execSQL("ALTER TABLE drinks ADD COLUMN video TEXT")
+            db.execSQL("ALTER TABLE drinks ADD COLUMN ingredients TEXT")
+            db.execSQL("ALTER TABLE drinks ADD COLUMN recipeUpdatedAt INTEGER NOT NULL DEFAULT 0")
+        }
+
         @Volatile
         private var instance: MixologyDatabase? = null
 
@@ -33,6 +47,7 @@ abstract class MixologyDatabase : RoomDatabase() {
             val appContext = context.applicationContext
             return instance ?: synchronized(this) {
                 instance ?: Room.databaseBuilder(appContext, MixologyDatabase::class.java, DB_NAME)
+                    .addMigrations(MIGRATION_1_2)
                     .addCallback(object : Callback() {
                         override fun onOpen(db: SupportSQLiteDatabase) {
                             super.onOpen(db)

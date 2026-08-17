@@ -20,11 +20,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.capstone.nik.mixology.Model.Cocktail
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.capstone.nik.mixology.R
+import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
-import com.capstone.nik.mixology.data.DrinkListItem
 import com.capstone.nik.mixology.ui.components.DrinkCard
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 
@@ -32,8 +31,8 @@ import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 fun DrinkGridRoute(
     filter: DrinkFilter,
     snackbarHostState: SnackbarHostState,
-    onDrinkClick: (Cocktail) -> Unit,
-    viewModel: DrinkGridViewModel = viewModel(key = filter.name),
+    onDrinkClick: (Drink) -> Unit,
+    viewModel: DrinkGridViewModel = hiltViewModel(key = filter.name),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -45,7 +44,7 @@ fun DrinkGridRoute(
         when (effect) {
             is DrinkGridEffect.ShowMessage -> snackbarHostState.showSnackbar(effect.text)
             is DrinkGridEffect.ShowMessageRes -> snackbarHostState.showSnackbar(context.getString(effect.resId))
-            is DrinkGridEffect.OpenDrink -> onDrinkClick(effect.cocktail)
+            is DrinkGridEffect.OpenDrink -> onDrinkClick(effect.drink)
         }
     }
 
@@ -60,9 +59,9 @@ fun DrinkGridRoute(
 @Composable
 fun DrinkGridScreen(
     filter: DrinkFilter,
-    drinks: List<DrinkListItem>,
-    onDrinkClick: (Cocktail) -> Unit,
-    onToggleSaved: (DrinkListItem) -> Unit,
+    drinks: List<Drink>,
+    onDrinkClick: (Drink) -> Unit,
+    onToggleSaved: (Drink) -> Unit,
 ) {
     val empty = filter.showEmptySaved && drinks.isEmpty()
     Box(modifier = Modifier.fillMaxSize()) {
@@ -84,7 +83,7 @@ fun DrinkGridScreen(
                 items(drinks, key = { it.id }) { item ->
                     DrinkCard(
                         item = item,
-                        onClick = { onDrinkClick(item.toCocktail()) },
+                        onClick = { onDrinkClick(item) },
                         onToggleSaved = { onToggleSaved(item) },
                     )
                 }

@@ -1,12 +1,10 @@
 package com.capstone.nik.mixology.ui.randomixer
 
-import com.capstone.nik.mixology.Network.remoteModel.Drink
-import com.capstone.nik.mixology.ui.model.IngredientMeasure
+import com.capstone.nik.mixology.data.Drink
 
 data class RandomixerUiState(
     val loading: Boolean = false,
     val drink: Drink? = null,
-    val ingredients: List<IngredientMeasure> = emptyList(),
     val saved: Boolean = false,
 )
 

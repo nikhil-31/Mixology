@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import com.capstone.nik.mixology.ui.model.IngredientMeasure
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -29,6 +30,9 @@ interface DrinkDao {
     @Query("SELECT * FROM drinks WHERE saved = 1 ORDER BY name")
     fun getSavedSync(): List<DrinkEntity>
 
+    @Query("SELECT * FROM drinks WHERE id = :id")
+    suspend fun getById(id: String): DrinkEntity?
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertDrinks(drinks: List<DrinkEntity>)
 
@@ -38,15 +42,102 @@ interface DrinkDao {
     @Query("UPDATE drinks SET saved = :saved WHERE id = :id")
     suspend fun setSaved(id: String, saved: Boolean)
 
+    @Query("UPDATE drinks SET name = :name, thumb = :thumb WHERE id = :id")
+    suspend fun updateIdentity(id: String, name: String, thumb: String)
+
+    @Query(
+        """
+        UPDATE drinks SET
+            name = :name,
+            thumb = :thumb,
+            alcoholic = :alcoholic,
+            glass = :glass,
+            category = :category,
+            iba = :iba,
+            instructions = :instructions,
+            video = :video,
+            ingredients = :ingredients,
+            recipeUpdatedAt = :recipeUpdatedAt
+        WHERE id = :id
+        """,
+    )
+    suspend fun updateRecipe(
+        id: String,
+        name: String,
+        thumb: String,
+        alcoholic: String?,
+        glass: String?,
+        category: String?,
+        iba: String?,
+        instructions: String?,
+        video: String?,
+        ingredients: List<IngredientMeasure>,
+        recipeUpdatedAt: Long,
+    )
+
     @Transaction
     suspend fun cacheFilterResults(filterName: String, drinks: List<DrinkEntity>) {
-        insertDrinks(drinks)
+        drinks.forEach { drink ->
+            val existing = getById(drink.id)
+            if (existing == null) {
+                insertDrinks(listOf(drink))
+            } else {
+                updateIdentity(drink.id, drink.name, drink.thumb)
+            }
+        }
         insertMemberships(drinks.map { DrinkFilterCrossRef(it.id, filterName) })
     }
 
     @Transaction
+    suspend fun upsertRecipe(drink: DrinkEntity) {
+        val existing = getById(drink.id)
+        if (existing == null) {
+            insertDrinks(listOf(drink))
+        } else {
+            updateRecipe(
+                id = drink.id,
+                name = drink.name.ifBlank { existing.name },
+                thumb = drink.thumb.ifBlank { existing.thumb },
+                alcoholic = drink.alcoholic,
+                glass = drink.glass,
+                category = drink.category,
+                iba = drink.iba,
+                instructions = drink.instructions,
+                video = drink.video,
+                ingredients = drink.ingredients.orEmpty(),
+                recipeUpdatedAt = drink.recipeUpdatedAt,
+            )
+        }
+    }
+
+    @Transaction
     suspend fun saveDrink(drink: DrinkEntity) {
-        insertDrinks(listOf(drink.copy(saved = true)))
+        val existing = getById(drink.id)
+        if (existing == null) {
+            insertDrinks(listOf(drink.copy(saved = true)))
+        } else {
+            updateIdentity(
+                drink.id,
+                drink.name.ifBlank { existing.name },
+                drink.thumb.ifBlank { existing.thumb },
+            )
+            if (drink.instructions != null || !drink.ingredients.isNullOrEmpty()) {
+                updateRecipe(
+                    id = drink.id,
+                    name = drink.name.ifBlank { existing.name },
+                    thumb = drink.thumb.ifBlank { existing.thumb },
+                    alcoholic = drink.alcoholic ?: existing.alcoholic,
+                    glass = drink.glass ?: existing.glass,
+                    category = drink.category ?: existing.category,
+                    iba = drink.iba ?: existing.iba,
+                    instructions = drink.instructions ?: existing.instructions,
+                    video = drink.video ?: existing.video,
+                    ingredients = drink.ingredients.takeUnless { it.isNullOrEmpty() }
+                        ?: existing.ingredients.orEmpty(),
+                    recipeUpdatedAt = drink.recipeUpdatedAt.takeIf { it > 0 } ?: existing.recipeUpdatedAt,
+                )
+            }
+        }
         setSaved(drink.id, true)
     }
 }

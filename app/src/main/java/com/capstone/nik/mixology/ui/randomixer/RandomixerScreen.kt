@@ -52,9 +52,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.capstone.nik.mixology.Network.remoteModel.Drink
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.capstone.nik.mixology.R
+import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.ui.components.DrinkImage
 import com.capstone.nik.mixology.ui.components.IngredientRow
 import com.capstone.nik.mixology.ui.model.IngredientMeasure
@@ -67,7 +67,7 @@ private val SaveGreen = Color(0xFF4CAF50)
 @Composable
 fun RandomixerRoute(
     snackbarHostState: SnackbarHostState,
-    viewModel: RandomixerViewModel = viewModel(),
+    viewModel: RandomixerViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -97,7 +97,7 @@ fun RandomixerScreen(
         if (drink != null) {
             SwipeableDrinkCard(
                 drink = drink,
-                ingredients = state.ingredients,
+                ingredients = drink.ingredients,
                 saved = state.saved,
                 enabled = !state.loading,
                 onSwipedRight = onSave,
@@ -123,7 +123,7 @@ private fun SwipeableDrinkCard(
     onSwipedLeft: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val drinkId = drink.idDrink.orEmpty()
+    val drinkId = drink.id
     val offsetX = remember(drinkId) { Animatable(0f) }
     val listState = remember(drinkId) { LazyListState() }
     val scope = rememberCoroutineScope()
@@ -326,7 +326,7 @@ private fun DrinkSwipePhoto(
 ) {
     Box(modifier = modifier) {
         DrinkImage(
-            url = drink.strDrinkThumb,
+            url = drink.thumb,
             modifier = Modifier.fillMaxSize(),
         )
         Box(
@@ -347,7 +347,7 @@ private fun DrinkSwipePhoto(
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = drink.strDrink.orEmpty(),
+                        text = drink.name,
                         modifier = Modifier.weight(1f),
                         fontSize = 28.sp,
                         fontWeight = FontWeight.Bold,
@@ -373,9 +373,9 @@ private fun DrinkSwipePhoto(
                         fontWeight = FontWeight.SemiBold,
                     )
                 }
-                if (!drink.strAlcoholic.isNullOrBlank()) {
+                if (!drink.alcoholic.isNullOrBlank()) {
                     Text(
-                        text = drink.strAlcoholic,
+                        text = drink.alcoholic,
                         modifier = Modifier.padding(top = 4.dp),
                         color = Color(0xFFFF8A80),
                         fontSize = 16.sp,
@@ -409,7 +409,7 @@ private fun DrinkSwipeDetails(
             .background(colors.surface)
             .padding(top = 8.dp, bottom = 16.dp),
     ) {
-        if (!drink.strInstructions.isNullOrBlank()) {
+        if (!drink.instructions.isNullOrBlank()) {
             Text(
                 text = stringResource(R.string.detail_screen_instructions),
                 modifier = Modifier.padding(start = 20.dp, top = 16.dp, bottom = 8.dp),
@@ -418,7 +418,7 @@ private fun DrinkSwipeDetails(
                 color = colors.onSurface,
             )
             Text(
-                text = drink.strInstructions,
+                text = drink.instructions,
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp),
                 fontSize = 17.sp,
                 color = colors.onSurface,

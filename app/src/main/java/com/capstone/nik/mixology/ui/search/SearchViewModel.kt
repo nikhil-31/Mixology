@@ -1,28 +1,26 @@
 package com.capstone.nik.mixology.ui.search
 
-import android.app.Application
 import android.util.Log
 import androidx.lifecycle.viewModelScope
-import com.capstone.nik.mixology.Network.MyApplication
-import com.capstone.nik.mixology.Network.remoteModel.Drink
 import com.capstone.nik.mixology.R
-import com.capstone.nik.mixology.ui.mvi.MviAndroidViewModel
+import com.capstone.nik.mixology.data.Drink
+import com.capstone.nik.mixology.repository.DrinkRepository
+import com.capstone.nik.mixology.ui.mvi.MviViewModel
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
-class SearchViewModel(application: Application) :
-    MviAndroidViewModel<SearchIntent, SearchUiState, SearchEffect>(
-        application,
-        SearchUiState(),
-    ) {
-
-    private val repository = (application as MyApplication).applicationComponent.drinkRepository()
+@HiltViewModel
+class SearchViewModel @Inject constructor(
+    private val repository: DrinkRepository,
+) : MviViewModel<SearchIntent, SearchUiState, SearchEffect>(SearchUiState()) {
 
     private val drinks = MutableStateFlow<List<Drink>>(emptyList())
     private val loading = MutableStateFlow(false)
@@ -39,12 +37,11 @@ class SearchViewModel(application: Application) :
                 queried,
                 query,
             ) { drinkList, savedIds, isLoading, hasQueried, currentQuery ->
-                val results = drinkList.map { SearchResultItem(it, it.idDrink in savedIds) }
                 SearchUiState(
                     query = currentQuery,
                     loading = isLoading,
-                    results = results,
-                    empty = hasQueried && !isLoading && results.isEmpty(),
+                    results = drinkList.map { it.copy(saved = it.id in savedIds) },
+                    empty = hasQueried && !isLoading && drinkList.isEmpty(),
                 )
             }.collect { newState -> setState { newState } }
         }
@@ -53,8 +50,8 @@ class SearchViewModel(application: Application) :
     override fun onIntent(intent: SearchIntent) {
         when (intent) {
             is SearchIntent.Search -> search(intent.query)
-            is SearchIntent.ToggleSaved -> toggleSaved(intent.item)
-            is SearchIntent.OpenDrink -> sendEffect(SearchEffect.OpenDrink(intent.cocktail))
+            is SearchIntent.ToggleSaved -> toggleSaved(intent.drink)
+            is SearchIntent.OpenDrink -> sendEffect(SearchEffect.OpenDrink(intent.drink))
             SearchIntent.Back -> sendEffect(SearchEffect.NavigateBack)
         }
     }
@@ -90,13 +87,13 @@ class SearchViewModel(application: Application) :
         }
     }
 
-    private fun toggleSaved(item: SearchResultItem) {
+    private fun toggleSaved(drink: Drink) {
         viewModelScope.launch {
-            if (item.saved) {
-                repository.unsave(item.drink.idDrink)
+            if (drink.saved) {
+                repository.unsave(drink.id)
                 sendEffect(SearchEffect.ShowMessageRes(R.string.drink_deleted))
             } else {
-                repository.save(item.toCocktail())
+                repository.save(drink)
                 sendEffect(SearchEffect.ShowMessageRes(R.string.drink_added))
             }
         }

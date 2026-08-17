@@ -11,8 +11,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import com.capstone.nik.mixology.Model.Cocktail
-import com.capstone.nik.mixology.Network.remoteModel.Drink
+import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.ui.model.IngredientMeasure
 import com.capstone.nik.mixology.ui.theme.MixologyTheme
 import org.junit.Assert.assertTrue
@@ -57,25 +56,21 @@ class DrinkDetailsScreenTest {
     @Test
     fun content_showsRecipe_andFavoriteClick() {
         var toggled = false
-        val drink = Drink().apply {
-            idDrink = "11007"
-            strDrink = "Margarita"
-            strAlcoholic = "Alcoholic"
-            strGlass = "Cocktail glass"
-            strCategory = "Ordinary Drink"
-            strIBA = "Contemporary Classics"
-            strInstructions = "Shake and strain."
-            strDrinkThumb = ""
-        }
+        val drink = Drink(
+            id = "11007",
+            name = "Margarita",
+            thumb = "",
+            alcoholic = "Alcoholic",
+            glass = "Cocktail glass",
+            category = "Ordinary Drink",
+            iba = "Contemporary Classics",
+            instructions = "Shake and strain.",
+            ingredients = listOf(IngredientMeasure("Tequila", "1 1/2 oz")),
+        )
         composeRule.setContent {
             MixologyTheme {
                 DrinkDetailsContent(
-                    state = DrinkDetailsUiState(
-                        cocktail = Cocktail("11007", "Margarita", ""),
-                        drink = drink,
-                        ingredients = listOf(IngredientMeasure("Tequila", "1 1/2 oz")),
-                        saved = false,
-                    ),
+                    state = DrinkDetailsUiState(drink = drink, saved = false),
                     onToggleSaved = { toggled = true },
                 )
             }
@@ -103,7 +98,7 @@ class DrinkDetailsScreenTest {
                 DrinkDetailsContent(
                     state = DrinkDetailsUiState(
                         loading = true,
-                        cocktail = Cocktail("11007", "Margarita", ""),
+                        drink = Drink("11007", "Margarita", ""),
                     ),
                     onToggleSaved = {},
                 )
@@ -115,19 +110,16 @@ class DrinkDetailsScreenTest {
 
     @Test
     fun content_numberedInstructions_showsSteps() {
-        val drink = Drink().apply {
-            idDrink = "11007"
-            strDrink = "Margarita"
-            strInstructions = "1. Shake with ice. 2. Strain into the glass."
-            strDrinkThumb = ""
-        }
+        val drink = Drink(
+            id = "11007",
+            name = "Margarita",
+            thumb = "",
+            instructions = "1. Shake with ice. 2. Strain into the glass.",
+        )
         composeRule.setContent {
             MixologyTheme {
                 DrinkDetailsContent(
-                    state = DrinkDetailsUiState(
-                        cocktail = Cocktail("11007", "Margarita", ""),
-                        drink = drink,
-                    ),
+                    state = DrinkDetailsUiState(drink = drink),
                     onToggleSaved = {},
                 )
             }

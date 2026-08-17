@@ -1,6 +1,6 @@
 package com.capstone.nik.mixology
 
-import com.capstone.nik.mixology.Network.remoteModel.Drink
+import com.capstone.nik.mixology.Network.remoteModel.CocktailDbDrink
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.repository.DrinkRepository
 import com.capstone.nik.mixology.repository.FilterKind
@@ -28,10 +28,10 @@ class DrinkFilterTest {
 
     @Test
     fun hasUsableThumb_rejectsMissingAndLiteralNull() {
-        val missing = Drink().apply { strDrinkThumb = null }
-        val literalNull = Drink().apply { strDrinkThumb = "null" }
-        val empty = Drink().apply { strDrinkThumb = "" }
-        val ok = Drink().apply { strDrinkThumb = "https://example.com/thumb.jpg" }
+        val missing = CocktailDbDrink(strDrinkThumb = null)
+        val literalNull = CocktailDbDrink(strDrinkThumb = "null")
+        val empty = CocktailDbDrink(strDrinkThumb = "")
+        val ok = CocktailDbDrink(strDrinkThumb = "https://example.com/thumb.jpg")
 
         assertFalse(DrinkRepository.hasUsableThumb(missing))
         assertFalse(DrinkRepository.hasUsableThumb(literalNull))

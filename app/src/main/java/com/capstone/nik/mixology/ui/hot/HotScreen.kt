@@ -27,11 +27,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.capstone.nik.mixology.Model.Cocktail
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.capstone.nik.mixology.R
+import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
-import com.capstone.nik.mixology.data.DrinkListItem
 import com.capstone.nik.mixology.ui.components.DrinkCard
 import com.capstone.nik.mixology.ui.components.DrinkCardRailWidth
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
@@ -39,9 +38,9 @@ import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 @Composable
 fun HotRoute(
     snackbarHostState: SnackbarHostState,
-    onDrinkClick: (Cocktail) -> Unit,
+    onDrinkClick: (Drink) -> Unit,
     onSeeAll: (DrinkFilter) -> Unit,
-    viewModel: HotViewModel = viewModel(),
+    viewModel: HotViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -50,7 +49,7 @@ fun HotRoute(
         when (effect) {
             is HotEffect.ShowMessageRes ->
                 snackbarHostState.showSnackbar(context.getString(effect.resId))
-            is HotEffect.OpenDrink -> onDrinkClick(effect.cocktail)
+            is HotEffect.OpenDrink -> onDrinkClick(effect.drink)
             is HotEffect.OpenFilter -> onSeeAll(effect.filter)
         }
     }
@@ -66,8 +65,8 @@ fun HotRoute(
 @Composable
 fun HotScreen(
     state: HotUiState,
-    onDrinkClick: (Cocktail) -> Unit,
-    onToggleSaved: (DrinkListItem) -> Unit,
+    onDrinkClick: (Drink) -> Unit,
+    onToggleSaved: (Drink) -> Unit,
     onSeeAll: (DrinkFilter) -> Unit,
 ) {
     val categories = state.visibleCategories
@@ -95,8 +94,8 @@ fun HotScreen(
 @Composable
 private fun HotCategoryRow(
     category: HotCategory,
-    onDrinkClick: (Cocktail) -> Unit,
-    onToggleSaved: (DrinkListItem) -> Unit,
+    onDrinkClick: (Drink) -> Unit,
+    onToggleSaved: (Drink) -> Unit,
     onSeeAll: (DrinkFilter) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxWidth().padding(top = 12.dp)) {
@@ -128,7 +127,7 @@ private fun HotCategoryRow(
             items(category.drinks, key = { it.id }) { item ->
                 DrinkCard(
                     item = item,
-                    onClick = { onDrinkClick(item.toCocktail()) },
+                    onClick = { onDrinkClick(item) },
                     onToggleSaved = { onToggleSaved(item) },
                     modifier = Modifier.width(DrinkCardRailWidth),
                 )

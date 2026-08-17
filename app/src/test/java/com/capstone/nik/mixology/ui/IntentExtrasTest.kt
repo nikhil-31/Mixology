@@ -2,7 +2,7 @@ package com.capstone.nik.mixology.ui
 
 import android.app.Application
 import android.content.Intent
-import com.capstone.nik.mixology.Model.Cocktail
+import com.capstone.nik.mixology.data.Drink
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
@@ -16,14 +16,14 @@ class IntentExtrasTest {
 
     @Test
     fun drinkExtra_returnsIdNameAndThumb() {
-        val cocktail = Cocktail("11007", "Margarita", "https://example.com/m.jpg")
-        val intent = Intent().putDrinkExtra(cocktail)
+        val drink = Drink("11007", "Margarita", "https://example.com/m.jpg")
+        val intent = Intent().putDrinkExtra(drink)
 
         val restored = intent.drinkExtra()
 
-        assertEquals("11007", restored?.getmDrinkId())
-        assertEquals("Margarita", restored?.getmDrinkName())
-        assertEquals("https://example.com/m.jpg", restored?.getmDrinkThumb())
+        assertEquals("11007", restored?.id)
+        assertEquals("Margarita", restored?.name)
+        assertEquals("https://example.com/m.jpg", restored?.thumb)
     }
 
     @Test

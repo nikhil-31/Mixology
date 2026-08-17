@@ -19,7 +19,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.capstone.nik.mixology.data.DrinkListItem
+import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.ui.theme.PosterScrimCenter
 import com.capstone.nik.mixology.ui.theme.PosterScrimStart
 
@@ -27,7 +27,7 @@ val DrinkCardRailWidth = 140.dp
 
 @Composable
 fun DrinkCard(
-    item: DrinkListItem,
+    item: Drink,
     onClick: () -> Unit,
     onToggleSaved: () -> Unit,
     modifier: Modifier = Modifier.fillMaxWidth(),

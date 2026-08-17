@@ -40,9 +40,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.capstone.nik.mixology.Model.Cocktail
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.capstone.nik.mixology.R
+import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.ui.components.DrinkHeroImage
 import com.capstone.nik.mixology.ui.components.DrinkRecipeBody
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
@@ -51,10 +51,10 @@ import com.capstone.nik.mixology.ui.theme.PosterBadge
 
 @Composable
 fun DrinkDetailsRoute(
-    cocktail: Cocktail,
+    drink: Drink,
     showUpNavigation: Boolean,
     onBack: () -> Unit,
-    viewModel: DrinkDetailsViewModel = viewModel(),
+    viewModel: DrinkDetailsViewModel = hiltViewModel(),
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     wrapInScaffold: Boolean = true,
 ) {
@@ -62,8 +62,8 @@ fun DrinkDetailsRoute(
     val context = LocalContext.current
     val shareLabel = stringResource(R.string.detail_share_via)
 
-    LaunchedEffect(cocktail.getmDrinkId()) {
-        viewModel.onIntent(DrinkDetailsIntent.Load(cocktail))
+    LaunchedEffect(drink.id) {
+        viewModel.onIntent(DrinkDetailsIntent.Load(drink))
     }
     CollectMviEffects(viewModel.effects) { effect ->
         when (effect) {
@@ -152,9 +152,9 @@ fun DrinkDetailsContent(
     state: DrinkDetailsUiState,
     onToggleSaved: () -> Unit,
 ) {
-    val cocktail = state.cocktail
+    val drink = state.drink
     Box(modifier = Modifier.fillMaxSize()) {
-        if (cocktail != null) {
+        if (drink != null) {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 Box(
                     modifier = Modifier
@@ -162,27 +162,27 @@ fun DrinkDetailsContent(
                         .height(356.dp),
                 ) {
                     DrinkHeroImage(
-                        url = state.drink?.strDrinkThumb ?: cocktail.getmDrinkThumb(),
+                        url = drink.thumb,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(380.dp),
                     )
                 }
-                if (state.drink != null) {
+                if (drink.hasRecipe) {
                     DrinkRecipeBody(
-                        name = state.drink.strDrink.orEmpty(),
-                        alcoholic = state.drink.strAlcoholic,
-                        glass = state.drink.strGlass,
-                        category = state.drink.strCategory,
-                        iba = state.drink.strIBA,
-                        instructions = state.drink.strInstructions,
-                        ingredients = state.ingredients,
+                        name = drink.name,
+                        alcoholic = drink.alcoholic,
+                        glass = drink.glass,
+                        category = drink.category,
+                        iba = drink.iba,
+                        instructions = drink.instructions,
+                        ingredients = drink.ingredients,
                         saved = state.saved,
                         onToggleSaved = onToggleSaved,
                     )
                 } else {
                     Text(
-                        text = cocktail.getmDrinkName().orEmpty(),
+                        text = drink.name,
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))

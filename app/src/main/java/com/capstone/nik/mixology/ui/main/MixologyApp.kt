@@ -31,7 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -39,8 +39,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.capstone.nik.mixology.Model.Cocktail
 import com.capstone.nik.mixology.R
+import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.ui.details.DrinkDetailsRoute
 import com.capstone.nik.mixology.ui.grid.DrinkGridRoute
@@ -55,9 +55,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun MixologyApp(
     windowSizeClass: WindowSizeClass,
-    pendingDrink: Cocktail? = null,
+    pendingDrink: Drink? = null,
     onPendingDrinkConsumed: () -> Unit = {},
-    viewModel: MainViewModel = viewModel(),
+    viewModel: MainViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val navController = rememberNavController()
@@ -82,7 +82,7 @@ fun MixologyApp(
             MainEffect.OpenDrawer -> scope.launch { drawerState.open() }
             MainEffect.CloseDrawer -> scope.launch { drawerState.close() }
             is MainEffect.OpenSearch -> navController.navigate(searchRoute(effect.query))
-            is MainEffect.OpenDetails -> navController.navigate(detailsRoute(effect.cocktail)) {
+            is MainEffect.OpenDetails -> navController.navigate(detailsRoute(effect.drink)) {
                 launchSingleTop = true
             }
         }
@@ -155,8 +155,8 @@ fun MixologyApp(
                                 DrinkGridRoute(
                                     filter = filter,
                                     snackbarHostState = snackbarHostState,
-                                    onDrinkClick = { cocktail ->
-                                        viewModel.onIntent(MainIntent.DrinkSelected(cocktail, twoPane && !overlay))
+                                    onDrinkClick = { drink ->
+                                        viewModel.onIntent(MainIntent.DrinkSelected(drink, twoPane && !overlay))
                                     },
                                 )
                             }
@@ -164,8 +164,8 @@ fun MixologyApp(
                         composable(HOT_ROUTE) {
                             HotRoute(
                                 snackbarHostState = snackbarHostState,
-                                onDrinkClick = { cocktail ->
-                                    viewModel.onIntent(MainIntent.DrinkSelected(cocktail, twoPane && !overlay))
+                                onDrinkClick = { drink ->
+                                    viewModel.onIntent(MainIntent.DrinkSelected(drink, twoPane && !overlay))
                                 },
                                 onSeeAll = { filter ->
                                     viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Filter(filter)))
@@ -190,8 +190,8 @@ fun MixologyApp(
                             SearchRoute(
                                 initialQuery = entry.arguments?.getString("query").orEmpty(),
                                 onBack = { navController.navigateUp() },
-                                onDrinkClick = { cocktail ->
-                                    viewModel.onIntent(MainIntent.DrinkSelected(cocktail, twoPane = false))
+                                onDrinkClick = { drink ->
+                                    viewModel.onIntent(MainIntent.DrinkSelected(drink, twoPane = false))
                                 },
                             )
                         }
@@ -209,13 +209,13 @@ fun MixologyApp(
                                 },
                             ),
                         ) { entry ->
-                            val cocktail = Cocktail(
-                                entry.arguments?.getString("id").orEmpty(),
-                                entry.arguments?.getString("name").orEmpty(),
-                                entry.arguments?.getString("thumb").orEmpty(),
+                            val drink = Drink(
+                                id = entry.arguments?.getString("id").orEmpty(),
+                                name = entry.arguments?.getString("name").orEmpty(),
+                                thumb = entry.arguments?.getString("thumb").orEmpty(),
                             )
                             DrinkDetailsRoute(
-                                cocktail = cocktail,
+                                drink = drink,
                                 showUpNavigation = true,
                                 onBack = { navController.navigateUp() },
                                 wrapInScaffold = true,
@@ -228,10 +228,10 @@ fun MixologyApp(
                         state.destination !is DrawerDestination.Settings
                     ) {
                         Box(modifier = Modifier.weight(1f)) {
-                            val cocktail = state.selectedCocktail
-                            if (cocktail != null) {
+                            val drink = state.selectedDrink
+                            if (drink != null) {
                                 DrinkDetailsRoute(
-                                    cocktail = cocktail,
+                                    drink = drink,
                                     showUpNavigation = false,
                                     onBack = {},
                                     wrapInScaffold = true,

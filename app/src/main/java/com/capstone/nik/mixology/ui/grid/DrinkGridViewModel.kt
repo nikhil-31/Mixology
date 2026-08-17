@@ -1,31 +1,30 @@
 package com.capstone.nik.mixology.ui.grid
 
-import android.app.Application
 import android.util.Log
 import androidx.lifecycle.viewModelScope
-import com.capstone.nik.mixology.Network.MyApplication
 import com.capstone.nik.mixology.R
+import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
-import com.capstone.nik.mixology.data.DrinkListItem
-import com.capstone.nik.mixology.ui.mvi.MviAndroidViewModel
+import com.capstone.nik.mixology.repository.DrinkRepository
+import com.capstone.nik.mixology.ui.mvi.MviViewModel
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class DrinkGridViewModel(application: Application) :
-    MviAndroidViewModel<DrinkGridIntent, DrinkGridUiState, DrinkGridEffect>(
-        application,
-        DrinkGridUiState(),
-    ) {
+@HiltViewModel
+class DrinkGridViewModel @Inject constructor(
+    private val repository: DrinkRepository,
+) : MviViewModel<DrinkGridIntent, DrinkGridUiState, DrinkGridEffect>(DrinkGridUiState()) {
 
-    private val repository = (application as MyApplication).applicationComponent.drinkRepository()
     private var observeJob: Job? = null
 
     override fun onIntent(intent: DrinkGridIntent) {
         when (intent) {
             is DrinkGridIntent.Bind -> bind(intent.filter)
             is DrinkGridIntent.ToggleSaved -> toggleSaved(intent.item)
-            is DrinkGridIntent.OpenDrink -> sendEffect(DrinkGridEffect.OpenDrink(intent.cocktail))
+            is DrinkGridIntent.OpenDrink -> sendEffect(DrinkGridEffect.OpenDrink(intent.drink))
         }
     }
 
@@ -42,13 +41,13 @@ class DrinkGridViewModel(application: Application) :
         refresh(filter)
     }
 
-    private fun toggleSaved(item: DrinkListItem) {
+    private fun toggleSaved(item: Drink) {
         viewModelScope.launch {
             if (item.saved) {
                 repository.unsave(item.id)
                 sendEffect(DrinkGridEffect.ShowMessageRes(R.string.drink_deleted))
             } else {
-                repository.save(item.toCocktail())
+                repository.save(item)
                 sendEffect(DrinkGridEffect.ShowMessageRes(R.string.drink_added))
             }
         }
@@ -63,11 +62,7 @@ class DrinkGridViewModel(application: Application) :
                 Log.e(TAG, "Failed to refresh ${filter.name}", e)
                 FirebaseCrashlytics.getInstance().log("Failed to refresh ${filter.name}")
                 FirebaseCrashlytics.getInstance().recordException(e)
-                sendEffect(
-                    DrinkGridEffect.ShowMessage(
-                        getApplication<Application>().getString(R.string.network_error),
-                    ),
-                )
+                sendEffect(DrinkGridEffect.ShowMessageRes(R.string.network_error))
             }
         }
     }

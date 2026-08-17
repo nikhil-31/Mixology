@@ -1,7 +1,7 @@
 package com.capstone.nik.mixology.ui.main
 
-import com.capstone.nik.mixology.Model.Cocktail
 import com.capstone.nik.mixology.R
+import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
 import java.net.URLEncoder
 
@@ -75,10 +75,10 @@ fun gridRoute(filter: DrinkFilter) = "grid/${filter.name}"
 
 fun searchRoute(query: String = "") = "search?query=${encodeRouteArg(query)}"
 
-fun detailsRoute(cocktail: Cocktail): String {
-    val id = encodeRouteArg(cocktail.getmDrinkId().orEmpty())
-    val name = encodeRouteArg(cocktail.getmDrinkName().orEmpty())
-    val thumb = encodeRouteArg(cocktail.getmDrinkThumb().orEmpty())
+fun detailsRoute(drink: Drink): String {
+    val id = encodeRouteArg(drink.id)
+    val name = encodeRouteArg(drink.name)
+    val thumb = encodeRouteArg(drink.thumb)
     return "details/$id?name=$name&thumb=$thumb"
 }
 

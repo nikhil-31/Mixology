@@ -1,6 +1,6 @@
 package com.capstone.nik.mixology.ui.main
 
-import com.capstone.nik.mixology.Model.Cocktail
+import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -19,7 +19,7 @@ class DrawerDestinationTest {
         assertEquals("search?query=gin", searchRoute("gin"))
         assertEquals(
             "details/11007?name=Margarita&thumb=https%3A%2F%2Fexample.com%2Fa.jpg",
-            detailsRoute(Cocktail("11007", "Margarita", "https://example.com/a.jpg")),
+            detailsRoute(Drink("11007", "Margarita", "https://example.com/a.jpg")),
         )
         assertTrue(isOverlayRoute("search?query={query}"))
         assertTrue(isOverlayRoute("details/{id}?name={name}&thumb={thumb}"))

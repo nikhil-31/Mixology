@@ -1,0 +1,105 @@
+<resources>
+    <string name="action_settings">Ajustes</string>
+    <string name="action_search">Buscar</string>
+    <string name="action_detail_share">Compartir</string>
+
+    <string name="content_desc_drink_image">Imagen del cóctel</string>
+    <string name="content_desc_fullscreen_drink_image">Imagen del cóctel a pantalla completa</string>
+    <string name="content_desc_save_cocktail">Guardar cóctel</string>
+    <string name="content_desc_unsave_cocktail">Quitar cóctel guardado</string>
+    <string name="content_desc_Add_Delete_button">Añadir o eliminar</string>
+    <string name="content_desc_up_navigation">Navegación hacia arriba</string>
+    <string name="content_desc_ingredients_image">Imagen de ingredientes</string>
+    <string name="content_desc_logo_img">Imagen del logotipo</string>
+
+    <string name="detail_screen_instructions">Instrucciones</string>
+    <string name="detail_screen_ingredients">Ingredientes</string>
+
+    <string name="network_error">Error de red</string>
+    <string name="network_error_no_network_available">Sin conexión a internet</string>
+    <string name="network_error_search_no_data_available">Lo sentimos. El cóctel no está en la base de datos. Prueba otra búsqueda.</string>
+    <string name="network_error_check_internet_connection">Comprueba tu conexión a internet.</string>
+
+    <string name="navigation_drawer_open">Abrir menú de navegación</string>
+    <string name="navigation_drawer_close">Cerrar menú de navegación</string>
+    <string name="nav_title_inspire_me">Inspírame</string>
+    <string name="nav_title_alcoholic">Alcohólico</string>
+    <string name="nav_title_category">Categoría</string>
+    <string name="nav_title_favourite_ingredients">Ingredientes favoritos</string>
+    <string name="nav_title_glass">Vaso</string>
+
+    <string name="widget_name">Mixology</string>
+    <string name="widget_empty_saved_cocktails">Añade un cóctel</string>
+
+    <string name="nav_bottom_saved">Guardados</string>
+    <string name="nav_bottom_catalog">Catálogo</string>
+    <string name="nav_bottom_settings">Ajustes</string>
+
+    <string name="nav_item_saved_cocktails">Cócteles guardados</string>
+    <string name="nav_item_hot">Destacados</string>
+    <string name="nav_item_randomixer">Randomixer</string>
+    <string name="nav_item_browse_catalog">Explorar catálogo</string>
+    <string name="nav_item_shopping_list">Lista de la compra</string>
+    <string name="action_see_all">Ver todo</string>
+    <string name="action_undo">Deshacer</string>
+    <string name="action_retry">Reintentar</string>
+
+    <string name="search_mode_name">Nombre de la bebida</string>
+    <string name="search_mode_ingredient">Ingrediente</string>
+    <string name="search_empty_title">No hay cócteles</string>
+    <string name="search_empty_query">Nada coincidió con “%1$s”</string>
+    <string name="search_empty_hint_name">Prueba otro nombre de bebida, o busca por ingrediente.</string>
+    <string name="search_empty_hint_ingredient">Prueba otro ingrediente, o busca por nombre.</string>
+
+    <string name="settings_appearance">Apariencia</string>
+    <string name="settings_theme_system">Predeterminado del sistema</string>
+    <string name="settings_theme_light">Claro</string>
+    <string name="settings_theme_dark">Oscuro</string>
+
+    <string name="nav_item_non_alcoholic">Sin alcohol</string>
+    <string name="nav_item_alcoholic">Alcohólico</string>
+    <string name="nav_item_cocktail">Cóctel</string>
+    <string name="nav_item_ordinary_drink">Bebida ordinaria</string>
+    <string name="nav_item_gin">Ginebra</string>
+    <string name="nav_item_vodka">Vodka</string>
+    <string name="nav_item_rum">Ron</string>
+    <string name="nav_item_tequila">Tequila</string>
+    <string name="nav_item_whiskey">Whisky</string>
+    <string name="nav_item_vermouth">Vermut</string>
+    <string name="nav_item_coffee_liqueur">Licor de café</string>
+    <string name="nav_item_bitters">Bitter</string>
+    <string name="nav_item_aperol">Aperol</string>
+    <string name="nav_item_cocktail_glass">Copa de cóctel</string>
+    <string name="nav_item_highball_glass">Vaso highball</string>
+
+    <string name="detail_share_via">Compartir mediante</string>
+    <string name="detail_share_sent_from_mixology">Receta enviada desde Mixology</string>
+    <string name="detail_share_name">Nombre: </string>
+    <string name="detail_share_alcoholic">Contenido alcohólico: </string>
+    <string name="detail_share_instructions">Instrucciones: </string>
+    <string name="detail_share_ingredients">Ingredientes: </string>
+
+    <string name="randomixer_save">GUARDAR</string>
+    <string name="randomixer_nope">NO</string>
+    <string name="randomixer_swipe_hint">Desliza a la derecha para guardar · a la izquierda para saltar</string>
+    <string name="content_desc_randomixer_save">Guardar este cóctel</string>
+    <string name="content_desc_randomixer_saved">Cóctel ya guardado</string>
+    <string name="content_desc_randomixer_discard">Descartar este cóctel</string>
+    <string name="content_desc_randomixer_info">Mostrar detalles del cóctel</string>
+    <string name="randomixer_already_saved">Guardado</string>
+    <string name="randomixer_hide_saved">Ocultar guardados</string>
+    <string name="randomixer_skipped">Omitido</string>
+
+    <string name="empty_string_add_a_drink">Añade un cóctel. Aquí hay poco ambiente.</string>
+    <string name="empty_string_cocktail_image">imagen_coctel</string>
+
+    <string name="privacy_policy_link">Política de privacidad</string>
+
+    <string name="detail_watch_video">Ver vídeo</string>
+    <string name="detail_notes">Notas</string>
+    <string name="shopping_add_ingredients">Añadir ingredientes a la lista</string>
+    <string name="shopping_added">Añadido a la lista de la compra</string>
+    <string name="shopping_empty">Todavía no hay artículos. Añade ingredientes desde un cóctel guardado.</string>
+    <string name="shopping_clear_checked">Borrar marcados</string>
+    <string name="shopping_remove_item">Eliminar artículo</string>
+</resources>

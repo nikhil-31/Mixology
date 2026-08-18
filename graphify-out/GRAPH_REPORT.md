@@ -1,16 +1,16 @@
 # Graph Report - Mixology  (2026-08-18)
 
 ## Corpus Check
-- 106 files · ~47,129 words
+- 107 files · ~47,443 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 714 nodes · 1225 edges · 40 communities (36 shown, 4 thin omitted)
-- Extraction: 80% EXTRACTED · 20% INFERRED · 0% AMBIGUOUS · INFERRED: 247 edges (avg confidence: 0.8)
+- 721 nodes · 1237 edges · 41 communities (38 shown, 3 thin omitted)
+- Extraction: 80% EXTRACTED · 20% INFERRED · 0% AMBIGUOUS · INFERRED: 252 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `fc481398`
+- Built from commit: `832225de`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -24,15 +24,16 @@
 - MviViewModel
 - MixologyApp
 - .sendEffect
-- DrinkRepositoryTest
+- cocktailDrink
 - RandomixerViewModel
 - IngredientMeasure
+- setUp
 - CocktailURLs.java
 - ShoppingViewModel
 - NetworkMonitor
 - MainViewModel
 - ThemeMode
-- cocktailDrink
+- DrinkGridViewModelTest.kt
 - Drink
 - fetch_random_drink.py
 - Mixology
@@ -52,16 +53,18 @@
 ## God Nodes (most connected - your core abstractions)
 1. `Drink` - 52 edges
 2. `MixologyTheme()` - 36 edges
-3. `DrinkRepository` - 30 edges
-4. `DrinkDao` - 22 edges
-5. `FakeCocktailService` - 22 edges
+3. `DrinkRepository` - 31 edges
+4. `FakeCocktailService` - 23 edges
+5. `DrinkDao` - 22 edges
 6. `MixologyApp()` - 20 edges
-7. `CocktailDbResponse` - 18 edges
+7. `CocktailDbResponse` - 19 edges
 8. `MviViewModel` - 18 edges
 9. `RandomixerViewModel` - 17 edges
 10. `CocktailService` - 15 edges
 
 ## Surprising Connections (you probably didn't know these)
+- `openDrink_emitsEffect()` --calls--> `cocktailDrink()`  [INFERRED]
+  app/src/test/java/com/capstone/nik/mixology/ui/grid/DrinkGridViewModelTest.kt → app/src/test/java/com/capstone/nik/mixology/FakeCocktailService.kt
 - `catalog()` --calls--> `CatalogListResponse`  [INFERRED]
   app/src/test/java/com/capstone/nik/mixology/FakeCocktailService.kt → app/src/main/java/com/capstone/nik/mixology/Network/remoteModel/CatalogListResponse.kt
 - `addToShoppingList_insertsIngredients()` --calls--> `CocktailDbResponse`  [INFERRED]
@@ -70,13 +73,11 @@
   app/src/test/java/com/capstone/nik/mixology/ui/details/DrinkDetailsViewModelTest.kt → app/src/main/java/com/capstone/nik/mixology/Network/remoteModel/CocktailDbDrink.kt
 - `bind_loadsCachedFilterDrinks()` --calls--> `CocktailDbResponse`  [INFERRED]
   app/src/test/java/com/capstone/nik/mixology/ui/grid/DrinkGridViewModelTest.kt → app/src/main/java/com/capstone/nik/mixology/Network/remoteModel/CocktailDbDrink.kt
-- `toggleSaved_emitsAddedMessage()` --calls--> `CocktailDbResponse`  [INFERRED]
-  app/src/test/java/com/capstone/nik/mixology/ui/grid/DrinkGridViewModelTest.kt → app/src/main/java/com/capstone/nik/mixology/Network/remoteModel/CocktailDbDrink.kt
 
 ## Import Cycles
 - None detected.
 
-## Communities (40 total, 4 thin omitted)
+## Communities (41 total, 3 thin omitted)
 
 ### Community 0 - "DrinkRecipeBody"
 Cohesion: 0.12
@@ -114,6 +115,10 @@ Nodes (27): ActivityMain, Intent, Catalog, detailsRoute(), DrawerDestination, en
 Cohesion: 0.06
 Nodes (31): recordCrash(), AddToShoppingList, Back, DrinkDetailsEffect, DrinkDetailsIntent, Load, NavigateBack, OpenUrl (+23 more)
 
+### Community 9 - "cocktailDrink"
+Cohesion: 0.16
+Nodes (3): cocktailDrink(), DrinkRepositoryTest, SearchViewModelTest
+
 ### Community 10 - "RandomixerViewModel"
 Cohesion: 0.14
 Nodes (14): RandomixerEffect, RandomixerIntent, Refresh, ShowMessageRes, ShowUndo, SwipeDiscard, SwipeSave, ToggleHideSaved (+6 more)
@@ -121,6 +126,10 @@ Nodes (14): RandomixerEffect, RandomixerIntent, Refresh, ShowMessageRes, ShowUnd
 ### Community 11 - "IngredientMeasure"
 Cohesion: 0.06
 Nodes (23): IngredientListConverter, CocktailDbDrink, CircularDrinkImage(), DrinkImage(), IngredientImage(), Dp, Modifier, IngredientRow() (+15 more)
+
+### Community 12 - "setUp"
+Cohesion: 0.40
+Nodes (4): awaitItemUntil(), T, load_populatesIngredientRailsInOrder(), setUp()
 
 ### Community 19 - "ShoppingViewModel"
 Cohesion: 0.18
@@ -138,9 +147,9 @@ Nodes (13): DismissMenu, DrinkSelected, MainEffect, MainIntent, MainUiState, Nav
 Cohesion: 0.18
 Nodes (12): SettingsRoute(), SettingsScreen(), fromStorage(), Context, rememberThemeMode(), ThemeMode, DARK, LIGHT (+4 more)
 
-### Community 23 - "cocktailDrink"
-Cohesion: 0.19
-Nodes (7): cocktailDrink(), awaitItemUntil(), bind_loadsCachedFilterDrinks(), T, openDrink_emitsEffect(), toggleSaved_emitsAddedMessage(), SearchViewModelTest
+### Community 23 - "DrinkGridViewModelTest.kt"
+Cohesion: 0.32
+Nodes (6): awaitItemUntil(), bind_loadsCachedFilterDrinks(), T, openDrink_emitsEffect(), setUp(), toggleSaved_emitsAddedMessage()
 
 ### Community 24 - "Drink"
 Cohesion: 0.05
@@ -155,8 +164,8 @@ Cohesion: 0.25
 Nodes (7): Credits, License, Mixology, Overview, Play Store, Setup, Stack
 
 ### Community 28 - "DrinkGridViewModel"
-Cohesion: 0.16
-Nodes (12): Bind, DrinkGridEffect, DrinkGridIntent, DrinkGridUiState, OpenDrink, ShowMessage, ShowMessageRes, ToggleSaved (+4 more)
+Cohesion: 0.18
+Nodes (11): Bind, DrinkGridEffect, DrinkGridIntent, DrinkGridUiState, OpenDrink, ShowMessage, ShowMessageRes, ToggleSaved (+3 more)
 
 ### Community 29 - "CocktailDbResponse"
 Cohesion: 0.19
@@ -197,22 +206,22 @@ Nodes (4): English, Español, Play Store listing, Screenshot checklist
 ## Knowledge Gaps
 - **81 isolated node(s):** `CocktailURLs`, `ALCOHOL`, `GLASS`, `INGREDIENT`, `DRINK_TYPE` (+76 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **4 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **3 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `Drink` connect `Drink` to `DrinkRecipeBody`, `DrinkDao`, `DrinkDetailsViewModelTest.kt`, `MixologyTheme`, `HotViewModel`, `WidgetContent`, `MixologyApp`, `.sendEffect`, `RandomixerViewModel`, `IngredientMeasure`, `MainViewModel`, `DrinkGridViewModel`?**
-  _High betweenness centrality (0.297) - this node is a cross-community bridge._
+  _High betweenness centrality (0.288) - this node is a cross-community bridge._
 - **Why does `MixologyApp()` connect `MixologyApp` to `DrinkRecipeBody`, `MixologyTheme`, `HotViewModel`, `MviViewModel`, `ShoppingViewModel`, `MainViewModel`, `ThemeMode`, `Drink`?**
-  _High betweenness centrality (0.093) - this node is a cross-community bridge._
-- **Why does `MixologyTheme()` connect `MixologyTheme` to `DrinkRecipeBody`, `HotViewModel`, `MviViewModel`, `MixologyApp`, `ShoppingViewModel`, `ThemeMode`?**
   _High betweenness centrality (0.091) - this node is a cross-community bridge._
+- **Why does `MixologyTheme()` connect `MixologyTheme` to `DrinkRecipeBody`, `HotViewModel`, `MviViewModel`, `MixologyApp`, `ShoppingViewModel`, `ThemeMode`?**
+  _High betweenness centrality (0.090) - this node is a cross-community bridge._
 - **Are the 19 inferred relationships involving `Drink` (e.g. with `.drinkExtras_showsDrinkName()` and `.content_numberedInstructions_showsSteps()`) actually correct?**
   _`Drink` has 19 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 35 inferred relationships involving `MixologyTheme()` (e.g. with `.onCreate()` and `rememberThemeMode()`) actually correct?**
   _`MixologyTheme()` has 35 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 5 inferred relationships involving `DrinkRepository` (e.g. with `queryChanged_filtersTermsAcrossMultipleSearches()` and `setUp()`) actually correct?**
-  _`DrinkRepository` has 5 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 4 inferred relationships involving `FakeCocktailService` (e.g. with `queryChanged_filtersTermsAcrossMultipleSearches()` and `setUp()`) actually correct?**
-  _`FakeCocktailService` has 4 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 6 inferred relationships involving `DrinkRepository` (e.g. with `queryChanged_filtersTermsAcrossMultipleSearches()` and `setUp()`) actually correct?**
+  _`DrinkRepository` has 6 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 5 inferred relationships involving `FakeCocktailService` (e.g. with `queryChanged_filtersTermsAcrossMultipleSearches()` and `setUp()`) actually correct?**
+  _`FakeCocktailService` has 5 INFERRED edges - model-reasoned connections that need verification._

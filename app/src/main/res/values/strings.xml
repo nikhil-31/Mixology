@@ -69,6 +69,13 @@
     <string name="nav_item_ordinary_drink">Ordinary Drink</string>
     <string name="nav_item_gin">Gin</string>
     <string name="nav_item_vodka">Vodka</string>
+    <string name="nav_item_rum">Rum</string>
+    <string name="nav_item_tequila">Tequila</string>
+    <string name="nav_item_whiskey">Whiskey</string>
+    <string name="nav_item_vermouth">Vermouth</string>
+    <string name="nav_item_coffee_liqueur">Coffee Liqueur</string>
+    <string name="nav_item_bitters">Bitters</string>
+    <string name="nav_item_aperol">Aperol</string>
     <string name="nav_item_cocktail_glass">Cocktail Glass</string>
     <string name="nav_item_highball_glass">Highball Glass</string>
 

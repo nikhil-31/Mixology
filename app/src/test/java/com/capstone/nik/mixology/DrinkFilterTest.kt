@@ -31,14 +31,26 @@ class DrinkFilterTest {
         assertEquals(DrinkFilter.GIN, DrinkFilter.fromName("GIN"))
         assertEquals(DrinkFilter.SAVED, DrinkFilter.fromName("unknown"))
         val tequila = DrinkFilter.fromName("INGREDIENT:Tequila")
-        assertEquals(FilterKind.INGREDIENT, tequila.kind)
-        assertEquals("Tequila", tequila.query)
-        assertEquals("INGREDIENT:Tequila", tequila.name)
+        assertEquals(DrinkFilter.TEQUILA, tequila)
+        val chartreuse = DrinkFilter.fromName("INGREDIENT:Chartreuse")
+        assertEquals(FilterKind.INGREDIENT, chartreuse.kind)
+        assertEquals("Chartreuse", chartreuse.query)
+        assertEquals("INGREDIENT:Chartreuse", chartreuse.name)
     }
 
     @Test
     fun dynamic_reusesCuratedPresetWhenQueryMatches() {
         assertEquals(DrinkFilter.GIN, DrinkFilter.dynamic(FilterKind.INGREDIENT, "Gin"))
+        assertEquals(DrinkFilter.APEROL, DrinkFilter.dynamic(FilterKind.INGREDIENT, "Aperol"))
+    }
+
+    @Test
+    fun hotFilters_areIngredientRailsInOrder() {
+        assertEquals(
+            listOf("Vodka", "Gin", "Rum", "Tequila", "Whiskey", "Vermouth", "Coffee liqueur", "Bitters", "Aperol"),
+            DrinkFilter.hotFilters.map { it.query },
+        )
+        assertTrue(DrinkFilter.hotFilters.all { it.kind == FilterKind.INGREDIENT })
     }
 
     @Test

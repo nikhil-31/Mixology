@@ -22,7 +22,7 @@ class HotViewModel @Inject constructor(
     private val networkMonitor: NetworkMonitor,
 ) : MviViewModel<HotIntent, HotUiState, HotEffect>(HotUiState()) {
 
-    private val catalogFilters = DrinkFilter.catalogFilters
+    private val hotFilters = DrinkFilter.hotFilters
     private var observeJob: Job? = null
 
     init {
@@ -45,7 +45,7 @@ class HotViewModel @Inject constructor(
     private fun load() {
         if (observeJob == null) {
             observeJob = viewModelScope.launch {
-                val flows = catalogFilters.map { filter ->
+                val flows = hotFilters.map { filter ->
                     repository.observeDrinks(filter).map { drinks -> HotCategory(filter, drinks) }
                 }
                 combine(flows) { rows -> rows.toList() }.collect { categories ->
@@ -57,7 +57,7 @@ class HotViewModel @Inject constructor(
     }
 
     private fun refreshRemote() {
-        catalogFilters.forEach { filter ->
+        hotFilters.forEach { filter ->
             viewModelScope.launch {
                 try {
                     repository.fetchAndCache(filter)

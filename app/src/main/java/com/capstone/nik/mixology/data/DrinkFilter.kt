@@ -21,6 +21,18 @@ data class DrinkFilter(
         val ORDINARY_DRINK = DrinkFilter("ORDINARY_DRINK", "Ordinary_Drink", FilterKind.DRINK_TYPE, titleRes = R.string.nav_item_ordinary_drink)
         val GIN = DrinkFilter("GIN", "Gin", FilterKind.INGREDIENT, titleRes = R.string.nav_item_gin)
         val VODKA = DrinkFilter("VODKA", "Vodka", FilterKind.INGREDIENT, titleRes = R.string.nav_item_vodka)
+        val RUM = DrinkFilter("RUM", "Rum", FilterKind.INGREDIENT, titleRes = R.string.nav_item_rum)
+        val TEQUILA = DrinkFilter("TEQUILA", "Tequila", FilterKind.INGREDIENT, titleRes = R.string.nav_item_tequila)
+        val WHISKEY = DrinkFilter("WHISKEY", "Whiskey", FilterKind.INGREDIENT, titleRes = R.string.nav_item_whiskey)
+        val VERMOUTH = DrinkFilter("VERMOUTH", "Vermouth", FilterKind.INGREDIENT, titleRes = R.string.nav_item_vermouth)
+        val COFFEE_LIQUEUR = DrinkFilter(
+            "COFFEE_LIQUEUR",
+            "Coffee liqueur",
+            FilterKind.INGREDIENT,
+            titleRes = R.string.nav_item_coffee_liqueur,
+        )
+        val BITTERS = DrinkFilter("BITTERS", "Bitters", FilterKind.INGREDIENT, titleRes = R.string.nav_item_bitters)
+        val APEROL = DrinkFilter("APEROL", "Aperol", FilterKind.INGREDIENT, titleRes = R.string.nav_item_aperol)
         val COCKTAIL_GLASS = DrinkFilter("COCKTAIL_GLASS", "Cocktail_glass", FilterKind.GLASS, titleRes = R.string.nav_item_cocktail_glass)
         val HIGHBALL_GLASS = DrinkFilter("HIGHBALL_GLASS", "Highball glass", FilterKind.GLASS, titleRes = R.string.nav_item_highball_glass)
         val SAVED = DrinkFilter("SAVED", null, null, titleRes = R.string.nav_item_saved_cocktails, showEmptySaved = true)
@@ -36,11 +48,23 @@ data class DrinkFilter(
             HIGHBALL_GLASS,
         )
 
-        val presets: List<DrinkFilter> = catalogFilters + SAVED
+        val hotFilters: List<DrinkFilter> = listOf(
+            VODKA,
+            GIN,
+            RUM,
+            TEQUILA,
+            WHISKEY,
+            VERMOUTH,
+            COFFEE_LIQUEUR,
+            BITTERS,
+            APEROL,
+        )
+
+        val presets: List<DrinkFilter> = (catalogFilters + hotFilters + SAVED).distinct()
 
         fun dynamic(kind: FilterKind, query: String): DrinkFilter {
             val normalized = query.trim()
-            return catalogFilters.firstOrNull {
+            return presets.firstOrNull {
                 it.kind == kind && it.query.equals(normalized, ignoreCase = true)
             } ?: DrinkFilter(
                 name = "${kind.name}:$normalized",

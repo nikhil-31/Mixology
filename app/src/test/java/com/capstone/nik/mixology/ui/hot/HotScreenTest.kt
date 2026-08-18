@@ -3,6 +3,7 @@ package com.capstone.nik.mixology.ui.hot
 import android.app.Application
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.capstone.nik.mixology.data.Drink
@@ -34,6 +35,10 @@ class HotScreenTest {
                         loading = false,
                         categories = listOf(
                             HotCategory(
+                                filter = DrinkFilter.VODKA,
+                                drinks = listOf(Drink("14167", "Vodka Martini", "", saved = false)),
+                            ),
+                            HotCategory(
                                 filter = DrinkFilter.GIN,
                                 drinks = listOf(Drink("11000", "Mojito", "", saved = false)),
                             ),
@@ -46,10 +51,11 @@ class HotScreenTest {
             }
         }
 
+        composeRule.onNodeWithText("Vodka").assertIsDisplayed()
         composeRule.onNodeWithText("Gin").assertIsDisplayed()
         composeRule.onNodeWithText("Mojito").assertIsDisplayed()
-        composeRule.onNodeWithText("See all").performClick()
-        assertEquals(listOf(DrinkFilter.GIN), seeAll)
+        composeRule.onAllNodesWithText("See all")[0].performClick()
+        assertEquals(listOf(DrinkFilter.VODKA), seeAll)
     }
 
     @Test

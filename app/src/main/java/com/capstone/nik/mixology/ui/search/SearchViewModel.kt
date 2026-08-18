@@ -5,7 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.recordCrash
 import com.capstone.nik.mixology.data.Drink
+import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.repository.DrinkRepository
+import com.capstone.nik.mixology.repository.FilterKind
 import com.capstone.nik.mixology.ui.mvi.MviViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -27,6 +29,7 @@ class SearchViewModel @Inject constructor(
     private val queried = MutableStateFlow(false)
     private val query = MutableStateFlow("")
     private val mode = MutableStateFlow(SearchMode.NAME)
+    private var catalogKind: FilterKind? = null
     private var searchJob: Job? = null
 
     init {
@@ -59,7 +62,8 @@ class SearchViewModel @Inject constructor(
                     searchJob?.cancel()
                     mode.value = intent.mode
                 }
-                search(intent.query)
+                catalogKind = intent.filterKind
+                search(intent.query, immediate = intent.filterKind != null)
             }
             is SearchIntent.SetMode -> setMode(intent.mode)
             is SearchIntent.ToggleSaved -> toggleSaved(intent.drink)
@@ -72,6 +76,7 @@ class SearchViewModel @Inject constructor(
         if (mode.value == next) return
         searchJob?.cancel()
         mode.value = next
+        catalogKind = null
         if (next == SearchMode.LETTER) {
             query.value = ""
             queried.value = false
@@ -82,17 +87,18 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    private fun search(rawQuery: String) {
+    private fun search(rawQuery: String, immediate: Boolean = false) {
         val adjusted = rawQuery.replace("%20", " ").trim()
         searchJob?.cancel()
         query.value = adjusted
+        drinks.value = emptyList()
         when (mode.value) {
             SearchMode.LETTER -> searchByLetter(adjusted)
-            SearchMode.NAME, SearchMode.INGREDIENT -> searchText(adjusted)
+            SearchMode.NAME, SearchMode.INGREDIENT -> searchText(adjusted, immediate)
         }
     }
 
-    private fun searchText(adjusted: String) {
+    private fun searchText(adjusted: String, immediate: Boolean) {
         if (adjusted.length < SEARCH_MIN_CHARS) {
             queried.value = false
             drinks.value = emptyList()
@@ -100,14 +106,17 @@ class SearchViewModel @Inject constructor(
             return
         }
         queried.value = true
+        loading.value = true
         searchJob = viewModelScope.launch {
-            delay(SEARCH_DEBOUNCE_MS)
-            loading.value = true
+            if (!immediate) {
+                delay(SEARCH_DEBOUNCE_MS)
+            }
             try {
-                drinks.value = if (mode.value == SearchMode.INGREDIENT) {
-                    repository.searchByIngredient(adjusted)
-                } else {
-                    repository.search(adjusted)
+                val kind = catalogKind
+                drinks.value = when {
+                    kind != null -> repository.fetchAndCache(DrinkFilter.dynamic(kind, adjusted))
+                    mode.value == SearchMode.INGREDIENT -> repository.searchByIngredient(adjusted)
+                    else -> repository.search(adjusted)
                 }
             } catch (e: CancellationException) {
                 throw e

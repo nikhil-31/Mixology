@@ -75,6 +75,9 @@ interface DrinkDao {
         recipeUpdatedAt: Long,
     )
 
+    @Query("DELETE FROM drink_filter WHERE filterName = :filterName")
+    suspend fun deleteFilterMemberships(filterName: String)
+
     @Transaction
     suspend fun cacheFilterResults(filterName: String, drinks: List<DrinkEntity>) {
         drinks.forEach { drink ->
@@ -85,7 +88,10 @@ interface DrinkDao {
                 updateIdentity(drink.id, drink.name, drink.thumb)
             }
         }
-        insertMemberships(drinks.map { DrinkFilterCrossRef(it.id, filterName) })
+        deleteFilterMemberships(filterName)
+        if (drinks.isNotEmpty()) {
+            insertMemberships(drinks.map { DrinkFilterCrossRef(it.id, filterName) })
+        }
     }
 
     @Transaction

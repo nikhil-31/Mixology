@@ -50,6 +50,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.Drink
+import com.capstone.nik.mixology.repository.FilterKind
 import com.capstone.nik.mixology.ui.components.DrinkCard
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 
@@ -59,18 +60,21 @@ fun SearchRoute(
     onBack: () -> Unit,
     onDrinkClick: (Drink) -> Unit,
     initialMode: SearchMode = SearchMode.NAME,
+    initialFilterKind: FilterKind? = null,
     viewModel: SearchViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
 
-    LaunchedEffect(initialQuery, initialMode) {
-        if (initialQuery.isNotBlank()) {
-            viewModel.onIntent(SearchIntent.Search(initialQuery, initialMode))
-        } else if (initialMode != SearchMode.NAME) {
-            viewModel.onIntent(SearchIntent.SetMode(initialMode))
-        }
+    LaunchedEffect(initialQuery, initialMode, initialFilterKind) {
+        viewModel.onIntent(
+            SearchIntent.Search(
+                query = initialQuery,
+                mode = initialMode,
+                filterKind = initialFilterKind,
+            ),
+        )
     }
     CollectMviEffects(viewModel.effects) { effect ->
         when (effect) {

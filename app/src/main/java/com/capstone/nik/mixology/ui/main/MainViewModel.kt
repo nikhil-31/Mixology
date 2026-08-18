@@ -24,7 +24,9 @@ class MainViewModel @Inject constructor() : MviViewModel<MainIntent, MainUiState
                 sendEffect(MainEffect.Navigate(intent.destination))
             }
             MainIntent.ToggleSearch -> sendEffect(MainEffect.OpenSearch(""))
-            is MainIntent.OpenSearch -> sendEffect(MainEffect.OpenSearch(intent.query, intent.mode))
+            is MainIntent.OpenSearch -> sendEffect(
+                MainEffect.OpenSearch(intent.query, intent.mode, intent.filterKind),
+            )
             MainIntent.OpenMenu -> setState { copy(menuExpanded = true) }
             MainIntent.DismissMenu -> setState { copy(menuExpanded = false) }
             is MainIntent.DrinkSelected -> {

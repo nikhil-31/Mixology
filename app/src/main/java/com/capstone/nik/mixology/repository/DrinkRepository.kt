@@ -46,9 +46,9 @@ class DrinkRepository @Inject constructor(
     }
 
     @Throws(IOException::class)
-    suspend fun fetchAndCache(filter: DrinkFilter) {
-        val kind = filter.kind ?: return
-        val query = filter.query ?: return
+    suspend fun fetchAndCache(filter: DrinkFilter): List<Drink> {
+        val kind = filter.kind ?: return emptyList()
+        val query = filter.query ?: return emptyList()
         val remoteDrinks = when (kind) {
             FilterKind.ALCOHOL -> service.getAlcoholFilter(query)
             FilterKind.GLASS -> service.getGlassFilter(query)
@@ -59,9 +59,8 @@ class DrinkRepository @Inject constructor(
             if (!drink.hasUsableThumb()) return@mapNotNull null
             drink.toDrink()?.toEntity()
         }
-        if (entities.isNotEmpty()) {
-            dao.cacheFilterResults(filter.name, entities)
-        }
+        dao.cacheFilterResults(filter.name, entities)
+        return entities.map { it.toDrink() }
     }
 
     fun observeSavedIds(): Flow<Set<String>> = dao.observeSavedIds().map { it.toSet() }

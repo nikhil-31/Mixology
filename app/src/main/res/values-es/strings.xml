@@ -41,6 +41,7 @@
     <string name="nav_item_browse_catalog">Explorar catálogo</string>
     <string name="nav_item_shopping_list">Lista de la compra</string>
     <string name="action_see_all">Ver todo</string>
+    <string name="hot_recently_viewed">Vistos recientemente</string>
     <string name="action_undo">Deshacer</string>
     <string name="action_retry">Reintentar</string>
 

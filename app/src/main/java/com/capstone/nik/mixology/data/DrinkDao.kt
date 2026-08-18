@@ -150,6 +150,48 @@ interface DrinkDao {
     @Query("UPDATE drinks SET notes = :notes WHERE id = :id")
     suspend fun updateNotes(id: String, notes: String)
 
+    @Query(
+        """
+        SELECT drinks.* FROM drinks
+        INNER JOIN recently_viewed ON drinks.id = recently_viewed.drinkId
+        ORDER BY recently_viewed.viewedAt DESC
+        LIMIT :limit
+        """,
+    )
+    fun observeRecentlyViewed(limit: Int): Flow<List<DrinkEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertRecentlyViewed(item: RecentlyViewedEntity)
+
+    @Query("SELECT viewedAt FROM recently_viewed ORDER BY viewedAt DESC LIMIT 1")
+    suspend fun latestViewedAt(): Long?
+
+    @Query("SELECT drinkId FROM recently_viewed ORDER BY viewedAt ASC, drinkId ASC")
+    suspend fun recentlyViewedIdsOldestFirst(): List<String>
+
+    @Query("DELETE FROM recently_viewed WHERE drinkId IN (:ids)")
+    suspend fun deleteRecentlyViewed(ids: List<String>)
+
+    @Transaction
+    suspend fun recordViewed(drink: DrinkEntity, viewedAt: Long, limit: Int) {
+        val existing = getById(drink.id)
+        if (existing == null) {
+            insertDrinks(listOf(drink))
+        } else {
+            updateIdentity(
+                drink.id,
+                drink.name.ifBlank { existing.name },
+                drink.thumb.ifBlank { existing.thumb },
+            )
+        }
+        upsertRecentlyViewed(RecentlyViewedEntity(drink.id, viewedAt))
+        val ids = recentlyViewedIdsOldestFirst()
+        val extra = ids.size - limit
+        if (extra > 0) {
+            deleteRecentlyViewed(ids.take(extra))
+        }
+    }
+
     @Query("SELECT * FROM catalog_terms WHERE kind = :kind ORDER BY name")
     fun observeCatalog(kind: String): Flow<List<CatalogTermEntity>>
 

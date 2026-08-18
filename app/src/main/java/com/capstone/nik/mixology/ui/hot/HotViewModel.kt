@@ -43,10 +43,21 @@ class HotViewModel @Inject constructor(
     private fun load() {
         if (observeJob == null) {
             observeJob = viewModelScope.launch {
-                val flows = hotFilters.map { filter ->
+                val categoryFlows = hotFilters.map { filter ->
                     repository.observeDrinks(filter).map { drinks -> HotCategory(filter, drinks) }
                 }
-                combine(flows) { rows -> rows.toList() }.collect { categories ->
+                val categoriesFlow = combine(categoryFlows) { rows -> rows.toList() }
+                combine(
+                    repository.observeRecentlyViewed(),
+                    categoriesFlow,
+                ) { recent, categories ->
+                    buildList {
+                        if (recent.isNotEmpty()) {
+                            add(HotCategory(DrinkFilter.RECENTLY_VIEWED, recent))
+                        }
+                        addAll(categories)
+                    }
+                }.collect { categories ->
                     setState { copy(loading = false, categories = categories) }
                 }
             }

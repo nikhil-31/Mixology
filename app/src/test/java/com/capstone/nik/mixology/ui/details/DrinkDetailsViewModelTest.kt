@@ -67,6 +67,7 @@ class DrinkDetailsViewModelTest {
             assertEquals("Shake.", loaded.drink?.instructions)
             cancelAndIgnoreRemainingEvents()
         }
+        assertEquals(listOf("11007"), repository.observeRecentlyViewed().first().map { it.id })
     }
 
     @Test

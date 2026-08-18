@@ -83,4 +83,39 @@ class HotScreenTest {
         composeRule.onNodeWithText("Margarita").performClick()
         assertEquals("11007", clicked.single().id)
     }
+
+    @Test
+    fun recentlyViewed_showsWithoutSeeAll() {
+        val seeAll = mutableListOf<DrinkFilter>()
+        composeRule.setContent {
+            MixologyTheme {
+                HotScreen(
+                    state = HotUiState(
+                        loading = false,
+                        categories = listOf(
+                            HotCategory(
+                                filter = DrinkFilter.RECENTLY_VIEWED,
+                                drinks = listOf(Drink("11007", "Margarita", "", saved = false)),
+                            ),
+                            HotCategory(
+                                filter = DrinkFilter.GIN,
+                                drinks = listOf(Drink("11000", "Mojito", "", saved = false)),
+                            ),
+                        ),
+                    ),
+                    onDrinkClick = {},
+                    onToggleSaved = {},
+                    onSeeAll = { seeAll.add(it) },
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("Recently viewed").assertIsDisplayed()
+        composeRule.onNodeWithText("Margarita").assertIsDisplayed()
+        composeRule.onAllNodesWithText("See all").fetchSemanticsNodes().let { nodes ->
+            assertEquals(1, nodes.size)
+        }
+        composeRule.onNodeWithText("See all").performClick()
+        assertEquals(listOf(DrinkFilter.GIN), seeAll)
+    }
 }

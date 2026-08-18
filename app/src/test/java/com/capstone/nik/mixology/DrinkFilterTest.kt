@@ -54,6 +54,13 @@ class DrinkFilterTest {
     }
 
     @Test
+    fun recentlyViewedFilter_hidesSeeAll() {
+        assertNull(DrinkFilter.RECENTLY_VIEWED.kind)
+        assertFalse(DrinkFilter.RECENTLY_VIEWED.showSeeAll)
+        assertFalse(DrinkFilter.hotFilters.contains(DrinkFilter.RECENTLY_VIEWED))
+    }
+
+    @Test
     fun hasUsableThumb_rejectsMissingAndLiteralNull() {
         val missing = CocktailDbDrink(strDrinkThumb = null)
         val literalNull = CocktailDbDrink(strDrinkThumb = "null")

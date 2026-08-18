@@ -65,6 +65,18 @@ class DrinkRepository @Inject constructor(
 
     fun observeSavedIds(): Flow<Set<String>> = dao.observeSavedIds().map { it.toSet() }
 
+    fun observeRecentlyViewed(): Flow<List<Drink>> {
+        return combine(dao.observeRecentlyViewed(MAX_RECENTLY_VIEWED), dao.observeSavedIds()) { drinks, savedIds ->
+            val saved = savedIds.toSet()
+            drinks.map { entity -> entity.toDrink(savedOverride = entity.id in saved || entity.saved) }
+        }
+    }
+
+    suspend fun recordViewed(drink: Drink) {
+        val viewedAt = nextViewedAt()
+        dao.recordViewed(drink.toEntity(), viewedAt, MAX_RECENTLY_VIEWED)
+    }
+
     suspend fun cachedDrink(id: String): Drink? = dao.getById(id)?.toDrink()
 
     @Throws(IOException::class)
@@ -130,6 +142,7 @@ class DrinkRepository @Inject constructor(
 
     suspend fun save(drink: Drink) {
         dao.saveDrink(drink.toEntity().copy(saved = true))
+        recordViewed(drink)
         notifyWidgets()
     }
 
@@ -167,6 +180,12 @@ class DrinkRepository @Inject constructor(
 
     fun getSavedSync(): List<Drink> = dao.getSavedSync().map { it.toDrink(savedOverride = true) }
 
+    private suspend fun nextViewedAt(): Long {
+        val now = System.currentTimeMillis()
+        val latest = dao.latestViewedAt() ?: 0L
+        return maxOf(now, latest + 1)
+    }
+
     private fun notifyWidgets() {
         context.sendBroadcast(
             Intent(ACTION_DATABASE_UPDATED).setPackage(context.packageName),
@@ -175,6 +194,7 @@ class DrinkRepository @Inject constructor(
 
     companion object {
         const val ACTION_DATABASE_UPDATED = "com.capstone.nik.mixology.action.DATABASE_UPDATED"
+        const val MAX_RECENTLY_VIEWED = 30
 
         fun hasUsableThumb(drink: CocktailDbDrink): Boolean = drink.hasUsableThumb()
     }

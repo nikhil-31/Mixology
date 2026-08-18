@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
@@ -21,7 +22,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -99,7 +102,14 @@ private fun HotCategoryRow(
     onToggleSaved: (Drink) -> Unit,
     onSeeAll: (DrinkFilter) -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxWidth().padding(top = 12.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                top = 12.dp,
+                bottom = if (category.filter == DrinkFilter.RECENTLY_VIEWED) 12.dp else 0.dp,
+            ),
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -113,12 +123,28 @@ private fun HotCategoryRow(
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground,
             )
-            TextButton(onClick = { onSeeAll(category.filter) }) {
-                Text(
-                    text = stringResource(R.string.action_see_all),
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.SemiBold,
-                )
+            if (category.filter.showSeeAll) {
+                TextButton(onClick = { onSeeAll(category.filter) }) {
+                    Text(
+                        text = stringResource(R.string.action_see_all),
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
+            } else {
+                TextButton(
+                    onClick = {},
+                    enabled = false,
+                    modifier = Modifier.clearAndSetSemantics {},
+                    colors = ButtonDefaults.textButtonColors(
+                        disabledContentColor = Color.Transparent,
+                    ),
+                ) {
+                    Text(
+                        text = stringResource(R.string.action_see_all),
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
             }
         }
         LazyRow(

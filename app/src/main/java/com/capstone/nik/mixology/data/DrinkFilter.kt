@@ -11,6 +11,7 @@ data class DrinkFilter(
     @StringRes val titleRes: Int? = null,
     val title: String? = null,
     val showEmptySaved: Boolean = false,
+    val showSeeAll: Boolean = true,
 ) {
     fun displayName(): String = title ?: name.replace('_', ' ')
 
@@ -36,6 +37,13 @@ data class DrinkFilter(
         val COCKTAIL_GLASS = DrinkFilter("COCKTAIL_GLASS", "Cocktail_glass", FilterKind.GLASS, titleRes = R.string.nav_item_cocktail_glass)
         val HIGHBALL_GLASS = DrinkFilter("HIGHBALL_GLASS", "Highball glass", FilterKind.GLASS, titleRes = R.string.nav_item_highball_glass)
         val SAVED = DrinkFilter("SAVED", null, null, titleRes = R.string.nav_item_saved_cocktails, showEmptySaved = true)
+        val RECENTLY_VIEWED = DrinkFilter(
+            "RECENTLY_VIEWED",
+            null,
+            null,
+            titleRes = R.string.hot_recently_viewed,
+            showSeeAll = false,
+        )
 
         val catalogFilters: List<DrinkFilter> = listOf(
             ALCOHOLIC,

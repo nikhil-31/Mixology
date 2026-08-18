@@ -105,4 +105,32 @@ class DrinkRepositoryTest {
         val names = repository.observeShopping().first().map { it.name }
         assertEquals(listOf("Gin", "Lime"), names)
     }
+
+    @Test
+    fun save_addsToRecentlyViewedNewestFirst() = runTest {
+        val first = cocktailDrink("1", "Gin Fizz").toDrink()!!
+        val second = cocktailDrink("2", "Negroni").toDrink()!!
+        repository.save(first)
+        repository.save(second)
+        assertEquals(listOf("2", "1"), repository.observeRecentlyViewed().first().map { it.id })
+        repository.unsave("2")
+        assertEquals(listOf("2", "1"), repository.observeRecentlyViewed().first().map { it.id })
+    }
+
+    @Test
+    fun recordViewed_movesExistingToFrontAndCapsAtLimit() = runTest {
+        val drinks = (1..31).map { index ->
+            cocktailDrink(index.toString(), "Drink $index").toDrink()!!
+        }
+        drinks.forEach { repository.recordViewed(it) }
+        val recent = repository.observeRecentlyViewed().first()
+        assertEquals(30, recent.size)
+        assertEquals("31", recent.first().id)
+        assertEquals("2", recent.last().id)
+        repository.recordViewed(drinks.first())
+        val moved = repository.observeRecentlyViewed().first()
+        assertEquals("1", moved.first().id)
+        assertEquals(30, moved.size)
+        assertTrue(moved.none { it.id == "2" })
+    }
 }

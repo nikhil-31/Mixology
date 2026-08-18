@@ -18,8 +18,9 @@ import java.util.concurrent.Executors
         DrinkFilterCrossRef::class,
         CatalogTermEntity::class,
         ShoppingItemEntity::class,
+        RecentlyViewedEntity::class,
     ],
-    version = 4,
+    version = 5,
     exportSchema = true,
 )
 @TypeConverters(IngredientListConverter::class)
@@ -74,7 +75,18 @@ abstract class MixologyDatabase : RoomDatabase() {
             )
         }
 
-        internal val ALL_MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+        internal val MIGRATION_4_5 = Migration(4, 5) { db ->
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS recently_viewed (
+                    drinkId TEXT NOT NULL PRIMARY KEY,
+                    viewedAt INTEGER NOT NULL
+                )
+                """.trimIndent(),
+            )
+        }
+
+        internal val ALL_MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
 
         @Volatile
         private var instance: MixologyDatabase? = null

@@ -51,6 +51,7 @@ class DrinkDetailsViewModel @Inject constructor(
     }
 
     private fun load(drink: Drink) {
+        viewModelScope.launch { repository.recordViewed(drink) }
         if (loadedId == drink.id && currentState.drink?.hasRecipe == true) return
         loadedId = drink.id
         setState {

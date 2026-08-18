@@ -66,6 +66,26 @@ class HotViewModelTest {
             cancelAndIgnoreRemainingEvents()
         }
     }
+
+    @Test
+    fun save_addsRecentlyViewedRowFirst() = runTest {
+        val drink = cocktailDrink("9", "Negroni").toDrink()!!
+        viewModel.state.test {
+            awaitItemUntil { state ->
+                state.visibleCategories.map { it.filter } == DrinkFilter.hotFilters
+            }
+            viewModel.onIntent(HotIntent.ToggleSaved(drink))
+            val withRecent = awaitItemUntil { state ->
+                state.visibleCategories.firstOrNull()?.filter == DrinkFilter.RECENTLY_VIEWED
+            }
+            assertEquals("9", withRecent.visibleCategories.first().drinks.single().id)
+            assertEquals(
+                listOf("RECENTLY_VIEWED") + DrinkFilter.hotFilters.map { it.name },
+                withRecent.visibleCategories.map { it.filter.name },
+            )
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
 }
 
 private suspend fun <T> app.cash.turbine.ReceiveTurbine<T>.awaitItemUntil(predicate: (T) -> Boolean): T {

@@ -142,8 +142,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_crashreporting",
-      "community": 10,
-      "community_name": "RandomixerViewModel",
+      "community": 42,
+      "community_name": "SearchViewModel",
       "norm_label": "crashreporting.kt"
     },
     {
@@ -153,8 +153,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_crashreporting_recordcrash",
-      "community": 10,
-      "community_name": "RandomixerViewModel",
+      "community": 42,
+      "community_name": "SearchViewModel",
       "norm_label": "recordcrash()"
     },
     {
@@ -659,8 +659,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_network_remotemodel_cocktaildbdrink",
-      "community": 11,
-      "community_name": "IngredientMeasure",
+      "community": 0,
+      "community_name": "CocktailDbDrink",
       "norm_label": "cocktaildbdrink.kt"
     },
     {
@@ -681,8 +681,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_network_remotemodel_cocktaildbdrink_cocktaildbdrink",
-      "community": 11,
-      "community_name": "IngredientMeasure",
+      "community": 0,
+      "community_name": "CocktailDbDrink",
       "norm_label": "cocktaildbdrink"
     },
     {
@@ -692,8 +692,8 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_network_remotemodel_cocktaildbdrink_cocktaildbdrink_hasusablethumb",
-      "community": 11,
-      "community_name": "IngredientMeasure",
+      "community": 0,
+      "community_name": "CocktailDbDrink",
       "norm_label": ".hasusablethumb()"
     },
     {
@@ -703,8 +703,8 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_network_remotemodel_cocktaildbdrink_cocktaildbdrink_ingredientmeasures",
-      "community": 11,
-      "community_name": "IngredientMeasure",
+      "community": 0,
+      "community_name": "CocktailDbDrink",
       "norm_label": ".ingredientmeasures()"
     },
     {
@@ -714,8 +714,8 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_network_remotemodel_cocktaildbdrink_cocktaildbdrink_todrink",
-      "community": 11,
-      "community_name": "IngredientMeasure",
+      "community": 0,
+      "community_name": "CocktailDbDrink",
       "norm_label": ".todrink()"
     },
     {
@@ -725,8 +725,8 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_network_remotemodel_cocktaildbdrink_cocktaildbdrink_localizedinstructions",
-      "community": 11,
-      "community_name": "IngredientMeasure",
+      "community": 0,
+      "community_name": "CocktailDbDrink",
       "norm_label": ".localizedinstructions()"
     },
     {
@@ -1825,8 +1825,8 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_repository_drinkrepository_filterkind",
-      "community": 6,
-      "community_name": "CatalogViewModel",
+      "community": 24,
+      "community_name": "Drink",
       "norm_label": "filterkind"
     },
     {
@@ -1836,8 +1836,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_repository_drinkrepository_filterkind_alcohol",
-      "community": 6,
-      "community_name": "CatalogViewModel",
+      "community": 24,
+      "community_name": "Drink",
       "norm_label": "alcohol"
     },
     {
@@ -1847,8 +1847,8 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_repository_drinkrepository_filterkind_glass",
-      "community": 6,
-      "community_name": "CatalogViewModel",
+      "community": 24,
+      "community_name": "Drink",
       "norm_label": "glass"
     },
     {
@@ -1858,8 +1858,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_repository_drinkrepository_filterkind_ingredient",
-      "community": 6,
-      "community_name": "CatalogViewModel",
+      "community": 24,
+      "community_name": "Drink",
       "norm_label": "ingredient"
     },
     {
@@ -1869,8 +1869,8 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_repository_drinkrepository_filterkind_drink_type",
-      "community": 6,
-      "community_name": "CatalogViewModel",
+      "community": 24,
+      "community_name": "Drink",
       "norm_label": "drink_type"
     },
     {
@@ -2409,7 +2409,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_catalog_catalogcontract",
       "community": 6,
-      "community_name": "CatalogViewModel",
+      "community_name": "CatalogUiState",
       "norm_label": "catalogcontract.kt"
     },
     {
@@ -2420,7 +2420,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_catalog_catalogcontract_cataloguistate",
       "community": 6,
-      "community_name": "CatalogViewModel",
+      "community_name": "CatalogUiState",
       "norm_label": "cataloguistate"
     },
     {
@@ -2431,7 +2431,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_catalog_catalogcontract_filtercatalogterms",
       "community": 6,
-      "community_name": "CatalogViewModel",
+      "community_name": "CatalogUiState",
       "norm_label": "filtercatalogterms()"
     },
     {
@@ -2442,7 +2442,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_catalog_catalogcontract_withcatalogterms",
       "community": 6,
-      "community_name": "CatalogViewModel",
+      "community_name": "CatalogUiState",
       "norm_label": "withcatalogterms()"
     },
     {
@@ -2453,7 +2453,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_catalog_catalogcontract_withquery",
       "community": 6,
-      "community_name": "CatalogViewModel",
+      "community_name": "CatalogUiState",
       "norm_label": "withquery()"
     },
     {
@@ -2463,8 +2463,8 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_catalog_catalogcontract_catalogintent",
-      "community": 6,
-      "community_name": "CatalogViewModel",
+      "community": 36,
+      "community_name": ".setState",
       "norm_label": "catalogintent"
     },
     {
@@ -2474,8 +2474,8 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_catalog_catalogcontract_load",
-      "community": 6,
-      "community_name": "CatalogViewModel",
+      "community": 36,
+      "community_name": ".setState",
       "norm_label": "load"
     },
     {
@@ -2485,8 +2485,8 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_catalog_catalogcontract_selectkind",
-      "community": 6,
-      "community_name": "CatalogViewModel",
+      "community": 36,
+      "community_name": ".setState",
       "norm_label": "selectkind"
     },
     {
@@ -2496,8 +2496,8 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_catalog_catalogcontract_querychanged",
-      "community": 6,
-      "community_name": "CatalogViewModel",
+      "community": 36,
+      "community_name": ".setState",
       "norm_label": "querychanged"
     },
     {
@@ -2507,8 +2507,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_catalog_catalogcontract_openterm",
-      "community": 6,
-      "community_name": "CatalogViewModel",
+      "community": 36,
+      "community_name": ".setState",
       "norm_label": "openterm"
     },
     {
@@ -2519,7 +2519,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_catalog_catalogcontract_catalogeffect",
       "community": 6,
-      "community_name": "CatalogViewModel",
+      "community_name": "CatalogUiState",
       "norm_label": "catalogeffect"
     },
     {
@@ -2530,7 +2530,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_catalog_catalogcontract_openfilter",
       "community": 6,
-      "community_name": "CatalogViewModel",
+      "community_name": "CatalogUiState",
       "norm_label": "openfilter"
     },
     {
@@ -2540,8 +2540,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_catalog_catalogscreen",
-      "community": 6,
-      "community_name": "CatalogViewModel",
+      "community": 46,
+      "community_name": "CatalogScreen",
       "norm_label": "catalogscreen.kt"
     },
     {
@@ -2551,8 +2551,8 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_catalog_catalogscreen_catalogroute",
-      "community": 6,
-      "community_name": "CatalogViewModel",
+      "community": 46,
+      "community_name": "CatalogScreen",
       "norm_label": "catalogroute()"
     },
     {
@@ -2562,8 +2562,8 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_catalog_catalogscreen_catalogscreen",
-      "community": 6,
-      "community_name": "CatalogViewModel",
+      "community": 46,
+      "community_name": "CatalogScreen",
       "norm_label": "catalogscreen()"
     },
     {
@@ -2573,8 +2573,8 @@
       "source_location": "L143",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_catalog_catalogscreen_catalogtermrow",
-      "community": 6,
-      "community_name": "CatalogViewModel",
+      "community": 46,
+      "community_name": "CatalogScreen",
       "norm_label": "catalogtermrow()"
     },
     {
@@ -2584,8 +2584,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_catalog_catalogviewmodel",
-      "community": 6,
-      "community_name": "CatalogViewModel",
+      "community": 36,
+      "community_name": ".setState",
       "norm_label": "catalogviewmodel.kt"
     },
     {
@@ -2595,8 +2595,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_catalog_catalogviewmodel_catalogviewmodel",
-      "community": 6,
-      "community_name": "CatalogViewModel",
+      "community": 36,
+      "community_name": ".setState",
       "norm_label": "catalogviewmodel"
     },
     {
@@ -2606,8 +2606,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_catalog_catalogviewmodel_kt_job",
-      "community": 6,
-      "community_name": "CatalogViewModel",
+      "community": 36,
+      "community_name": ".setState",
       "norm_label": "job"
     },
     {
@@ -2617,8 +2617,8 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_catalog_catalogviewmodel_catalogviewmodel_onintent",
-      "community": 6,
-      "community_name": "CatalogViewModel",
+      "community": 36,
+      "community_name": ".setState",
       "norm_label": ".onintent()"
     },
     {
@@ -2628,8 +2628,8 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_catalog_catalogviewmodel_catalogviewmodel_observe",
-      "community": 6,
-      "community_name": "CatalogViewModel",
+      "community": 36,
+      "community_name": ".setState",
       "norm_label": ".observe()"
     },
     {
@@ -2639,8 +2639,8 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_catalog_catalogviewmodel_catalogviewmodel_refresh",
-      "community": 6,
-      "community_name": "CatalogViewModel",
+      "community": 36,
+      "community_name": ".setState",
       "norm_label": ".refresh()"
     },
     {
@@ -2650,19 +2650,19 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_components_drinkcard",
-      "community": 4,
-      "community_name": "HotViewModel",
+      "community": 11,
+      "community_name": "IngredientMeasure",
       "norm_label": "drinkcard.kt"
     },
     {
       "label": "DrinkCard()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkCard.kt",
-      "source_location": "L30",
+      "source_location": "L31",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_components_drinkcard_drinkcard",
-      "community": 4,
-      "community_name": "HotViewModel",
+      "community": 11,
+      "community_name": "IngredientMeasure",
       "norm_label": "drinkcard()"
     },
     {
@@ -2672,8 +2672,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_components_drinkcard_kt_modifier",
-      "community": 4,
-      "community_name": "HotViewModel",
+      "community": 11,
+      "community_name": "IngredientMeasure",
       "norm_label": "modifier"
     },
     {
@@ -2683,8 +2683,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_components_drinkcard_kt_dp",
-      "community": 4,
-      "community_name": "HotViewModel",
+      "community": 11,
+      "community_name": "IngredientMeasure",
       "norm_label": "dp"
     },
     {
@@ -2735,7 +2735,7 @@
       "label": "CircularDrinkImage()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkImage.kt",
-      "source_location": "L37",
+      "source_location": "L38",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_components_drinkimage_circulardrinkimage",
       "community": 11,
@@ -2757,7 +2757,7 @@
       "label": "IngredientImage()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkImage.kt",
-      "source_location": "L59",
+      "source_location": "L60",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_components_drinkimage_ingredientimage",
       "community": 11,
@@ -2771,19 +2771,19 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_components_drinkrecipebody",
-      "community": 0,
-      "community_name": "DrinkRecipeBody",
+      "community": 11,
+      "community_name": "IngredientMeasure",
       "norm_label": "drinkrecipebody.kt"
     },
     {
       "label": "DrinkRecipeBody()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkRecipeBody.kt",
-      "source_location": "L38",
+      "source_location": "L39",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_components_drinkrecipebody_drinkrecipebody",
-      "community": 0,
-      "community_name": "DrinkRecipeBody",
+      "community": 11,
+      "community_name": "IngredientMeasure",
       "norm_label": "drinkrecipebody()"
     },
     {
@@ -2793,63 +2793,63 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_components_drinkrecipebody_kt_modifier",
-      "community": 0,
-      "community_name": "DrinkRecipeBody",
+      "community": 11,
+      "community_name": "IngredientMeasure",
       "norm_label": "modifier"
     },
     {
       "label": "DrinkHeroImage()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkRecipeBody.kt",
-      "source_location": "L121",
+      "source_location": "L125",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_components_drinkrecipebody_drinkheroimage",
-      "community": 0,
-      "community_name": "DrinkRecipeBody",
+      "community": 11,
+      "community_name": "IngredientMeasure",
       "norm_label": "drinkheroimage()"
     },
     {
       "label": "RecipeSectionTitle()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkRecipeBody.kt",
-      "source_location": "L145",
+      "source_location": "L154",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_components_drinkrecipebody_recipesectiontitle",
-      "community": 0,
-      "community_name": "DrinkRecipeBody",
+      "community": 11,
+      "community_name": "IngredientMeasure",
       "norm_label": "recipesectiontitle()"
     },
     {
       "label": "RecipeChip()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkRecipeBody.kt",
-      "source_location": "L155",
+      "source_location": "L164",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_components_drinkrecipebody_recipechip",
-      "community": 0,
-      "community_name": "DrinkRecipeBody",
+      "community": 11,
+      "community_name": "IngredientMeasure",
       "norm_label": "recipechip()"
     },
     {
       "label": "InstructionBlock()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkRecipeBody.kt",
-      "source_location": "L183",
+      "source_location": "L192",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_components_drinkrecipebody_instructionblock",
-      "community": 0,
-      "community_name": "DrinkRecipeBody",
+      "community": 11,
+      "community_name": "IngredientMeasure",
       "norm_label": "instructionblock()"
     },
     {
       "label": "instructionSteps()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkRecipeBody.kt",
-      "source_location": "L227",
+      "source_location": "L236",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_components_drinkrecipebody_instructionsteps",
-      "community": 0,
-      "community_name": "DrinkRecipeBody",
+      "community": 11,
+      "community_name": "IngredientMeasure",
       "norm_label": "instructionsteps()"
     },
     {
@@ -2859,8 +2859,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_components_favoritebutton",
-      "community": 4,
-      "community_name": "HotViewModel",
+      "community": 11,
+      "community_name": "IngredientMeasure",
       "norm_label": "favoritebutton.kt"
     },
     {
@@ -2870,8 +2870,8 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_components_favoritebutton_favoritebutton",
-      "community": 4,
-      "community_name": "HotViewModel",
+      "community": 11,
+      "community_name": "IngredientMeasure",
       "norm_label": "favoritebutton()"
     },
     {
@@ -2881,8 +2881,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_components_favoritebutton_kt_modifier",
-      "community": 4,
-      "community_name": "HotViewModel",
+      "community": 11,
+      "community_name": "IngredientMeasure",
       "norm_label": "modifier"
     },
     {
@@ -2925,8 +2925,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailscontract",
-      "community": 8,
-      "community_name": ".sendEffect",
+      "community": 33,
+      "community_name": "DrinkDetailsIntent",
       "norm_label": "drinkdetailscontract.kt"
     },
     {
@@ -2936,8 +2936,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailscontract_drinkdetailsuistate",
-      "community": 0,
-      "community_name": "DrinkRecipeBody",
+      "community": 33,
+      "community_name": "DrinkDetailsIntent",
       "norm_label": "drinkdetailsuistate"
     },
     {
@@ -2947,8 +2947,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailscontract_drinkdetailsintent",
-      "community": 8,
-      "community_name": ".sendEffect",
+      "community": 33,
+      "community_name": "DrinkDetailsIntent",
       "norm_label": "drinkdetailsintent"
     },
     {
@@ -2958,8 +2958,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailscontract_load",
-      "community": 8,
-      "community_name": ".sendEffect",
+      "community": 33,
+      "community_name": "DrinkDetailsIntent",
       "norm_label": "load"
     },
     {
@@ -2969,8 +2969,8 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailscontract_togglesaved",
-      "community": 8,
-      "community_name": ".sendEffect",
+      "community": 33,
+      "community_name": "DrinkDetailsIntent",
       "norm_label": "togglesaved"
     },
     {
@@ -2980,8 +2980,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailscontract_share",
-      "community": 8,
-      "community_name": ".sendEffect",
+      "community": 33,
+      "community_name": "DrinkDetailsIntent",
       "norm_label": "share"
     },
     {
@@ -2991,8 +2991,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailscontract_back",
-      "community": 8,
-      "community_name": ".sendEffect",
+      "community": 33,
+      "community_name": "DrinkDetailsIntent",
       "norm_label": "back"
     },
     {
@@ -3002,8 +3002,8 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailscontract_updatenotes",
-      "community": 8,
-      "community_name": ".sendEffect",
+      "community": 33,
+      "community_name": "DrinkDetailsIntent",
       "norm_label": "updatenotes"
     },
     {
@@ -3013,8 +3013,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailscontract_addtoshoppinglist",
-      "community": 8,
-      "community_name": ".sendEffect",
+      "community": 33,
+      "community_name": "DrinkDetailsIntent",
       "norm_label": "addtoshoppinglist"
     },
     {
@@ -3024,8 +3024,8 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailscontract_openvideo",
-      "community": 8,
-      "community_name": ".sendEffect",
+      "community": 33,
+      "community_name": "DrinkDetailsIntent",
       "norm_label": "openvideo"
     },
     {
@@ -3035,8 +3035,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailscontract_drinkdetailseffect",
-      "community": 8,
-      "community_name": ".sendEffect",
+      "community": 33,
+      "community_name": "DrinkDetailsIntent",
       "norm_label": "drinkdetailseffect"
     },
     {
@@ -3046,8 +3046,8 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailscontract_showmessageres",
-      "community": 8,
-      "community_name": ".sendEffect",
+      "community": 33,
+      "community_name": "DrinkDetailsIntent",
       "norm_label": "showmessageres"
     },
     {
@@ -3057,8 +3057,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailscontract_sharerecipe",
-      "community": 8,
-      "community_name": ".sendEffect",
+      "community": 33,
+      "community_name": "DrinkDetailsIntent",
       "norm_label": "sharerecipe"
     },
     {
@@ -3068,8 +3068,8 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailscontract_openurl",
-      "community": 8,
-      "community_name": ".sendEffect",
+      "community": 33,
+      "community_name": "DrinkDetailsIntent",
       "norm_label": "openurl"
     },
     {
@@ -3079,8 +3079,8 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailscontract_navigateback",
-      "community": 8,
-      "community_name": ".sendEffect",
+      "community": 33,
+      "community_name": "DrinkDetailsIntent",
       "norm_label": "navigateback"
     },
     {
@@ -3090,19 +3090,19 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreen",
-      "community": 0,
-      "community_name": "DrinkRecipeBody",
+      "community": 33,
+      "community_name": "DrinkDetailsIntent",
       "norm_label": "drinkdetailsscreen.kt"
     },
     {
       "label": "DrinkDetailsRoute()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreen.kt",
-      "source_location": "L55",
+      "source_location": "L64",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreen_drinkdetailsroute",
-      "community": 0,
-      "community_name": "DrinkRecipeBody",
+      "community": 33,
+      "community_name": "DrinkDetailsIntent",
       "norm_label": "drinkdetailsroute()"
     },
     {
@@ -3112,41 +3112,52 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreen_kt_snackbarhoststate",
-      "community": 0,
-      "community_name": "DrinkRecipeBody",
+      "community": 33,
+      "community_name": "DrinkDetailsIntent",
       "norm_label": "snackbarhoststate"
     },
     {
       "label": "DrinkDetailsScaffold()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreen.kt",
-      "source_location": "L107",
+      "source_location": "L116",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreen_drinkdetailsscaffold",
-      "community": 0,
-      "community_name": "DrinkRecipeBody",
+      "community": 33,
+      "community_name": "DrinkDetailsIntent",
       "norm_label": "drinkdetailsscaffold()"
     },
     {
       "label": "DrinkDetailsContent()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreen.kt",
-      "source_location": "L158",
+      "source_location": "L167",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreen_drinkdetailscontent",
-      "community": 0,
-      "community_name": "DrinkRecipeBody",
+      "community": 33,
+      "community_name": "DrinkDetailsIntent",
       "norm_label": "drinkdetailscontent()"
+    },
+    {
+      "label": "FullscreenDrinkImage()",
+      "file_type": "code",
+      "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreen.kt",
+      "source_location": "L253",
+      "_origin": "ast",
+      "id": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreen_fullscreendrinkimage",
+      "community": 33,
+      "community_name": "DrinkDetailsIntent",
+      "norm_label": "fullscreendrinkimage()"
     },
     {
       "label": "HeroActionButton()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreen.kt",
-      "source_location": "L236",
+      "source_location": "L292",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreen_heroactionbutton",
-      "community": 0,
-      "community_name": "DrinkRecipeBody",
+      "community": 33,
+      "community_name": "DrinkDetailsIntent",
       "norm_label": "heroactionbutton()"
     },
     {
@@ -3156,8 +3167,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "imagevector",
-      "community": 0,
-      "community_name": "DrinkRecipeBody",
+      "community": 33,
+      "community_name": "DrinkDetailsIntent",
       "norm_label": "imagevector"
     },
     {
@@ -3167,7 +3178,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsviewmodel",
-      "community": 8,
+      "community": 43,
       "community_name": ".sendEffect",
       "norm_label": "drinkdetailsviewmodel.kt"
     },
@@ -3178,7 +3189,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsviewmodel_drinkdetailsviewmodel",
-      "community": 8,
+      "community": 43,
       "community_name": ".sendEffect",
       "norm_label": "drinkdetailsviewmodel"
     },
@@ -3189,7 +3200,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsviewmodel_kt_job",
-      "community": 8,
+      "community": 43,
       "community_name": ".sendEffect",
       "norm_label": "job"
     },
@@ -3200,7 +3211,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsviewmodel_drinkdetailsviewmodel_onintent",
-      "community": 8,
+      "community": 43,
       "community_name": ".sendEffect",
       "norm_label": ".onintent()"
     },
@@ -3211,7 +3222,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsviewmodel_drinkdetailsviewmodel_load",
-      "community": 8,
+      "community": 43,
       "community_name": ".sendEffect",
       "norm_label": ".load()"
     },
@@ -3222,7 +3233,7 @@
       "source_location": "L71",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsviewmodel_drinkdetailsviewmodel_lookup",
-      "community": 8,
+      "community": 43,
       "community_name": ".sendEffect",
       "norm_label": ".lookup()"
     },
@@ -3233,7 +3244,7 @@
       "source_location": "L96",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsviewmodel_drinkdetailsviewmodel_updatenotes",
-      "community": 8,
+      "community": 43,
       "community_name": ".sendEffect",
       "norm_label": ".updatenotes()"
     },
@@ -3244,7 +3255,7 @@
       "source_location": "L104",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsviewmodel_drinkdetailsviewmodel_addtoshoppinglist",
-      "community": 8,
+      "community": 43,
       "community_name": ".sendEffect",
       "norm_label": ".addtoshoppinglist()"
     },
@@ -3255,7 +3266,7 @@
       "source_location": "L112",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsviewmodel_drinkdetailsviewmodel_togglesaved",
-      "community": 8,
+      "community": 43,
       "community_name": ".sendEffect",
       "norm_label": ".togglesaved()"
     },
@@ -3266,7 +3277,7 @@
       "source_location": "L125",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsviewmodel_drinkdetailsviewmodel_share",
-      "community": 8,
+      "community": 43,
       "community_name": ".sendEffect",
       "norm_label": ".share()"
     },
@@ -3278,7 +3289,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_grid_drinkgridcontract",
       "community": 8,
-      "community_name": ".sendEffect",
+      "community_name": "DrinkGridViewModel",
       "norm_label": "drinkgridcontract.kt"
     },
     {
@@ -3289,7 +3300,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_grid_drinkgridcontract_drinkgriduistate",
       "community": 8,
-      "community_name": ".sendEffect",
+      "community_name": "DrinkGridViewModel",
       "norm_label": "drinkgriduistate"
     },
     {
@@ -3300,7 +3311,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_grid_drinkgridcontract_drinkgridintent",
       "community": 8,
-      "community_name": ".sendEffect",
+      "community_name": "DrinkGridViewModel",
       "norm_label": "drinkgridintent"
     },
     {
@@ -3311,7 +3322,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_grid_drinkgridcontract_bind",
       "community": 8,
-      "community_name": ".sendEffect",
+      "community_name": "DrinkGridViewModel",
       "norm_label": "bind"
     },
     {
@@ -3322,7 +3333,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_grid_drinkgridcontract_togglesaved",
       "community": 8,
-      "community_name": ".sendEffect",
+      "community_name": "DrinkGridViewModel",
       "norm_label": "togglesaved"
     },
     {
@@ -3333,7 +3344,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_grid_drinkgridcontract_opendrink",
       "community": 8,
-      "community_name": ".sendEffect",
+      "community_name": "DrinkGridViewModel",
       "norm_label": "opendrink"
     },
     {
@@ -3344,7 +3355,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_grid_drinkgridcontract_drinkgrideffect",
       "community": 8,
-      "community_name": ".sendEffect",
+      "community_name": "DrinkGridViewModel",
       "norm_label": "drinkgrideffect"
     },
     {
@@ -3355,7 +3366,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_grid_drinkgridcontract_showmessage",
       "community": 8,
-      "community_name": ".sendEffect",
+      "community_name": "DrinkGridViewModel",
       "norm_label": "showmessage"
     },
     {
@@ -3366,7 +3377,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_grid_drinkgridcontract_showmessageres",
       "community": 8,
-      "community_name": ".sendEffect",
+      "community_name": "DrinkGridViewModel",
       "norm_label": "showmessageres"
     },
     {
@@ -3384,7 +3395,7 @@
       "label": "DrinkGridRoute()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/grid/DrinkGridScreen.kt",
-      "source_location": "L30",
+      "source_location": "L31",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_grid_drinkgridscreen_drinkgridroute",
       "community": 3,
@@ -3417,7 +3428,7 @@
       "label": "DrinkGridScreen()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/grid/DrinkGridScreen.kt",
-      "source_location": "L59",
+      "source_location": "L60",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_grid_drinkgridscreen_drinkgridscreen",
       "community": 3,
@@ -3432,7 +3443,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_grid_drinkgridviewmodel",
       "community": 8,
-      "community_name": ".sendEffect",
+      "community_name": "DrinkGridViewModel",
       "norm_label": "drinkgridviewmodel.kt"
     },
     {
@@ -3443,7 +3454,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_grid_drinkgridviewmodel_drinkgridviewmodel",
       "community": 8,
-      "community_name": ".sendEffect",
+      "community_name": "DrinkGridViewModel",
       "norm_label": "drinkgridviewmodel"
     },
     {
@@ -3454,7 +3465,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_grid_drinkgridviewmodel_kt_job",
       "community": 8,
-      "community_name": ".sendEffect",
+      "community_name": "DrinkGridViewModel",
       "norm_label": "job"
     },
     {
@@ -3465,7 +3476,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_grid_drinkgridviewmodel_drinkgridviewmodel_onintent",
       "community": 8,
-      "community_name": ".sendEffect",
+      "community_name": "DrinkGridViewModel",
       "norm_label": ".onintent()"
     },
     {
@@ -3476,7 +3487,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_grid_drinkgridviewmodel_drinkgridviewmodel_bind",
       "community": 8,
-      "community_name": ".sendEffect",
+      "community_name": "DrinkGridViewModel",
       "norm_label": ".bind()"
     },
     {
@@ -3487,7 +3498,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_grid_drinkgridviewmodel_kt_drinkfilter",
       "community": 8,
-      "community_name": ".sendEffect",
+      "community_name": "DrinkGridViewModel",
       "norm_label": "drinkfilter"
     },
     {
@@ -3498,7 +3509,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_grid_drinkgridviewmodel_drinkgridviewmodel_togglesaved",
       "community": 8,
-      "community_name": ".sendEffect",
+      "community_name": "DrinkGridViewModel",
       "norm_label": ".togglesaved()"
     },
     {
@@ -3509,7 +3520,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_grid_drinkgridviewmodel_drinkgridviewmodel_refresh",
       "community": 8,
-      "community_name": ".sendEffect",
+      "community_name": "DrinkGridViewModel",
       "norm_label": ".refresh()"
     },
     {
@@ -4113,8 +4124,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_main_mainviewmodel_mainviewmodel_onintent",
-      "community": 21,
-      "community_name": "MainViewModel",
+      "community": 36,
+      "community_name": ".setState",
       "norm_label": ".onintent()"
     },
     {
@@ -4267,8 +4278,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_mvi_mvi",
-      "community": 8,
-      "community_name": ".sendEffect",
+      "community": 45,
+      "community_name": "MviViewModel",
       "norm_label": "mvi.kt"
     },
     {
@@ -4278,8 +4289,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_mvi_mvi_mvistore",
-      "community": 8,
-      "community_name": ".sendEffect",
+      "community": 45,
+      "community_name": "MviViewModel",
       "norm_label": "mvistore"
     },
     {
@@ -4289,8 +4300,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_mvi_mvi_kt_stateflow",
-      "community": 8,
-      "community_name": ".sendEffect",
+      "community": 45,
+      "community_name": "MviViewModel",
       "norm_label": "stateflow"
     },
     {
@@ -4300,8 +4311,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "s",
-      "community": 8,
-      "community_name": ".sendEffect",
+      "community": 45,
+      "community_name": "MviViewModel",
       "norm_label": "s"
     },
     {
@@ -4311,8 +4322,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_mvi_mvi_kt_flow",
-      "community": 8,
-      "community_name": ".sendEffect",
+      "community": 45,
+      "community_name": "MviViewModel",
       "norm_label": "flow"
     },
     {
@@ -4322,8 +4333,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "e",
-      "community": 8,
-      "community_name": ".sendEffect",
+      "community": 45,
+      "community_name": "MviViewModel",
       "norm_label": "e"
     },
     {
@@ -4333,8 +4344,8 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_mvi_mvi_mvistore_onintent",
-      "community": 8,
-      "community_name": ".sendEffect",
+      "community": 45,
+      "community_name": "MviViewModel",
       "norm_label": ".onintent()"
     },
     {
@@ -4344,8 +4355,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "i",
-      "community": 8,
-      "community_name": ".sendEffect",
+      "community": 45,
+      "community_name": "MviViewModel",
       "norm_label": "i"
     },
     {
@@ -4355,8 +4366,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_mvi_mvi_mviviewmodel",
-      "community": 8,
-      "community_name": ".sendEffect",
+      "community": 45,
+      "community_name": "MviViewModel",
       "norm_label": "mviviewmodel"
     },
     {
@@ -4366,8 +4377,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "viewmodel",
-      "community": 8,
-      "community_name": ".sendEffect",
+      "community": 45,
+      "community_name": "MviViewModel",
       "norm_label": "viewmodel"
     },
     {
@@ -4377,8 +4388,8 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_mvi_mvi_mviviewmodel_setstate",
-      "community": 8,
-      "community_name": ".sendEffect",
+      "community": 36,
+      "community_name": ".setState",
       "norm_label": ".setstate()"
     },
     {
@@ -4388,7 +4399,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_mvi_mvi_mviviewmodel_sendeffect",
-      "community": 8,
+      "community": 43,
       "community_name": ".sendEffect",
       "norm_label": ".sendeffect()"
     },
@@ -4399,8 +4410,8 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_mvi_mvi_collectmvieffects",
-      "community": 8,
-      "community_name": ".sendEffect",
+      "community": 45,
+      "community_name": "MviViewModel",
       "norm_label": "collectmvieffects()"
     },
     {
@@ -4542,8 +4553,8 @@
       "source_location": "L70",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_randomixer_randomixerscreen_randomixerroute",
-      "community": 8,
-      "community_name": ".sendEffect",
+      "community": 7,
+      "community_name": "MixologyApp",
       "norm_label": "randomixerroute()"
     },
     {
@@ -4553,8 +4564,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_randomixer_randomixerscreen_kt_snackbarhoststate",
-      "community": 8,
-      "community_name": ".sendEffect",
+      "community": 7,
+      "community_name": "MixologyApp",
       "norm_label": "snackbarhoststate"
     },
     {
@@ -4829,7 +4840,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_search_searchcontract",
       "community": 26,
-      "community_name": "SearchViewModel",
+      "community_name": "SearchIntent",
       "norm_label": "searchcontract.kt"
     },
     {
@@ -4895,7 +4906,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_search_searchcontract_searchintent",
       "community": 26,
-      "community_name": "SearchViewModel",
+      "community_name": "SearchIntent",
       "norm_label": "searchintent"
     },
     {
@@ -4906,7 +4917,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_search_searchcontract_search",
       "community": 26,
-      "community_name": "SearchViewModel",
+      "community_name": "SearchIntent",
       "norm_label": "search"
     },
     {
@@ -4917,7 +4928,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_search_searchcontract_setmode",
       "community": 26,
-      "community_name": "SearchViewModel",
+      "community_name": "SearchIntent",
       "norm_label": "setmode"
     },
     {
@@ -4928,7 +4939,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_search_searchcontract_togglesaved",
       "community": 26,
-      "community_name": "SearchViewModel",
+      "community_name": "SearchIntent",
       "norm_label": "togglesaved"
     },
     {
@@ -4939,7 +4950,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_search_searchcontract_opendrink",
       "community": 26,
-      "community_name": "SearchViewModel",
+      "community_name": "SearchIntent",
       "norm_label": "opendrink"
     },
     {
@@ -4950,7 +4961,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_search_searchcontract_back",
       "community": 26,
-      "community_name": "SearchViewModel",
+      "community_name": "SearchIntent",
       "norm_label": "back"
     },
     {
@@ -4961,7 +4972,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_search_searchcontract_searcheffect",
       "community": 26,
-      "community_name": "SearchViewModel",
+      "community_name": "SearchIntent",
       "norm_label": "searcheffect"
     },
     {
@@ -4972,7 +4983,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_search_searchcontract_showmessageres",
       "community": 26,
-      "community_name": "SearchViewModel",
+      "community_name": "SearchIntent",
       "norm_label": "showmessageres"
     },
     {
@@ -4983,7 +4994,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_search_searchcontract_navigateback",
       "community": 26,
-      "community_name": "SearchViewModel",
+      "community_name": "SearchIntent",
       "norm_label": "navigateback"
     },
     {
@@ -5059,7 +5070,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_search_searchviewmodel",
-      "community": 26,
+      "community": 42,
       "community_name": "SearchViewModel",
       "norm_label": "searchviewmodel.kt"
     },
@@ -5070,7 +5081,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_search_searchviewmodel_searchviewmodel",
-      "community": 26,
+      "community": 42,
       "community_name": "SearchViewModel",
       "norm_label": "searchviewmodel"
     },
@@ -5081,7 +5092,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_search_searchviewmodel_kt_job",
-      "community": 26,
+      "community": 42,
       "community_name": "SearchViewModel",
       "norm_label": "job"
     },
@@ -5092,7 +5103,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_search_searchviewmodel_searchviewmodel_onintent",
-      "community": 26,
+      "community": 42,
       "community_name": "SearchViewModel",
       "norm_label": ".onintent()"
     },
@@ -5103,7 +5114,7 @@
       "source_location": "L71",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_search_searchviewmodel_searchviewmodel_setmode",
-      "community": 26,
+      "community": 42,
       "community_name": "SearchViewModel",
       "norm_label": ".setmode()"
     },
@@ -5114,7 +5125,7 @@
       "source_location": "L85",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_search_searchviewmodel_searchviewmodel_search",
-      "community": 26,
+      "community": 42,
       "community_name": "SearchViewModel",
       "norm_label": ".search()"
     },
@@ -5125,7 +5136,7 @@
       "source_location": "L95",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_search_searchviewmodel_searchviewmodel_searchtext",
-      "community": 26,
+      "community": 42,
       "community_name": "SearchViewModel",
       "norm_label": ".searchtext()"
     },
@@ -5136,7 +5147,7 @@
       "source_location": "L127",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_search_searchviewmodel_searchviewmodel_searchbyletter",
-      "community": 26,
+      "community": 42,
       "community_name": "SearchViewModel",
       "norm_label": ".searchbyletter()"
     },
@@ -5147,7 +5158,7 @@
       "source_location": "L156",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_search_searchviewmodel_searchviewmodel_togglesaved",
-      "community": 26,
+      "community": 42,
       "community_name": "SearchViewModel",
       "norm_label": ".togglesaved()"
     },
@@ -5521,8 +5532,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_test_java_com_capstone_nik_mixology_drinkfiltertest",
-      "community": 11,
-      "community_name": "IngredientMeasure",
+      "community": 0,
+      "community_name": "CocktailDbDrink",
       "norm_label": "drinkfiltertest.kt"
     },
     {
@@ -5532,8 +5543,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "app_src_test_java_com_capstone_nik_mixology_drinkfiltertest_drinkfiltertest",
-      "community": 11,
-      "community_name": "IngredientMeasure",
+      "community": 0,
+      "community_name": "CocktailDbDrink",
       "norm_label": "drinkfiltertest"
     },
     {
@@ -5543,8 +5554,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "app_src_test_java_com_capstone_nik_mixology_drinkfiltertest_drinkfiltertest_alcoholicfilter_usesalcoholendpoint",
-      "community": 11,
-      "community_name": "IngredientMeasure",
+      "community": 0,
+      "community_name": "CocktailDbDrink",
       "norm_label": ".alcoholicfilter_usesalcoholendpoint()"
     },
     {
@@ -5554,8 +5565,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "app_src_test_java_com_capstone_nik_mixology_drinkfiltertest_drinkfiltertest_savedfilter_doesnotfetch",
-      "community": 11,
-      "community_name": "IngredientMeasure",
+      "community": 0,
+      "community_name": "CocktailDbDrink",
       "norm_label": ".savedfilter_doesnotfetch()"
     },
     {
@@ -5565,8 +5576,8 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "app_src_test_java_com_capstone_nik_mixology_drinkfiltertest_drinkfiltertest_fromname_resolvespresetsanddynamicfilters",
-      "community": 11,
-      "community_name": "IngredientMeasure",
+      "community": 0,
+      "community_name": "CocktailDbDrink",
       "norm_label": ".fromname_resolvespresetsanddynamicfilters()"
     },
     {
@@ -5576,8 +5587,8 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "app_src_test_java_com_capstone_nik_mixology_drinkfiltertest_drinkfiltertest_dynamic_reusescuratedpresetwhenquerymatches",
-      "community": 11,
-      "community_name": "IngredientMeasure",
+      "community": 0,
+      "community_name": "CocktailDbDrink",
       "norm_label": ".dynamic_reusescuratedpresetwhenquerymatches()"
     },
     {
@@ -5587,8 +5598,8 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "app_src_test_java_com_capstone_nik_mixology_drinkfiltertest_drinkfiltertest_hotfilters_areingredientrailsinorder",
-      "community": 11,
-      "community_name": "IngredientMeasure",
+      "community": 0,
+      "community_name": "CocktailDbDrink",
       "norm_label": ".hotfilters_areingredientrailsinorder()"
     },
     {
@@ -5598,8 +5609,8 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "app_src_test_java_com_capstone_nik_mixology_drinkfiltertest_drinkfiltertest_hasusablethumb_rejectsmissingandliteralnull",
-      "community": 11,
-      "community_name": "IngredientMeasure",
+      "community": 0,
+      "community_name": "CocktailDbDrink",
       "norm_label": ".hasusablethumb_rejectsmissingandliteralnull()"
     },
     {
@@ -5851,8 +5862,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_test_java_com_capstone_nik_mixology_network_remotemodel_cocktaildbdrinktest",
-      "community": 11,
-      "community_name": "IngredientMeasure",
+      "community": 0,
+      "community_name": "CocktailDbDrink",
       "norm_label": "cocktaildbdrinktest.kt"
     },
     {
@@ -5862,8 +5873,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "app_src_test_java_com_capstone_nik_mixology_network_remotemodel_cocktaildbdrinktest_cocktaildbdrinktest",
-      "community": 11,
-      "community_name": "IngredientMeasure",
+      "community": 0,
+      "community_name": "CocktailDbDrink",
       "norm_label": "cocktaildbdrinktest"
     },
     {
@@ -5873,8 +5884,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "app_src_test_java_com_capstone_nik_mixology_network_remotemodel_cocktaildbdrinktest_cocktaildbdrinktest_localizedinstructions_prefersspanishwhenpresent",
-      "community": 11,
-      "community_name": "IngredientMeasure",
+      "community": 0,
+      "community_name": "CocktailDbDrink",
       "norm_label": ".localizedinstructions_prefersspanishwhenpresent()"
     },
     {
@@ -5884,8 +5895,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "app_src_test_java_com_capstone_nik_mixology_network_remotemodel_cocktaildbdrinktest_cocktaildbdrinktest_todrink_useslocalizedinstructions",
-      "community": 11,
-      "community_name": "IngredientMeasure",
+      "community": 0,
+      "community_name": "CocktailDbDrink",
       "norm_label": ".todrink_useslocalizedinstructions()"
     },
     {
@@ -6083,7 +6094,7 @@
       "_origin": "ast",
       "id": "app_src_test_java_com_capstone_nik_mixology_ui_catalog_catalogcontracttest",
       "community": 6,
-      "community_name": "CatalogViewModel",
+      "community_name": "CatalogUiState",
       "norm_label": "catalogcontracttest.kt"
     },
     {
@@ -6094,7 +6105,7 @@
       "_origin": "ast",
       "id": "app_src_test_java_com_capstone_nik_mixology_ui_catalog_catalogcontracttest_catalogcontracttest",
       "community": 6,
-      "community_name": "CatalogViewModel",
+      "community_name": "CatalogUiState",
       "norm_label": "catalogcontracttest"
     },
     {
@@ -6105,7 +6116,7 @@
       "_origin": "ast",
       "id": "app_src_test_java_com_capstone_nik_mixology_ui_catalog_catalogcontracttest_catalogcontracttest_filtercatalogterms_matchescaseinsensitively",
       "community": 6,
-      "community_name": "CatalogViewModel",
+      "community_name": "CatalogUiState",
       "norm_label": ".filtercatalogterms_matchescaseinsensitively()"
     },
     {
@@ -6115,8 +6126,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_test_java_com_capstone_nik_mixology_ui_catalog_catalogscreentest",
-      "community": 6,
-      "community_name": "CatalogViewModel",
+      "community": 46,
+      "community_name": "CatalogScreen",
       "norm_label": "catalogscreentest.kt"
     },
     {
@@ -6126,8 +6137,8 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "app_src_test_java_com_capstone_nik_mixology_ui_catalog_catalogscreentest_catalogscreentest",
-      "community": 6,
-      "community_name": "CatalogViewModel",
+      "community": 46,
+      "community_name": "CatalogScreen",
       "norm_label": "catalogscreentest"
     },
     {
@@ -6137,8 +6148,8 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "app_src_test_java_com_capstone_nik_mixology_ui_catalog_catalogscreentest_catalogscreentest_terms_clickopensfilter",
-      "community": 6,
-      "community_name": "CatalogViewModel",
+      "community": 46,
+      "community_name": "CatalogScreen",
       "norm_label": ".terms_clickopensfilter()"
     },
     {
@@ -6148,8 +6159,8 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "app_src_test_java_com_capstone_nik_mixology_ui_catalog_catalogscreentest_catalogscreentest_categoryterms_donotshowingredientimages",
-      "community": 6,
-      "community_name": "CatalogViewModel",
+      "community": 46,
+      "community_name": "CatalogScreen",
       "norm_label": ".categoryterms_donotshowingredientimages()"
     },
     {
@@ -6258,8 +6269,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_test_java_com_capstone_nik_mixology_ui_components_drinkrecipebodytest",
-      "community": 0,
-      "community_name": "DrinkRecipeBody",
+      "community": 11,
+      "community_name": "IngredientMeasure",
       "norm_label": "drinkrecipebodytest.kt"
     },
     {
@@ -6269,8 +6280,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "app_src_test_java_com_capstone_nik_mixology_ui_components_drinkrecipebodytest_drinkrecipebodytest",
-      "community": 0,
-      "community_name": "DrinkRecipeBody",
+      "community": 11,
+      "community_name": "IngredientMeasure",
       "norm_label": "drinkrecipebodytest"
     },
     {
@@ -6280,8 +6291,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "app_src_test_java_com_capstone_nik_mixology_ui_components_drinkrecipebodytest_drinkrecipebodytest_instructionsteps_blank_returnsempty",
-      "community": 0,
-      "community_name": "DrinkRecipeBody",
+      "community": 11,
+      "community_name": "IngredientMeasure",
       "norm_label": ".instructionsteps_blank_returnsempty()"
     },
     {
@@ -6291,8 +6302,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "app_src_test_java_com_capstone_nik_mixology_ui_components_drinkrecipebodytest_drinkrecipebodytest_instructionsteps_singleparagraph_staysintact",
-      "community": 0,
-      "community_name": "DrinkRecipeBody",
+      "community": 11,
+      "community_name": "IngredientMeasure",
       "norm_label": ".instructionsteps_singleparagraph_staysintact()"
     },
     {
@@ -6302,8 +6313,8 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "app_src_test_java_com_capstone_nik_mixology_ui_components_drinkrecipebodytest_drinkrecipebodytest_instructionsteps_numbered_splitsonindexes",
-      "community": 0,
-      "community_name": "DrinkRecipeBody",
+      "community": 11,
+      "community_name": "IngredientMeasure",
       "norm_label": ".instructionsteps_numbered_splitsonindexes()"
     },
     {
@@ -6313,8 +6324,8 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "app_src_test_java_com_capstone_nik_mixology_ui_components_drinkrecipebodytest_drinkrecipebodytest_instructionsteps_newlines_becomesteps",
-      "community": 0,
-      "community_name": "DrinkRecipeBody",
+      "community": 11,
+      "community_name": "IngredientMeasure",
       "norm_label": ".instructionsteps_newlines_becomesteps()"
     },
     {
@@ -6324,8 +6335,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_test_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreentest",
-      "community": 0,
-      "community_name": "DrinkRecipeBody",
+      "community": 33,
+      "community_name": "DrinkDetailsIntent",
       "norm_label": "drinkdetailsscreentest.kt"
     },
     {
@@ -6335,8 +6346,8 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "app_src_test_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreentest_drinkdetailsscreentest",
-      "community": 0,
-      "community_name": "DrinkRecipeBody",
+      "community": 33,
+      "community_name": "DrinkDetailsIntent",
       "norm_label": "drinkdetailsscreentest"
     },
     {
@@ -6346,8 +6357,8 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "app_src_test_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreentest_drinkdetailsscreentest_scaffold_showsshareandback",
-      "community": 0,
-      "community_name": "DrinkRecipeBody",
+      "community": 33,
+      "community_name": "DrinkDetailsIntent",
       "norm_label": ".scaffold_showsshareandback()"
     },
     {
@@ -6357,8 +6368,8 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "app_src_test_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreentest_drinkdetailsscreentest_content_showsrecipe_andfavoriteclick",
-      "community": 0,
-      "community_name": "DrinkRecipeBody",
+      "community": 33,
+      "community_name": "DrinkDetailsIntent",
       "norm_label": ".content_showsrecipe_andfavoriteclick()"
     },
     {
@@ -6368,8 +6379,8 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "app_src_test_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreentest_drinkdetailsscreentest_loading_showsprogressindicator",
-      "community": 0,
-      "community_name": "DrinkRecipeBody",
+      "community": 33,
+      "community_name": "DrinkDetailsIntent",
       "norm_label": ".loading_showsprogressindicator()"
     },
     {
@@ -6379,9 +6390,20 @@
       "source_location": "L111",
       "_origin": "ast",
       "id": "app_src_test_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreentest_drinkdetailsscreentest_content_numberedinstructions_showssteps",
-      "community": 0,
-      "community_name": "DrinkRecipeBody",
+      "community": 33,
+      "community_name": "DrinkDetailsIntent",
       "norm_label": ".content_numberedinstructions_showssteps()"
+    },
+    {
+      "label": ".heroImage_clickOpensFullscreen_andTapDismisses()",
+      "file_type": "code",
+      "source_file": "app/src/test/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreenTest.kt",
+      "source_location": "L132",
+      "_origin": "ast",
+      "id": "app_src_test_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreentest_drinkdetailsscreentest_heroimage_clickopensfullscreen_andtapdismisses",
+      "community": 33,
+      "community_name": "DrinkDetailsIntent",
+      "norm_label": ".heroimage_clickopensfullscreen_andtapdismisses()"
     },
     {
       "label": "DrinkDetailsViewModelTest.kt",
@@ -9886,7 +9908,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkCard.kt",
-      "source_location": "L30",
+      "source_location": "L31",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -9898,7 +9920,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreen.kt",
-      "source_location": "L55",
+      "source_location": "L64",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -9922,7 +9944,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/grid/DrinkGridScreen.kt",
-      "source_location": "L59",
+      "source_location": "L60",
       "weight": 1.0,
       "context": "generic_arg",
       "_origin": "ast",
@@ -10108,6 +10130,18 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_test_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreentest_drinkdetailsscreentest_content_showsrecipe_andfavoriteclick",
+      "target": "app_src_main_java_com_capstone_nik_mixology_data_drink_drink"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "app/src/test/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreenTest.kt",
+      "source_location": "L134",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_src_test_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreentest_drinkdetailsscreentest_heroimage_clickopensfullscreen_andtapdismisses",
       "target": "app_src_main_java_com_capstone_nik_mixology_data_drink_drink"
     },
     {
@@ -13104,7 +13138,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkCard.kt",
-      "source_location": "L30",
+      "source_location": "L31",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_components_drinkcard",
@@ -13115,7 +13149,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkCard.kt",
-      "source_location": "L30",
+      "source_location": "L31",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -13127,7 +13161,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkCard.kt",
-      "source_location": "L30",
+      "source_location": "L31",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -13141,7 +13175,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkCard.kt",
-      "source_location": "L53",
+      "source_location": "L55",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_components_drinkcard_drinkcard",
@@ -13153,7 +13187,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkCard.kt",
-      "source_location": "L78",
+      "source_location": "L80",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_components_drinkcard_drinkcard",
@@ -13165,7 +13199,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/grid/DrinkGridScreen.kt",
-      "source_location": "L84",
+      "source_location": "L85",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_grid_drinkgridscreen_drinkgridscreen",
@@ -13199,7 +13233,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkImage.kt",
-      "source_location": "L37",
+      "source_location": "L38",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_components_drinkimage",
@@ -13221,7 +13255,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkImage.kt",
-      "source_location": "L59",
+      "source_location": "L60",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_components_drinkimage",
@@ -13258,10 +13292,22 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkRecipeBody.kt",
-      "source_location": "L127",
+      "source_location": "L136",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_components_drinkrecipebody_drinkheroimage",
+      "target": "app_src_main_java_com_capstone_nik_mixology_ui_components_drinkimage_drinkimage"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreen.kt",
+      "source_location": "L266",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreen_fullscreendrinkimage",
       "target": "app_src_main_java_com_capstone_nik_mixology_ui_components_drinkimage_drinkimage"
     },
     {
@@ -13280,7 +13326,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkImage.kt",
-      "source_location": "L37",
+      "source_location": "L38",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -13292,7 +13338,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkImage.kt",
-      "source_location": "L59",
+      "source_location": "L60",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -13316,7 +13362,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkRecipeBody.kt",
-      "source_location": "L121",
+      "source_location": "L125",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_components_drinkrecipebody",
@@ -13327,7 +13373,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkRecipeBody.kt",
-      "source_location": "L38",
+      "source_location": "L39",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_components_drinkrecipebody",
@@ -13338,7 +13384,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkRecipeBody.kt",
-      "source_location": "L183",
+      "source_location": "L192",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_components_drinkrecipebody",
@@ -13349,7 +13395,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkRecipeBody.kt",
-      "source_location": "L227",
+      "source_location": "L236",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_components_drinkrecipebody",
@@ -13360,7 +13406,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkRecipeBody.kt",
-      "source_location": "L155",
+      "source_location": "L164",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_components_drinkrecipebody",
@@ -13371,7 +13417,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkRecipeBody.kt",
-      "source_location": "L145",
+      "source_location": "L154",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_components_drinkrecipebody",
@@ -13383,7 +13429,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkRecipeBody.kt",
-      "source_location": "L97",
+      "source_location": "L98",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_components_drinkrecipebody_drinkrecipebody",
@@ -13395,7 +13441,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkRecipeBody.kt",
-      "source_location": "L61",
+      "source_location": "L62",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_components_drinkrecipebody_drinkrecipebody",
@@ -13406,7 +13452,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkRecipeBody.kt",
-      "source_location": "L38",
+      "source_location": "L39",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -13419,7 +13465,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkRecipeBody.kt",
-      "source_location": "L91",
+      "source_location": "L92",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_components_drinkrecipebody_drinkrecipebody",
@@ -13431,7 +13477,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkRecipeBody.kt",
-      "source_location": "L96",
+      "source_location": "L97",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_components_drinkrecipebody_drinkrecipebody",
@@ -13444,7 +13490,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkRecipeBody.kt",
-      "source_location": "L82",
+      "source_location": "L83",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_components_drinkrecipebody_drinkrecipebody",
@@ -13456,7 +13502,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkRecipeBody.kt",
-      "source_location": "L113",
+      "source_location": "L114",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_components_drinkrecipebody_drinkrecipebody",
@@ -13466,7 +13512,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkRecipeBody.kt",
-      "source_location": "L38",
+      "source_location": "L39",
       "weight": 1.0,
       "context": "generic_arg",
       "_origin": "ast",
@@ -13480,7 +13526,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreen.kt",
-      "source_location": "L183",
+      "source_location": "L194",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreen_drinkdetailscontent",
@@ -13490,7 +13536,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkRecipeBody.kt",
-      "source_location": "L121",
+      "source_location": "L125",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -13504,7 +13550,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreen.kt",
-      "source_location": "L175",
+      "source_location": "L185",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreen_drinkdetailscontent",
@@ -13665,7 +13711,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreen.kt",
-      "source_location": "L158",
+      "source_location": "L167",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -13707,6 +13753,18 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_test_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreentest_drinkdetailsscreentest_content_showsrecipe_andfavoriteclick",
+      "target": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailscontract_drinkdetailsuistate"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "app/src/test/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreenTest.kt",
+      "source_location": "L143",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_src_test_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreentest_drinkdetailsscreentest_heroimage_clickopensfullscreen_andtapdismisses",
       "target": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailscontract_drinkdetailsuistate"
     },
     {
@@ -13882,7 +13940,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreen.kt",
-      "source_location": "L158",
+      "source_location": "L167",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreen",
@@ -13893,7 +13951,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreen.kt",
-      "source_location": "L55",
+      "source_location": "L64",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreen",
@@ -13904,7 +13962,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreen.kt",
-      "source_location": "L107",
+      "source_location": "L116",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreen",
@@ -13915,7 +13973,18 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreen.kt",
-      "source_location": "L236",
+      "source_location": "L253",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreen",
+      "target": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreen_fullscreendrinkimage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreen.kt",
+      "source_location": "L292",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreen",
@@ -13927,7 +13996,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreen.kt",
-      "source_location": "L84",
+      "source_location": "L93",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreen_drinkdetailsroute",
@@ -13939,7 +14008,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreen.kt",
-      "source_location": "L94",
+      "source_location": "L103",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreen_drinkdetailsroute",
@@ -13950,7 +14019,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreen.kt",
-      "source_location": "L55",
+      "source_location": "L64",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -13962,7 +14031,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreen.kt",
-      "source_location": "L55",
+      "source_location": "L64",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -13976,7 +14045,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreen.kt",
-      "source_location": "L71",
+      "source_location": "L80",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreen_drinkdetailsroute",
@@ -13998,7 +14067,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreen.kt",
-      "source_location": "L107",
+      "source_location": "L116",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -14011,7 +14080,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreen.kt",
-      "source_location": "L141",
+      "source_location": "L150",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreen_drinkdetailsscaffold",
@@ -14029,6 +14098,18 @@
       "_origin": "ast",
       "source": "app_src_test_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreentest_drinkdetailsscreentest_scaffold_showsshareandback",
       "target": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreen_drinkdetailsscaffold"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreen.kt",
+      "source_location": "L246",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreen_drinkdetailscontent",
+      "target": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreen_fullscreendrinkimage",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -14060,6 +14141,18 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "app/src/test/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreenTest.kt",
+      "source_location": "L142",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_src_test_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreentest_drinkdetailsscreentest_heroimage_clickopensfullscreen_andtapdismisses",
+      "target": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreen_drinkdetailscontent"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "app/src/test/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreenTest.kt",
       "source_location": "L98",
       "weight": 1.0,
       "_origin": "ast",
@@ -14067,10 +14160,22 @@
       "target": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreen_drinkdetailscontent"
     },
     {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreen.kt",
+      "source_location": "L282",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreen_fullscreendrinkimage",
+      "target": "app_src_main_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreen_heroactionbutton",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreen.kt",
-      "source_location": "L236",
+      "source_location": "L292",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -14520,7 +14625,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/grid/DrinkGridScreen.kt",
-      "source_location": "L30",
+      "source_location": "L31",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_grid_drinkgridscreen",
@@ -14531,7 +14636,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/grid/DrinkGridScreen.kt",
-      "source_location": "L59",
+      "source_location": "L60",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_grid_drinkgridscreen",
@@ -14543,7 +14648,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/grid/DrinkGridScreen.kt",
-      "source_location": "L51",
+      "source_location": "L52",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_grid_drinkgridscreen_drinkgridroute",
@@ -14554,7 +14659,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/grid/DrinkGridScreen.kt",
-      "source_location": "L30",
+      "source_location": "L31",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -14566,7 +14671,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/grid/DrinkGridScreen.kt",
-      "source_location": "L30",
+      "source_location": "L31",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -14578,7 +14683,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/grid/DrinkGridScreen.kt",
-      "source_location": "L30",
+      "source_location": "L31",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -14592,7 +14697,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/grid/DrinkGridScreen.kt",
-      "source_location": "L43",
+      "source_location": "L44",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_grid_drinkgridscreen_drinkgridroute",
@@ -14614,7 +14719,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/grid/DrinkGridScreen.kt",
-      "source_location": "L59",
+      "source_location": "L60",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -18875,6 +18980,18 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "app/src/test/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreenTest.kt",
+      "source_location": "L141",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_src_test_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreentest_drinkdetailsscreentest_heroimage_clickopensfullscreen_andtapdismisses",
+      "target": "app_src_main_java_com_capstone_nik_mixology_ui_theme_theme_mixologytheme"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "app/src/test/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreenTest.kt",
       "source_location": "L97",
       "weight": 1.0,
       "_origin": "ast",
@@ -20534,6 +20651,17 @@
       "_origin": "ast",
       "source": "app_src_test_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreentest_drinkdetailsscreentest",
       "target": "app_src_test_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreentest_drinkdetailsscreentest_content_showsrecipe_andfavoriteclick",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/test/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreenTest.kt",
+      "source_location": "L132",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_src_test_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreentest_drinkdetailsscreentest",
+      "target": "app_src_test_java_com_capstone_nik_mixology_ui_details_drinkdetailsscreentest_drinkdetailsscreentest_heroimage_clickopensfullscreen_andtapdismisses",
       "confidence_score": 1.0
     },
     {
@@ -22416,5 +22544,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "f9d22c3e85275d0220835798611ceadcf34712ed"
+  "built_at_commit": "a8f15a18f1ec4bfc778d69944f542a45b37fab71"
 }

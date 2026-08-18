@@ -20,6 +20,7 @@ fun DrinkImage(
     modifier: Modifier = Modifier,
     contentScale: ContentScale = ContentScale.Crop,
     errorRes: Int = R.drawable.empty_glass,
+    contentDescription: String? = stringResource(R.string.content_desc_drink_image),
 ) {
     AsyncImage(
         model = ImageRequest.Builder(LocalContext.current)
@@ -28,7 +29,7 @@ fun DrinkImage(
             .fallback(errorRes)
             .crossfade(true)
             .build(),
-        contentDescription = stringResource(R.string.content_desc_drink_image),
+        contentDescription = contentDescription,
         contentScale = contentScale,
         modifier = modifier,
     )

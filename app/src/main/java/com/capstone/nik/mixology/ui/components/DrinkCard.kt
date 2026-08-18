@@ -26,6 +26,7 @@ import com.capstone.nik.mixology.ui.theme.PosterScrimStart
 
 val DrinkCardRailWidth = 140.dp
 val DrinkCardRailHeight = 200.dp
+const val SavedDrinkCardAspectRatio = 3f / 4f
 
 @Composable
 fun DrinkCard(
@@ -34,6 +35,7 @@ fun DrinkCard(
     onToggleSaved: () -> Unit,
     modifier: Modifier = Modifier.fillMaxWidth(),
     posterHeight: Dp? = null,
+    posterAspectRatio: Float = 1f,
 ) {
     Card(
         onClick = onClick,
@@ -47,7 +49,7 @@ fun DrinkCard(
                 .fillMaxWidth()
                 .then(
                     if (posterHeight != null) Modifier.height(posterHeight)
-                    else Modifier.aspectRatio(1f),
+                    else Modifier.aspectRatio(posterAspectRatio),
                 ),
         ) {
             DrinkImage(

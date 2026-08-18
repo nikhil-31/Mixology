@@ -128,4 +128,27 @@ class DrinkDetailsScreenTest {
         composeRule.onNodeWithText("Shake with ice.").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("Strain into the glass.").performScrollTo().assertIsDisplayed()
     }
+
+    @Test
+    fun heroImage_clickOpensFullscreen_andTapDismisses() {
+        val drink = Drink(
+            id = "11007",
+            name = "Margarita",
+            thumb = "https://example.com/m.jpg",
+            instructions = "Shake.",
+        )
+        composeRule.setContent {
+            MixologyTheme {
+                DrinkDetailsContent(
+                    state = DrinkDetailsUiState(drink = drink),
+                    onToggleSaved = {},
+                )
+            }
+        }
+
+        composeRule.onNodeWithContentDescription("Image of the cocktail").performClick()
+        composeRule.onNodeWithContentDescription("Full screen cocktail image").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("Up navigation").performClick()
+        composeRule.onNodeWithContentDescription("Full screen cocktail image").assertDoesNotExist()
+    }
 }

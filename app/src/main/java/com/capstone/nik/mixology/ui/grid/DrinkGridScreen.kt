@@ -25,6 +25,7 @@ import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.ui.components.DrinkCard
+import com.capstone.nik.mixology.ui.components.SavedDrinkCardAspectRatio
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 
 @Composable
@@ -85,6 +86,11 @@ fun DrinkGridScreen(
                         item = item,
                         onClick = { onDrinkClick(item) },
                         onToggleSaved = { onToggleSaved(item) },
+                        posterAspectRatio = if (filter.showEmptySaved) {
+                            SavedDrinkCardAspectRatio
+                        } else {
+                            1f
+                        },
                     )
                 }
             }

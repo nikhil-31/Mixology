@@ -1,29 +1,29 @@
 # Graph Report - Mixology  (2026-08-18)
 
 ## Corpus Check
-- 107 files · ~47,633 words
+- 107 files · ~47,876 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 724 nodes · 1249 edges · 42 communities (37 shown, 5 thin omitted)
-- Extraction: 79% EXTRACTED · 21% INFERRED · 0% AMBIGUOUS · INFERRED: 257 edges (avg confidence: 0.8)
+- 726 nodes · 1258 edges · 48 communities (42 shown, 6 thin omitted)
+- Extraction: 79% EXTRACTED · 21% INFERRED · 0% AMBIGUOUS · INFERRED: 262 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `f9d22c3e`
+- Built from commit: `a8f15a18`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- DrinkRecipeBody
+- CocktailDbDrink
 - DrinkDao
 - Measures
 - MixologyTheme
 - HotViewModel
 - WidgetContent
-- CatalogViewModel
+- CatalogUiState
 - MixologyApp
-- .sendEffect
+- DrinkGridViewModel
 - cocktailDrink
 - RandomixerViewModel
 - IngredientMeasure
@@ -36,24 +36,30 @@
 - DrinkGridViewModelTest.kt
 - Drink
 - fetch_random_drink.py
-- SearchViewModel
+- SearchIntent
 - Mixology
 - DrinkRepositoryTest
 - CocktailDbResponse
 - fetch_randomixer_csv.py
 - FakeCocktailService
 - gradlew
+- DrinkDetailsIntent
 - DrinkDetailsViewModelTest.kt
 - custom.md
+- .setState
 - CatalogViewModelTest.kt
 - NetworkModule
 - MainDispatcherRule
+- SearchViewModel
+- .sendEffect
 - Play Store listing
+- MviViewModel
+- CatalogScreen
 - MixologyDatabaseMigrationTest
 
 ## God Nodes (most connected - your core abstractions)
-1. `Drink` - 52 edges
-2. `MixologyTheme()` - 36 edges
+1. `Drink` - 53 edges
+2. `MixologyTheme()` - 37 edges
 3. `DrinkRepository` - 31 edges
 4. `FakeCocktailService` - 23 edges
 5. `DrinkDao` - 22 edges
@@ -78,11 +84,11 @@
 ## Import Cycles
 - None detected.
 
-## Communities (42 total, 5 thin omitted)
+## Communities (48 total, 6 thin omitted)
 
-### Community 0 - "DrinkRecipeBody"
-Cohesion: 0.12
-Nodes (16): DrinkHeroImage(), DrinkRecipeBody(), InstructionBlock(), instructionSteps(), Modifier, RecipeChip(), RecipeSectionTitle(), DrinkDetailsUiState (+8 more)
+### Community 0 - "CocktailDbDrink"
+Cohesion: 0.13
+Nodes (3): CocktailDbDrink, DrinkFilterTest, CocktailDbDrinkTest
 
 ### Community 1 - "DrinkDao"
 Cohesion: 0.06
@@ -97,32 +103,32 @@ Cohesion: 0.08
 Nodes (21): DrinkGridRoute(), DrinkGridScreen(), DrinkFilter, SnackbarHostState, RandomixerUiState, RandomixerScreen(), SearchMode, INGREDIENT (+13 more)
 
 ### Community 4 - "HotViewModel"
-Cohesion: 0.08
-Nodes (24): DrinkCard(), Dp, Modifier, FavoriteButton(), Modifier, BrowseCatalog, HotCategory, HotEffect (+16 more)
+Cohesion: 0.11
+Nodes (19): BrowseCatalog, HotCategory, HotEffect, HotIntent, HotUiState, Load, OpenCatalog, OpenDrink (+11 more)
 
 ### Community 5 - "WidgetContent"
 Cohesion: 0.16
 Nodes (15): DrinkWidgetProvider, Context, GlanceAppWidget, Intent, DrinkRow(), Context, GlanceAppWidget, Intent (+7 more)
 
-### Community 6 - "CatalogViewModel"
-Cohesion: 0.09
-Nodes (23): FilterKind, ALCOHOL, DRINK_TYPE, GLASS, INGREDIENT, CatalogEffect, CatalogIntent, CatalogUiState (+15 more)
+### Community 6 - "CatalogUiState"
+Cohesion: 0.29
+Nodes (7): CatalogEffect, CatalogUiState, filterCatalogTerms(), OpenFilter, withCatalogTerms(), withQuery(), CatalogContractTest
 
 ### Community 7 - "MixologyApp"
 Cohesion: 0.07
-Nodes (28): ActivityMain, Intent, Catalog, detailsRoute(), DrawerDestination, encodeRouteArg(), Filter, gridRoute() (+20 more)
+Nodes (30): ActivityMain, Intent, Catalog, detailsRoute(), DrawerDestination, encodeRouteArg(), Filter, gridRoute() (+22 more)
 
-### Community 8 - ".sendEffect"
-Cohesion: 0.06
-Nodes (37): AddToShoppingList, Back, DrinkDetailsEffect, DrinkDetailsIntent, Load, NavigateBack, OpenUrl, OpenVideo (+29 more)
+### Community 8 - "DrinkGridViewModel"
+Cohesion: 0.18
+Nodes (11): Bind, DrinkGridEffect, DrinkGridIntent, DrinkGridUiState, OpenDrink, ShowMessage, ShowMessageRes, ToggleSaved (+3 more)
 
 ### Community 10 - "RandomixerViewModel"
-Cohesion: 0.13
-Nodes (15): recordCrash(), RandomixerEffect, RandomixerIntent, Refresh, ShowMessageRes, ShowUndo, SwipeDiscard, SwipeSave (+7 more)
+Cohesion: 0.14
+Nodes (14): RandomixerEffect, RandomixerIntent, Refresh, ShowMessageRes, ShowUndo, SwipeDiscard, SwipeSave, ToggleHideSaved (+6 more)
 
 ### Community 11 - "IngredientMeasure"
 Cohesion: 0.06
-Nodes (23): IngredientListConverter, CocktailDbDrink, CircularDrinkImage(), DrinkImage(), IngredientImage(), Dp, Modifier, IngredientRow() (+15 more)
+Nodes (33): IngredientListConverter, DrinkCard(), Dp, Modifier, CircularDrinkImage(), DrinkImage(), IngredientImage(), Dp (+25 more)
 
 ### Community 12 - "setUp"
 Cohesion: 0.40
@@ -137,7 +143,7 @@ Cohesion: 0.08
 Nodes (16): Activity, Animator, AppEntryPoint, MyApplication, forTests(), StateFlow, NetworkMonitor, Overlay (+8 more)
 
 ### Community 21 - "MainViewModel"
-Cohesion: 0.12
+Cohesion: 0.13
 Nodes (13): DismissMenu, DrinkSelected, MainEffect, MainIntent, MainUiState, Navigate, OpenDetails, OpenMenu (+5 more)
 
 ### Community 22 - "ThemeMode"
@@ -149,16 +155,16 @@ Cohesion: 0.32
 Nodes (6): awaitItemUntil(), bind_loadsCachedFilterDrinks(), T, openDrink_emitsEffect(), setUp(), toggleSaved_emitsAddedMessage()
 
 ### Community 24 - "Drink"
-Cohesion: 0.06
-Nodes (13): ActivityMainEspressoTest, Drink, ShoppingItemEntity, WidgetEntryPoint, DrinkRepository, hasUsableThumb(), DrinkFilter, Flow (+5 more)
+Cohesion: 0.05
+Nodes (18): ActivityMainEspressoTest, Drink, ShoppingItemEntity, WidgetEntryPoint, DrinkRepository, FilterKind, ALCOHOL, DRINK_TYPE (+10 more)
 
 ### Community 25 - "fetch_random_drink.py"
 Cohesion: 0.26
 Nodes (16): datetime, blank_to_none(), connect(), drink_row(), ensure_schema(), fetch_random_drink(), ingredient_image_url(), ingredient_rows() (+8 more)
 
-### Community 26 - "SearchViewModel"
-Cohesion: 0.16
-Nodes (11): Back, NavigateBack, OpenDrink, Search, SearchEffect, SearchIntent, SetMode, ShowMessageRes (+3 more)
+### Community 26 - "SearchIntent"
+Cohesion: 0.22
+Nodes (9): Back, NavigateBack, OpenDrink, Search, SearchEffect, SearchIntent, SetMode, ShowMessageRes (+1 more)
 
 ### Community 27 - "Mixology"
 Cohesion: 0.25
@@ -176,6 +182,10 @@ Nodes (12): Exception, Path, cell(), drink_row(), fetch_random_drink(), FetchErr
 Cohesion: 0.60
 Nodes (3): gradlew script, die(), warn()
 
+### Community 33 - "DrinkDetailsIntent"
+Cohesion: 0.10
+Nodes (22): AddToShoppingList, Back, DrinkDetailsEffect, DrinkDetailsIntent, DrinkDetailsUiState, Load, NavigateBack, OpenUrl (+14 more)
+
 ### Community 34 - "DrinkDetailsViewModelTest.kt"
 Cohesion: 0.32
 Nodes (5): addToShoppingList_insertsIngredients(), awaitItemUntil(), T, load_usesLookupRecipe(), setUp()
@@ -183,6 +193,10 @@ Nodes (5): addToShoppingList_insertsIngredients(), awaitItemUntil(), T, load_use
 ### Community 35 - "custom.md"
 Cohesion: 0.50
 Nodes (3): Describe the change, Optional Implementation, Why is this helpful
+
+### Community 36 - ".setState"
+Cohesion: 0.22
+Nodes (7): CatalogIntent, Load, OpenTerm, QueryChanged, SelectKind, CatalogViewModel, Job
 
 ### Community 39 - "CatalogViewModelTest.kt"
 Cohesion: 0.17
@@ -196,28 +210,40 @@ Nodes (3): Context, NetworkModule, OkHttpClient
 Cohesion: 0.40
 Nodes (3): MainDispatcherRule, Description, TestWatcher
 
+### Community 42 - "SearchViewModel"
+Cohesion: 0.31
+Nodes (3): recordCrash(), Job, SearchViewModel
+
 ### Community 44 - "Play Store listing"
 Cohesion: 0.40
 Nodes (4): English, Español, Play Store listing, Screenshot checklist
 
+### Community 45 - "MviViewModel"
+Cohesion: 0.33
+Nodes (9): CollectMviEffects(), Flow, StateFlow, MviStore, MviViewModel, E, I, S (+1 more)
+
+### Community 46 - "CatalogScreen"
+Cohesion: 0.36
+Nodes (4): CatalogRoute(), CatalogScreen(), CatalogTermRow(), CatalogScreenTest
+
 ## Knowledge Gaps
 - **80 isolated node(s):** `CocktailURLs`, `ALCOHOL`, `GLASS`, `INGREDIENT`, `DRINK_TYPE` (+75 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **5 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **6 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Drink` connect `Drink` to `DrinkRecipeBody`, `DrinkDao`, `DrinkDetailsViewModelTest.kt`, `MixologyTheme`, `HotViewModel`, `WidgetContent`, `MixologyApp`, `.sendEffect`, `RandomixerViewModel`, `IngredientMeasure`, `MainViewModel`, `SearchViewModel`?**
-  _High betweenness centrality (0.288) - this node is a cross-community bridge._
-- **Why does `MixologyApp()` connect `MixologyApp` to `DrinkRecipeBody`, `MixologyTheme`, `HotViewModel`, `CatalogViewModel`, `.sendEffect`, `ShoppingViewModel`, `MainViewModel`, `ThemeMode`, `Drink`?**
+- **Why does `Drink` connect `Drink` to `CocktailDbDrink`, `DrinkDao`, `DrinkDetailsIntent`, `MixologyTheme`, `HotViewModel`, `WidgetContent`, `DrinkDetailsViewModelTest.kt`, `MixologyApp`, `DrinkGridViewModel`, `RandomixerViewModel`, `IngredientMeasure`, `.sendEffect`, `SearchViewModel`, `MainViewModel`?**
+  _High betweenness centrality (0.289) - this node is a cross-community bridge._
+- **Why does `MixologyApp()` connect `MixologyApp` to `DrinkDetailsIntent`, `MixologyTheme`, `HotViewModel`, `MviViewModel`, `CatalogScreen`, `ShoppingViewModel`, `MainViewModel`, `ThemeMode`, `Drink`?**
   _High betweenness centrality (0.095) - this node is a cross-community bridge._
-- **Why does `MixologyTheme()` connect `MixologyTheme` to `DrinkRecipeBody`, `HotViewModel`, `CatalogViewModel`, `MixologyApp`, `ShoppingViewModel`, `ThemeMode`?**
+- **Why does `MixologyTheme()` connect `MixologyTheme` to `DrinkDetailsIntent`, `HotViewModel`, `MixologyApp`, `CatalogScreen`, `ShoppingViewModel`, `ThemeMode`?**
   _High betweenness centrality (0.089) - this node is a cross-community bridge._
-- **Are the 19 inferred relationships involving `Drink` (e.g. with `.drinkExtras_showsDrinkName()` and `.content_numberedInstructions_showsSteps()`) actually correct?**
-  _`Drink` has 19 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 35 inferred relationships involving `MixologyTheme()` (e.g. with `.onCreate()` and `rememberThemeMode()`) actually correct?**
-  _`MixologyTheme()` has 35 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 20 inferred relationships involving `Drink` (e.g. with `.drinkExtras_showsDrinkName()` and `.content_numberedInstructions_showsSteps()`) actually correct?**
+  _`Drink` has 20 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 36 inferred relationships involving `MixologyTheme()` (e.g. with `.onCreate()` and `rememberThemeMode()`) actually correct?**
+  _`MixologyTheme()` has 36 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 6 inferred relationships involving `DrinkRepository` (e.g. with `queryChanged_filtersTermsAcrossMultipleSearches()` and `setUp()`) actually correct?**
   _`DrinkRepository` has 6 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 5 inferred relationships involving `FakeCocktailService` (e.g. with `queryChanged_filtersTermsAcrossMultipleSearches()` and `setUp()`) actually correct?**

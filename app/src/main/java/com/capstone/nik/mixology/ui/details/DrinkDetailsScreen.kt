@@ -3,6 +3,7 @@ package com.capstone.nik.mixology.ui.details
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,20 +34,28 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.ui.components.DrinkHeroImage
+import com.capstone.nik.mixology.ui.components.DrinkHeroImageHeight
+import com.capstone.nik.mixology.ui.components.DrinkHeroViewportHeight
+import com.capstone.nik.mixology.ui.components.DrinkImage
 import com.capstone.nik.mixology.ui.components.DrinkRecipeBody
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 import com.capstone.nik.mixology.ui.theme.MixologyDetailsTitle
@@ -164,19 +173,21 @@ fun DrinkDetailsContent(
     onOpenVideo: (String) -> Unit = {},
 ) {
     val drink = state.drink
+    var fullscreenImage by remember { mutableStateOf(false) }
     Box(modifier = Modifier.fillMaxSize()) {
         if (drink != null) {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(356.dp),
+                        .height(DrinkHeroViewportHeight),
                 ) {
                     DrinkHeroImage(
                         url = drink.thumb,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(380.dp),
+                            .height(DrinkHeroImageHeight),
+                        onClick = { fullscreenImage = true },
                     )
                 }
                 if (drink.hasRecipe) {
@@ -229,6 +240,51 @@ fun DrinkDetailsContent(
         }
         if (state.loading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+        }
+    }
+    if (fullscreenImage && drink != null) {
+        FullscreenDrinkImage(
+            url = drink.thumb,
+            onDismiss = { fullscreenImage = false },
+        )
+    }
+}
+
+@Composable
+private fun FullscreenDrinkImage(
+    url: String?,
+    onDismiss: () -> Unit,
+) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false,
+        ),
+    ) {
+        Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+            DrinkImage(
+                url = url,
+                contentScale = ContentScale.Fit,
+                contentDescription = stringResource(R.string.content_desc_fullscreen_drink_image),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clickable(onClick = onDismiss),
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .statusBarsPadding()
+                    .padding(horizontal = 4.dp, vertical = 4.dp)
+                    .align(Alignment.TopStart),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                HeroActionButton(
+                    onClick = onDismiss,
+                    contentDescription = stringResource(R.string.content_desc_up_navigation),
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                )
+            }
         }
     }
 }

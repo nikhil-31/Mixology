@@ -1,6 +1,7 @@
 package com.capstone.nik.mixology.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -118,12 +119,20 @@ fun DrinkRecipeBody(
     }
 }
 
+val DrinkHeroImageHeight = 504.dp
+val DrinkHeroViewportHeight = 480.dp
+
 @Composable
 fun DrinkHeroImage(
     url: String?,
-    modifier: Modifier = Modifier.fillMaxWidth().height(380.dp),
+    modifier: Modifier = Modifier.fillMaxWidth().height(DrinkHeroImageHeight),
+    onClick: (() -> Unit)? = null,
 ) {
-    Box(modifier = modifier) {
+    Box(
+        modifier = modifier.then(
+            if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier,
+        ),
+    ) {
         DrinkImage(
             url = url,
             modifier = Modifier.fillMaxSize(),

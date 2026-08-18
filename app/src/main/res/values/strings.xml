@@ -8,6 +8,7 @@
 
     <!-- Content Description for accessibility -->
     <string name="content_desc_drink_image">Image of the cocktail</string>
+    <string name="content_desc_fullscreen_drink_image">Full screen cocktail image</string>
     <string name="content_desc_save_cocktail">Save cocktail</string>
     <string name="content_desc_unsave_cocktail">Remove saved cocktail</string>
     <string name="content_desc_Add_Delete_button">Add or delete</string>

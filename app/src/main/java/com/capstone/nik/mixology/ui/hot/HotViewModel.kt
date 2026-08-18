@@ -2,7 +2,6 @@ package com.capstone.nik.mixology.ui.hot
 
 import android.util.Log
 import androidx.lifecycle.viewModelScope
-import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.recordCrash
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
@@ -80,10 +79,8 @@ class HotViewModel @Inject constructor(
         viewModelScope.launch {
             if (item.saved) {
                 repository.unsave(item.id)
-                sendEffect(HotEffect.ShowMessageRes(R.string.drink_deleted))
             } else {
                 repository.save(item)
-                sendEffect(HotEffect.ShowMessageRes(R.string.drink_added))
             }
         }
     }

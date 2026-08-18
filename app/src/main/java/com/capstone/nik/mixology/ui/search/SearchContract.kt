@@ -8,7 +8,6 @@ const val SEARCH_MIN_CHARS = 2
 enum class SearchMode {
     NAME,
     INGREDIENT,
-    LETTER,
 }
 
 data class SearchUiState(

@@ -128,13 +128,6 @@ class DrinkRepository @Inject constructor(
         return entities.map { it.toDrink() }
     }
 
-    @Throws(IOException::class)
-    suspend fun searchByLetter(letter: String): List<Drink> {
-        val drinks = service.getSearchByLetter(letter).drinks.orEmpty().mapNotNull { it.toDrink() }
-        drinks.filter { it.hasRecipe }.forEach { dao.upsertRecipe(it.toEntity()) }
-        return drinks
-    }
-
     suspend fun save(drink: Drink) {
         dao.saveDrink(drink.toEntity().copy(saved = true))
         notifyWidgets()

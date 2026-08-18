@@ -55,10 +55,8 @@ class DrinkGridViewModel @Inject constructor(
         viewModelScope.launch {
             if (item.saved) {
                 repository.unsave(item.id)
-                sendEffect(DrinkGridEffect.ShowMessageRes(R.string.drink_deleted))
             } else {
                 repository.save(item)
-                sendEffect(DrinkGridEffect.ShowMessageRes(R.string.drink_added))
             }
         }
     }

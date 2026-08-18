@@ -47,8 +47,9 @@ class SearchScreenTest {
         }
 
         composeRule.onNodeWithText("xyz").assertIsDisplayed()
-        composeRule.onNodeWithText("Sorry. Drink not available in the database. Try a new search.")
-            .assertIsDisplayed()
+        composeRule.onNodeWithText("No drinks found").assertIsDisplayed()
+        composeRule.onNodeWithText("Nothing matched “xyz”").assertIsDisplayed()
+        composeRule.onNodeWithText("Try a different drink name, or search by ingredient.").assertIsDisplayed()
     }
 
     @Test
@@ -179,8 +180,8 @@ class SearchScreenTest {
             }
         }
 
-        composeRule.onNodeWithText("Name").assertIsDisplayed()
+        composeRule.onNodeWithText("Drink name").assertIsDisplayed()
         composeRule.onNodeWithText("Ingredient").assertIsDisplayed()
-        composeRule.onNodeWithText("A–Z").assertIsDisplayed()
+        composeRule.onNodeWithText("A–Z").assertDoesNotExist()
     }
 }

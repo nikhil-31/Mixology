@@ -50,7 +50,6 @@ class RandomixerViewModel @Inject constructor(
             try {
                 repository.save(drink)
                 lastUndo = UndoAction.Saved(drink)
-                sendEffect(RandomixerEffect.ShowUndo(R.string.drink_added))
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to save drink", e)
                 recordCrash(e)

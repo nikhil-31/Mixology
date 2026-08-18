@@ -20,10 +20,6 @@
     <string name="detail_screen_instructions">Instructions</string>
     <string name="detail_screen_ingredients">Ingredients</string>
 
-    <!-- Add or delete to database -->
-    <string name="drink_added">Drink Saved</string>
-    <string name="drink_deleted">Drink Deleted</string>
-
     <!-- Network error -->
     <string name="network_error">Network error</string>
     <string name="network_error_no_network_available">No Internet Connection</string>
@@ -56,9 +52,12 @@
     <string name="action_undo">Undo</string>
     <string name="action_retry">Retry</string>
 
-    <string name="search_mode_name">Name</string>
+    <string name="search_mode_name">Drink name</string>
     <string name="search_mode_ingredient">Ingredient</string>
-    <string name="search_mode_letter">A–Z</string>
+    <string name="search_empty_title">No drinks found</string>
+    <string name="search_empty_query">Nothing matched “%1$s”</string>
+    <string name="search_empty_hint_name">Try a different drink name, or search by ingredient.</string>
+    <string name="search_empty_hint_ingredient">Try a different ingredient, or search by name.</string>
 
     <string name="settings_appearance">Appearance</string>
     <string name="settings_theme_system">System default</string>

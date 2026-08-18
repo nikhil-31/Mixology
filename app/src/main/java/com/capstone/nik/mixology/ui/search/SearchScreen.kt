@@ -10,13 +10,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.LocalBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -25,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -44,8 +48,8 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.capstone.nik.mixology.R
@@ -113,12 +117,9 @@ fun SearchScreen(
     }
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
-    val letterMode = state.mode == SearchMode.LETTER
 
     LaunchedEffect(Unit) {
-        if (!letterMode) {
-            runCatching { focusRequester.requestFocus() }
-        }
+        runCatching { focusRequester.requestFocus() }
     }
 
     fun emitSearch(value: String) {
@@ -153,44 +154,33 @@ fun SearchScreen(
                         contentDescription = stringResource(R.string.content_desc_up_navigation),
                     )
                 }
-                if (!letterMode) {
-                    TextField(
-                        value = queryText,
-                        onValueChange = { value ->
-                            queryText = value
-                            emitSearch(value)
-                        },
-                        singleLine = true,
-                        placeholder = { Text(stringResource(R.string.action_search)) },
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = MaterialTheme.colorScheme.surface,
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                            cursorColor = MaterialTheme.colorScheme.primary,
-                            focusedIndicatorColor = MaterialTheme.colorScheme.primary,
-                            unfocusedIndicatorColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
-                        ),
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                        keyboardActions = KeyboardActions(onSearch = { submitSearch() }),
-                        modifier = Modifier
-                            .weight(1f)
-                            .focusRequester(focusRequester),
-                    )
-                    IconButton(onClick = { submitSearch() }) {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = stringResource(R.string.action_search),
-                        )
-                    }
-                } else {
-                    Text(
-                        text = stringResource(R.string.search_mode_letter),
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(end = 16.dp),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
+                TextField(
+                    value = queryText,
+                    onValueChange = { value ->
+                        queryText = value
+                        emitSearch(value)
+                    },
+                    singleLine = true,
+                    placeholder = { Text(stringResource(R.string.action_search)) },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        cursorColor = MaterialTheme.colorScheme.primary,
+                        focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                        unfocusedIndicatorColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                    ),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                    keyboardActions = KeyboardActions(onSearch = { submitSearch() }),
+                    modifier = Modifier
+                        .weight(1f)
+                        .focusRequester(focusRequester),
+                )
+                IconButton(onClick = { submitSearch() }) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = stringResource(R.string.action_search),
                     )
                 }
             }
@@ -198,22 +188,13 @@ fun SearchScreen(
                 mode = state.mode,
                 onModeSelected = onModeSelected,
             )
-            if (letterMode) {
-                LetterChips(
-                    selected = state.query,
-                    onLetterSelected = onSearch,
-                )
-            }
             Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                 when {
                     state.loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
-                    state.empty -> Text(
-                        text = stringResource(R.string.network_error_search_no_data_available),
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .padding(24.dp),
-                        fontSize = 20.sp,
-                        color = MaterialTheme.colorScheme.onSurface,
+                    state.empty -> SearchEmptyResults(
+                        query = state.query,
+                        mode = state.mode,
+                        modifier = Modifier.align(Alignment.Center).padding(horizontal = 32.dp),
                     )
                     else -> LazyVerticalGrid(
                         columns = GridCells.Fixed(2),
@@ -240,6 +221,59 @@ fun SearchScreen(
 }
 
 @Composable
+private fun SearchEmptyResults(
+    query: String,
+    mode: SearchMode,
+    modifier: Modifier = Modifier,
+) {
+    val hintRes = if (mode == SearchMode.INGREDIENT) {
+        R.string.search_empty_hint_ingredient
+    } else {
+        R.string.search_empty_hint_name
+    }
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Surface(
+            modifier = Modifier.size(88.dp),
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.surfaceVariant,
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    imageVector = Icons.Outlined.LocalBar,
+                    contentDescription = null,
+                    modifier = Modifier.size(40.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+        Text(
+            text = stringResource(R.string.search_empty_title),
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center,
+        )
+        if (query.isNotBlank()) {
+            Text(
+                text = stringResource(R.string.search_empty_query, query),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+            )
+        }
+        Text(
+            text = stringResource(hintRes),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+        )
+    }
+}
+
+@Composable
 private fun SearchModeChips(
     mode: SearchMode,
     onModeSelected: (SearchMode) -> Unit,
@@ -247,7 +281,6 @@ private fun SearchModeChips(
     val modes = listOf(
         SearchMode.NAME to R.string.search_mode_name,
         SearchMode.INGREDIENT to R.string.search_mode_ingredient,
-        SearchMode.LETTER to R.string.search_mode_letter,
     )
     Row(
         modifier = Modifier
@@ -261,29 +294,6 @@ private fun SearchModeChips(
                 selected = mode == value,
                 onClick = { onModeSelected(value) },
                 label = { Text(stringResource(titleRes)) },
-            )
-        }
-    }
-}
-
-@Composable
-private fun LetterChips(
-    selected: String,
-    onLetterSelected: (String) -> Unit,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .horizontalScroll(rememberScrollState())
-            .padding(horizontal = 12.dp, vertical = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        ('A'..'Z').forEach { letter ->
-            val value = letter.toString()
-            FilterChip(
-                selected = selected.equals(value, ignoreCase = true),
-                onClick = { onLetterSelected(value) },
-                label = { Text(value) },
             )
         }
     }

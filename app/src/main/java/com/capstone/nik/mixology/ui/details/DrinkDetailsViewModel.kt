@@ -114,10 +114,8 @@ class DrinkDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             if (currentState.saved) {
                 repository.unsave(drink.id)
-                sendEffect(DrinkDetailsEffect.ShowMessageRes(R.string.drink_deleted))
             } else {
                 repository.save(drink)
-                sendEffect(DrinkDetailsEffect.ShowMessageRes(R.string.drink_added))
             }
         }
     }

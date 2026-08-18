@@ -77,14 +77,7 @@ class SearchViewModel @Inject constructor(
         searchJob?.cancel()
         mode.value = next
         catalogKind = null
-        if (next == SearchMode.LETTER) {
-            query.value = ""
-            queried.value = false
-            drinks.value = emptyList()
-            loading.value = false
-        } else {
-            search(query.value)
-        }
+        search(query.value)
     }
 
     private fun search(rawQuery: String, immediate: Boolean = false) {
@@ -92,10 +85,7 @@ class SearchViewModel @Inject constructor(
         searchJob?.cancel()
         query.value = adjusted
         drinks.value = emptyList()
-        when (mode.value) {
-            SearchMode.LETTER -> searchByLetter(adjusted)
-            SearchMode.NAME, SearchMode.INGREDIENT -> searchText(adjusted, immediate)
-        }
+        searchText(adjusted, immediate)
     }
 
     private fun searchText(adjusted: String, immediate: Boolean) {
@@ -133,43 +123,12 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    private fun searchByLetter(adjusted: String) {
-        val letter = adjusted.firstOrNull()?.uppercaseChar()
-        if (letter == null || letter !in 'A'..'Z') {
-            queried.value = false
-            drinks.value = emptyList()
-            loading.value = false
-            return
-        }
-        query.value = letter.toString()
-        queried.value = true
-        searchJob = viewModelScope.launch {
-            loading.value = true
-            try {
-                drinks.value = repository.searchByLetter(letter.toString())
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                Log.e(TAG, "Letter search failed", e)
-                recordCrash(e)
-                drinks.value = emptyList()
-                sendEffect(SearchEffect.ShowMessageRes(R.string.network_error))
-            } finally {
-                if (isActive) {
-                    loading.value = false
-                }
-            }
-        }
-    }
-
     private fun toggleSaved(drink: Drink) {
         viewModelScope.launch {
             if (drink.saved) {
                 repository.unsave(drink.id)
-                sendEffect(SearchEffect.ShowMessageRes(R.string.drink_deleted))
             } else {
                 repository.save(drink)
-                sendEffect(SearchEffect.ShowMessageRes(R.string.drink_added))
             }
         }
     }

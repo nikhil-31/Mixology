@@ -21,6 +21,7 @@ class FakeCocktailService : CocktailService {
     var ingredients = CatalogListResponse()
     var alcoholic = CatalogListResponse()
     var failLookup = false
+    var failRandom = false
 
     override suspend fun getAlcoholFilter(filter: String) = alcohol
     override suspend fun getGlassFilter(filter: String) = glass
@@ -28,7 +29,10 @@ class FakeCocktailService : CocktailService {
     override suspend fun getDrinkTypeFilter(filter: String) =
         drinkTypesByQuery[filter] ?: drinkType
     override suspend fun getSearchResults(search: String) = this.search
-    override suspend fun getRandomixer() = random
+    override suspend fun getRandomixer(): CocktailDbResponse {
+        if (failRandom) error("should not hit random.php")
+        return random
+    }
     override suspend fun getDrinkById(id: String): CocktailDbResponse {
         if (failLookup) error("lookup failed")
         return lookup

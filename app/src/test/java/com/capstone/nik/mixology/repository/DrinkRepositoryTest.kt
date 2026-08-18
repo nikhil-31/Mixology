@@ -156,4 +156,14 @@ class DrinkRepositoryTest {
         assertEquals(30, moved.size)
         assertTrue(moved.none { it.id == "2" })
     }
+
+    @Test
+    fun randomDrink_usesLocalRecipe_notEndpoint() = runTest {
+        service.failRandom = true
+        service.random = CocktailDbResponse(drinks = listOf(cocktailDrink("999", "Remote")))
+        repository.save(cocktailDrink("11007", "Margarita").toDrink()!!)
+        val drink = repository.randomDrink()
+        assertEquals("11007", drink?.id)
+        assertEquals("Margarita", drink?.name)
+    }
 }

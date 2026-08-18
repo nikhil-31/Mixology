@@ -125,10 +125,21 @@ fun RandomixerScreen(
         FilterChip(
             selected = state.hideSaved,
             onClick = onToggleHideSaved,
-            label = { Text(stringResource(R.string.randomixer_hide_saved)) },
+            label = {
+                Text(
+                    stringResource(
+                        if (state.hideSaved) {
+                            R.string.randomixer_saved_hidden
+                        } else {
+                            R.string.randomixer_saved_showing
+                        },
+                    ),
+                )
+            },
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .padding(12.dp),
+                .padding(12.dp)
+                .testTag("randomixer_hide_saved"),
         )
         if (state.loading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))

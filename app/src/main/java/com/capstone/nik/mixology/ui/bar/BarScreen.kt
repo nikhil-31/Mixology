@@ -183,7 +183,10 @@ private fun BarHome(
                 }
                 if (state.makeable.isNotEmpty()) {
                     item {
-                        BarSectionTitle(stringResource(R.string.bar_you_can_make))
+                        BarSectionTitle(
+                            title = stringResource(R.string.bar_you_can_make),
+                            info = stringResource(R.string.bar_you_can_make_info),
+                        )
                     }
                     items(state.makeable, key = { "makeable-${it.id}" }) { drink ->
                         BarDrinkItem(
@@ -196,7 +199,10 @@ private fun BarHome(
                 }
                 if (state.almost.isNotEmpty()) {
                     item {
-                        BarSectionTitle(stringResource(R.string.bar_almost))
+                        BarSectionTitle(
+                            title = stringResource(R.string.bar_almost),
+                            info = stringResource(R.string.bar_almost_info),
+                        )
                     }
                     items(state.almost, key = { "almost-${it.drink.id}" }) { almost ->
                         BarDrinkItem(
@@ -213,14 +219,27 @@ private fun BarHome(
 }
 
 @Composable
-private fun BarSectionTitle(title: String) {
-    Text(
-        text = title,
-        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-        fontSize = 20.sp,
-        fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.onBackground,
-    )
+private fun BarSectionTitle(title: String, info: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Text(
+            text = title,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground,
+        )
+        Text(
+            text = info,
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
 }
 
 @Composable

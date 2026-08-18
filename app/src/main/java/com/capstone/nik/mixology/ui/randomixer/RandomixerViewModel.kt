@@ -117,13 +117,13 @@ class RandomixerViewModel @Inject constructor(
                     showDrink(drink)
                 } else {
                     setState { copy(loading = false) }
-                    sendEffect(RandomixerEffect.ShowMessageRes(R.string.network_error))
+                    sendEffect(RandomixerEffect.ShowMessageRes(R.string.randomixer_no_drinks))
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to load random drink", e)
                 recordCrash(e)
                 setState { copy(loading = false) }
-                sendEffect(RandomixerEffect.ShowMessageRes(R.string.network_error))
+                sendEffect(RandomixerEffect.ShowMessageRes(R.string.randomixer_no_drinks))
             }
         }
     }
@@ -164,13 +164,12 @@ class RandomixerViewModel @Inject constructor(
         }
         val seen = deck.map { it.id }.toMutableSet()
         currentId?.let { seen.add(it) }
-        var attempts = 0
-        while (deck.size < DECK_SIZE && attempts < DECK_SIZE * 3) {
-            attempts++
-            val drink = repository.randomDrink() ?: break
-            if (drink.id in seen) continue
-            if (currentState.hideSaved && drink.id in savedIds) continue
-            seen.add(drink.id)
+        val pool = repository.localRecipes()
+            .filter { it.id !in seen }
+            .filter { !currentState.hideSaved || it.id !in savedIds }
+            .shuffled()
+        for (drink in pool) {
+            if (deck.size >= DECK_SIZE) break
             deck.addLast(drink)
         }
     }

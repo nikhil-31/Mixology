@@ -101,6 +101,34 @@ class RandomixerScreenTest {
     }
 
     @Test
+    fun hideSavedOff_showsSavedShowing() {
+        composeRule.setContent {
+            MixologyTheme {
+                RandomixerScreen(
+                    state = sampleState(hideSaved = false),
+                    onSave = {},
+                    onDiscard = {},
+                )
+            }
+        }
+        composeRule.onNodeWithText("Saved showing").assertIsDisplayed()
+    }
+
+    @Test
+    fun hideSavedOn_showsSavedHidden() {
+        composeRule.setContent {
+            MixologyTheme {
+                RandomixerScreen(
+                    state = sampleState(hideSaved = true),
+                    onSave = {},
+                    onDiscard = {},
+                )
+            }
+        }
+        composeRule.onNodeWithText("Saved hidden").assertIsDisplayed()
+    }
+
+    @Test
     fun saveButton_reportsSave() {
         var saves = 0
         composeRule.setContent {
@@ -136,7 +164,7 @@ class RandomixerScreenTest {
         assertEquals(1, discards)
     }
 
-    private fun sampleState(saved: Boolean = false) = RandomixerUiState(
+    private fun sampleState(saved: Boolean = false, hideSaved: Boolean = false) = RandomixerUiState(
         drink = Drink(
             id = "11007",
             name = "Margarita",
@@ -146,5 +174,6 @@ class RandomixerScreenTest {
             ingredients = listOf(IngredientMeasure("Tequila", "1 1/2 oz")),
         ),
         saved = saved,
+        hideSaved = hideSaved,
     )
 }

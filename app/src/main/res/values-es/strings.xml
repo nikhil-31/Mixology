@@ -89,8 +89,10 @@
     <string name="content_desc_randomixer_discard">Descartar este cóctel</string>
     <string name="content_desc_randomixer_info">Mostrar detalles del cóctel</string>
     <string name="randomixer_already_saved">Guardado</string>
-    <string name="randomixer_hide_saved">Ocultar guardados</string>
+    <string name="randomixer_saved_hidden">Guardados ocultos</string>
+    <string name="randomixer_saved_showing">Guardados visibles</string>
     <string name="randomixer_skipped">Omitido</string>
+    <string name="randomixer_no_drinks">No hay cócteles para mostrar</string>
 
     <string name="empty_string_add_a_drink">Añade un cóctel. Aquí hay poco ambiente.</string>
     <string name="empty_string_cocktail_image">imagen_coctel</string>
@@ -110,7 +112,9 @@
     <string name="bar_add_ingredients">Añadir ingredientes</string>
     <string name="bar_empty">Añade las botellas y mixers que tienes y verás qué puedes preparar.</string>
     <string name="bar_you_can_make">Puedes preparar</string>
+    <string name="bar_you_can_make_info">Todos los ingredientes están en tu bar</string>
     <string name="bar_almost">Casi</string>
+    <string name="bar_almost_info">Usa algo que tienes y faltan 1 o 2</string>
     <string name="bar_needs">Falta %1$s</string>
     <string name="bar_remove_ingredient">Quitar %1$s</string>
     <string name="bar_in_bar">En tu bar</string>

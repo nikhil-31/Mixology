@@ -6,6 +6,7 @@ import com.capstone.nik.mixology.Network.CocktailService
 import com.capstone.nik.mixology.Network.remoteModel.CocktailDbDrink
 import com.capstone.nik.mixology.data.BarDao
 import com.capstone.nik.mixology.data.BarIngredientEntity
+import com.capstone.nik.mixology.data.CatalogSeed
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkDao
 import com.capstone.nik.mixology.data.DrinkFilter
@@ -15,6 +16,7 @@ import com.capstone.nik.mixology.data.toEntity
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 import javax.inject.Inject
@@ -96,14 +98,19 @@ class DrinkRepository @Inject constructor(
         return dao.getById(id)?.toDrink() ?: remote
     }
 
-    @Throws(IOException::class)
-    suspend fun randomDrink(): Drink? {
-        val remote = service.getRandomixer().drinks?.firstOrNull()?.toDrink() ?: return null
-        if (remote.hasRecipe) {
-            dao.upsertRecipe(remote.toEntity())
+    suspend fun localRecipes(): List<Drink> {
+        var recipes = dao.getRecipes()
+        if (recipes.isEmpty()) {
+            CatalogSeed.importIfNeeded(context, dao)
+            recipes = dao.getRecipes()
         }
-        return dao.getById(remote.id)?.toDrink() ?: remote
+        val saved = dao.observeSavedIds().first().toSet()
+        return recipes.map { entity ->
+            entity.toDrink(savedOverride = entity.id in saved || entity.saved)
+        }
     }
+
+    suspend fun randomDrink(): Drink? = localRecipes().randomOrNull()
 
     fun observeCatalog(kind: FilterKind): Flow<List<String>> =
         dao.observeCatalog(kind.name).map { terms -> terms.map { it.name } }

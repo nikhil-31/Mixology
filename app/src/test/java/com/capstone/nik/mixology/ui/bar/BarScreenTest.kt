@@ -114,7 +114,9 @@ class BarScreenTest {
         }
 
         composeRule.onNodeWithText("You can make").assertIsDisplayed()
+        composeRule.onNodeWithText("Every ingredient is in your bar").assertIsDisplayed()
         composeRule.onNodeWithText("Almost").assertIsDisplayed()
+        composeRule.onNodeWithText("Uses something you have, missing 1–2").assertIsDisplayed()
         composeRule.onNodeWithText("Needs Dry Vermouth").assertIsDisplayed()
         composeRule.onNodeWithText("Negroni").performClick()
         assertEquals("11003", clicked.single().id)

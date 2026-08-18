@@ -1,7 +1,7 @@
 # Graph Report - Mixology  (2026-08-18)
 
 ## Corpus Check
-- 107 files · ~47,966 words
+- 107 files · ~47,955 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `6da06cb7`
+- Built from commit: `ea242640`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -199,7 +199,7 @@ Nodes (3): Describe the change, Optional Implementation, Why is this helpful
 
 ### Community 39 - "CatalogViewModelTest.kt"
 Cohesion: 0.17
-Nodes (8): CatalogListItem, catalog(), awaitItemUntil(), T, load_populatesCategoryTerms(), queryChanged_filtersTermsAcrossMultipleSearches(), selectSameKind_doesNotClearQuery(), setUp()
+Nodes (8): CatalogListItem, catalog(), awaitItemUntil(), T, load_populatesIngredientTerms(), queryChanged_filtersTermsAcrossMultipleSearches(), selectSameKind_doesNotClearQuery(), setUp()
 
 ### Community 40 - "NetworkModule"
 Cohesion: 0.40

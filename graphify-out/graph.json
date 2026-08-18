@@ -6186,15 +6186,15 @@
       "norm_label": "teardown()"
     },
     {
-      "label": "load_populatesCategoryTerms()",
+      "label": "load_populatesIngredientTerms()",
       "file_type": "code",
       "source_file": "app/src/test/java/com/capstone/nik/mixology/ui/catalog/CatalogViewModelTest.kt",
       "source_location": "L61",
       "_origin": "ast",
-      "id": "app_src_test_java_com_capstone_nik_mixology_ui_catalog_catalogviewmodeltest_load_populatescategoryterms",
+      "id": "app_src_test_java_com_capstone_nik_mixology_ui_catalog_catalogviewmodeltest_load_populatesingredientterms",
       "community": 39,
       "community_name": "CatalogViewModelTest.kt",
-      "norm_label": "load_populatescategoryterms()"
+      "norm_label": "load_populatesingredientterms()"
     },
     {
       "label": "queryChanged_filtersTermsAcrossMultipleSearches()",
@@ -6211,7 +6211,7 @@
       "label": "selectSameKind_doesNotClearQuery()",
       "file_type": "code",
       "source_file": "app/src/test/java/com/capstone/nik/mixology/ui/catalog/CatalogViewModelTest.kt",
-      "source_location": "L105",
+      "source_location": "L103",
       "_origin": "ast",
       "id": "app_src_test_java_com_capstone_nik_mixology_ui_catalog_catalogviewmodeltest_selectsamekind_doesnotclearquery",
       "community": 39,
@@ -6222,7 +6222,7 @@
       "label": "openTerm_emitsDynamicFilter()",
       "file_type": "code",
       "source_file": "app/src/test/java/com/capstone/nik/mixology/ui/catalog/CatalogViewModelTest.kt",
-      "source_location": "L122",
+      "source_location": "L118",
       "_origin": "ast",
       "id": "app_src_test_java_com_capstone_nik_mixology_ui_catalog_catalogviewmodeltest_openterm_emitsdynamicfilter",
       "community": 39,
@@ -6233,7 +6233,7 @@
       "label": "awaitItemUntil()",
       "file_type": "code",
       "source_file": "app/src/test/java/com/capstone/nik/mixology/ui/catalog/CatalogViewModelTest.kt",
-      "source_location": "L138",
+      "source_location": "L133",
       "_origin": "ast",
       "id": "app_src_test_java_com_capstone_nik_mixology_ui_catalog_catalogviewmodeltest_awaititemuntil",
       "community": 39,
@@ -20447,7 +20447,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/capstone/nik/mixology/ui/catalog/CatalogViewModelTest.kt",
-      "source_location": "L138",
+      "source_location": "L133",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_test_java_com_capstone_nik_mixology_ui_catalog_catalogviewmodeltest",
@@ -20462,14 +20462,14 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_test_java_com_capstone_nik_mixology_ui_catalog_catalogviewmodeltest",
-      "target": "app_src_test_java_com_capstone_nik_mixology_ui_catalog_catalogviewmodeltest_load_populatescategoryterms",
+      "target": "app_src_test_java_com_capstone_nik_mixology_ui_catalog_catalogviewmodeltest_load_populatesingredientterms",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/capstone/nik/mixology/ui/catalog/CatalogViewModelTest.kt",
-      "source_location": "L122",
+      "source_location": "L118",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_test_java_com_capstone_nik_mixology_ui_catalog_catalogviewmodeltest",
@@ -20491,7 +20491,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/capstone/nik/mixology/ui/catalog/CatalogViewModelTest.kt",
-      "source_location": "L105",
+      "source_location": "L103",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_test_java_com_capstone_nik_mixology_ui_catalog_catalogviewmodeltest",
@@ -20528,7 +20528,7 @@
       "source_location": "L64",
       "weight": 1.0,
       "_origin": "ast",
-      "source": "app_src_test_java_com_capstone_nik_mixology_ui_catalog_catalogviewmodeltest_load_populatescategoryterms",
+      "source": "app_src_test_java_com_capstone_nik_mixology_ui_catalog_catalogviewmodeltest_load_populatesingredientterms",
       "target": "app_src_test_java_com_capstone_nik_mixology_ui_catalog_catalogviewmodeltest_awaititemuntil",
       "confidence_score": 1.0
     },
@@ -20549,7 +20549,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/capstone/nik/mixology/ui/catalog/CatalogViewModelTest.kt",
-      "source_location": "L108",
+      "source_location": "L106",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_test_java_com_capstone_nik_mixology_ui_catalog_catalogviewmodeltest_selectsamekind_doesnotclearquery",
@@ -20560,7 +20560,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/capstone/nik/mixology/ui/catalog/CatalogViewModelTest.kt",
-      "source_location": "L138",
+      "source_location": "L133",
       "weight": 1.0,
       "context": "return_type",
       "_origin": "ast",
@@ -22547,5 +22547,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "6da06cb7d0ac0f5cfdac5b9eab7bf3573b1fc3d5"
+  "built_at_commit": "ea2426403a52b87c261510338e3d962fd4686af1"
 }

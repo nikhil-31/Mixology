@@ -26,7 +26,7 @@ class MixologyBottomBarTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun showsHotCatalogSavedRandomixerAndSettings_andReportsSelection() {
+    fun showsHomeCatalogSavedRandomixerAndSettings_andReportsSelection() {
         val selected = mutableListOf<DrawerDestination>()
         composeRule.setContent {
             MixologyTheme {
@@ -37,7 +37,7 @@ class MixologyBottomBarTest {
             }
         }
 
-        composeRule.onNodeWithText("Hot").assertIsDisplayed()
+        composeRule.onNodeWithText("Home").assertIsDisplayed()
         composeRule.onNodeWithText("Catalog").assertIsDisplayed()
         composeRule.onNodeWithText("Saved").assertIsDisplayed()
         composeRule.onNodeWithText("Randomixer").assertIsDisplayed()

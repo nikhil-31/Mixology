@@ -114,7 +114,7 @@ fun MixologyApp(
         state.destination !is DrawerDestination.Shopping
     val showUp = !overlay && !state.destination.isBottomNavTab()
     val title = when (val destination = state.destination) {
-        DrawerDestination.Hot -> stringResource(R.string.nav_item_hot)
+        DrawerDestination.Hot -> stringResource(R.string.nav_item_home)
         DrawerDestination.Randomixer -> stringResource(R.string.nav_item_randomixer)
         DrawerDestination.Settings -> stringResource(R.string.nav_bottom_settings)
         DrawerDestination.Catalog -> stringResource(R.string.nav_item_browse_catalog)

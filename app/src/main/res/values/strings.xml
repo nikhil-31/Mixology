@@ -44,7 +44,7 @@
     <string name="nav_bottom_settings">Settings</string>
 
     <string name="nav_item_saved_cocktails">Saved Cocktails</string>
-    <string name="nav_item_hot">Hot</string>
+    <string name="nav_item_home">Home</string>
     <string name="nav_item_randomixer">Randomixer</string>
     <string name="nav_item_browse_catalog">Browse catalog</string>
     <string name="nav_item_shopping_list">Shopping list</string>

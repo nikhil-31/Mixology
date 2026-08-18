@@ -13,14 +13,21 @@ import kotlinx.coroutines.runBlocking
 import java.util.concurrent.Executors
 
 @Database(
-    entities = [DrinkEntity::class, DrinkFilterCrossRef::class],
-    version = 2,
-    exportSchema = false,
+    entities = [
+        DrinkEntity::class,
+        DrinkFilterCrossRef::class,
+        CatalogTermEntity::class,
+        ShoppingItemEntity::class,
+    ],
+    version = 4,
+    exportSchema = true,
 )
 @TypeConverters(IngredientListConverter::class)
 abstract class MixologyDatabase : RoomDatabase() {
 
     abstract fun drinkDao(): DrinkDao
+
+    abstract fun shoppingDao(): ShoppingDao
 
     companion object {
         private const val TAG = "MixologyDatabase"
@@ -28,7 +35,7 @@ abstract class MixologyDatabase : RoomDatabase() {
         private const val PREFS = "mixology"
         private const val PREF_LEGACY_IMPORTED = "legacy_saved_imported"
 
-        private val MIGRATION_1_2 = Migration(1, 2) { db ->
+        internal val MIGRATION_1_2 = Migration(1, 2) { db ->
             db.execSQL("ALTER TABLE drinks ADD COLUMN alcoholic TEXT")
             db.execSQL("ALTER TABLE drinks ADD COLUMN glass TEXT")
             db.execSQL("ALTER TABLE drinks ADD COLUMN category TEXT")
@@ -39,6 +46,36 @@ abstract class MixologyDatabase : RoomDatabase() {
             db.execSQL("ALTER TABLE drinks ADD COLUMN recipeUpdatedAt INTEGER NOT NULL DEFAULT 0")
         }
 
+        internal val MIGRATION_2_3 = Migration(2, 3) { db ->
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS catalog_terms (
+                    kind TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    PRIMARY KEY(kind, name)
+                )
+                """.trimIndent(),
+            )
+        }
+
+        internal val MIGRATION_3_4 = Migration(3, 4) { db ->
+            db.execSQL("ALTER TABLE drinks ADD COLUMN notes TEXT NOT NULL DEFAULT ''")
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS shopping_items (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    name TEXT NOT NULL,
+                    checked INTEGER NOT NULL
+                )
+                """.trimIndent(),
+            )
+            db.execSQL(
+                "CREATE UNIQUE INDEX IF NOT EXISTS index_shopping_items_name ON shopping_items(name)",
+            )
+        }
+
+        internal val ALL_MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+
         @Volatile
         private var instance: MixologyDatabase? = null
 
@@ -47,7 +84,7 @@ abstract class MixologyDatabase : RoomDatabase() {
             val appContext = context.applicationContext
             return instance ?: synchronized(this) {
                 instance ?: Room.databaseBuilder(appContext, MixologyDatabase::class.java, DB_NAME)
-                    .addMigrations(MIGRATION_1_2)
+                    .addMigrations(*ALL_MIGRATIONS)
                     .addCallback(object : Callback() {
                         override fun onOpen(db: SupportSQLiteDatabase) {
                             super.onOpen(db)

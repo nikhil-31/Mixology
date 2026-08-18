@@ -93,7 +93,7 @@ class SearchScreenTest {
         composeRule.onNodeWithText("Mojito").assertIsDisplayed()
         composeRule.onNodeWithText("Instructions").assertDoesNotExist()
         composeRule.onNodeWithText("Mojito").performClick()
-        composeRule.onNodeWithContentDescription("Add or delete").performClick()
+        composeRule.onNodeWithContentDescription("Save cocktail").performClick()
 
         assertEquals("11000", clicked.single().id)
         assertEquals("Mojito", toggled.single().name)
@@ -162,5 +162,25 @@ class SearchScreenTest {
         searched.clear()
         composeRule.onNodeWithContentDescription("Search").performClick()
         assertEquals(listOf("gin"), searched)
+    }
+
+    @Test
+    fun modeChips_areVisible() {
+        composeRule.setContent {
+            MixologyTheme {
+                SearchScreen(
+                    state = SearchUiState(),
+                    snackbarHostState = remember { SnackbarHostState() },
+                    onBack = {},
+                    onSearch = {},
+                    onDrinkClick = {},
+                    onToggleSaved = {},
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("Name").assertIsDisplayed()
+        composeRule.onNodeWithText("Ingredient").assertIsDisplayed()
+        composeRule.onNodeWithText("A–Z").assertIsDisplayed()
     }
 }

@@ -34,5 +34,6 @@ class IngredientMeasureTest {
         assertTrue(url.startsWith(CocktailURLs.COCKTAIL_INGREDIENTS_URL))
         assertTrue(url.contains("Lime%20juice"))
         assertTrue(url.endsWith(CocktailURLs.COCKTAIL_INGREDIENT_PNG_SMALL))
+        assertEquals(url, ingredientImageUrl("Lime juice"))
     }
 }

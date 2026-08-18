@@ -7,7 +7,10 @@ data class IngredientMeasure(
     val measure: String,
 ) {
     val imageUrl: String
-        get() = CocktailURLs.COCKTAIL_INGREDIENTS_URL +
-            ingredient.replace(" ", "%20") +
-            CocktailURLs.COCKTAIL_INGREDIENT_PNG_SMALL
+        get() = ingredientImageUrl(ingredient)
 }
+
+fun ingredientImageUrl(name: String): String =
+    CocktailURLs.COCKTAIL_INGREDIENTS_URL +
+        name.replace(" ", "%20") +
+        CocktailURLs.COCKTAIL_INGREDIENT_PNG_SMALL

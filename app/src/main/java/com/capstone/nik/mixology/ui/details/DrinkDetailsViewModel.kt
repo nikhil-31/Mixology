@@ -5,10 +5,11 @@ import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.capstone.nik.mixology.R
+import com.capstone.nik.mixology.recordCrash
+import com.capstone.nik.mixology.Network.NetworkMonitor
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.repository.DrinkRepository
 import com.capstone.nik.mixology.ui.mvi.MviViewModel
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
@@ -18,6 +19,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DrinkDetailsViewModel @Inject constructor(
     private val repository: DrinkRepository,
+    private val networkMonitor: NetworkMonitor,
     @ApplicationContext private val appContext: Context,
 ) : MviViewModel<DrinkDetailsIntent, DrinkDetailsUiState, DrinkDetailsEffect>(
     DrinkDetailsUiState(),
@@ -26,6 +28,15 @@ class DrinkDetailsViewModel @Inject constructor(
     private var loadedId: String? = null
     private var savedJob: Job? = null
     private var lookupJob: Job? = null
+    private var retryJob: Job? = null
+
+    init {
+        retryJob = viewModelScope.launch {
+            networkMonitor.retries.collect {
+                loadedId?.let { lookup(it) }
+            }
+        }
+    }
 
     override fun onIntent(intent: DrinkDetailsIntent) {
         when (intent) {
@@ -33,6 +44,9 @@ class DrinkDetailsViewModel @Inject constructor(
             DrinkDetailsIntent.ToggleSaved -> toggleSaved()
             DrinkDetailsIntent.Share -> share()
             DrinkDetailsIntent.Back -> sendEffect(DrinkDetailsEffect.NavigateBack)
+            is DrinkDetailsIntent.UpdateNotes -> updateNotes(intent.notes)
+            DrinkDetailsIntent.AddToShoppingList -> addToShoppingList()
+            is DrinkDetailsIntent.OpenVideo -> sendEffect(DrinkDetailsEffect.OpenUrl(intent.url))
         }
     }
 
@@ -51,27 +65,47 @@ class DrinkDetailsViewModel @Inject constructor(
                 setState { copy(saved = drink.id in ids) }
             }
         }
+        lookup(drink.id)
+    }
+
+    private fun lookup(id: String) {
         lookupJob?.cancel()
         lookupJob = viewModelScope.launch {
-            val cached = repository.cachedDrink(drink.id)
+            val cached = repository.cachedDrink(id)
             if (cached != null && cached.hasRecipe) {
                 setState { copy(loading = false, drink = cached) }
             }
             try {
-                val fresh = repository.lookupDrink(drink.id)
+                val fresh = repository.lookupDrink(id)
                 if (fresh != null) {
                     setState { copy(loading = false, drink = fresh) }
                 } else {
                     setState { copy(loading = false) }
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Failed to load drink ${drink.id}", e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                Log.e(TAG, "Failed to load drink $id", e)
+                recordCrash(e)
                 setState { copy(loading = false) }
                 if (currentState.drink?.hasRecipe != true) {
                     sendEffect(DrinkDetailsEffect.ShowMessageRes(R.string.network_error))
                 }
             }
+        }
+    }
+
+    private fun updateNotes(notes: String) {
+        val drink = currentState.drink ?: return
+        setState { copy(drink = drink.copy(notes = notes)) }
+        viewModelScope.launch {
+            repository.updateNotes(drink.id, notes)
+        }
+    }
+
+    private fun addToShoppingList() {
+        val drink = currentState.drink ?: return
+        viewModelScope.launch {
+            repository.addToShoppingList(drink.ingredients.map { it.ingredient })
+            sendEffect(DrinkDetailsEffect.ShowMessageRes(R.string.shopping_added))
         }
     }
 

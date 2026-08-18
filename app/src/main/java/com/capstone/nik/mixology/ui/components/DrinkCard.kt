@@ -18,12 +18,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.ui.theme.PosterScrimCenter
 import com.capstone.nik.mixology.ui.theme.PosterScrimStart
 
 val DrinkCardRailWidth = 140.dp
+val DrinkCardRailHeight = 200.dp
 
 @Composable
 fun DrinkCard(
@@ -31,6 +33,7 @@ fun DrinkCard(
     onClick: () -> Unit,
     onToggleSaved: () -> Unit,
     modifier: Modifier = Modifier.fillMaxWidth(),
+    posterHeight: Dp? = null,
 ) {
     Card(
         onClick = onClick,
@@ -42,7 +45,10 @@ fun DrinkCard(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(1f),
+                .then(
+                    if (posterHeight != null) Modifier.height(posterHeight)
+                    else Modifier.aspectRatio(1f),
+                ),
         ) {
             DrinkImage(
                 url = item.thumb,

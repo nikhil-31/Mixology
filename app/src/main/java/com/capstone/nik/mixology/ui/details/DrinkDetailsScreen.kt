@@ -1,6 +1,7 @@
 package com.capstone.nik.mixology.ui.details
 
 import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,10 +24,12 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -71,6 +74,8 @@ fun DrinkDetailsRoute(
                 snackbarHostState.showSnackbar(context.getString(effect.resId))
             is DrinkDetailsEffect.ShareRecipe ->
                 context.startActivity(Intent.createChooser(effect.intent, shareLabel))
+            is DrinkDetailsEffect.OpenUrl ->
+                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(effect.url)))
             DrinkDetailsEffect.NavigateBack -> onBack()
         }
     }
@@ -79,6 +84,9 @@ fun DrinkDetailsRoute(
         DrinkDetailsContent(
             state = state,
             onToggleSaved = { viewModel.onIntent(DrinkDetailsIntent.ToggleSaved) },
+            onNotesChanged = { viewModel.onIntent(DrinkDetailsIntent.UpdateNotes(it)) },
+            onAddToShoppingList = { viewModel.onIntent(DrinkDetailsIntent.AddToShoppingList) },
+            onOpenVideo = { viewModel.onIntent(DrinkDetailsIntent.OpenVideo(it)) },
         )
     }
 
@@ -151,6 +159,9 @@ fun DrinkDetailsScaffold(
 fun DrinkDetailsContent(
     state: DrinkDetailsUiState,
     onToggleSaved: () -> Unit,
+    onNotesChanged: (String) -> Unit = {},
+    onAddToShoppingList: () -> Unit = {},
+    onOpenVideo: (String) -> Unit = {},
 ) {
     val drink = state.drink
     Box(modifier = Modifier.fillMaxSize()) {
@@ -179,6 +190,28 @@ fun DrinkDetailsContent(
                         ingredients = drink.ingredients,
                         saved = state.saved,
                         onToggleSaved = onToggleSaved,
+                        extraBottomContent = {
+                            val video = drink.video
+                            if (!video.isNullOrBlank()) {
+                                TextButton(onClick = { onOpenVideo(video) }) {
+                                    Text(stringResource(R.string.detail_watch_video))
+                                }
+                            }
+                            if (state.saved) {
+                                TextButton(onClick = onAddToShoppingList) {
+                                    Text(stringResource(R.string.shopping_add_ingredients))
+                                }
+                                OutlinedTextField(
+                                    value = drink.notes,
+                                    onValueChange = onNotesChanged,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 20.dp, vertical = 8.dp),
+                                    label = { Text(stringResource(R.string.detail_notes)) },
+                                    minLines = 2,
+                                )
+                            }
+                        },
                     )
                 } else {
                     Text(

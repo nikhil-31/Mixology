@@ -30,8 +30,8 @@ android {
     }
     defaultConfig {
         applicationId "com.capstone.nik.mixology"
-        targetSdkVersion 35
-        compileSdk 35
+        targetSdkVersion 36
+        compileSdk 36
         minSdkVersion 23
         versionCode 20
         versionName "2.00"
@@ -69,10 +69,17 @@ android {
             returnDefaultValues = true
         }
     }
+    sourceSets {
+        test.assets.srcDirs += files("$projectDir/schemas")
+        androidTest.assets.srcDirs += files("$projectDir/schemas")
+    }
 }
 
 kapt {
     correctErrorTypes true
+    arguments {
+        arg("room.schemaLocation", "$projectDir/schemas")
+    }
 }
 
 dependencies {
@@ -90,6 +97,8 @@ dependencies {
     implementation libs.compose.material.icons.extended
     implementation libs.navigation.compose
     implementation libs.coil.compose
+    implementation libs.glance.appwidget
+    implementation libs.glance.material3
     debugImplementation libs.compose.ui.tooling
     debugImplementation libs.compose.ui.test.manifest
 
@@ -102,8 +111,6 @@ dependencies {
     implementation libs.converter.gson
     implementation libs.okhttp
     implementation libs.okhttp.logging
-
-    implementation libs.picasso
 
     implementation libs.hilt.android
     implementation libs.hilt.navigation.compose
@@ -123,6 +130,10 @@ dependencies {
     testImplementation libs.robolectric
     testImplementation libs.androidx.test.ext.junit
     testImplementation libs.androidx.test.core
+    testImplementation libs.kotlinx.coroutines.test
+    testImplementation libs.turbine
+    testImplementation libs.androidx.arch.core.testing
+    testImplementation libs.androidx.room.testing
     testImplementation platform(libs.compose.bom)
     testImplementation libs.compose.ui.test.junit4
     testImplementation libs.compose.ui.test.manifest

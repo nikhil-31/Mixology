@@ -32,6 +32,7 @@ import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.ui.components.DrinkCard
+import com.capstone.nik.mixology.ui.components.DrinkCardRailHeight
 import com.capstone.nik.mixology.ui.components.DrinkCardRailWidth
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 
@@ -40,6 +41,7 @@ fun HotRoute(
     snackbarHostState: SnackbarHostState,
     onDrinkClick: (Drink) -> Unit,
     onSeeAll: (DrinkFilter) -> Unit,
+    onBrowseCatalog: () -> Unit = {},
     viewModel: HotViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -51,6 +53,7 @@ fun HotRoute(
                 snackbarHostState.showSnackbar(context.getString(effect.resId))
             is HotEffect.OpenDrink -> onDrinkClick(effect.drink)
             is HotEffect.OpenFilter -> onSeeAll(effect.filter)
+            HotEffect.OpenCatalog -> onBrowseCatalog()
         }
     }
 
@@ -59,6 +62,7 @@ fun HotRoute(
         onDrinkClick = { viewModel.onIntent(HotIntent.OpenDrink(it)) },
         onToggleSaved = { viewModel.onIntent(HotIntent.ToggleSaved(it)) },
         onSeeAll = { viewModel.onIntent(HotIntent.SeeAll(it)) },
+        onBrowseCatalog = { viewModel.onIntent(HotIntent.BrowseCatalog) },
     )
 }
 
@@ -68,6 +72,7 @@ fun HotScreen(
     onDrinkClick: (Drink) -> Unit,
     onToggleSaved: (Drink) -> Unit,
     onSeeAll: (DrinkFilter) -> Unit,
+    onBrowseCatalog: () -> Unit = {},
 ) {
     val categories = state.visibleCategories
     Box(modifier = Modifier.fillMaxSize()) {
@@ -78,6 +83,18 @@ fun HotScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(bottom = 24.dp),
             ) {
+                item(key = "browse_catalog") {
+                    TextButton(
+                        onClick = onBrowseCatalog,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.nav_item_browse_catalog),
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    }
+                }
                 items(categories, key = { it.filter.name }) { category ->
                     HotCategoryRow(
                         category = category,
@@ -106,7 +123,7 @@ private fun HotCategoryRow(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = stringResource(category.filter.titleRes),
+                text = category.filter.titleRes?.let { stringResource(it) } ?: category.filter.displayName(),
                 modifier = Modifier.weight(1f),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
@@ -130,6 +147,7 @@ private fun HotCategoryRow(
                     onClick = { onDrinkClick(item) },
                     onToggleSaved = { onToggleSaved(item) },
                     modifier = Modifier.width(DrinkCardRailWidth),
+                    posterHeight = DrinkCardRailHeight,
                 )
             }
         }

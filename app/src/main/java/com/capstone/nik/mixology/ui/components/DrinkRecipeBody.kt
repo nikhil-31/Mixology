@@ -96,7 +96,6 @@ fun DrinkRecipeBody(
             RecipeSectionTitle(stringResource(R.string.detail_screen_instructions))
             InstructionBlock(steps = steps)
         }
-        extraBottomContent()
         if (ingredients.isNotEmpty()) {
             RecipeSectionTitle(stringResource(R.string.detail_screen_ingredients))
             Column(
@@ -115,6 +114,7 @@ fun DrinkRecipeBody(
                 }
             }
         }
+        extraBottomContent()
     }
 }
 

@@ -18,6 +18,8 @@ data class DrinkEntity(
     val instructions: String? = null,
     val video: String? = null,
     val ingredients: List<IngredientMeasure>? = null,
+    @ColumnInfo(defaultValue = "")
+    val notes: String = "",
     @ColumnInfo(defaultValue = "0")
     val recipeUpdatedAt: Long = 0L,
 ) {
@@ -33,6 +35,7 @@ data class DrinkEntity(
         instructions = instructions,
         video = video,
         ingredients = ingredients.orEmpty(),
+        notes = notes,
     )
 }
 
@@ -48,5 +51,6 @@ fun Drink.toEntity(): DrinkEntity = DrinkEntity(
     instructions = instructions,
     video = video,
     ingredients = ingredients,
+    notes = notes,
     recipeUpdatedAt = if (hasRecipe) System.currentTimeMillis() else 0L,
 )

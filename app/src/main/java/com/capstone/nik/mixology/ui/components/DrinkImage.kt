@@ -60,6 +60,7 @@ fun CircularDrinkImage(
 fun IngredientImage(
     url: String,
     size: Dp,
+    contentDescription: String? = stringResource(R.string.content_desc_ingredients_image),
 ) {
     AsyncImage(
         model = ImageRequest.Builder(LocalContext.current)
@@ -68,7 +69,7 @@ fun IngredientImage(
             .fallback(R.drawable.error_ingredient_image)
             .crossfade(true)
             .build(),
-        contentDescription = stringResource(R.string.content_desc_ingredients_image),
+        contentDescription = contentDescription,
         contentScale = ContentScale.Fit,
         modifier = Modifier.size(size),
     )

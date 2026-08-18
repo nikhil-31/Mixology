@@ -7,17 +7,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -25,9 +24,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -42,6 +41,7 @@ import androidx.navigation.navArgument
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
+import com.capstone.nik.mixology.ui.catalog.CatalogRoute
 import com.capstone.nik.mixology.ui.details.DrinkDetailsRoute
 import com.capstone.nik.mixology.ui.grid.DrinkGridRoute
 import com.capstone.nik.mixology.ui.hot.HotRoute
@@ -49,7 +49,9 @@ import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 import com.capstone.nik.mixology.ui.randomixer.RandomixerRoute
 import com.capstone.nik.mixology.ui.search.SearchRoute
 import com.capstone.nik.mixology.ui.settings.SettingsRoute
-import kotlinx.coroutines.launch
+import com.capstone.nik.mixology.ui.shopping.ShoppingRoute
+import com.capstone.nik.mixology.di.AppEntryPoint
+import dagger.hilt.android.EntryPointAccessors
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
@@ -61,12 +63,18 @@ fun MixologyApp(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val navController = rememberNavController()
-    val drawerState = rememberDrawerState(DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val twoPane = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val overlay = isOverlayRoute(navBackStackEntry?.destination?.route)
+    val context = LocalContext.current
+    val networkMonitor = remember {
+        EntryPointAccessors.fromApplication(
+            context.applicationContext,
+            AppEntryPoint::class.java,
+        ).networkMonitor()
+    }
+    val online by networkMonitor.online.collectAsStateWithLifecycle()
 
     CollectMviEffects(viewModel.effects) { effect ->
         when (effect) {
@@ -79,8 +87,6 @@ fun MixologyApp(
                     restoreState = true
                 }
             }
-            MainEffect.OpenDrawer -> scope.launch { drawerState.open() }
-            MainEffect.CloseDrawer -> scope.launch { drawerState.close() }
             is MainEffect.OpenSearch -> navController.navigate(searchRoute(effect.query))
             is MainEffect.OpenDetails -> navController.navigate(detailsRoute(effect.drink)) {
                 launchSingleTop = true
@@ -96,51 +102,53 @@ fun MixologyApp(
         onPendingDrinkConsumed()
     }
 
-    val showSideNav = state.destination.showsSideNav() && !overlay
-    val showSearch = !overlay && state.destination !is DrawerDestination.Settings
+    val showSearch = !overlay &&
+        state.destination !is DrawerDestination.Settings &&
+        state.destination !is DrawerDestination.Shopping
+    val showUp = !overlay && !state.destination.isBottomNavTab()
     val title = when (val destination = state.destination) {
         DrawerDestination.Hot -> stringResource(R.string.nav_item_hot)
         DrawerDestination.Randomixer -> stringResource(R.string.nav_item_randomixer)
         DrawerDestination.Settings -> stringResource(R.string.nav_bottom_settings)
-        is DrawerDestination.Filter -> when (destination.filter) {
-            DrinkFilter.SAVED -> stringResource(R.string.nav_bottom_saved)
-            else -> stringResource(destination.filter.titleRes)
-        }
+        DrawerDestination.Catalog -> stringResource(R.string.nav_item_browse_catalog)
+        DrawerDestination.Shopping -> stringResource(R.string.nav_item_shopping_list)
+        is DrawerDestination.Filter -> destination.filter.titleRes?.let { stringResource(it) }
+            ?: destination.filter.displayName()
     }
 
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        gesturesEnabled = showSideNav,
-        drawerContent = {
-            if (showSideNav) {
-                MixologyDrawer(
-                    selectedRoute = state.destination.route,
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        bottomBar = {
+            if (!overlay) {
+                MixologyBottomBar(
+                    currentDestination = state.destination,
                     onDestinationSelected = { viewModel.onIntent(MainIntent.SelectDestination(it)) },
                 )
             }
         },
-    ) {
-        Scaffold(
-            snackbarHost = { SnackbarHost(snackbarHostState) },
-            bottomBar = {
-                if (!overlay) {
-                    MixologyBottomBar(
-                        currentDestination = state.destination,
-                        onDestinationSelected = { viewModel.onIntent(MainIntent.SelectDestination(it)) },
-                    )
-                }
-            },
-            containerColor = MaterialTheme.colorScheme.background,
-        ) { padding ->
+        containerColor = MaterialTheme.colorScheme.background,
+    ) { padding ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding),
             ) {
+                if (!online) {
+                    OfflineBanner(onRetry = { networkMonitor.retry() })
+                }
                 if (!overlay) {
                     ScreenHeader(
                         title = title,
+                        showUp = showUp,
                         showSearch = showSearch,
+                        onUp = {
+                            val parent = if (state.destination is DrawerDestination.Shopping) {
+                                DrawerDestination.Settings
+                            } else {
+                                DrawerDestination.Hot
+                            }
+                            viewModel.onIntent(MainIntent.SelectDestination(parent))
+                        },
                         onSearch = { viewModel.onIntent(MainIntent.ToggleSearch) },
                     )
                 }
@@ -150,16 +158,31 @@ fun MixologyApp(
                         startDestination = HOT_ROUTE,
                         modifier = Modifier.weight(1f),
                     ) {
-                        DrinkFilter.entries.forEach { filter ->
-                            composable(gridRoute(filter)) {
-                                DrinkGridRoute(
-                                    filter = filter,
-                                    snackbarHostState = snackbarHostState,
-                                    onDrinkClick = { drink ->
-                                        viewModel.onIntent(MainIntent.DrinkSelected(drink, twoPane && !overlay))
-                                    },
-                                )
-                            }
+                        composable(
+                            route = GRID_ROUTE,
+                            arguments = listOf(
+                                navArgument("filter") { type = NavType.StringType },
+                            ),
+                        ) { entry ->
+                            val filter = DrinkFilter.fromName(
+                                entry.arguments?.getString("filter").orEmpty(),
+                            )
+                            DrinkGridRoute(
+                                filter = filter,
+                                snackbarHostState = snackbarHostState,
+                                onDrinkClick = { drink ->
+                                    viewModel.onIntent(MainIntent.DrinkSelected(drink, twoPane && !overlay))
+                                },
+                            )
+                        }
+                        composable(CATALOG_ROUTE) {
+                            CatalogRoute(
+                                onOpenFilter = { filter ->
+                                    viewModel.onIntent(
+                                        MainIntent.SelectDestination(DrawerDestination.Filter(filter)),
+                                    )
+                                },
+                            )
                         }
                         composable(HOT_ROUTE) {
                             HotRoute(
@@ -170,13 +193,23 @@ fun MixologyApp(
                                 onSeeAll = { filter ->
                                     viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Filter(filter)))
                                 },
+                                onBrowseCatalog = {
+                                    viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Catalog))
+                                },
                             )
                         }
                         composable(RANDOMIXER_ROUTE) {
                             RandomixerRoute(snackbarHostState = snackbarHostState)
                         }
                         composable(SETTINGS_ROUTE) {
-                            SettingsRoute()
+                            SettingsRoute(
+                                onShoppingList = {
+                                    viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Shopping))
+                                },
+                            )
+                        }
+                        composable(SHOPPING_ROUTE) {
+                            ShoppingRoute()
                         }
                         composable(
                             route = SEARCH_ROUTE,
@@ -225,7 +258,9 @@ fun MixologyApp(
                     if (twoPane &&
                         !overlay &&
                         state.destination !is DrawerDestination.Randomixer &&
-                        state.destination !is DrawerDestination.Settings
+                        state.destination !is DrawerDestination.Settings &&
+                        state.destination !is DrawerDestination.Catalog &&
+                        state.destination !is DrawerDestination.Shopping
                     ) {
                         Box(modifier = Modifier.weight(1f)) {
                             val drink = state.selectedDrink
@@ -243,23 +278,33 @@ fun MixologyApp(
             }
         }
     }
-}
 
 @Composable
 private fun ScreenHeader(
     title: String,
+    showUp: Boolean,
     showSearch: Boolean,
+    onUp: () -> Unit,
     onSearch: () -> Unit,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 16.dp, end = 4.dp, top = 12.dp, bottom = 8.dp),
+            .padding(start = 4.dp, end = 4.dp, top = 12.dp, bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        if (showUp) {
+            IconButton(onClick = onUp) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(R.string.content_desc_up_navigation),
+                    tint = MaterialTheme.colorScheme.onBackground,
+                )
+            }
+        }
         Text(
             text = title,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f).padding(start = if (showUp) 0.dp else 12.dp),
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onBackground,
         )
@@ -271,6 +316,26 @@ private fun ScreenHeader(
                     tint = MaterialTheme.colorScheme.onBackground,
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun OfflineBanner(onRetry: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = stringResource(R.string.network_error_no_network_available),
+            modifier = Modifier.weight(1f),
+            color = MaterialTheme.colorScheme.error,
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        TextButton(onClick = onRetry) {
+            Text(stringResource(R.string.action_retry))
         }
     }
 }

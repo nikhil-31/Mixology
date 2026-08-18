@@ -9,7 +9,6 @@ data class MainUiState(
 )
 
 sealed interface MainIntent {
-    data object OpenDrawer : MainIntent
     data class SelectDestination(val destination: DrawerDestination) : MainIntent
     data object ToggleSearch : MainIntent
     data object OpenMenu : MainIntent
@@ -19,8 +18,6 @@ sealed interface MainIntent {
 
 sealed interface MainEffect {
     data class Navigate(val destination: DrawerDestination) : MainEffect
-    data object OpenDrawer : MainEffect
-    data object CloseDrawer : MainEffect
     data class OpenSearch(val query: String) : MainEffect
     data class OpenDetails(val drink: Drink) : MainEffect
 }

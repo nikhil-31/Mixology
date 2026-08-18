@@ -4,7 +4,9 @@
 <a href='https://play.google.com/store/apps/details?id=com.capstone.nik.mixology&hl=en&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png' width="250" height="100"/></a>
 
 ## Overview
-Mixology is a Jetpack Compose cocktail browser backed by [TheCocktailDB](https://www.thecocktaildb.com/). Browse Hot picks, filter by alcohol, category, ingredient, or glass, search the catalog, and swipe through Randomixer. Saved drinks live in Room and appear in a home-screen widget. Phones and tablets (two-pane details) are supported. Appearance follows system, light, or dark mode.
+Mixology is a Jetpack Compose cocktail browser backed by [TheCocktailDB](https://www.thecocktaildb.com/). Browse Hot picks, search by name, ingredient, or letter, swipe Randomixer, and keep saved recipes plus a shopping list. Phones and tablets (two-pane details) are supported. Spanish strings are included. Appearance follows system, light, or dark mode.
+
+Store listing copy and a screenshot checklist live in `docs/PLAY_STORE.md`.
 
 ## Stack
 * Jetpack Compose + Material 3
@@ -12,8 +14,9 @@ Mixology is a Jetpack Compose cocktail browser backed by [TheCocktailDB](https:/
 * MVI ViewModels
 * Room + Kotlin coroutines
 * Retrofit + Gson
-* Coil (screens) / Picasso (widget)
-* Dagger 2
+* Coil
+* Hilt
+* Glance (home-screen widget)
 * Firebase Crashlytics + Analytics
 
 ## Setup

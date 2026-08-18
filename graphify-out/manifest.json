@@ -1,7 +1,7 @@
 {
   "app/build.gradle": {
-    "mtime": 1786966244.6595142,
-    "ast_hash": "94d5b0b13dcbc0167277fda445b5bd98",
+    "mtime": 1786968782.6316447,
+    "ast_hash": "c701064bc1f88e8397b1951a0e8ab263",
     "semantic_hash": ""
   },
   "app/google-services.json": {
@@ -17,16 +17,6 @@
   "app/src/main/java/com/capstone/nik/mixology/Network/CocktailURLs.java": {
     "mtime": 1786963259.6793737,
     "ast_hash": "c7b10e7720b10cd9aaec9aad81f02cf4",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/capstone/nik/mixology/Widget/DrinkWidgetProvider.java": {
-    "mtime": 1786963265.0874639,
-    "ast_hash": "15d2542d621a9b10124dcb3e7080caa9",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/capstone/nik/mixology/Widget/DrinkWidgetService.java": {
-    "mtime": 1786966244.659414,
-    "ast_hash": "70b74c5bc66ba80e8ef666c5bd31de27",
     "semantic_hash": ""
   },
   "build.gradle": {
@@ -50,8 +40,8 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1786963297.288595,
-    "ast_hash": "17561f14fa9467cc77440c233468f4bb",
+    "mtime": 1786969052.9910157,
+    "ast_hash": "dc85ae580b79e483f46c4016f08d11cf",
     "semantic_hash": ""
   },
   "app/src/main/ic_fav_filled-web.png": {
@@ -250,28 +240,28 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/data/DrinkFilter.kt": {
-    "mtime": 1786963251.2786763,
-    "ast_hash": "2b084e8c537ff189c9d3b9a233b48c8f",
+    "mtime": 1786967482.1872835,
+    "ast_hash": "b87c55493d7484690d6d84c8006baae9",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/repository/DrinkRepository.kt": {
-    "mtime": 1786966015.4905348,
-    "ast_hash": "4f03a37d53484f48a8b24ed74d770028",
+    "mtime": 1786969094.692462,
+    "ast_hash": "0ca3fff33002ee24f8c909c0edf48a21",
     "semantic_hash": ""
   },
   "app/src/test/java/com/capstone/nik/mixology/DrinkFilterTest.kt": {
-    "mtime": 1786966200.03771,
-    "ast_hash": "cbe44cb5d065724858f04d3171004dc0",
+    "mtime": 1786967843.567821,
+    "ast_hash": "3178724f7a07e80518ffa86ec6fe4caa",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/data/DrinkDao.kt": {
-    "mtime": 1786966832.104405,
-    "ast_hash": "3b91a175fec34b90232ce9eec7762a75",
+    "mtime": 1786968797.7106931,
+    "ast_hash": "f8d2e4b9d5707dd841c846469941b26e",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/data/DrinkEntity.kt": {
-    "mtime": 1786966824.651525,
-    "ast_hash": "9105a7ca6be65aa3c815fa0fb907e314",
+    "mtime": 1786968814.0625496,
+    "ast_hash": "656742e7da6a38225b31a157583f736b",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/data/DrinkFilterCrossRef.kt": {
@@ -280,8 +270,8 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/data/MixologyDatabase.kt": {
-    "mtime": 1786966014.5428848,
-    "ast_hash": "33447ea298851fb5edf905ddc490ca80",
+    "mtime": 1786968813.953946,
+    "ast_hash": "bbd1aaceaeb52c0835841295b3b4e3c2",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/Activities/ActivityMain.kt": {
@@ -290,23 +280,23 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/IntentExtras.kt": {
-    "mtime": 1786966102.155635,
-    "ast_hash": "408742af11507a96831bde414072434a",
+    "mtime": 1786968895.837048,
+    "ast_hash": "697166bba0a0b03234eb39393961bf35",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkImage.kt": {
-    "mtime": 1786655704.1655316,
-    "ast_hash": "69e6256c5afac97cb67012388da39698",
+    "mtime": 1787029892.30328,
+    "ast_hash": "6297463d8862597ceb105128ba110dd5",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkRecipeBody.kt": {
-    "mtime": 1786964407.2881145,
-    "ast_hash": "94490011c1dfe9674728b15752c861b4",
+    "mtime": 1786969067.3999686,
+    "ast_hash": "11e2fd7335475c266c4b7a9754e534c4",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/components/FavoriteButton.kt": {
-    "mtime": 1786965234.7763495,
-    "ast_hash": "1d76c74ce07fce82d3484dccdaf39c16",
+    "mtime": 1786968895.8370724,
+    "ast_hash": "3e94b20477b8be5c40186968797f4c20",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/components/IngredientRow.kt": {
@@ -315,13 +305,13 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreen.kt": {
-    "mtime": 1786966141.537471,
-    "ast_hash": "49dff6087878be3e6e0e8283fa1a3a2b",
+    "mtime": 1786968893.2303996,
+    "ast_hash": "8146a36c63ec3b3d1c3bd96467f53848",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/details/DrinkDetailsViewModel.kt": {
-    "mtime": 1786966043.3209543,
-    "ast_hash": "6c25bb06138312526a9b24f4ff698ba6",
+    "mtime": 1786968868.166735,
+    "ast_hash": "f66cdddec723bff0ac4010bc4e5107ab",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/grid/DrinkGridScreen.kt": {
@@ -330,48 +320,43 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/grid/DrinkGridViewModel.kt": {
-    "mtime": 1786966055.127023,
-    "ast_hash": "51de6c53586776293cae8dd1132f2768",
+    "mtime": 1786968830.063881,
+    "ast_hash": "c7ee63d71d904cd263f2f503daa8b7d2",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/main/DrawerDestination.kt": {
-    "mtime": 1786966103.7203927,
-    "ast_hash": "cb417424ff907dccb9f260eaeccbd483",
+    "mtime": 1787025419.376602,
+    "ast_hash": "05f227a7d92d8d0722e78626db93af10",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/main/MixologyApp.kt": {
-    "mtime": 1786966115.3625548,
-    "ast_hash": "ad795c034a4c865b96a74e4835dee3a0",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/capstone/nik/mixology/ui/main/MixologyDrawer.kt": {
-    "mtime": 1786671176.2061858,
-    "ast_hash": "f8372977e9d7c82ca379e54a6354a8e6",
+    "mtime": 1787025477.5083358,
+    "ast_hash": "0b22377b13578b660141940979df9282",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/model/IngredientMeasure.kt": {
-    "mtime": 1786966016.653692,
-    "ast_hash": "af3b341ce95049debd88a08d703077bb",
+    "mtime": 1787029890.735189,
+    "ast_hash": "c6e7d901b3466ebcd5f6f71bf172579a",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/randomixer/RandomixerScreen.kt": {
-    "mtime": 1786966163.606836,
-    "ast_hash": "6bc9b959dd7cd2454496f3cc9d2688f5",
+    "mtime": 1786967771.8253407,
+    "ast_hash": "2e1e853c02e7996df00a39b7cec698c7",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/randomixer/RandomixerViewModel.kt": {
-    "mtime": 1786966068.701704,
-    "ast_hash": "3180eb76d7d655e9e668b7509592eda3",
+    "mtime": 1786968852.8259327,
+    "ast_hash": "8cb264bd3fb0c251498d11b30423deb4",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/search/SearchScreen.kt": {
-    "mtime": 1786966157.1593723,
-    "ast_hash": "59c123e67bf350783e9d9a43a0761e13",
+    "mtime": 1786967747.7171576,
+    "ast_hash": "2424bc4d926e30e7696d345b766c9fdc",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/search/SearchViewModel.kt": {
-    "mtime": 1786966062.0145352,
-    "ast_hash": "bbc40ac265c3a749bb4ed393e2cac775",
+    "mtime": 1786968849.070228,
+    "ast_hash": "42abd3ee4a406721dface6ada0580d73",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/theme/Color.kt": {
@@ -390,43 +375,38 @@
     "semantic_hash": ""
   },
   "app/src/test/java/com/capstone/nik/mixology/ui/IntentExtrasTest.kt": {
-    "mtime": 1786966202.037943,
-    "ast_hash": "6ae21e5ed2099ca24076303bbe0f10e5",
+    "mtime": 1786969040.7068117,
+    "ast_hash": "0b5886496af85be3878fb85821ae53a7",
     "semantic_hash": ""
   },
   "app/src/test/java/com/capstone/nik/mixology/ui/details/DrinkDetailsScreenTest.kt": {
-    "mtime": 1786966197.809686,
-    "ast_hash": "49dc39819085f56a37536b9e5576791f",
+    "mtime": 1786969028.9505756,
+    "ast_hash": "21786c29a30acd78b8fe2ef48b80c483",
     "semantic_hash": ""
   },
   "app/src/test/java/com/capstone/nik/mixology/ui/grid/DrinkGridScreenTest.kt": {
-    "mtime": 1786966237.8238595,
-    "ast_hash": "66a619b4211264adf0c8342e6a46cbdd",
+    "mtime": 1786971043.2996936,
+    "ast_hash": "e05367fc2066271b438e8554aa71b781",
     "semantic_hash": ""
   },
   "app/src/test/java/com/capstone/nik/mixology/ui/main/DrawerDestinationTest.kt": {
-    "mtime": 1786966202.6096523,
-    "ast_hash": "b5f164fadc71727110bf67aa600cdd59",
-    "semantic_hash": ""
-  },
-  "app/src/test/java/com/capstone/nik/mixology/ui/main/MixologyDrawerTest.kt": {
-    "mtime": 1786657002.0535438,
-    "ast_hash": "5a6a5c87d2d1b51189fd3600f945aa86",
+    "mtime": 1787025431.3064592,
+    "ast_hash": "b1b00d483a2bade29a852d454b75cb5b",
     "semantic_hash": ""
   },
   "app/src/test/java/com/capstone/nik/mixology/ui/model/IngredientMeasureTest.kt": {
-    "mtime": 1786966198.4210668,
-    "ast_hash": "12da0d3e6486f8c294307938133c9850",
+    "mtime": 1787029903.1036918,
+    "ast_hash": "52d6461742ca0d0a64d8d8f0ab4c9a67",
     "semantic_hash": ""
   },
   "app/src/test/java/com/capstone/nik/mixology/ui/search/SearchScreenTest.kt": {
-    "mtime": 1786966214.059884,
-    "ast_hash": "e8c95307e0726e7ebb529608d6fcff4b",
+    "mtime": 1786969032.2040324,
+    "ast_hash": "6af0ef58235978e2cd4b6a1deb1b2197",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/details/DrinkDetailsContract.kt": {
-    "mtime": 1786966047.515857,
-    "ast_hash": "b89baea507a0a5b3a8134ea6bd8929b9",
+    "mtime": 1786968868.2706769,
+    "ast_hash": "35a0f46dccdfd405ef87603f27ccb65e",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/grid/DrinkGridContract.kt": {
@@ -435,13 +415,13 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/main/MainContract.kt": {
-    "mtime": 1786966071.9448628,
-    "ast_hash": "61aa586434411756c7f38ece52925f08",
+    "mtime": 1787025410.4121652,
+    "ast_hash": "05587dcd089e87ff23fc2efba9902731",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/main/MainViewModel.kt": {
-    "mtime": 1786966071.9449096,
-    "ast_hash": "1d98d6f2ee6224530281157e9bb0494f",
+    "mtime": 1787025402.736974,
+    "ast_hash": "e072a27c92d88844e47008851a68d198",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/mvi/Mvi.kt": {
@@ -450,13 +430,13 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/randomixer/RandomixerContract.kt": {
-    "mtime": 1786966070.2391665,
-    "ast_hash": "6e659f89e8862367e4562e4f8ab4023d",
+    "mtime": 1786967757.853689,
+    "ast_hash": "2eb5a92281c2f90eac728d11cc0c5a28",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/search/SearchContract.kt": {
-    "mtime": 1786966067.2009635,
-    "ast_hash": "7826cf23fdb73008da074f33a58063f4",
+    "mtime": 1786967722.5556176,
+    "ast_hash": "e0d17aef3bc43c811b0b84f06a1341b8",
     "semantic_hash": ""
   },
   "app/src/test/java/com/capstone/nik/mixology/ui/main/MainViewModelTest.kt": {
@@ -470,8 +450,8 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/main/MixologyBottomBar.kt": {
-    "mtime": 1786681820.7691047,
-    "ast_hash": "fc81c94bff71172605580600d3f8ed7d",
+    "mtime": 1787025369.5154357,
+    "ast_hash": "d700a9a5740f2fbb70d3213bbe492bf7",
     "semantic_hash": ""
   },
   "app/src/test/java/com/capstone/nik/mixology/ui/main/MixologyBottomBarTest.kt": {
@@ -480,18 +460,18 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/hot/HotContract.kt": {
-    "mtime": 1786966053.6128874,
-    "ast_hash": "9a7b788c93dea7d6d56ad12e959d7752",
+    "mtime": 1786967551.6521127,
+    "ast_hash": "350e4f1457afd28737b44399a6df2fd1",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/hot/HotScreen.kt": {
-    "mtime": 1786966154.6340864,
-    "ast_hash": "0ca0680471eff231523f4e4e068c3d05",
+    "mtime": 1787031051.581611,
+    "ast_hash": "ee4e570c4a6da0ffe80e09dc9fdc6df3",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/hot/HotViewModel.kt": {
-    "mtime": 1786966049.214196,
-    "ast_hash": "e2b73d68535a7f0cdf4a5944176493ab",
+    "mtime": 1786968840.4861996,
+    "ast_hash": "6e7d42721763a730e68f2cb873e462e9",
     "semantic_hash": ""
   },
   "app/src/test/java/com/capstone/nik/mixology/ui/hot/HotScreenTest.kt": {
@@ -505,8 +485,8 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/settings/SettingsScreen.kt": {
-    "mtime": 1786963249.5043209,
-    "ast_hash": "1969746e65b07051eda8fcc2680944c4",
+    "mtime": 1787025423.2857985,
+    "ast_hash": "40d9c6286faa3a10ec0c34e90eaea03d",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/theme/ThemePreferences.kt": {
@@ -520,8 +500,8 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkCard.kt": {
-    "mtime": 1786966106.3837974,
-    "ast_hash": "2ca2b6e90cf59017be65feffb5ec2f29",
+    "mtime": 1787031050.1299574,
+    "ast_hash": "89e8053034cef7987b5154edf4291407",
     "semantic_hash": ""
   },
   "scripts/fetch_random_drink.py": {
@@ -565,23 +545,23 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/Network/CocktailService.kt": {
-    "mtime": 1786965989.1664536,
-    "ast_hash": "3531a89e9fb00b76163e116586992f55",
+    "mtime": 1786967503.0193741,
+    "ast_hash": "ac36c2a87b8034c3621ee5c10d8a6df3",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/Network/MyApplication.kt": {
-    "mtime": 1786966016.2867265,
-    "ast_hash": "cb865a00a882b0ef2a0f17dc098fe6aa",
+    "mtime": 1786968826.935692,
+    "ast_hash": "26ad5f7e3fb5141b456e36b3bbc2fd08",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/Network/remoteModel/CocktailDbDrink.kt": {
-    "mtime": 1786965986.8019042,
-    "ast_hash": "9f9b38dd9f4217fddc396bdbff1624ae",
+    "mtime": 1786968826.9342806,
+    "ast_hash": "8421cfd41570039831b91b4d67cc100c",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/data/Drink.kt": {
-    "mtime": 1786965974.663084,
-    "ast_hash": "53647c304e55690730fde2aaa69381a4",
+    "mtime": 1786968795.9834328,
+    "ast_hash": "14d5133372d7358b8b409fd71f0494df",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/data/IngredientListConverter.kt": {
@@ -590,8 +570,8 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/di/DatabaseModule.kt": {
-    "mtime": 1786965991.4084342,
-    "ast_hash": "cf335ceec1c07710f184756f5ba19f86",
+    "mtime": 1786968822.3495617,
+    "ast_hash": "b45be2b29d38a6f291158c81caddf04f",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/di/NetworkModule.kt": {
@@ -602,6 +582,156 @@
   "app/src/main/java/com/capstone/nik/mixology/di/WidgetEntryPoint.kt": {
     "mtime": 1786965991.7552216,
     "ast_hash": "e23c398bd1d98a196f02e344d30c7b02",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/capstone/nik/mixology/Network/remoteModel/CatalogListResponse.kt": {
+    "mtime": 1786967484.12563,
+    "ast_hash": "69fb73bff84f54849a99784fa8c41749",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/capstone/nik/mixology/Widget/DrinkWidgetProvider.kt": {
+    "mtime": 1786967791.5229208,
+    "ast_hash": "47b07744ea38c3b56e3d939bb0a713dd",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/capstone/nik/mixology/Widget/MixologyWidget.kt": {
+    "mtime": 1786967826.8076365,
+    "ast_hash": "e2421f7b97f90fca209563df8b899658",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/capstone/nik/mixology/data/CatalogTermEntity.kt": {
+    "mtime": 1786967483.5158126,
+    "ast_hash": "1f7f7f436a9ad3a94dce675f09722dec",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/capstone/nik/mixology/ui/catalog/CatalogContract.kt": {
+    "mtime": 1787038173.1782355,
+    "ast_hash": "d8e2831a7b1d57c8450977e7f0785a82",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/capstone/nik/mixology/ui/catalog/CatalogScreen.kt": {
+    "mtime": 1787038176.2756572,
+    "ast_hash": "35e9ddd7a09c0d4cf165d06543dfc5dc",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/capstone/nik/mixology/ui/catalog/CatalogViewModel.kt": {
+    "mtime": 1787038174.1241295,
+    "ast_hash": "be34f38785903f8d51e5272740c5c27c",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/capstone/nik/mixology/ui/catalog/CatalogScreenTest.kt": {
+    "mtime": 1787038179.4513047,
+    "ast_hash": "bba96a261f55fd8ffdc1601c5daeb756",
+    "semantic_hash": ""
+  },
+  "app/schemas/com.capstone.nik.mixology.data.MixologyDatabase/4.json": {
+    "mtime": 1786969084.9252431,
+    "ast_hash": "5a6f5ac6d5b024b129d5ecf3d62acd72",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/capstone/nik/mixology/CrashReporting.kt": {
+    "mtime": 1786968785.7699044,
+    "ast_hash": "f29ce567d541f8a3a06341ddddafc46e",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/capstone/nik/mixology/Network/NetworkMonitor.kt": {
+    "mtime": 1786968786.6097782,
+    "ast_hash": "846c318bedb0183b4fd709b3cd786f11",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/capstone/nik/mixology/data/ShoppingDao.kt": {
+    "mtime": 1786968788.425153,
+    "ast_hash": "a640cfd8e59d8315fcb0bf3d8045e71d",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/capstone/nik/mixology/data/ShoppingItemEntity.kt": {
+    "mtime": 1786968788.0061789,
+    "ast_hash": "62bdc4e131c9ef6f716fdcc047bb93b5",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/capstone/nik/mixology/di/AppEntryPoint.kt": {
+    "mtime": 1786968927.5555153,
+    "ast_hash": "c9978a7f00fedc1a9fd4926cfddedf0a",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/capstone/nik/mixology/ui/shopping/ShoppingContract.kt": {
+    "mtime": 1786968967.6695912,
+    "ast_hash": "70b8cd0ad419ee289442687a42c362a9",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/capstone/nik/mixology/ui/shopping/ShoppingScreen.kt": {
+    "mtime": 1786968880.5559456,
+    "ast_hash": "a2b2c66f91bea41ee6fec7ea2b009792",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/capstone/nik/mixology/ui/shopping/ShoppingViewModel.kt": {
+    "mtime": 1786968967.6696045,
+    "ast_hash": "9b5c4e60a56abe7b23841b2854b2ee1c",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/capstone/nik/mixology/FakeCocktailService.kt": {
+    "mtime": 1786968977.5121925,
+    "ast_hash": "6229cdee0770c94497daed7c14fcdf07",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/capstone/nik/mixology/MainDispatcherRule.kt": {
+    "mtime": 1786968970.679496,
+    "ast_hash": "777b5ba2351ed6fd6297b88f914b29a5",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/capstone/nik/mixology/Network/remoteModel/CocktailDbDrinkTest.kt": {
+    "mtime": 1786969012.622372,
+    "ast_hash": "a2ff49b0dfe357c74b2c2685edcf3256",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/capstone/nik/mixology/data/MixologyDatabaseMigrationTest.kt": {
+    "mtime": 1786969009.0349202,
+    "ast_hash": "14355dbfdd7af74a4090ed17af89c6a7",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/capstone/nik/mixology/repository/DrinkRepositoryTest.kt": {
+    "mtime": 1786968983.478196,
+    "ast_hash": "7efbc557ca764baca5dd037afd93154c",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/capstone/nik/mixology/ui/catalog/CatalogViewModelTest.kt": {
+    "mtime": 1787038181.9810019,
+    "ast_hash": "e15ac9be6b072688afabd481e3d77d67",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/capstone/nik/mixology/ui/details/DrinkDetailsViewModelTest.kt": {
+    "mtime": 1786969003.4663224,
+    "ast_hash": "796285aab09fa0839c69468a9094697b",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/capstone/nik/mixology/ui/grid/DrinkGridViewModelTest.kt": {
+    "mtime": 1786968988.5454803,
+    "ast_hash": "94c3b79115417bafd2029e262ed2bb21",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/capstone/nik/mixology/ui/search/SearchViewModelTest.kt": {
+    "mtime": 1786971086.3137949,
+    "ast_hash": "91aefe3942229e100cf3559ba8239219",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/capstone/nik/mixology/ui/shopping/ShoppingScreenTest.kt": {
+    "mtime": 1786969015.16314,
+    "ast_hash": "89c5fd478953191b3ab2337842190897",
+    "semantic_hash": ""
+  },
+  ".github/workflows/ci.yml": {
+    "mtime": 1786969019.2465136,
+    "ast_hash": "e41a55e9be0f548ac76b9b20b647b012",
+    "semantic_hash": ""
+  },
+  "docs/PLAY_STORE.md": {
+    "mtime": 1786969019.6597629,
+    "ast_hash": "64bb724193864c0195f265e66bf5a58f",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/capstone/nik/mixology/ui/catalog/CatalogContractTest.kt": {
+    "mtime": 1787038196.3710272,
+    "ast_hash": "9c0379404ef4a1815f0483f56d2945f3",
     "semantic_hash": ""
   }
 }

@@ -20,10 +20,12 @@ sealed interface HotIntent {
     data class ToggleSaved(val item: Drink) : HotIntent
     data class OpenDrink(val drink: Drink) : HotIntent
     data class SeeAll(val filter: DrinkFilter) : HotIntent
+    data object BrowseCatalog : HotIntent
 }
 
 sealed interface HotEffect {
     data class ShowMessageRes(val resId: Int) : HotEffect
     data class OpenDrink(val drink: Drink) : HotEffect
     data class OpenFilter(val filter: DrinkFilter) : HotEffect
+    data object OpenCatalog : HotEffect
 }

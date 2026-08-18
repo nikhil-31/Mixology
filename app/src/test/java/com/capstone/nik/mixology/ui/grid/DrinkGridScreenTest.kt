@@ -87,6 +87,23 @@ class DrinkGridScreenTest {
     }
 
     @Test
+    fun largeFontScale_stillShowsDrinkName() {
+        composeRule.setContent {
+            MixologyTheme {
+                DrinkGridScreen(
+                    filter = DrinkFilter.ALCOHOLIC,
+                    drinks = listOf(Drink("11007", "Margarita", "", saved = false)),
+                    onDrinkClick = {},
+                    onToggleSaved = {},
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("Margarita").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("Save cocktail").assertIsDisplayed()
+    }
+
+    @Test
     fun favoriteButton_togglesSavedDrink() {
         val toggled = mutableListOf<Drink>()
         composeRule.setContent {
@@ -101,10 +118,28 @@ class DrinkGridScreenTest {
         }
 
         composeRule.onAllNodesWithText("Margarita").assertCountEquals(1)
-        composeRule.onNodeWithContentDescription("Add or delete").performClick()
+        composeRule.onNodeWithContentDescription("Save cocktail").performClick()
 
         assertEquals(1, toggled.size)
         assertEquals("11007", toggled[0].id)
         assertTrue(!toggled[0].saved)
+    }
+
+    @Test
+    @Config(fontScale = 2.0f)
+    fun largeFontScale_at200Percent_stillShowsDrinkName() {
+        composeRule.setContent {
+            MixologyTheme {
+                DrinkGridScreen(
+                    filter = DrinkFilter.ALCOHOLIC,
+                    drinks = listOf(Drink("11007", "Margarita", "", saved = false)),
+                    onDrinkClick = {},
+                    onToggleSaved = {},
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("Margarita").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("Save cocktail").assertIsDisplayed()
     }
 }

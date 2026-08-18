@@ -27,6 +27,21 @@ class DrinkFilterTest {
     }
 
     @Test
+    fun fromName_resolvesPresetsAndDynamicFilters() {
+        assertEquals(DrinkFilter.GIN, DrinkFilter.fromName("GIN"))
+        assertEquals(DrinkFilter.SAVED, DrinkFilter.fromName("unknown"))
+        val tequila = DrinkFilter.fromName("INGREDIENT:Tequila")
+        assertEquals(FilterKind.INGREDIENT, tequila.kind)
+        assertEquals("Tequila", tequila.query)
+        assertEquals("INGREDIENT:Tequila", tequila.name)
+    }
+
+    @Test
+    fun dynamic_reusesCuratedPresetWhenQueryMatches() {
+        assertEquals(DrinkFilter.GIN, DrinkFilter.dynamic(FilterKind.INGREDIENT, "Gin"))
+    }
+
+    @Test
     fun hasUsableThumb_rejectsMissingAndLiteralNull() {
         val missing = CocktailDbDrink(strDrinkThumb = null)
         val literalNull = CocktailDbDrink(strDrinkThumb = "null")

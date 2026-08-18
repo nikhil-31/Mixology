@@ -10,7 +10,6 @@ class MainViewModel @Inject constructor() : MviViewModel<MainIntent, MainUiState
 
     override fun onIntent(intent: MainIntent) {
         when (intent) {
-            MainIntent.OpenDrawer -> sendEffect(MainEffect.OpenDrawer)
             is MainIntent.SelectDestination -> {
                 setState {
                     copy(
@@ -23,7 +22,6 @@ class MainViewModel @Inject constructor() : MviViewModel<MainIntent, MainUiState
                     )
                 }
                 sendEffect(MainEffect.Navigate(intent.destination))
-                sendEffect(MainEffect.CloseDrawer)
             }
             MainIntent.ToggleSearch -> sendEffect(MainEffect.OpenSearch(""))
             MainIntent.OpenMenu -> setState { copy(menuExpanded = true) }

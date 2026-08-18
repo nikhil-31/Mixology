@@ -27,7 +27,9 @@ import com.capstone.nik.mixology.ui.theme.ThemePreferences
 import com.capstone.nik.mixology.ui.theme.rememberThemeMode
 
 @Composable
-fun SettingsRoute() {
+fun SettingsRoute(
+    onShoppingList: () -> Unit = {},
+) {
     val context = LocalContext.current
     val themeMode = rememberThemeMode()
     SettingsScreen(
@@ -36,6 +38,7 @@ fun SettingsRoute() {
         onPrivacyPolicy = {
             context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(PRIVACY_POLICY_URL)))
         },
+        onShoppingList = onShoppingList,
     )
 }
 
@@ -44,6 +47,7 @@ fun SettingsScreen(
     themeMode: ThemeMode,
     onThemeModeSelected: (ThemeMode) -> Unit,
     onPrivacyPolicy: () -> Unit = {},
+    onShoppingList: () -> Unit = {},
 ) {
     val colors = MaterialTheme.colorScheme
     Column(
@@ -79,6 +83,17 @@ fun SettingsScreen(
                 )
             }
         }
+        Text(
+            text = stringResource(R.string.nav_item_shopping_list),
+            color = colors.onBackground,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onShoppingList)
+                .padding(top = 24.dp, bottom = 12.dp)
+                .testTag("settings_shopping_list"),
+        )
         Text(
             text = stringResource(R.string.privacy_policy_link),
             color = colors.onBackground,

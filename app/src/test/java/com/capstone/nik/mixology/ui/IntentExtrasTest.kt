@@ -31,4 +31,14 @@ class IntentExtrasTest {
         assertNull(Intent().drinkExtra())
         assertNull(Intent().putExtra(DrinkIntents.EXTRA_ID, " ").drinkExtra())
     }
+
+    @Test
+    fun drinkExtra_readsMixologyUri() {
+        val intent = Intent(Intent.ACTION_VIEW).setData(
+            android.net.Uri.parse("mixology://drink/11007?name=Margarita"),
+        )
+        val drink = intent.drinkExtra()
+        assertEquals("11007", drink?.id)
+        assertEquals("Margarita", drink?.name)
+    }
 }

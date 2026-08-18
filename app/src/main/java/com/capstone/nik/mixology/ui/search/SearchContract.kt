@@ -4,8 +4,15 @@ import com.capstone.nik.mixology.data.Drink
 
 const val SEARCH_MIN_CHARS = 2
 
+enum class SearchMode {
+    NAME,
+    INGREDIENT,
+    LETTER,
+}
+
 data class SearchUiState(
     val query: String = "",
+    val mode: SearchMode = SearchMode.NAME,
     val loading: Boolean = false,
     val results: List<Drink> = emptyList(),
     val empty: Boolean = false,
@@ -13,6 +20,7 @@ data class SearchUiState(
 
 sealed interface SearchIntent {
     data class Search(val query: String) : SearchIntent
+    data class SetMode(val mode: SearchMode) : SearchIntent
     data class ToggleSaved(val drink: Drink) : SearchIntent
     data class OpenDrink(val drink: Drink) : SearchIntent
     data object Back : SearchIntent

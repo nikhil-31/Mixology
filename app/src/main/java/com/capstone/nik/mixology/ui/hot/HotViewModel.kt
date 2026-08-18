@@ -3,12 +3,14 @@ package com.capstone.nik.mixology.ui.hot
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.capstone.nik.mixology.R
+import com.capstone.nik.mixology.recordCrash
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
+import com.capstone.nik.mixology.Network.NetworkMonitor
 import com.capstone.nik.mixology.repository.DrinkRepository
 import com.capstone.nik.mixology.ui.mvi.MviViewModel
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -17,12 +19,17 @@ import javax.inject.Inject
 @HiltViewModel
 class HotViewModel @Inject constructor(
     private val repository: DrinkRepository,
+    private val networkMonitor: NetworkMonitor,
 ) : MviViewModel<HotIntent, HotUiState, HotEffect>(HotUiState()) {
 
     private val catalogFilters = DrinkFilter.catalogFilters
+    private var observeJob: Job? = null
 
     init {
         onIntent(HotIntent.Load)
+        viewModelScope.launch {
+            networkMonitor.retries.collect { refreshRemote() }
+        }
     }
 
     override fun onIntent(intent: HotIntent) {
@@ -31,26 +38,41 @@ class HotViewModel @Inject constructor(
             is HotIntent.ToggleSaved -> toggleSaved(intent.item)
             is HotIntent.OpenDrink -> sendEffect(HotEffect.OpenDrink(intent.drink))
             is HotIntent.SeeAll -> sendEffect(HotEffect.OpenFilter(intent.filter))
+            HotIntent.BrowseCatalog -> sendEffect(HotEffect.OpenCatalog)
         }
     }
 
     private fun load() {
-        viewModelScope.launch {
-            val flows = catalogFilters.map { filter ->
-                repository.observeDrinks(filter).map { drinks -> HotCategory(filter, drinks) }
-            }
-            combine(flows) { rows -> rows.toList() }.collect { categories ->
-                setState { copy(loading = false, categories = categories) }
+        if (observeJob == null) {
+            observeJob = viewModelScope.launch {
+                val flows = catalogFilters.map { filter ->
+                    repository.observeDrinks(filter).map { drinks -> HotCategory(filter, drinks) }
+                }
+                combine(flows) { rows -> rows.toList() }.collect { categories ->
+                    setState { copy(loading = false, categories = categories) }
+                }
             }
         }
+        refreshRemote()
+    }
+
+    private fun refreshRemote() {
         catalogFilters.forEach { filter ->
             viewModelScope.launch {
                 try {
                     repository.fetchAndCache(filter)
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to refresh ${filter.name}", e)
-                    FirebaseCrashlytics.getInstance().recordException(e)
+                    recordCrash(e)
                 }
+            }
+        }
+        viewModelScope.launch {
+            try {
+                repository.refreshCatalogs()
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to refresh catalogs", e)
+                recordCrash(e)
             }
         }
     }

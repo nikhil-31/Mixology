@@ -11,12 +11,21 @@ object DrinkIntents {
 }
 
 fun Intent.drinkExtra(): Drink? {
-    val id = getStringExtra(DrinkIntents.EXTRA_ID) ?: return null
-    if (id.isBlank()) return null
+    val extraId = getStringExtra(DrinkIntents.EXTRA_ID)?.takeIf { it.isNotBlank() }
+    if (extraId != null) {
+        return Drink(
+            id = extraId,
+            name = getStringExtra(DrinkIntents.EXTRA_NAME).orEmpty(),
+            thumb = getStringExtra(DrinkIntents.EXTRA_THUMB).orEmpty(),
+        )
+    }
+    val uri = data ?: return null
+    if (uri.scheme != "mixology" || uri.host != "drink") return null
+    val id = uri.lastPathSegment?.takeIf { it.isNotBlank() } ?: return null
     return Drink(
         id = id,
-        name = getStringExtra(DrinkIntents.EXTRA_NAME).orEmpty(),
-        thumb = getStringExtra(DrinkIntents.EXTRA_THUMB).orEmpty(),
+        name = uri.getQueryParameter("name").orEmpty(),
+        thumb = uri.getQueryParameter("thumb").orEmpty(),
     )
 }
 

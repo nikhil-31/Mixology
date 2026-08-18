@@ -62,9 +62,13 @@ fun DrawerDestination.isSelectedBottomNav(item: BottomNavItem): Boolean {
         DrawerDestination.Randomixer -> this is DrawerDestination.Randomixer
         DrawerDestination.Hot -> this is DrawerDestination.Hot
         DrawerDestination.Settings -> this is DrawerDestination.Settings
+        DrawerDestination.Catalog -> false
+        DrawerDestination.Shopping -> false
         is DrawerDestination.Filter -> this is DrawerDestination.Filter && filter == tab.filter
     }
 }
+
+fun DrawerDestination.isBottomNavTab(): Boolean = bottomNavItems.any { isSelectedBottomNav(it) }
 
 @Composable
 fun MixologyBottomBar(

@@ -140,4 +140,24 @@ interface DrinkDao {
         }
         setSaved(drink.id, true)
     }
+
+    @Query("UPDATE drinks SET notes = :notes WHERE id = :id")
+    suspend fun updateNotes(id: String, notes: String)
+
+    @Query("SELECT * FROM catalog_terms WHERE kind = :kind ORDER BY name")
+    fun observeCatalog(kind: String): Flow<List<CatalogTermEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCatalogTerms(terms: List<CatalogTermEntity>)
+
+    @Query("DELETE FROM catalog_terms WHERE kind = :kind")
+    suspend fun deleteCatalog(kind: String)
+
+    @Transaction
+    suspend fun replaceCatalog(kind: String, names: List<String>) {
+        deleteCatalog(kind)
+        if (names.isNotEmpty()) {
+            insertCatalogTerms(names.map { CatalogTermEntity(kind, it) })
+        }
+    }
 }

@@ -8,6 +8,8 @@
 
     <!-- Content Description for accessibility -->
     <string name="content_desc_drink_image">Image of the cocktail</string>
+    <string name="content_desc_save_cocktail">Save cocktail</string>
+    <string name="content_desc_unsave_cocktail">Remove saved cocktail</string>
     <string name="content_desc_Add_Delete_button">Add or delete</string>
     <string name="content_desc_up_navigation">Up navigation</string>
     <string name="content_desc_ingredients_image">Ingredients Image</string>
@@ -46,7 +48,15 @@
     <string name="nav_item_saved_cocktails">Saved Cocktails</string>
     <string name="nav_item_hot">Hot</string>
     <string name="nav_item_randomixer">Randomixer</string>
+    <string name="nav_item_browse_catalog">Browse catalog</string>
+    <string name="nav_item_shopping_list">Shopping list</string>
     <string name="action_see_all">See all</string>
+    <string name="action_undo">Undo</string>
+    <string name="action_retry">Retry</string>
+
+    <string name="search_mode_name">Name</string>
+    <string name="search_mode_ingredient">Ingredient</string>
+    <string name="search_mode_letter">A–Z</string>
 
     <string name="settings_appearance">Appearance</string>
     <string name="settings_theme_system">System default</string>
@@ -79,9 +89,19 @@
     <string name="content_desc_randomixer_discard">Discard this cocktail</string>
     <string name="content_desc_randomixer_info">Show drink details</string>
     <string name="randomixer_already_saved">Saved</string>
+    <string name="randomixer_hide_saved">Hide saved</string>
+    <string name="randomixer_skipped">Skipped</string>
 
     <string name="empty_string_add_a_drink">Add a drink !!! Its lonely here.</string>
     <string name="empty_string_cocktail_image">cocktail_image</string>
 
     <string name="privacy_policy_link">Privacy policy</string>
+
+    <string name="detail_watch_video">Watch video</string>
+    <string name="detail_notes">Notes</string>
+    <string name="shopping_add_ingredients">Add ingredients to shopping list</string>
+    <string name="shopping_added">Added to shopping list</string>
+    <string name="shopping_empty">No items yet. Add ingredients from a saved cocktail.</string>
+    <string name="shopping_clear_checked">Clear checked</string>
+    <string name="shopping_remove_item">Remove item</string>
 </resources>

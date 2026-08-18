@@ -77,7 +77,7 @@ class DrinkDetailsScreenTest {
         }
 
         composeRule.onNodeWithText("Margarita").assertIsDisplayed()
-        composeRule.onNodeWithContentDescription("Add or delete").performClick()
+        composeRule.onNodeWithContentDescription("Save cocktail").performClick()
         composeRule.onNodeWithText("Alcoholic").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("Cocktail glass").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("Ordinary Drink").performScrollTo().assertIsDisplayed()

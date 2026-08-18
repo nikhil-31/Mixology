@@ -41,7 +41,9 @@ fun FavoriteButton(
     val view = LocalView.current
     var origin by remember { mutableStateOf(Offset.Zero) }
     val icon = if (saved) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder
-    val contentDescription = stringResource(R.string.content_desc_Add_Delete_button)
+    val contentDescription = stringResource(
+        if (saved) R.string.content_desc_unsave_cocktail else R.string.content_desc_save_cocktail,
+    )
     val tint = if (overlay) {
         Color.White
     } else if (saved) {

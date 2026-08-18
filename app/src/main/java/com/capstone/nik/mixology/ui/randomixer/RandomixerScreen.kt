@@ -25,11 +25,14 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -76,6 +79,16 @@ fun RandomixerRoute(
         when (effect) {
             is RandomixerEffect.ShowMessageRes ->
                 snackbarHostState.showSnackbar(context.getString(effect.resId))
+            is RandomixerEffect.ShowUndo -> {
+                val result = snackbarHostState.showSnackbar(
+                    message = context.getString(effect.resId),
+                    actionLabel = context.getString(R.string.action_undo),
+                    duration = SnackbarDuration.Short,
+                )
+                if (result == SnackbarResult.ActionPerformed) {
+                    viewModel.onIntent(RandomixerIntent.Undo)
+                }
+            }
         }
     }
 
@@ -83,6 +96,7 @@ fun RandomixerRoute(
         state = state,
         onSave = { viewModel.onIntent(RandomixerIntent.SwipeSave) },
         onDiscard = { viewModel.onIntent(RandomixerIntent.SwipeDiscard) },
+        onToggleHideSaved = { viewModel.onIntent(RandomixerIntent.ToggleHideSaved) },
     )
 }
 
@@ -91,6 +105,7 @@ fun RandomixerScreen(
     state: RandomixerUiState,
     onSave: () -> Unit,
     onDiscard: () -> Unit,
+    onToggleHideSaved: () -> Unit = {},
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         val drink = state.drink
@@ -107,6 +122,14 @@ fun RandomixerScreen(
                     .padding(5.dp),
             )
         }
+        FilterChip(
+            selected = state.hideSaved,
+            onClick = onToggleHideSaved,
+            label = { Text(stringResource(R.string.randomixer_hide_saved)) },
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(12.dp),
+        )
         if (state.loading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         }

@@ -25,6 +25,12 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="mixology" android:host="drink" />
+            </intent-filter>
         </activity>
 
         <receiver
@@ -40,10 +46,5 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/cocktail_app_widget_info" />
         </receiver>
-
-        <service
-            android:name=".Widget.DrinkWidgetService"
-            android:exported="false"
-            android:permission="android.permission.BIND_REMOTEVIEWS" />
     </application>
 </manifest>

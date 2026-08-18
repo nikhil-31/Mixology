@@ -3,6 +3,7 @@ package com.capstone.nik.mixology.ui.main
 import android.app.Application
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
+import com.capstone.nik.mixology.ui.search.SearchMode
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -33,6 +34,22 @@ class MainViewModelTest {
         job.cancel()
         assertTrue(effect is MainEffect.OpenSearch)
         assertEquals("", (effect as MainEffect.OpenSearch).query)
+        assertEquals(SearchMode.NAME, effect.mode)
+    }
+
+    @Test
+    fun openSearch_ingredientQuery_opensIngredientSearch() = runBlocking {
+        val viewModel = MainViewModel()
+        val deferred = CompletableDeferred<MainEffect>()
+        val job = launch { deferred.complete(viewModel.effects.first()) }
+        yield()
+        viewModel.onIntent(MainIntent.OpenSearch("Vodka", SearchMode.INGREDIENT))
+        val effect = withTimeout(1_000) { deferred.await() }
+        job.cancel()
+        assertTrue(effect is MainEffect.OpenSearch)
+        val search = effect as MainEffect.OpenSearch
+        assertEquals("Vodka", search.query)
+        assertEquals(SearchMode.INGREDIENT, search.mode)
     }
 
     @Test

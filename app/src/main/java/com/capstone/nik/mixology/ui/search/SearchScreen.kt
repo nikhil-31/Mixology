@@ -58,15 +58,18 @@ fun SearchRoute(
     initialQuery: String,
     onBack: () -> Unit,
     onDrinkClick: (Drink) -> Unit,
+    initialMode: SearchMode = SearchMode.NAME,
     viewModel: SearchViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
 
-    LaunchedEffect(initialQuery) {
+    LaunchedEffect(initialQuery, initialMode) {
         if (initialQuery.isNotBlank()) {
-            viewModel.onIntent(SearchIntent.Search(initialQuery))
+            viewModel.onIntent(SearchIntent.Search(initialQuery, initialMode))
+        } else if (initialMode != SearchMode.NAME) {
+            viewModel.onIntent(SearchIntent.SetMode(initialMode))
         }
     }
     CollectMviEffects(viewModel.effects) { effect ->

@@ -26,7 +26,7 @@ class HotScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun showsCategoryRows_andSeeAllOpensFilter() {
+    fun showsCategoryRows_andSeeAllReportsIngredient() {
         val seeAll = mutableListOf<DrinkFilter>()
         composeRule.setContent {
             MixologyTheme {

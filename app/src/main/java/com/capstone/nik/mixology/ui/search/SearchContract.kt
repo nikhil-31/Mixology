@@ -19,7 +19,7 @@ data class SearchUiState(
 )
 
 sealed interface SearchIntent {
-    data class Search(val query: String) : SearchIntent
+    data class Search(val query: String, val mode: SearchMode? = null) : SearchIntent
     data class SetMode(val mode: SearchMode) : SearchIntent
     data class ToggleSaved(val drink: Drink) : SearchIntent
     data class OpenDrink(val drink: Drink) : SearchIntent

@@ -54,7 +54,13 @@ class SearchViewModel @Inject constructor(
 
     override fun onIntent(intent: SearchIntent) {
         when (intent) {
-            is SearchIntent.Search -> search(intent.query)
+            is SearchIntent.Search -> {
+                if (intent.mode != null && mode.value != intent.mode) {
+                    searchJob?.cancel()
+                    mode.value = intent.mode
+                }
+                search(intent.query)
+            }
             is SearchIntent.SetMode -> setMode(intent.mode)
             is SearchIntent.ToggleSaved -> toggleSaved(intent.drink)
             is SearchIntent.OpenDrink -> sendEffect(SearchEffect.OpenDrink(intent.drink))

@@ -12,9 +12,10 @@ class DrawerDestinationTest {
     @Test
     fun gridRoute_usesFilterName() {
         assertEquals("grid/ALCOHOLIC", gridRoute(DrinkFilter.ALCOHOLIC))
+        assertEquals("grid/TEQUILA", gridRoute(DrinkFilter.TEQUILA))
         assertEquals(
-            "grid/INGREDIENT%3ATequila",
-            gridRoute(DrinkFilter.dynamic(com.capstone.nik.mixology.repository.FilterKind.INGREDIENT, "Tequila")),
+            "grid/INGREDIENT%3AChartreuse",
+            gridRoute(DrinkFilter.dynamic(com.capstone.nik.mixology.repository.FilterKind.INGREDIENT, "Chartreuse")),
         )
         assertEquals("grid/SAVED", DrawerDestination.Filter(DrinkFilter.SAVED).route)
         assertEquals("randomixer", DrawerDestination.Randomixer.route)
@@ -22,12 +23,20 @@ class DrawerDestinationTest {
         assertEquals("settings", DrawerDestination.Settings.route)
         assertEquals("catalog", DrawerDestination.Catalog.route)
         assertEquals("shopping", DrawerDestination.Shopping.route)
-        assertEquals("search?query=gin", searchRoute("gin"))
+        assertEquals("search?query=gin&mode=NAME", searchRoute("gin"))
+        assertEquals(
+            "search?query=Coffee%20liqueur&mode=INGREDIENT",
+            searchRoute("Coffee liqueur", com.capstone.nik.mixology.ui.search.SearchMode.INGREDIENT),
+        )
+        assertEquals(
+            com.capstone.nik.mixology.ui.search.SearchMode.INGREDIENT,
+            searchModeFromRoute("INGREDIENT"),
+        )
         assertEquals(
             "details/11007?name=Margarita&thumb=https%3A%2F%2Fexample.com%2Fa.jpg",
             detailsRoute(Drink("11007", "Margarita", "https://example.com/a.jpg")),
         )
-        assertTrue(isOverlayRoute("search?query={query}"))
+        assertTrue(isOverlayRoute("search?query={query}&mode={mode}"))
         assertTrue(isOverlayRoute("details/{id}?name={name}&thumb={thumb}"))
         assertFalse(isOverlayRoute("hot"))
     }

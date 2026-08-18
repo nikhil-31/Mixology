@@ -1,7 +1,7 @@
 # Graph Report - Mixology  (2026-08-18)
 
 ## Corpus Check
-- 109 files · ~49,179 words
+- 109 files · ~49,201 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `72ea28ed`
+- Built from commit: `63d744b9`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 

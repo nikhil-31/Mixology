@@ -55,7 +55,7 @@ class DrawerDestinationTest {
         assertTrue(DrawerDestination.Catalog.isBottomNavTab())
         assertTrue(DrawerDestination.Filter(DrinkFilter.SAVED).isBottomNavTab())
         assertTrue(DrawerDestination.Randomixer.isBottomNavTab())
-        assertTrue(DrawerDestination.Settings.isBottomNavTab())
+        assertFalse(DrawerDestination.Settings.isBottomNavTab())
         assertFalse(DrawerDestination.Shopping.isBottomNavTab())
         assertFalse(DrawerDestination.Filter(DrinkFilter.GIN).isBottomNavTab())
         assertFalse(DrawerDestination.Filter(DrinkFilter.ALCOHOLIC).isBottomNavTab())

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -112,6 +113,7 @@ fun MixologyApp(
     val showSearch = !overlay &&
         state.destination !is DrawerDestination.Settings &&
         state.destination !is DrawerDestination.Shopping
+    val showSettings = !overlay && state.destination !is DrawerDestination.Settings
     val showUp = !overlay && !state.destination.isBottomNavTab()
     val title = when (val destination = state.destination) {
         DrawerDestination.Hot -> stringResource(R.string.nav_item_home)
@@ -148,6 +150,7 @@ fun MixologyApp(
                         title = title,
                         showUp = showUp,
                         showSearch = showSearch,
+                        showSettings = showSettings,
                         onUp = {
                             val parent = when (state.destination) {
                                 DrawerDestination.Shopping -> DrawerDestination.Settings
@@ -157,6 +160,9 @@ fun MixologyApp(
                             viewModel.onIntent(MainIntent.SelectDestination(parent))
                         },
                         onSearch = { viewModel.onIntent(MainIntent.ToggleSearch) },
+                        onSettings = {
+                            viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Settings))
+                        },
                     )
                 }
                 Row(modifier = Modifier.weight(1f).fillMaxWidth()) {
@@ -312,8 +318,10 @@ private fun ScreenHeader(
     title: String,
     showUp: Boolean,
     showSearch: Boolean,
+    showSettings: Boolean,
     onUp: () -> Unit,
     onSearch: () -> Unit,
+    onSettings: () -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -341,6 +349,15 @@ private fun ScreenHeader(
                 Icon(
                     imageVector = Icons.Default.Search,
                     contentDescription = stringResource(R.string.action_search),
+                    tint = MaterialTheme.colorScheme.onBackground,
+                )
+            }
+        }
+        if (showSettings) {
+            IconButton(onClick = onSettings) {
+                Icon(
+                    imageVector = Icons.Filled.Settings,
+                    contentDescription = stringResource(R.string.action_settings),
                     tint = MaterialTheme.colorScheme.onBackground,
                 )
             }

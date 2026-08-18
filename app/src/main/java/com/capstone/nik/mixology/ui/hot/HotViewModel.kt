@@ -38,7 +38,6 @@ class HotViewModel @Inject constructor(
             is HotIntent.ToggleSaved -> toggleSaved(intent.item)
             is HotIntent.OpenDrink -> sendEffect(HotEffect.OpenDrink(intent.drink))
             is HotIntent.SeeAll -> sendEffect(HotEffect.OpenFilter(intent.filter))
-            HotIntent.BrowseCatalog -> sendEffect(HotEffect.OpenCatalog)
         }
     }
 

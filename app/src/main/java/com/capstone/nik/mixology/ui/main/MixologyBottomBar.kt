@@ -1,6 +1,8 @@
 package com.capstone.nik.mixology.ui.main
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Shuffle
@@ -38,6 +40,12 @@ val bottomNavItems = listOf(
         unselectedIcon = Icons.Outlined.Whatshot,
     ),
     BottomNavItem(
+        titleRes = R.string.nav_bottom_catalog,
+        destination = DrawerDestination.Catalog,
+        selectedIcon = Icons.AutoMirrored.Filled.MenuBook,
+        unselectedIcon = Icons.AutoMirrored.Outlined.MenuBook,
+    ),
+    BottomNavItem(
         titleRes = R.string.nav_bottom_saved,
         destination = DrawerDestination.Filter(DrinkFilter.SAVED),
         selectedIcon = Icons.Filled.Favorite,
@@ -62,7 +70,7 @@ fun DrawerDestination.isSelectedBottomNav(item: BottomNavItem): Boolean {
         DrawerDestination.Randomixer -> this is DrawerDestination.Randomixer
         DrawerDestination.Hot -> this is DrawerDestination.Hot
         DrawerDestination.Settings -> this is DrawerDestination.Settings
-        DrawerDestination.Catalog -> false
+        DrawerDestination.Catalog -> this is DrawerDestination.Catalog
         DrawerDestination.Shopping -> false
         is DrawerDestination.Filter -> this is DrawerDestination.Filter && filter == tab.filter
     }

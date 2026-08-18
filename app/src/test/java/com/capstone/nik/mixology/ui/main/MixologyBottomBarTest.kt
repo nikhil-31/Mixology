@@ -26,7 +26,7 @@ class MixologyBottomBarTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun showsHotSavedRandomixerAndSettings_andReportsSelection() {
+    fun showsHotCatalogSavedRandomixerAndSettings_andReportsSelection() {
         val selected = mutableListOf<DrawerDestination>()
         composeRule.setContent {
             MixologyTheme {
@@ -38,15 +38,18 @@ class MixologyBottomBarTest {
         }
 
         composeRule.onNodeWithText("Hot").assertIsDisplayed()
+        composeRule.onNodeWithText("Catalog").assertIsDisplayed()
         composeRule.onNodeWithText("Saved").assertIsDisplayed()
         composeRule.onNodeWithText("Randomixer").assertIsDisplayed()
         composeRule.onNodeWithText("Settings").assertIsDisplayed()
+        composeRule.onNodeWithTag("bottom_Catalog").performClick()
         composeRule.onNodeWithTag("bottom_Saved").performClick()
         composeRule.onNodeWithTag("bottom_Randomixer").performClick()
         composeRule.onNodeWithTag("bottom_Settings").performClick()
 
-        assertEquals(DrinkFilter.SAVED, (selected[0] as DrawerDestination.Filter).filter)
-        assertTrue(selected[1] is DrawerDestination.Randomixer)
-        assertTrue(selected[2] is DrawerDestination.Settings)
+        assertTrue(selected[0] is DrawerDestination.Catalog)
+        assertEquals(DrinkFilter.SAVED, (selected[1] as DrawerDestination.Filter).filter)
+        assertTrue(selected[2] is DrawerDestination.Randomixer)
+        assertTrue(selected[3] is DrawerDestination.Settings)
     }
 }

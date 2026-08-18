@@ -41,6 +41,7 @@ import androidx.navigation.navArgument
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
+import com.capstone.nik.mixology.repository.FilterKind
 import com.capstone.nik.mixology.ui.catalog.CatalogRoute
 import com.capstone.nik.mixology.ui.details.DrinkDetailsRoute
 import com.capstone.nik.mixology.ui.grid.DrinkGridRoute
@@ -88,7 +89,12 @@ fun MixologyApp(
                     restoreState = true
                 }
             }
-            is MainEffect.OpenSearch -> navController.navigate(searchRoute(effect.query, effect.mode))
+            is MainEffect.OpenSearch -> {
+                val route = searchRoute(effect.query, effect.mode, effect.filterKind)
+                navController.navigate(route) {
+                    popUpTo(SEARCH_ROUTE) { inclusive = true }
+                }
+            }
             is MainEffect.OpenDetails -> navController.navigate(detailsRoute(effect.drink)) {
                 launchSingleTop = true
             }
@@ -143,10 +149,10 @@ fun MixologyApp(
                         showUp = showUp,
                         showSearch = showSearch,
                         onUp = {
-                            val parent = if (state.destination is DrawerDestination.Shopping) {
-                                DrawerDestination.Settings
-                            } else {
-                                DrawerDestination.Hot
+                            val parent = when (state.destination) {
+                                DrawerDestination.Shopping -> DrawerDestination.Settings
+                                is DrawerDestination.Filter -> DrawerDestination.Catalog
+                                else -> DrawerDestination.Hot
                             }
                             viewModel.onIntent(MainIntent.SelectDestination(parent))
                         },
@@ -180,7 +186,15 @@ fun MixologyApp(
                             CatalogRoute(
                                 onOpenFilter = { filter ->
                                     viewModel.onIntent(
-                                        MainIntent.SelectDestination(DrawerDestination.Filter(filter)),
+                                        MainIntent.OpenSearch(
+                                            query = filter.query.orEmpty(),
+                                            mode = if (filter.kind == FilterKind.INGREDIENT) {
+                                                SearchMode.INGREDIENT
+                                            } else {
+                                                SearchMode.NAME
+                                            },
+                                            filterKind = filter.kind,
+                                        ),
                                     )
                                 },
                             )
@@ -196,11 +210,9 @@ fun MixologyApp(
                                         MainIntent.OpenSearch(
                                             query = filter.query.orEmpty(),
                                             mode = SearchMode.INGREDIENT,
+                                            filterKind = FilterKind.INGREDIENT,
                                         ),
                                     )
-                                },
-                                onBrowseCatalog = {
-                                    viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Catalog))
                                 },
                             )
                         }
@@ -228,11 +240,16 @@ fun MixologyApp(
                                     type = NavType.StringType
                                     defaultValue = SearchMode.NAME.name
                                 },
+                                navArgument("kind") {
+                                    type = NavType.StringType
+                                    defaultValue = ""
+                                },
                             ),
                         ) { entry ->
                             SearchRoute(
                                 initialQuery = entry.arguments?.getString("query").orEmpty(),
                                 initialMode = searchModeFromRoute(entry.arguments?.getString("mode")),
+                                initialFilterKind = filterKindFromRoute(entry.arguments?.getString("kind")),
                                 onBack = { navController.navigateUp() },
                                 onDrinkClick = { drink ->
                                     viewModel.onIntent(MainIntent.DrinkSelected(drink, twoPane = false))

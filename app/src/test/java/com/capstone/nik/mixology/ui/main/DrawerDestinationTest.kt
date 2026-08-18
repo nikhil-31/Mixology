@@ -23,31 +23,39 @@ class DrawerDestinationTest {
         assertEquals("settings", DrawerDestination.Settings.route)
         assertEquals("catalog", DrawerDestination.Catalog.route)
         assertEquals("shopping", DrawerDestination.Shopping.route)
-        assertEquals("search?query=gin&mode=NAME", searchRoute("gin"))
+        assertEquals("search?query=gin&mode=NAME&kind=", searchRoute("gin"))
         assertEquals(
-            "search?query=Coffee%20liqueur&mode=INGREDIENT",
-            searchRoute("Coffee liqueur", com.capstone.nik.mixology.ui.search.SearchMode.INGREDIENT),
+            "search?query=Coffee%20liqueur&mode=INGREDIENT&kind=INGREDIENT",
+            searchRoute(
+                "Coffee liqueur",
+                com.capstone.nik.mixology.ui.search.SearchMode.INGREDIENT,
+                com.capstone.nik.mixology.repository.FilterKind.INGREDIENT,
+            ),
         )
         assertEquals(
             com.capstone.nik.mixology.ui.search.SearchMode.INGREDIENT,
             searchModeFromRoute("INGREDIENT"),
         )
         assertEquals(
+            com.capstone.nik.mixology.repository.FilterKind.GLASS,
+            filterKindFromRoute("GLASS"),
+        )
+        assertEquals(
             "details/11007?name=Margarita&thumb=https%3A%2F%2Fexample.com%2Fa.jpg",
             detailsRoute(Drink("11007", "Margarita", "https://example.com/a.jpg")),
         )
-        assertTrue(isOverlayRoute("search?query={query}&mode={mode}"))
+        assertTrue(isOverlayRoute("search?query={query}&mode={mode}&kind={kind}"))
         assertTrue(isOverlayRoute("details/{id}?name={name}&thumb={thumb}"))
         assertFalse(isOverlayRoute("hot"))
     }
 
     @Test
-    fun bottomNavTab_excludesCatalogShoppingAndFilterGrids() {
+    fun bottomNavTab_includesCatalogAndExcludesShoppingAndFilterGrids() {
         assertTrue(DrawerDestination.Hot.isBottomNavTab())
+        assertTrue(DrawerDestination.Catalog.isBottomNavTab())
         assertTrue(DrawerDestination.Filter(DrinkFilter.SAVED).isBottomNavTab())
         assertTrue(DrawerDestination.Randomixer.isBottomNavTab())
         assertTrue(DrawerDestination.Settings.isBottomNavTab())
-        assertFalse(DrawerDestination.Catalog.isBottomNavTab())
         assertFalse(DrawerDestination.Shopping.isBottomNavTab())
         assertFalse(DrawerDestination.Filter(DrinkFilter.GIN).isBottomNavTab())
         assertFalse(DrawerDestination.Filter(DrinkFilter.ALCOHOLIC).isBottomNavTab())

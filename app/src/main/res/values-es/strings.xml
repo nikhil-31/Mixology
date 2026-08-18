@@ -34,6 +34,7 @@
     <string name="nav_bottom_saved">Guardados</string>
     <string name="nav_bottom_catalog">Catálogo</string>
     <string name="nav_bottom_settings">Ajustes</string>
+    <string name="nav_item_my_bar">Mi bar</string>
 
     <string name="nav_item_saved_cocktails">Cócteles guardados</string>
     <string name="nav_item_home">Inicio</string>
@@ -103,4 +104,14 @@
     <string name="shopping_empty">Todavía no hay artículos. Añade ingredientes desde un cóctel guardado.</string>
     <string name="shopping_clear_checked">Borrar marcados</string>
     <string name="shopping_remove_item">Eliminar artículo</string>
+
+    <string name="bar_add">Añadir</string>
+    <string name="bar_done">Listo</string>
+    <string name="bar_add_ingredients">Añadir ingredientes</string>
+    <string name="bar_empty">Añade las botellas y mixers que tienes y verás qué puedes preparar.</string>
+    <string name="bar_you_can_make">Puedes preparar</string>
+    <string name="bar_almost">Casi</string>
+    <string name="bar_needs">Falta %1$s</string>
+    <string name="bar_remove_ingredient">Quitar %1$s</string>
+    <string name="bar_in_bar">En tu bar</string>
 </resources>

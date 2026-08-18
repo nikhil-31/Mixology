@@ -22,6 +22,7 @@ class DrawerDestinationTest {
         assertEquals("hot", DrawerDestination.Hot.route)
         assertEquals("settings", DrawerDestination.Settings.route)
         assertEquals("catalog", DrawerDestination.Catalog.route)
+        assertEquals("bar", DrawerDestination.Bar.route)
         assertEquals("shopping", DrawerDestination.Shopping.route)
         assertEquals("search?query=gin&mode=NAME&kind=", searchRoute("gin"))
         assertEquals(
@@ -53,6 +54,7 @@ class DrawerDestinationTest {
     fun bottomNavTab_includesCatalogAndExcludesShoppingAndFilterGrids() {
         assertTrue(DrawerDestination.Hot.isBottomNavTab())
         assertTrue(DrawerDestination.Catalog.isBottomNavTab())
+        assertTrue(DrawerDestination.Bar.isBottomNavTab())
         assertTrue(DrawerDestination.Filter(DrinkFilter.SAVED).isBottomNavTab())
         assertTrue(DrawerDestination.Randomixer.isBottomNavTab())
         assertFalse(DrawerDestination.Settings.isBottomNavTab())

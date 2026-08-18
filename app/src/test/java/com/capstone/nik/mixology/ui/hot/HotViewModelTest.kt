@@ -8,10 +8,12 @@ import com.capstone.nik.mixology.FakeCocktailService
 import com.capstone.nik.mixology.MainDispatcherRule
 import com.capstone.nik.mixology.Network.NetworkMonitor
 import com.capstone.nik.mixology.Network.remoteModel.CocktailDbResponse
+import com.capstone.nik.mixology.catalog
 import com.capstone.nik.mixology.cocktailDrink
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.data.MixologyDatabase
 import com.capstone.nik.mixology.repository.DrinkRepository
+import com.capstone.nik.mixology.repository.FilterKind
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -30,6 +32,7 @@ class HotViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private lateinit var database: MixologyDatabase
+    private lateinit var service: FakeCocktailService
     private lateinit var viewModel: HotViewModel
 
     @Before
@@ -38,13 +41,7 @@ class HotViewModelTest {
         database = Room.inMemoryDatabaseBuilder(context, MixologyDatabase::class.java)
             .allowMainThreadQueries()
             .build()
-        val service = FakeCocktailService().apply {
-            ingredient = CocktailDbResponse(drinks = listOf(cocktailDrink("1", "Negroni")))
-        }
-        viewModel = HotViewModel(
-            DrinkRepository(database.drinkDao(), database.shoppingDao(), service, context),
-            NetworkMonitor.forTests(),
-        )
+        service = FakeCocktailService()
     }
 
     @After
@@ -53,15 +50,35 @@ class HotViewModelTest {
     }
 
     @Test
-    fun load_populatesIngredientRailsInOrder() = runTest {
+    fun load_usesDrinkTypeCatalogTerms() = runTest {
+        service.categories = catalog("Cocktail", "Shake")
+        service.drinkTypesByQuery = mapOf(
+            "Cocktail" to CocktailDbResponse(drinks = listOf(cocktailDrink("1", "Margarita"))),
+            "Shake" to CocktailDbResponse(drinks = listOf(cocktailDrink("2", "Milk Shake"))),
+        )
+        viewModel = createViewModel()
         viewModel.state.test {
             val loaded = awaitItemUntil { state ->
-                state.visibleCategories.map { it.filter } == DrinkFilter.hotFilters
+                state.visibleCategories.map { it.filter.query } == listOf("Cocktail", "Shake") &&
+                    state.visibleCategories.all { it.drinks.isNotEmpty() }
             }
-            assertEquals(
-                listOf("VODKA", "GIN", "RUM", "TEQUILA", "WHISKEY", "VERMOUTH", "COFFEE_LIQUEUR", "BITTERS", "APEROL"),
-                loaded.visibleCategories.map { it.filter.name },
-            )
+            assertEquals(DrinkFilter.COCKTAIL, loaded.visibleCategories[0].filter)
+            assertEquals(FilterKind.DRINK_TYPE, loaded.visibleCategories[1].filter.kind)
+            assertEquals("Margarita", loaded.visibleCategories[0].drinks.single().name)
+            assertEquals("Milk Shake", loaded.visibleCategories[1].drinks.single().name)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun load_fallsBackToPresetDrinkTypesWhenCatalogEmpty() = runTest {
+        service.drinkType = CocktailDbResponse(drinks = listOf(cocktailDrink("1", "Negroni")))
+        viewModel = createViewModel()
+        viewModel.state.test {
+            val loaded = awaitItemUntil { state ->
+                state.visibleCategories.map { it.filter } ==
+                    listOf(DrinkFilter.COCKTAIL, DrinkFilter.ORDINARY_DRINK)
+            }
             assertEquals("Negroni", loaded.visibleCategories.first().drinks.single().name)
             cancelAndIgnoreRemainingEvents()
         }
@@ -69,22 +86,26 @@ class HotViewModelTest {
 
     @Test
     fun save_addsRecentlyViewedRowFirst() = runTest {
+        service.drinkType = CocktailDbResponse(drinks = listOf(cocktailDrink("1", "Negroni")))
+        viewModel = createViewModel()
         val drink = cocktailDrink("9", "Negroni").toDrink()!!
         viewModel.state.test {
-            awaitItemUntil { state ->
-                state.visibleCategories.map { it.filter } == DrinkFilter.hotFilters
-            }
+            awaitItemUntil { !it.loading }
             viewModel.onIntent(HotIntent.ToggleSaved(drink))
             val withRecent = awaitItemUntil { state ->
                 state.visibleCategories.firstOrNull()?.filter == DrinkFilter.RECENTLY_VIEWED
             }
             assertEquals("9", withRecent.visibleCategories.first().drinks.single().id)
-            assertEquals(
-                listOf("RECENTLY_VIEWED") + DrinkFilter.hotFilters.map { it.name },
-                withRecent.visibleCategories.map { it.filter.name },
-            )
             cancelAndIgnoreRemainingEvents()
         }
+    }
+
+    private fun createViewModel(): HotViewModel {
+        val context = ApplicationProvider.getApplicationContext<Application>()
+        return HotViewModel(
+            DrinkRepository(database.drinkDao(), database.shoppingDao(), database.barDao(), service, context),
+            NetworkMonitor.forTests(),
+        )
     }
 }
 

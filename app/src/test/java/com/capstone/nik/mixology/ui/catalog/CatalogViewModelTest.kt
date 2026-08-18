@@ -48,7 +48,7 @@ class CatalogViewModelTest {
             alcoholic = catalog("Alcoholic")
         }
         viewModel = CatalogViewModel(
-            DrinkRepository(database.drinkDao(), database.shoppingDao(), service, context),
+            DrinkRepository(database.drinkDao(), database.shoppingDao(), database.barDao(), service, context),
             NetworkMonitor.forTests(),
         )
     }
@@ -77,7 +77,7 @@ class CatalogViewModelTest {
             alcoholic = catalog("Alcoholic")
         }
         viewModel = CatalogViewModel(
-            DrinkRepository(database.drinkDao(), database.shoppingDao(), service, context),
+            DrinkRepository(database.drinkDao(), database.shoppingDao(), database.barDao(), service, context),
             NetworkMonitor.forTests(),
         )
 

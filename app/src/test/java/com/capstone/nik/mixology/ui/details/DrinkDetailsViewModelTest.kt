@@ -47,6 +47,7 @@ class DrinkDetailsViewModelTest {
         repository = DrinkRepository(
             database.drinkDao(),
             database.shoppingDao(),
+            database.barDao(),
             service,
             context,
         )

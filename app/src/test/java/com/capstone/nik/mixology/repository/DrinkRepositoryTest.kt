@@ -9,6 +9,7 @@ import com.capstone.nik.mixology.catalog
 import com.capstone.nik.mixology.cocktailDrink
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.data.MixologyDatabase
+import com.capstone.nik.mixology.ui.model.IngredientMeasure
 import com.capstone.nik.mixology.Network.remoteModel.CocktailDbResponse
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -40,7 +41,7 @@ class DrinkRepositoryTest {
             .allowMainThreadQueries()
             .build()
         service = FakeCocktailService()
-        repository = DrinkRepository(database.drinkDao(), database.shoppingDao(), service, context)
+        repository = DrinkRepository(database.drinkDao(), database.shoppingDao(), database.barDao(), service, context)
     }
 
     @After
@@ -104,6 +105,28 @@ class DrinkRepositoryTest {
         repository.addToShoppingList(listOf("Gin", "gin", "Lime"))
         val names = repository.observeShopping().first().map { it.name }
         assertEquals(listOf("Gin", "Lime"), names)
+    }
+
+    @Test
+    fun bar_addRemoveAndRecommendFromCachedRecipes() = runTest {
+        val negroni = cocktailDrink("11003", "Negroni").toDrink()!!.copy(
+            instructions = "Stir.",
+            ingredients = listOf(
+                IngredientMeasure("Gin", "1 oz"),
+                IngredientMeasure("Campari", "1 oz"),
+            ),
+        )
+        repository.save(negroni)
+        repository.addToBar("Gin")
+        assertEquals(listOf("Gin"), repository.observeBar().first())
+        val almost = repository.observeBarRecommendations().first()
+        assertTrue(almost.makeable.isEmpty())
+        assertEquals(listOf("Campari"), almost.almost.single().missing)
+        repository.addToBar("Campari")
+        val makeable = repository.observeBarRecommendations().first()
+        assertEquals(listOf("Negroni"), makeable.makeable.map { it.name })
+        repository.removeFromBar("Gin")
+        assertEquals(listOf("Campari"), repository.observeBar().first())
     }
 
     @Test

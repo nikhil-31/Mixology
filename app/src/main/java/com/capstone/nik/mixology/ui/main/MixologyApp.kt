@@ -43,6 +43,7 @@ import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.repository.FilterKind
+import com.capstone.nik.mixology.ui.bar.BarRoute
 import com.capstone.nik.mixology.ui.catalog.CatalogRoute
 import com.capstone.nik.mixology.ui.details.DrinkDetailsRoute
 import com.capstone.nik.mixology.ui.grid.DrinkGridRoute
@@ -120,6 +121,7 @@ fun MixologyApp(
         DrawerDestination.Randomixer -> stringResource(R.string.nav_item_randomixer)
         DrawerDestination.Settings -> stringResource(R.string.nav_bottom_settings)
         DrawerDestination.Catalog -> stringResource(R.string.nav_item_browse_catalog)
+        DrawerDestination.Bar -> stringResource(R.string.nav_item_my_bar)
         DrawerDestination.Shopping -> stringResource(R.string.nav_item_shopping_list)
         is DrawerDestination.Filter -> destination.filter.titleRes?.let { stringResource(it) }
             ?: destination.filter.displayName()
@@ -205,6 +207,13 @@ fun MixologyApp(
                                 },
                             )
                         }
+                        composable(BAR_ROUTE) {
+                            BarRoute(
+                                onDrinkClick = { drink ->
+                                    viewModel.onIntent(MainIntent.DrinkSelected(drink, twoPane && !overlay))
+                                },
+                            )
+                        }
                         composable(HOT_ROUTE) {
                             HotRoute(
                                 snackbarHostState = snackbarHostState,
@@ -215,8 +224,12 @@ fun MixologyApp(
                                     viewModel.onIntent(
                                         MainIntent.OpenSearch(
                                             query = filter.query.orEmpty(),
-                                            mode = SearchMode.INGREDIENT,
-                                            filterKind = FilterKind.INGREDIENT,
+                                            mode = if (filter.kind == FilterKind.INGREDIENT) {
+                                                SearchMode.INGREDIENT
+                                            } else {
+                                                SearchMode.NAME
+                                            },
+                                            filterKind = filter.kind,
                                         ),
                                     )
                                 },
@@ -294,6 +307,7 @@ fun MixologyApp(
                         state.destination !is DrawerDestination.Randomixer &&
                         state.destination !is DrawerDestination.Settings &&
                         state.destination !is DrawerDestination.Catalog &&
+                        state.destination !is DrawerDestination.Bar &&
                         state.destination !is DrawerDestination.Shopping
                     ) {
                         Box(modifier = Modifier.weight(1f)) {

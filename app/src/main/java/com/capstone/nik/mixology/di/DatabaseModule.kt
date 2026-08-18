@@ -1,6 +1,7 @@
 package com.capstone.nik.mixology.di
 
 import android.content.Context
+import com.capstone.nik.mixology.data.BarDao
 import com.capstone.nik.mixology.data.DrinkDao
 import com.capstone.nik.mixology.data.MixologyDatabase
 import com.capstone.nik.mixology.data.ShoppingDao
@@ -26,4 +27,7 @@ object DatabaseModule {
 
     @Provides
     fun provideShoppingDao(database: MixologyDatabase): ShoppingDao = database.shoppingDao()
+
+    @Provides
+    fun provideBarDao(database: MixologyDatabase): BarDao = database.barDao()
 }

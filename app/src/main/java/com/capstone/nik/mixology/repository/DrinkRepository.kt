@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import com.capstone.nik.mixology.Network.CocktailService
 import com.capstone.nik.mixology.Network.remoteModel.CocktailDbDrink
+import com.capstone.nik.mixology.data.BarDao
+import com.capstone.nik.mixology.data.BarIngredientEntity
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkDao
 import com.capstone.nik.mixology.data.DrinkFilter
@@ -29,6 +31,7 @@ enum class FilterKind {
 class DrinkRepository @Inject constructor(
     private val dao: DrinkDao,
     private val shoppingDao: ShoppingDao,
+    private val barDao: BarDao,
     private val service: CocktailService,
     @ApplicationContext private val context: Context,
 ) {
@@ -156,6 +159,31 @@ class DrinkRepository @Inject constructor(
     }
 
     fun observeShopping(): Flow<List<ShoppingItemEntity>> = shoppingDao.observeAll()
+
+    fun observeBar(): Flow<List<String>> = barDao.observeAll().map { items -> items.map { it.name } }
+
+    suspend fun addToBar(name: String) {
+        val trimmed = name.trim()
+        if (trimmed.isEmpty()) return
+        barDao.insert(BarIngredientEntity(trimmed))
+    }
+
+    suspend fun removeFromBar(name: String) {
+        barDao.delete(name)
+    }
+
+    fun observeRecipes(): Flow<List<Drink>> {
+        return combine(dao.observeRecipes(), dao.observeSavedIds()) { drinks, savedIds ->
+            val saved = savedIds.toSet()
+            drinks.map { entity -> entity.toDrink(savedOverride = entity.id in saved || entity.saved) }
+        }
+    }
+
+    fun observeBarRecommendations(): Flow<BarRecommendations> {
+        return combine(observeBar(), observeRecipes()) { bar, drinks ->
+            BarMatcher.recommend(drinks, bar)
+        }
+    }
 
     suspend fun addToShoppingList(names: List<String>) {
         val existing = shoppingDao.namesLowercase().toSet()

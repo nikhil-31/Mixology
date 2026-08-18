@@ -192,6 +192,9 @@ interface DrinkDao {
         }
     }
 
+    @Query("SELECT * FROM drinks WHERE ingredients IS NOT NULL ORDER BY name COLLATE NOCASE ASC")
+    fun observeRecipes(): Flow<List<DrinkEntity>>
+
     @Query("SELECT * FROM catalog_terms WHERE kind = :kind ORDER BY name")
     fun observeCatalog(kind: String): Flow<List<CatalogTermEntity>>
 

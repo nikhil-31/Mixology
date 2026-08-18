@@ -11,6 +11,7 @@ class FakeCocktailService : CocktailService {
     var glass = CocktailDbResponse()
     var ingredient = CocktailDbResponse()
     var drinkType = CocktailDbResponse()
+    var drinkTypesByQuery: Map<String, CocktailDbResponse> = emptyMap()
     var search = CocktailDbResponse()
     var random = CocktailDbResponse()
     var lookup = CocktailDbResponse()
@@ -24,7 +25,8 @@ class FakeCocktailService : CocktailService {
     override suspend fun getAlcoholFilter(filter: String) = alcohol
     override suspend fun getGlassFilter(filter: String) = glass
     override suspend fun getIngredientFilter(filter: String) = ingredient
-    override suspend fun getDrinkTypeFilter(filter: String) = drinkType
+    override suspend fun getDrinkTypeFilter(filter: String) =
+        drinkTypesByQuery[filter] ?: drinkType
     override suspend fun getSearchResults(search: String) = this.search
     override suspend fun getRandomixer() = random
     override suspend fun getDrinkById(id: String): CocktailDbResponse {

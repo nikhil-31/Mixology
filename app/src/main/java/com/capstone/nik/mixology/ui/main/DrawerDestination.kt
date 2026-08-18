@@ -12,6 +12,7 @@ sealed class DrawerDestination(val route: String) {
     data object Hot : DrawerDestination("hot")
     data object Settings : DrawerDestination("settings")
     data object Catalog : DrawerDestination("catalog")
+    data object Bar : DrawerDestination("bar")
     data object Shopping : DrawerDestination("shopping")
 }
 
@@ -20,6 +21,7 @@ const val RANDOMIXER_ROUTE = "randomixer"
 const val HOT_ROUTE = "hot"
 const val SETTINGS_ROUTE = "settings"
 const val CATALOG_ROUTE = "catalog"
+const val BAR_ROUTE = "bar"
 const val SHOPPING_ROUTE = "shopping"
 const val SEARCH_ROUTE = "search?query={query}&mode={mode}&kind={kind}"
 const val DETAILS_ROUTE = "details/{id}?name={name}&thumb={thumb}"

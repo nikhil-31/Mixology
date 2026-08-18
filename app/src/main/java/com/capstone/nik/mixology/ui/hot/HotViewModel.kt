@@ -7,10 +7,13 @@ import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.Network.NetworkMonitor
 import com.capstone.nik.mixology.repository.DrinkRepository
+import com.capstone.nik.mixology.repository.FilterKind
 import com.capstone.nik.mixology.ui.mvi.MviViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -21,7 +24,6 @@ class HotViewModel @Inject constructor(
     private val networkMonitor: NetworkMonitor,
 ) : MviViewModel<HotIntent, HotUiState, HotEffect>(HotUiState()) {
 
-    private val hotFilters = DrinkFilter.hotFilters
     private var observeJob: Job? = null
 
     init {
@@ -40,16 +42,25 @@ class HotViewModel @Inject constructor(
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun load() {
         if (observeJob == null) {
             observeJob = viewModelScope.launch {
-                val categoryFlows = hotFilters.map { filter ->
-                    repository.observeDrinks(filter).map { drinks -> HotCategory(filter, drinks) }
-                }
-                val categoriesFlow = combine(categoryFlows) { rows -> rows.toList() }
+                val categoryRows = repository.observeCatalog(FilterKind.DRINK_TYPE)
+                    .map { terms -> filtersForCatalog(terms) }
+                    .flatMapLatest { filters ->
+                        fetchFilters(filters)
+                        combine(
+                            filters.map { filter ->
+                                repository.observeDrinks(filter).map { drinks ->
+                                    HotCategory(filter, drinks)
+                                }
+                            },
+                        ) { rows -> rows.toList() }
+                    }
                 combine(
                     repository.observeRecentlyViewed(),
-                    categoriesFlow,
+                    categoryRows,
                 ) { recent, categories ->
                     buildList {
                         if (recent.isNotEmpty()) {
@@ -66,7 +77,23 @@ class HotViewModel @Inject constructor(
     }
 
     private fun refreshRemote() {
-        hotFilters.forEach { filter ->
+        viewModelScope.launch {
+            try {
+                repository.refreshCatalogs()
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to refresh catalogs", e)
+                recordCrash(e)
+            }
+        }
+        val filters = currentState.categories
+            .map { it.filter }
+            .filter { it.kind == FilterKind.DRINK_TYPE }
+            .ifEmpty { fallbackFilters }
+        fetchFilters(filters)
+    }
+
+    private fun fetchFilters(filters: List<DrinkFilter>) {
+        filters.forEach { filter ->
             viewModelScope.launch {
                 try {
                     repository.fetchAndCache(filter)
@@ -74,14 +101,6 @@ class HotViewModel @Inject constructor(
                     Log.e(TAG, "Failed to refresh ${filter.name}", e)
                     recordCrash(e)
                 }
-            }
-        }
-        viewModelScope.launch {
-            try {
-                repository.refreshCatalogs()
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to refresh catalogs", e)
-                recordCrash(e)
             }
         }
     }
@@ -98,5 +117,12 @@ class HotViewModel @Inject constructor(
 
     companion object {
         private const val TAG = "HotViewModel"
+
+        internal val fallbackFilters = listOf(DrinkFilter.COCKTAIL, DrinkFilter.ORDINARY_DRINK)
+
+        internal fun filtersForCatalog(terms: List<String>): List<DrinkFilter> {
+            if (terms.isEmpty()) return fallbackFilters
+            return terms.map { DrinkFilter.dynamic(FilterKind.DRINK_TYPE, it) }
+        }
     }
 }

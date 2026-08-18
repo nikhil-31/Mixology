@@ -50,7 +50,7 @@ class SearchViewModelTest {
             .build()
         service = FakeCocktailService()
         viewModel = SearchViewModel(
-            DrinkRepository(database.drinkDao(), database.shoppingDao(), service, context),
+            DrinkRepository(database.drinkDao(), database.shoppingDao(), database.barDao(), service, context),
         )
     }
 

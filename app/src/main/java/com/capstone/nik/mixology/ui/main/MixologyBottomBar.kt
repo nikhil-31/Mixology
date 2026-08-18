@@ -5,9 +5,11 @@ import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LocalBar
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.LocalBar
 import androidx.compose.material.icons.outlined.Shuffle
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -44,6 +46,12 @@ val bottomNavItems = listOf(
         unselectedIcon = Icons.AutoMirrored.Outlined.MenuBook,
     ),
     BottomNavItem(
+        titleRes = R.string.nav_item_my_bar,
+        destination = DrawerDestination.Bar,
+        selectedIcon = Icons.Filled.LocalBar,
+        unselectedIcon = Icons.Outlined.LocalBar,
+    ),
+    BottomNavItem(
         titleRes = R.string.nav_bottom_saved,
         destination = DrawerDestination.Filter(DrinkFilter.SAVED),
         selectedIcon = Icons.Filled.Favorite,
@@ -62,6 +70,7 @@ fun DrawerDestination.isSelectedBottomNav(item: BottomNavItem): Boolean {
         DrawerDestination.Randomixer -> this is DrawerDestination.Randomixer
         DrawerDestination.Hot -> this is DrawerDestination.Hot
         DrawerDestination.Catalog -> this is DrawerDestination.Catalog
+        DrawerDestination.Bar -> this is DrawerDestination.Bar
         DrawerDestination.Shopping -> false
         DrawerDestination.Settings -> false
         is DrawerDestination.Filter -> this is DrawerDestination.Filter && filter == tab.filter

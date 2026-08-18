@@ -8,7 +8,6 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.runBlocking
 import java.util.concurrent.Executors
 
@@ -19,8 +18,9 @@ import java.util.concurrent.Executors
         CatalogTermEntity::class,
         ShoppingItemEntity::class,
         RecentlyViewedEntity::class,
+        BarIngredientEntity::class,
     ],
-    version = 5,
+    version = 6,
     exportSchema = true,
 )
 @TypeConverters(IngredientListConverter::class)
@@ -29,6 +29,8 @@ abstract class MixologyDatabase : RoomDatabase() {
     abstract fun drinkDao(): DrinkDao
 
     abstract fun shoppingDao(): ShoppingDao
+
+    abstract fun barDao(): BarDao
 
     companion object {
         private const val TAG = "MixologyDatabase"
@@ -86,7 +88,23 @@ abstract class MixologyDatabase : RoomDatabase() {
             )
         }
 
-        internal val ALL_MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+        internal val MIGRATION_5_6 = Migration(5, 6) { db ->
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS bar_ingredients (
+                    name TEXT NOT NULL PRIMARY KEY
+                )
+                """.trimIndent(),
+            )
+        }
+
+        internal val ALL_MIGRATIONS = arrayOf(
+            MIGRATION_1_2,
+            MIGRATION_2_3,
+            MIGRATION_3_4,
+            MIGRATION_4_5,
+            MIGRATION_5_6,
+        )
 
         @Volatile
         private var instance: MixologyDatabase? = null
@@ -97,16 +115,16 @@ abstract class MixologyDatabase : RoomDatabase() {
             return instance ?: synchronized(this) {
                 instance ?: Room.databaseBuilder(appContext, MixologyDatabase::class.java, DB_NAME)
                     .addMigrations(*ALL_MIGRATIONS)
-                    .addCallback(object : Callback() {
-                        override fun onOpen(db: SupportSQLiteDatabase) {
-                            super.onOpen(db)
-                            Executors.newSingleThreadExecutor().execute {
-                                instance?.let { importLegacySavedDrinks(appContext, it.drinkDao()) }
+                    .build()
+                    .also { created ->
+                        instance = created
+                        Executors.newSingleThreadExecutor().execute {
+                            importLegacySavedDrinks(appContext, created.drinkDao())
+                            runBlocking {
+                                CatalogSeed.importIfNeeded(appContext, created.drinkDao())
                             }
                         }
-                    })
-                    .build()
-                    .also { instance = it }
+                    }
             }
         }
 

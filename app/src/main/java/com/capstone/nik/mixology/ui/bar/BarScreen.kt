@@ -11,10 +11,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
@@ -37,19 +35,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.Drink
-import com.capstone.nik.mixology.ui.components.DrinkImage
-import com.capstone.nik.mixology.ui.components.FavoriteButton
+import com.capstone.nik.mixology.ui.components.DrinkListItem
 import com.capstone.nik.mixology.ui.components.IngredientImage
 import com.capstone.nik.mixology.ui.model.ingredientImageUrl
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
@@ -189,9 +184,8 @@ private fun BarHome(
                         )
                     }
                     items(state.makeable, key = { "makeable-${it.id}" }) { drink ->
-                        BarDrinkItem(
+                        DrinkListItem(
                             drink = drink,
-                            missing = emptyList(),
                             onDrinkClick = onDrinkClick,
                             onToggleSaved = onToggleSaved,
                         )
@@ -205,9 +199,13 @@ private fun BarHome(
                         )
                     }
                     items(state.almost, key = { "almost-${it.drink.id}" }) { almost ->
-                        BarDrinkItem(
+                        DrinkListItem(
                             drink = almost.drink,
-                            missing = almost.missing,
+                            subtitle = if (almost.missing.isNotEmpty()) {
+                                stringResource(R.string.bar_needs, almost.missing.joinToString())
+                            } else {
+                                null
+                            },
                             onDrinkClick = onDrinkClick,
                             onToggleSaved = onToggleSaved,
                         )
@@ -239,54 +237,6 @@ private fun BarSectionTitle(title: String, info: String) {
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-    }
-}
-
-@Composable
-private fun BarDrinkItem(
-    drink: Drink,
-    missing: List<String>,
-    onDrinkClick: (Drink) -> Unit,
-    onToggleSaved: (Drink) -> Unit,
-) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onDrinkClick(drink) }
-                .padding(horizontal = 16.dp, vertical = 10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            DrinkImage(
-                url = drink.thumb,
-                modifier = Modifier
-                    .size(72.dp)
-                    .clip(RoundedCornerShape(12.dp)),
-            )
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = drink.name,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                if (missing.isNotEmpty()) {
-                    Text(
-                        text = stringResource(R.string.bar_needs, missing.joinToString()),
-                        modifier = Modifier.padding(top = 4.dp),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-            FavoriteButton(
-                saved = drink.saved,
-                onClick = { onToggleSaved(drink) },
-            )
-        }
-        HorizontalDivider()
     }
 }
 

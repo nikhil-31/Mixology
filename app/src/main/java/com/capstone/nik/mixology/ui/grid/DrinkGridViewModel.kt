@@ -1,5 +1,6 @@
 package com.capstone.nik.mixology.ui.grid
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.capstone.nik.mixology.R
@@ -10,6 +11,7 @@ import com.capstone.nik.mixology.repository.DrinkRepository
 import com.capstone.nik.mixology.Network.NetworkMonitor
 import com.capstone.nik.mixology.ui.mvi.MviViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -18,11 +20,15 @@ import javax.inject.Inject
 class DrinkGridViewModel @Inject constructor(
     private val repository: DrinkRepository,
     private val networkMonitor: NetworkMonitor,
+    @ApplicationContext private val context: Context,
 ) : MviViewModel<DrinkGridIntent, DrinkGridUiState, DrinkGridEffect>(DrinkGridUiState()) {
 
     private var observeJob: Job? = null
 
     init {
+        val listView = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .getBoolean(PREF_SAVED_LIST_VIEW, false)
+        setState { copy(listView = listView) }
         viewModelScope.launch {
             networkMonitor.retries.collect {
                 refresh(currentState.filter)
@@ -35,6 +41,7 @@ class DrinkGridViewModel @Inject constructor(
             is DrinkGridIntent.Bind -> bind(intent.filter)
             is DrinkGridIntent.ToggleSaved -> toggleSaved(intent.item)
             is DrinkGridIntent.OpenDrink -> sendEffect(DrinkGridEffect.OpenDrink(intent.drink))
+            DrinkGridIntent.ToggleListView -> toggleListView()
         }
     }
 
@@ -61,6 +68,15 @@ class DrinkGridViewModel @Inject constructor(
         }
     }
 
+    private fun toggleListView() {
+        val listView = !currentState.listView
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean(PREF_SAVED_LIST_VIEW, listView)
+            .apply()
+        setState { copy(listView = listView) }
+    }
+
     private fun refresh(filter: DrinkFilter) {
         if (filter.kind == null || filter.query == null) return
         viewModelScope.launch {
@@ -76,5 +92,7 @@ class DrinkGridViewModel @Inject constructor(
 
     companion object {
         private const val TAG = "DrinkGridViewModel"
+        private const val PREFS = "mixology"
+        private const val PREF_SAVED_LIST_VIEW = "saved_list_view"
     }
 }

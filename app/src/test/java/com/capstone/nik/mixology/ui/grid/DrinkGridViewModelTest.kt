@@ -1,6 +1,7 @@
 package com.capstone.nik.mixology.ui.grid
 
 import android.app.Application
+import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
@@ -38,6 +39,10 @@ class DrinkGridViewModelTest {
     @Before
     fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Application>()
+        context.getSharedPreferences("mixology", Context.MODE_PRIVATE)
+            .edit()
+            .remove("saved_list_view")
+            .apply()
         database = Room.inMemoryDatabaseBuilder(context, MixologyDatabase::class.java)
             .allowMainThreadQueries()
             .build()
@@ -49,7 +54,7 @@ class DrinkGridViewModelTest {
             service,
             context,
         )
-        viewModel = DrinkGridViewModel(repository, NetworkMonitor.forTests())
+        viewModel = DrinkGridViewModel(repository, NetworkMonitor.forTests(), context)
     }
 
     @After
@@ -90,6 +95,17 @@ class DrinkGridViewModelTest {
             viewModel.onIntent(DrinkGridIntent.OpenDrink(drink))
             assertEquals("1", (awaitItem() as DrinkGridEffect.OpenDrink).drink.id)
         }
+    }
+
+    @Test
+    fun toggleListView_updatesStateAndPersists() = runTest {
+        assertTrue(!viewModel.state.value.listView)
+        viewModel.onIntent(DrinkGridIntent.ToggleListView)
+        assertTrue(viewModel.state.value.listView)
+        val context = ApplicationProvider.getApplicationContext<Application>()
+        val persisted = context.getSharedPreferences("mixology", Context.MODE_PRIVATE)
+            .getBoolean("saved_list_view", false)
+        assertTrue(persisted)
     }
 }
 

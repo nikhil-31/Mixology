@@ -45,6 +45,8 @@
     <string name="nav_item_my_bar">My Bar</string>
 
     <string name="nav_item_saved_cocktails">Saved Cocktails</string>
+    <string name="saved_view_images">Images</string>
+    <string name="saved_view_list">List</string>
     <string name="nav_item_home">Home</string>
     <string name="nav_item_randomixer">Randomixer</string>
     <string name="nav_item_browse_catalog">Browse catalog</string>

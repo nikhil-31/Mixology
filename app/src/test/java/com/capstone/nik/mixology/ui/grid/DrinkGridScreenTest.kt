@@ -6,6 +6,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.capstone.nik.mixology.data.Drink
@@ -141,5 +142,60 @@ class DrinkGridScreenTest {
 
         composeRule.onNodeWithText("Margarita").assertIsDisplayed()
         composeRule.onNodeWithContentDescription("Save cocktail").assertIsDisplayed()
+    }
+
+    @Test
+    fun savedFilter_showsViewToggle() {
+        composeRule.setContent {
+            MixologyTheme {
+                DrinkGridScreen(
+                    filter = DrinkFilter.SAVED,
+                    drinks = listOf(Drink("11007", "Margarita", "", saved = true)),
+                    onDrinkClick = {},
+                    onToggleSaved = {},
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("saved_view_images").assertIsDisplayed()
+        composeRule.onNodeWithTag("saved_view_list").assertIsDisplayed()
+    }
+
+    @Test
+    fun alcoholicFilter_doesNotShowViewToggle() {
+        composeRule.setContent {
+            MixologyTheme {
+                DrinkGridScreen(
+                    filter = DrinkFilter.ALCOHOLIC,
+                    drinks = listOf(Drink("11007", "Margarita", "", saved = false)),
+                    onDrinkClick = {},
+                    onToggleSaved = {},
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("saved_view_images").assertDoesNotExist()
+        composeRule.onNodeWithTag("saved_view_list").assertDoesNotExist()
+    }
+
+    @Test
+    fun savedListView_showsDrinkAndReportsToggle() {
+        val toggled = mutableListOf<Boolean>()
+        composeRule.setContent {
+            MixologyTheme {
+                DrinkGridScreen(
+                    filter = DrinkFilter.SAVED,
+                    drinks = listOf(Drink("11007", "Margarita", "", saved = true)),
+                    listView = true,
+                    onDrinkClick = {},
+                    onToggleSaved = {},
+                    onToggleListView = { toggled.add(true) },
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("Margarita").assertIsDisplayed()
+        composeRule.onNodeWithTag("saved_view_images").performClick()
+        assertEquals(listOf(true), toggled)
     }
 }

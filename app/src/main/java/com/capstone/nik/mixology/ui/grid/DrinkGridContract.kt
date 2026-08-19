@@ -6,6 +6,7 @@ import com.capstone.nik.mixology.data.DrinkFilter
 data class DrinkGridUiState(
     val filter: DrinkFilter = DrinkFilter.ALCOHOLIC,
     val drinks: List<Drink> = emptyList(),
+    val listView: Boolean = false,
 ) {
     val showEmpty: Boolean get() = filter.showEmptySaved && drinks.isEmpty()
 }
@@ -14,6 +15,7 @@ sealed interface DrinkGridIntent {
     data class Bind(val filter: DrinkFilter) : DrinkGridIntent
     data class ToggleSaved(val item: Drink) : DrinkGridIntent
     data class OpenDrink(val drink: Drink) : DrinkGridIntent
+    data object ToggleListView : DrinkGridIntent
 }
 
 sealed interface DrinkGridEffect {

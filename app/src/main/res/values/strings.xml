@@ -48,7 +48,7 @@
     <string name="saved_view_images">Images</string>
     <string name="saved_view_list">List</string>
     <string name="nav_item_home">Home</string>
-    <string name="nav_item_randomixer">Randomixer</string>
+    <string name="nav_item_randomixer">Mixer</string>
     <string name="nav_item_browse_catalog">Browse catalog</string>
     <string name="nav_item_shopping_list">Shopping list</string>
     <string name="action_see_all">See all</string>
@@ -92,7 +92,7 @@
     <string name="detail_share_instructions">Instructions: </string>
     <string name="detail_share_ingredients">Ingredients: </string>
 
-    <!-- Randomixer swipe -->
+    <!-- Mixer swipe -->
     <string name="randomixer_save">SAVE</string>
     <string name="randomixer_nope">NOPE</string>
     <string name="randomixer_swipe_hint">Swipe right to save · Swipe left to skip</string>

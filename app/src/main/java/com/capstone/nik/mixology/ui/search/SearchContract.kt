@@ -16,6 +16,7 @@ data class SearchUiState(
     val loading: Boolean = false,
     val results: List<Drink> = emptyList(),
     val empty: Boolean = false,
+    val listView: Boolean = false,
 )
 
 sealed interface SearchIntent {
@@ -27,6 +28,7 @@ sealed interface SearchIntent {
     data class SetMode(val mode: SearchMode) : SearchIntent
     data class ToggleSaved(val drink: Drink) : SearchIntent
     data class OpenDrink(val drink: Drink) : SearchIntent
+    data object ToggleListView : SearchIntent
     data object Back : SearchIntent
 }
 

@@ -1,5 +1,6 @@
 package com.capstone.nik.mixology.ui.search
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.capstone.nik.mixology.R
@@ -8,8 +9,10 @@ import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.repository.DrinkRepository
 import com.capstone.nik.mixology.repository.FilterKind
+import com.capstone.nik.mixology.ui.components.DrinkViewPreferences
 import com.capstone.nik.mixology.ui.mvi.MviViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,6 +25,7 @@ import kotlin.coroutines.cancellation.CancellationException
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val repository: DrinkRepository,
+    @ApplicationContext private val context: Context,
 ) : MviViewModel<SearchIntent, SearchUiState, SearchEffect>(SearchUiState()) {
 
     private val drinks = MutableStateFlow<List<Drink>>(emptyList())
@@ -29,6 +33,7 @@ class SearchViewModel @Inject constructor(
     private val queried = MutableStateFlow(false)
     private val query = MutableStateFlow("")
     private val mode = MutableStateFlow(SearchMode.NAME)
+    private val listView = MutableStateFlow(DrinkViewPreferences.listView(context))
     private var catalogKind: FilterKind? = null
     private var searchJob: Job? = null
 
@@ -50,7 +55,8 @@ class SearchViewModel @Inject constructor(
                     )
                 },
                 mode,
-            ) { ui, currentMode -> ui.copy(mode = currentMode) }
+                listView,
+            ) { ui, currentMode, isList -> ui.copy(mode = currentMode, listView = isList) }
                 .collect { newState -> setState { newState } }
         }
     }
@@ -68,6 +74,7 @@ class SearchViewModel @Inject constructor(
             is SearchIntent.SetMode -> setMode(intent.mode)
             is SearchIntent.ToggleSaved -> toggleSaved(intent.drink)
             is SearchIntent.OpenDrink -> sendEffect(SearchEffect.OpenDrink(intent.drink))
+            SearchIntent.ToggleListView -> toggleListView()
             SearchIntent.Back -> sendEffect(SearchEffect.NavigateBack)
         }
     }
@@ -121,6 +128,12 @@ class SearchViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun toggleListView() {
+        val next = !listView.value
+        DrinkViewPreferences.setListView(context, next)
+        listView.value = next
     }
 
     private fun toggleSaved(drink: Drink) {

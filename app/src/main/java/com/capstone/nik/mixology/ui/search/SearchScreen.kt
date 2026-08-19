@@ -11,9 +11,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items as lazyListItems
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -56,6 +58,8 @@ import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.repository.FilterKind
 import com.capstone.nik.mixology.ui.components.DrinkCard
+import com.capstone.nik.mixology.ui.components.DrinkListItem
+import com.capstone.nik.mixology.ui.components.DrinkViewToggle
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 
 @Composable
@@ -98,6 +102,7 @@ fun SearchRoute(
         onModeSelected = { viewModel.onIntent(SearchIntent.SetMode(it)) },
         onDrinkClick = { viewModel.onIntent(SearchIntent.OpenDrink(it)) },
         onToggleSaved = { viewModel.onIntent(SearchIntent.ToggleSaved(it)) },
+        onToggleListView = { viewModel.onIntent(SearchIntent.ToggleListView) },
     )
 }
 
@@ -110,6 +115,7 @@ fun SearchScreen(
     onDrinkClick: (Drink) -> Unit,
     onToggleSaved: (Drink) -> Unit,
     onModeSelected: (SearchMode) -> Unit = {},
+    onToggleListView: () -> Unit = {},
     initialQuery: String = state.query,
 ) {
     var queryText by remember {
@@ -188,6 +194,10 @@ fun SearchScreen(
                 mode = state.mode,
                 onModeSelected = onModeSelected,
             )
+            DrinkViewToggle(
+                listView = state.listView,
+                onToggleListView = onToggleListView,
+            )
             Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                 when {
                     state.loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
@@ -196,6 +206,18 @@ fun SearchScreen(
                         mode = state.mode,
                         modifier = Modifier.align(Alignment.Center).padding(horizontal = 32.dp),
                     )
+                    state.listView -> LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(bottom = 50.dp),
+                    ) {
+                        lazyListItems(state.results, key = { it.id }) { item ->
+                            DrinkListItem(
+                                drink = item,
+                                onDrinkClick = onDrinkClick,
+                                onToggleSaved = onToggleSaved,
+                            )
+                        }
+                    }
                     else -> LazyVerticalGrid(
                         columns = GridCells.Fixed(2),
                         modifier = Modifier.fillMaxSize(),

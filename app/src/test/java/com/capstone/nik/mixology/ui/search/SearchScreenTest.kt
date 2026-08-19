@@ -9,6 +9,7 @@ import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
@@ -183,5 +184,49 @@ class SearchScreenTest {
         composeRule.onNodeWithText("Drink name").assertIsDisplayed()
         composeRule.onNodeWithText("Ingredient").assertIsDisplayed()
         composeRule.onNodeWithText("A–Z").assertDoesNotExist()
+    }
+
+    @Test
+    fun showsViewToggle() {
+        composeRule.setContent {
+            MixologyTheme {
+                SearchScreen(
+                    state = SearchUiState(results = listOf(Drink("11000", "Mojito", ""))),
+                    snackbarHostState = remember { SnackbarHostState() },
+                    onBack = {},
+                    onSearch = {},
+                    onDrinkClick = {},
+                    onToggleSaved = {},
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("saved_view_images").assertIsDisplayed()
+        composeRule.onNodeWithTag("saved_view_list").assertIsDisplayed()
+    }
+
+    @Test
+    fun listView_showsDrinkAndReportsToggle() {
+        val toggled = mutableListOf<Boolean>()
+        composeRule.setContent {
+            MixologyTheme {
+                SearchScreen(
+                    state = SearchUiState(
+                        results = listOf(Drink("11000", "Mojito", "")),
+                        listView = true,
+                    ),
+                    snackbarHostState = remember { SnackbarHostState() },
+                    onBack = {},
+                    onSearch = {},
+                    onDrinkClick = {},
+                    onToggleSaved = {},
+                    onToggleListView = { toggled.add(true) },
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("Mojito").assertIsDisplayed()
+        composeRule.onNodeWithTag("saved_view_images").performClick()
+        assertEquals(listOf(true), toggled)
     }
 }

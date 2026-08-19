@@ -9,6 +9,7 @@ import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.repository.DrinkRepository
 import com.capstone.nik.mixology.Network.NetworkMonitor
+import com.capstone.nik.mixology.ui.components.DrinkViewPreferences
 import com.capstone.nik.mixology.ui.mvi.MviViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -26,9 +27,7 @@ class DrinkGridViewModel @Inject constructor(
     private var observeJob: Job? = null
 
     init {
-        val listView = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-            .getBoolean(PREF_SAVED_LIST_VIEW, false)
-        setState { copy(listView = listView) }
+        setState { copy(listView = DrinkViewPreferences.listView(context)) }
         viewModelScope.launch {
             networkMonitor.retries.collect {
                 refresh(currentState.filter)
@@ -70,10 +69,7 @@ class DrinkGridViewModel @Inject constructor(
 
     private fun toggleListView() {
         val listView = !currentState.listView
-        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-            .edit()
-            .putBoolean(PREF_SAVED_LIST_VIEW, listView)
-            .apply()
+        DrinkViewPreferences.setListView(context, listView)
         setState { copy(listView = listView) }
     }
 
@@ -92,7 +88,5 @@ class DrinkGridViewModel @Inject constructor(
 
     companion object {
         private const val TAG = "DrinkGridViewModel"
-        private const val PREFS = "mixology"
-        private const val PREF_SAVED_LIST_VIEW = "saved_list_view"
     }
 }

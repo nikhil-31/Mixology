@@ -1,6 +1,7 @@
 package com.capstone.nik.mixology.ui.search
 
 import android.app.Application
+import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
@@ -43,6 +44,10 @@ class SearchViewModelTest {
     @Before
     fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Application>()
+        context.getSharedPreferences("mixology", Context.MODE_PRIVATE)
+            .edit()
+            .remove("saved_list_view")
+            .apply()
         database = Room.inMemoryDatabaseBuilder(context, MixologyDatabase::class.java)
             .allowMainThreadQueries()
             .setQueryExecutor { it.run() }
@@ -51,6 +56,7 @@ class SearchViewModelTest {
         service = FakeCocktailService()
         viewModel = SearchViewModel(
             DrinkRepository(database.drinkDao(), database.shoppingDao(), database.barDao(), service, context),
+            context,
         )
     }
 
@@ -109,5 +115,19 @@ class SearchViewModelTest {
             viewModel.onIntent(SearchIntent.OpenDrink(drink))
             assertEquals("1", (awaitItem() as SearchEffect.OpenDrink).drink.id)
         }
+    }
+
+    @Test
+    fun toggleListView_updatesStateAndPersists() = runTest(dispatcher) {
+        advanceUntilIdle()
+        assertTrue(!viewModel.state.value.listView)
+        viewModel.onIntent(SearchIntent.ToggleListView)
+        advanceUntilIdle()
+        assertTrue(viewModel.state.value.listView)
+        val context = ApplicationProvider.getApplicationContext<Application>()
+        assertTrue(
+            context.getSharedPreferences("mixology", Context.MODE_PRIVATE)
+                .getBoolean("saved_list_view", false),
+        )
     }
 }

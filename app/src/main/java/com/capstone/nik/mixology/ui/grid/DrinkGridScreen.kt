@@ -4,16 +4,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items as lazyListItems
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -23,7 +20,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,6 +30,7 @@ import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.ui.components.DrinkCard
 import com.capstone.nik.mixology.ui.components.DrinkListItem
+import com.capstone.nik.mixology.ui.components.DrinkViewToggle
 import com.capstone.nik.mixology.ui.components.SavedDrinkCardAspectRatio
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 
@@ -81,7 +78,7 @@ fun DrinkGridScreen(
     val showList = filter.showEmptySaved && listView
     Column(modifier = Modifier.fillMaxSize()) {
         if (filter.showEmptySaved) {
-            SavedViewToggle(
+            DrinkViewToggle(
                 listView = listView,
                 onToggleListView = onToggleListView,
             )
@@ -130,31 +127,5 @@ fun DrinkGridScreen(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun SavedViewToggle(
-    listView: Boolean,
-    onToggleListView: () -> Unit,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        FilterChip(
-            selected = !listView,
-            onClick = { if (listView) onToggleListView() },
-            label = { Text(stringResource(R.string.saved_view_images)) },
-            modifier = Modifier.testTag("saved_view_images"),
-        )
-        FilterChip(
-            selected = listView,
-            onClick = { if (!listView) onToggleListView() },
-            label = { Text(stringResource(R.string.saved_view_list)) },
-            modifier = Modifier.testTag("saved_view_list"),
-        )
     }
 }

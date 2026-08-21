@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.recordCrash
+import com.capstone.nik.mixology.analytics.AnalyticsTracker
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.repository.DrinkRepository
@@ -26,6 +27,7 @@ import kotlin.coroutines.cancellation.CancellationException
 class SearchViewModel @Inject constructor(
     private val repository: DrinkRepository,
     @ApplicationContext private val context: Context,
+    private val analytics: AnalyticsTracker = AnalyticsTracker.forTests(),
 ) : MviViewModel<SearchIntent, SearchUiState, SearchEffect>(SearchUiState()) {
 
     private val drinks = MutableStateFlow<List<Drink>>(emptyList())
@@ -158,6 +160,7 @@ class SearchViewModel @Inject constructor(
                     mode.value == SearchMode.INGREDIENT -> repository.searchByIngredient(adjusted)
                     else -> repository.search(adjusted)
                 }
+                analytics.logSearch(adjusted, mode.value.name, drinks.value.size)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -183,8 +186,10 @@ class SearchViewModel @Inject constructor(
         viewModelScope.launch {
             if (drink.saved) {
                 repository.unsave(drink.id)
+                analytics.logSaveDrink(drink.id, drink.name, saved = false)
             } else {
                 repository.save(drink)
+                analytics.logSaveDrink(drink.id, drink.name, saved = true)
             }
         }
     }

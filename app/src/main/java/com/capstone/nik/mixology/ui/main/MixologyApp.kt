@@ -45,6 +45,7 @@ import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.repository.FilterKind
 import com.capstone.nik.mixology.ui.bar.BarRoute
 import com.capstone.nik.mixology.ui.catalog.CatalogRoute
+import com.capstone.nik.mixology.ui.components.BannerAd
 import com.capstone.nik.mixology.ui.details.DrinkDetailsRoute
 import com.capstone.nik.mixology.ui.grid.DrinkGridRoute
 import com.capstone.nik.mixology.ui.hot.HotRoute
@@ -55,6 +56,7 @@ import com.capstone.nik.mixology.ui.search.SearchRoute
 import com.capstone.nik.mixology.ui.settings.SettingsRoute
 import com.capstone.nik.mixology.ui.shopping.ShoppingRoute
 import com.capstone.nik.mixology.di.AppEntryPoint
+import com.capstone.nik.mixology.analytics.analyticsScreenName
 import dagger.hilt.android.EntryPointAccessors
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -72,13 +74,20 @@ fun MixologyApp(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val overlay = isOverlayRoute(navBackStackEntry?.destination?.route)
     val context = LocalContext.current
-    val networkMonitor = remember {
+    val appEntry = remember {
         EntryPointAccessors.fromApplication(
             context.applicationContext,
             AppEntryPoint::class.java,
-        ).networkMonitor()
+        )
     }
+    val networkMonitor = remember { appEntry.networkMonitor() }
+    val analytics = remember { appEntry.analyticsTracker() }
     val online by networkMonitor.online.collectAsStateWithLifecycle()
+
+    LaunchedEffect(navBackStackEntry?.destination?.route) {
+        val screen = analyticsScreenName(navBackStackEntry?.destination?.route) ?: return@LaunchedEffect
+        analytics.logScreenView(screen)
+    }
 
     CollectMviEffects(viewModel.effects) { effect ->
         when (effect) {
@@ -130,11 +139,18 @@ fun MixologyApp(
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
-            if (!overlay) {
-                MixologyBottomBar(
-                    currentDestination = state.destination,
-                    onDestinationSelected = { viewModel.onIntent(MainIntent.SelectDestination(it)) },
-                )
+            Column {
+                if (online) {
+                    BannerAd(
+                        details = navBackStackEntry?.destination?.route?.startsWith("details") == true,
+                    )
+                }
+                if (!overlay) {
+                    MixologyBottomBar(
+                        currentDestination = state.destination,
+                        onDestinationSelected = { viewModel.onIntent(MainIntent.SelectDestination(it)) },
+                    )
+                }
             }
         },
         containerColor = MaterialTheme.colorScheme.background,

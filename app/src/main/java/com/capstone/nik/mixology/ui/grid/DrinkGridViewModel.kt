@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.recordCrash
+import com.capstone.nik.mixology.analytics.AnalyticsTracker
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.repository.DrinkRepository
@@ -22,6 +23,7 @@ class DrinkGridViewModel @Inject constructor(
     private val repository: DrinkRepository,
     private val networkMonitor: NetworkMonitor,
     @ApplicationContext private val context: Context,
+    private val analytics: AnalyticsTracker = AnalyticsTracker.forTests(),
 ) : MviViewModel<DrinkGridIntent, DrinkGridUiState, DrinkGridEffect>(DrinkGridUiState()) {
 
     private var observeJob: Job? = null
@@ -61,8 +63,10 @@ class DrinkGridViewModel @Inject constructor(
         viewModelScope.launch {
             if (item.saved) {
                 repository.unsave(item.id)
+                analytics.logSaveDrink(item.id, item.name, saved = false)
             } else {
                 repository.save(item)
+                analytics.logSaveDrink(item.id, item.name, saved = true)
             }
         }
     }

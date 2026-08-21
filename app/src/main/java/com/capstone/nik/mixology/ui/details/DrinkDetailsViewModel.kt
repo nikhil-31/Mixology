@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.recordCrash
+import com.capstone.nik.mixology.analytics.AnalyticsTracker
 import com.capstone.nik.mixology.Network.NetworkMonitor
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.repository.DrinkRepository
@@ -21,6 +22,7 @@ class DrinkDetailsViewModel @Inject constructor(
     private val repository: DrinkRepository,
     private val networkMonitor: NetworkMonitor,
     @ApplicationContext private val appContext: Context,
+    private val analytics: AnalyticsTracker = AnalyticsTracker.forTests(),
 ) : MviViewModel<DrinkDetailsIntent, DrinkDetailsUiState, DrinkDetailsEffect>(
     DrinkDetailsUiState(),
 ) {
@@ -52,6 +54,9 @@ class DrinkDetailsViewModel @Inject constructor(
 
     private fun load(drink: Drink) {
         viewModelScope.launch { repository.recordViewed(drink) }
+        if (loadedId != drink.id) {
+            analytics.logViewDrink(drink.id, drink.name)
+        }
         if (loadedId == drink.id && currentState.drink?.hasRecipe == true) return
         loadedId = drink.id
         setState {
@@ -106,6 +111,7 @@ class DrinkDetailsViewModel @Inject constructor(
         val drink = currentState.drink ?: return
         viewModelScope.launch {
             repository.addToShoppingList(drink.ingredients.map { it.ingredient })
+            analytics.logAddToShoppingList(drink.id, drink.name)
             sendEffect(DrinkDetailsEffect.ShowMessageRes(R.string.shopping_added))
         }
     }
@@ -115,8 +121,10 @@ class DrinkDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             if (currentState.saved) {
                 repository.unsave(drink.id)
+                analytics.logSaveDrink(drink.id, drink.name, saved = false)
             } else {
                 repository.save(drink)
+                analytics.logSaveDrink(drink.id, drink.name, saved = true)
             }
         }
     }
@@ -133,6 +141,7 @@ class DrinkDetailsViewModel @Inject constructor(
         drink.ingredients.forEach { item ->
             builder.append(item.ingredient).append(" -- ").append(item.measure).append("\n")
         }
+        analytics.logShareDrink(drink.id, drink.name)
         val intent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
             putExtra(Intent.EXTRA_SUBJECT, appContext.getString(R.string.detail_share_sent_from_mixology))

@@ -15,6 +15,7 @@
     <string name="content_desc_up_navigation">Up navigation</string>
     <string name="content_desc_ingredients_image">Ingredients Image</string>
     <string name="content_desc_logo_img">Logo Image</string>
+    <string name="content_desc_banner_ad">Advertisement</string>
 
     <!-- static data set in details fragment -->
     <string name="detail_screen_instructions">Instructions</string>
@@ -110,6 +111,11 @@
     <string name="empty_string_cocktail_image">cocktail_image</string>
 
     <string name="privacy_policy_link">Privacy policy</string>
+
+    <string name="admob_app_id" translatable="false">ca-app-pub-3113257282676296~5106481563</string>
+    <string name="banner_ad_unit_id" translatable="false">ca-app-pub-3113257282676296/3350546766</string>
+    <string name="banner_ad_unit_id_details" translatable="false">ca-app-pub-3113257282676296/2081424367</string>
+    <string name="banner_test" translatable="false">ca-app-pub-3940256099942544/6300978111</string>
 
     <string name="detail_watch_video">Watch video</string>
     <string name="detail_notes">Notes</string>

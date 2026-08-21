@@ -3,6 +3,7 @@ package com.capstone.nik.mixology.ui.bar
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.capstone.nik.mixology.Network.NetworkMonitor
+import com.capstone.nik.mixology.analytics.AnalyticsTracker
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.recordCrash
 import com.capstone.nik.mixology.repository.DrinkRepository
@@ -18,6 +19,7 @@ import javax.inject.Inject
 class BarViewModel @Inject constructor(
     private val repository: DrinkRepository,
     private val networkMonitor: NetworkMonitor,
+    private val analytics: AnalyticsTracker = AnalyticsTracker.forTests(),
 ) : MviViewModel<BarIntent, BarUiState, BarEffect>(BarUiState()) {
 
     private var observeJob: Job? = null
@@ -99,8 +101,10 @@ class BarViewModel @Inject constructor(
         viewModelScope.launch {
             if (item.saved) {
                 repository.unsave(item.id)
+                analytics.logSaveDrink(item.id, item.name, saved = false)
             } else {
                 repository.save(item)
+                analytics.logSaveDrink(item.id, item.name, saved = true)
             }
         }
     }

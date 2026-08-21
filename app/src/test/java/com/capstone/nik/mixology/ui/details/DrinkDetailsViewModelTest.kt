@@ -9,10 +9,12 @@ import com.capstone.nik.mixology.MainDispatcherRule
 import com.capstone.nik.mixology.Network.NetworkMonitor
 import com.capstone.nik.mixology.Network.remoteModel.CocktailDbResponse
 import com.capstone.nik.mixology.R
+import com.capstone.nik.mixology.analytics.AnalyticsTracker
 import com.capstone.nik.mixology.cocktailDrink
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.MixologyDatabase
 import com.capstone.nik.mixology.repository.DrinkRepository
+import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -35,6 +37,7 @@ class DrinkDetailsViewModelTest {
     private lateinit var database: MixologyDatabase
     private lateinit var service: FakeCocktailService
     private lateinit var repository: DrinkRepository
+    private lateinit var analytics: AnalyticsTracker
     private lateinit var viewModel: DrinkDetailsViewModel
 
     @Before
@@ -51,7 +54,8 @@ class DrinkDetailsViewModelTest {
             service,
             context,
         )
-        viewModel = DrinkDetailsViewModel(repository, NetworkMonitor.forTests(), context)
+        analytics = AnalyticsTracker.forTests()
+        viewModel = DrinkDetailsViewModel(repository, NetworkMonitor.forTests(), context, analytics)
     }
 
     @After
@@ -69,6 +73,8 @@ class DrinkDetailsViewModelTest {
             cancelAndIgnoreRemainingEvents()
         }
         assertEquals(listOf("11007"), repository.observeRecentlyViewed().first().map { it.id })
+        assertEquals(FirebaseAnalytics.Event.VIEW_ITEM, analytics.recorded.single().name)
+        assertEquals("11007", analytics.recorded.single().params[FirebaseAnalytics.Param.ITEM_ID])
     }
 
     @Test
@@ -84,6 +90,7 @@ class DrinkDetailsViewModelTest {
             assertEquals(R.string.shopping_added, (awaitItem() as DrinkDetailsEffect.ShowMessageRes).resId)
         }
         assertEquals(listOf("Gin"), repository.observeShopping().first().map { it.name })
+        assertTrue(analytics.recorded.any { it.name == FirebaseAnalytics.Event.ADD_TO_CART })
     }
 
     @Test

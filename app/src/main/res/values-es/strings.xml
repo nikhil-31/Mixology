@@ -11,6 +11,7 @@
     <string name="content_desc_up_navigation">Navegación hacia arriba</string>
     <string name="content_desc_ingredients_image">Imagen de ingredientes</string>
     <string name="content_desc_logo_img">Imagen del logotipo</string>
+    <string name="content_desc_banner_ad">Anuncio</string>
 
     <string name="detail_screen_instructions">Instrucciones</string>
     <string name="detail_screen_ingredients">Ingredientes</string>

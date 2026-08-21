@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.recordCrash
+import com.capstone.nik.mixology.analytics.AnalyticsTracker
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.repository.DrinkRepository
 import com.capstone.nik.mixology.ui.mvi.MviViewModel
@@ -19,6 +20,7 @@ import javax.inject.Inject
 class RandomixerViewModel @Inject constructor(
     private val repository: DrinkRepository,
     @ApplicationContext private val context: Context,
+    private val analytics: AnalyticsTracker = AnalyticsTracker.forTests(),
 ) : MviViewModel<RandomixerIntent, RandomixerUiState, RandomixerEffect>(RandomixerUiState()) {
 
     private val deck = ArrayDeque<Drink>()
@@ -50,6 +52,7 @@ class RandomixerViewModel @Inject constructor(
             try {
                 repository.save(drink)
                 lastUndo = UndoAction.Saved(drink)
+                analytics.logSaveDrink(drink.id, drink.name, saved = true)
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to save drink", e)
                 recordCrash(e)
@@ -62,6 +65,7 @@ class RandomixerViewModel @Inject constructor(
         val drink = currentState.drink ?: return
         if (currentState.loading) return
         lastUndo = UndoAction.Discarded(drink)
+        analytics.logRandomixerSkip(drink.id, drink.name)
         sendEffect(RandomixerEffect.ShowUndo(R.string.randomixer_skipped))
         refresh(avoidId = drink.id)
     }

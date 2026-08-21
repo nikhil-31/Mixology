@@ -8,6 +8,7 @@ import app.cash.turbine.test
 import com.capstone.nik.mixology.FakeCocktailService
 import com.capstone.nik.mixology.MainDispatcherRule
 import com.capstone.nik.mixology.Network.remoteModel.CocktailDbResponse
+import com.capstone.nik.mixology.catalog
 import com.capstone.nik.mixology.cocktailDrink
 import com.capstone.nik.mixology.data.MixologyDatabase
 import com.capstone.nik.mixology.repository.DrinkRepository
@@ -53,7 +54,9 @@ class SearchViewModelTest {
             .setQueryExecutor { it.run() }
             .setTransactionExecutor { it.run() }
             .build()
-        service = FakeCocktailService()
+        service = FakeCocktailService().apply {
+            ingredients = catalog("Gin", "Ginger", "Vodka", "Virgin")
+        }
         viewModel = SearchViewModel(
             DrinkRepository(database.drinkDao(), database.shoppingDao(), database.barDao(), service, context),
             context,
@@ -83,12 +86,49 @@ class SearchViewModelTest {
     @Test
     fun ingredientSearch_usesFilterEndpoint() = runTest(dispatcher) {
         service.ingredient = CocktailDbResponse(drinks = listOf(cocktailDrink("3", "Bloody Mary")))
-        viewModel.onIntent(SearchIntent.Search("Vodka", SearchMode.INGREDIENT))
-        advanceTimeBy(250)
+        viewModel.onIntent(SearchIntent.Search("Vodka", SearchMode.INGREDIENT, commit = true))
         advanceUntilIdle()
         assertEquals(SearchMode.INGREDIENT, viewModel.state.value.mode)
         assertEquals("Vodka", viewModel.state.value.query)
         assertEquals(listOf("Bloody Mary"), viewModel.state.value.results.map { it.name })
+        assertTrue(viewModel.state.value.suggestions.isEmpty())
+    }
+
+    @Test
+    fun ingredientTyping_showsSuggestionsWithoutSearchingDrinks() = runTest(dispatcher) {
+        service.ingredient = CocktailDbResponse(drinks = listOf(cocktailDrink("3", "Bloody Mary")))
+        viewModel.onIntent(SearchIntent.Search("gin", SearchMode.INGREDIENT))
+        advanceTimeBy(250)
+        advanceUntilIdle()
+        assertEquals(listOf("Gin", "Ginger", "Virgin"), viewModel.state.value.suggestions)
+        assertTrue(viewModel.state.value.results.isEmpty())
+        assertTrue(!viewModel.state.value.empty)
+        assertTrue(!viewModel.state.value.loading)
+    }
+
+    @Test
+    fun selectSuggestion_searchesDrinksImmediately() = runTest(dispatcher) {
+        service.ingredient = CocktailDbResponse(drinks = listOf(cocktailDrink("3", "Bloody Mary")))
+        viewModel.onIntent(SearchIntent.SelectSuggestion("Vodka"))
+        runCurrent()
+        assertEquals("Vodka", viewModel.state.value.query)
+        advanceUntilIdle()
+        assertEquals(SearchMode.INGREDIENT, viewModel.state.value.mode)
+        assertEquals(listOf("Bloody Mary"), viewModel.state.value.results.map { it.name })
+        assertTrue(viewModel.state.value.suggestions.isEmpty())
+    }
+
+    @Test
+    fun filterIngredientSuggestions_ranksPrefixMatchesFirst() {
+        assertEquals(
+            listOf("Gin", "Ginger", "Virgin"),
+            filterIngredientSuggestions(listOf("Virgin", "Ginger", "Gin", "Vodka"), "gin"),
+        )
+        assertEquals(
+            10,
+            filterIngredientSuggestions((1..12).map { "Gin $it" }, "gin").size,
+        )
+        assertTrue(filterIngredientSuggestions(listOf("Gin", "Vodka"), "").isEmpty())
     }
 
     @Test

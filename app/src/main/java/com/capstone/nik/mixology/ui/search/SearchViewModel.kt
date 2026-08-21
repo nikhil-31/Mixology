@@ -39,6 +39,14 @@ class SearchViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            try {
+                repository.refreshCatalogs()
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to refresh catalogs", e)
+                recordCrash(e)
+            }
+        }
+        viewModelScope.launch {
             combine(
                 combine(
                     drinks,
@@ -56,8 +64,24 @@ class SearchViewModel @Inject constructor(
                 },
                 mode,
                 listView,
-            ) { ui, currentMode, isList -> ui.copy(mode = currentMode, listView = isList) }
-                .collect { newState -> setState { newState } }
+                repository.observeCatalog(FilterKind.INGREDIENT),
+            ) { ui, currentMode, isList, ingredients ->
+                val suggestions = if (
+                    currentMode == SearchMode.INGREDIENT &&
+                    !ui.loading &&
+                    ui.results.isEmpty()
+                ) {
+                    filterIngredientSuggestions(ingredients, ui.query)
+                } else {
+                    emptyList()
+                }
+                ui.copy(
+                    mode = currentMode,
+                    listView = isList,
+                    empty = ui.empty && suggestions.isEmpty(),
+                    suggestions = suggestions,
+                )
+            }.collect { newState -> setState { newState } }
         }
     }
 
@@ -69,14 +93,27 @@ class SearchViewModel @Inject constructor(
                     mode.value = intent.mode
                 }
                 catalogKind = intent.filterKind
-                search(intent.query, immediate = intent.filterKind != null)
+                search(
+                    intent.query,
+                    immediate = intent.filterKind != null || intent.commit,
+                )
             }
             is SearchIntent.SetMode -> setMode(intent.mode)
+            is SearchIntent.SelectSuggestion -> selectSuggestion(intent.ingredient)
             is SearchIntent.ToggleSaved -> toggleSaved(intent.drink)
             is SearchIntent.OpenDrink -> sendEffect(SearchEffect.OpenDrink(intent.drink))
             SearchIntent.ToggleListView -> toggleListView()
             SearchIntent.Back -> sendEffect(SearchEffect.NavigateBack)
         }
+    }
+
+    private fun selectSuggestion(ingredient: String) {
+        searchJob?.cancel()
+        if (mode.value != SearchMode.INGREDIENT) {
+            mode.value = SearchMode.INGREDIENT
+        }
+        catalogKind = null
+        search(ingredient, immediate = true)
     }
 
     private fun setMode(next: SearchMode) {
@@ -97,6 +134,12 @@ class SearchViewModel @Inject constructor(
 
     private fun searchText(adjusted: String, immediate: Boolean) {
         if (adjusted.length < SEARCH_MIN_CHARS) {
+            queried.value = false
+            drinks.value = emptyList()
+            loading.value = false
+            return
+        }
+        if (mode.value == SearchMode.INGREDIENT && !immediate) {
             queried.value = false
             drinks.value = emptyList()
             loading.value = false

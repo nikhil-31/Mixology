@@ -229,4 +229,53 @@ class SearchScreenTest {
         composeRule.onNodeWithTag("saved_view_images").performClick()
         assertEquals(listOf(true), toggled)
     }
+
+    @Test
+    fun ingredientSuggestions_clickSelectsIngredient() {
+        val selected = mutableListOf<String>()
+        composeRule.setContent {
+            MixologyTheme {
+                SearchScreen(
+                    state = SearchUiState(
+                        query = "gi",
+                        mode = SearchMode.INGREDIENT,
+                        suggestions = listOf("Gin", "Ginger"),
+                    ),
+                    snackbarHostState = remember { SnackbarHostState() },
+                    onBack = {},
+                    onSearch = {},
+                    onDrinkClick = {},
+                    onToggleSaved = {},
+                    onSelectSuggestion = { selected.add(it) },
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("Gin").assertIsDisplayed()
+        composeRule.onNodeWithText("Ginger").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("Gin").assertIsDisplayed()
+        composeRule.onNodeWithText("No drinks found").assertDoesNotExist()
+        composeRule.onNodeWithTag("search_suggestion_Gin").performClick()
+        assertEquals(listOf("Gin"), selected)
+    }
+
+    @Test
+    fun ingredientMode_typingFirstCharacter_triggersSearch() {
+        val searched = mutableListOf<String>()
+        composeRule.setContent {
+            MixologyTheme {
+                SearchScreen(
+                    state = SearchUiState(mode = SearchMode.INGREDIENT),
+                    snackbarHostState = remember { SnackbarHostState() },
+                    onBack = {},
+                    onSearch = { searched.add(it) },
+                    onDrinkClick = {},
+                    onToggleSaved = {},
+                )
+            }
+        }
+
+        composeRule.onNode(hasSetTextAction()).performTextInput("g")
+        assertEquals(listOf("g"), searched)
+    }
 }

@@ -1,5 +1,6 @@
 package com.capstone.nik.mixology.ui.search
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,12 +19,15 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items as lazyListItems
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.LocalBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,8 +50,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
@@ -60,6 +63,8 @@ import com.capstone.nik.mixology.repository.FilterKind
 import com.capstone.nik.mixology.ui.components.DrinkCard
 import com.capstone.nik.mixology.ui.components.DrinkListItem
 import com.capstone.nik.mixology.ui.components.DrinkViewToggle
+import com.capstone.nik.mixology.ui.components.IngredientImage
+import com.capstone.nik.mixology.ui.model.ingredientImageUrl
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 
 @Composable
@@ -81,6 +86,7 @@ fun SearchRoute(
                 query = initialQuery,
                 mode = initialMode,
                 filterKind = initialFilterKind,
+                commit = initialQuery.isNotBlank() || initialFilterKind != null,
             ),
         )
     }
@@ -99,7 +105,9 @@ fun SearchRoute(
         snackbarHostState = snackbarHostState,
         onBack = { viewModel.onIntent(SearchIntent.Back) },
         onSearch = { viewModel.onIntent(SearchIntent.Search(it)) },
+        onSubmit = { viewModel.onIntent(SearchIntent.Search(it, commit = true)) },
         onModeSelected = { viewModel.onIntent(SearchIntent.SetMode(it)) },
+        onSelectSuggestion = { viewModel.onIntent(SearchIntent.SelectSuggestion(it)) },
         onDrinkClick = { viewModel.onIntent(SearchIntent.OpenDrink(it)) },
         onToggleSaved = { viewModel.onIntent(SearchIntent.ToggleSaved(it)) },
         onToggleListView = { viewModel.onIntent(SearchIntent.ToggleListView) },
@@ -115,6 +123,8 @@ fun SearchScreen(
     onDrinkClick: (Drink) -> Unit,
     onToggleSaved: (Drink) -> Unit,
     onModeSelected: (SearchMode) -> Unit = {},
+    onSelectSuggestion: (String) -> Unit = {},
+    onSubmit: (String) -> Unit = onSearch,
     onToggleListView: () -> Unit = {},
     initialQuery: String = state.query,
 ) {
@@ -127,16 +137,28 @@ fun SearchScreen(
     LaunchedEffect(Unit) {
         runCatching { focusRequester.requestFocus() }
     }
+    LaunchedEffect(state.query) {
+        if (queryText.trim() != state.query) {
+            queryText = state.query
+        }
+    }
 
     fun emitSearch(value: String) {
         val trimmed = value.trim()
-        if (trimmed.length >= SEARCH_MIN_CHARS || trimmed.isEmpty()) {
+        val minChars = if (state.mode == SearchMode.INGREDIENT) 1 else SEARCH_MIN_CHARS
+        if (trimmed.length >= minChars || trimmed.isEmpty()) {
             onSearch(value)
         }
     }
 
     fun submitSearch() {
-        emitSearch(queryText)
+        onSubmit(queryText)
+        keyboardController?.hide()
+    }
+
+    fun pickSuggestion(ingredient: String) {
+        queryText = ingredient
+        onSelectSuggestion(ingredient)
         keyboardController?.hide()
     }
 
@@ -201,6 +223,10 @@ fun SearchScreen(
             Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                 when {
                     state.loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
+                    state.suggestions.isNotEmpty() -> SearchSuggestions(
+                        suggestions = state.suggestions,
+                        onSelectSuggestion = ::pickSuggestion,
+                    )
                     state.empty -> SearchEmptyResults(
                         query = state.query,
                         mode = state.mode,
@@ -239,6 +265,53 @@ fun SearchScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun SearchSuggestions(
+    suggestions: List<String>,
+    onSelectSuggestion: (String) -> Unit,
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(bottom = 50.dp),
+    ) {
+        lazyListItems(suggestions, key = { it }) { term ->
+            SearchSuggestionRow(
+                term = term,
+                onSelect = onSelectSuggestion,
+            )
+            HorizontalDivider()
+        }
+    }
+}
+
+@Composable
+private fun SearchSuggestionRow(
+    term: String,
+    onSelect: (String) -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onSelect(term) }
+            .padding(horizontal = 20.dp, vertical = 10.dp)
+            .testTag("search_suggestion_$term"),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        IngredientImage(
+            url = ingredientImageUrl(term),
+            size = 48.dp,
+            contentDescription = term,
+        )
+        Text(
+            text = term,
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
     }
 }
 
@@ -320,4 +393,3 @@ private fun SearchModeChips(
         }
     }
 }
-

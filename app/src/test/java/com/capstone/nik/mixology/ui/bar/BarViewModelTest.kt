@@ -7,12 +7,15 @@ import app.cash.turbine.test
 import com.capstone.nik.mixology.FakeCocktailService
 import com.capstone.nik.mixology.MainDispatcherRule
 import com.capstone.nik.mixology.Network.NetworkMonitor
+import com.capstone.nik.mixology.analytics.AnalyticsTracker
+import com.capstone.nik.mixology.analytics.EVENT_REMOVE_FROM_WISHLIST
 import com.capstone.nik.mixology.catalog
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.MixologyDatabase
 import com.capstone.nik.mixology.data.toEntity
 import com.capstone.nik.mixology.repository.DrinkRepository
 import com.capstone.nik.mixology.ui.model.IngredientMeasure
+import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -32,6 +35,7 @@ class BarViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private lateinit var database: MixologyDatabase
+    private lateinit var analytics: AnalyticsTracker
     private lateinit var viewModel: BarViewModel
 
     @Before
@@ -39,10 +43,13 @@ class BarViewModelTest {
         val context = ApplicationProvider.getApplicationContext<Application>()
         database = Room.inMemoryDatabaseBuilder(context, MixologyDatabase::class.java)
             .allowMainThreadQueries()
+            .setQueryExecutor { it.run() }
+            .setTransactionExecutor { it.run() }
             .build()
         val service = FakeCocktailService().apply {
             ingredients = catalog("Gin", "Campari", "Sweet Vermouth")
         }
+        analytics = AnalyticsTracker.forTests()
         viewModel = BarViewModel(
             DrinkRepository(
                 database.drinkDao(),
@@ -52,6 +59,7 @@ class BarViewModelTest {
                 context,
             ),
             NetworkMonitor.forTests(),
+            analytics,
         )
     }
 
@@ -97,6 +105,17 @@ class BarViewModelTest {
             assertEquals(listOf("Dry Vermouth"), loaded.almost.single().missing)
             cancelAndIgnoreRemainingEvents()
         }
+    }
+
+    @Test
+    fun toggleSaved_logsWishlistEvents() = runTest {
+        viewModel.onIntent(BarIntent.ToggleSaved(negroni()))
+        viewModel.onIntent(BarIntent.ToggleSaved(negroni().copy(saved = true)))
+        assertEquals(
+            listOf(FirebaseAnalytics.Event.ADD_TO_WISHLIST, EVENT_REMOVE_FROM_WISHLIST),
+            analytics.recorded.map { it.name },
+        )
+        assertEquals("11003", analytics.recorded[0].params[FirebaseAnalytics.Param.ITEM_ID])
     }
 }
 

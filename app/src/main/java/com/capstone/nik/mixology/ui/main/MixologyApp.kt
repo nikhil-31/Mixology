@@ -28,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -39,6 +40,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import kotlinx.coroutines.flow.first
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
@@ -114,6 +116,7 @@ fun MixologyApp(
 
     LaunchedEffect(pendingDrink) {
         val drink = pendingDrink ?: return@LaunchedEffect
+        navController.currentBackStackEntryFlow.first()
         navController.navigate(detailsRoute(drink)) {
             launchSingleTop = true
         }
@@ -344,7 +347,7 @@ fun MixologyApp(
     }
 
 @Composable
-private fun ScreenHeader(
+internal fun ScreenHeader(
     title: String,
     showUp: Boolean,
     showSearch: Boolean,
@@ -356,7 +359,8 @@ private fun ScreenHeader(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 4.dp, end = 4.dp, top = 12.dp, bottom = 8.dp),
+            .padding(start = 4.dp, end = 4.dp, top = 12.dp, bottom = 8.dp)
+            .testTag("screen_header"),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (showUp) {
@@ -370,7 +374,10 @@ private fun ScreenHeader(
         }
         Text(
             text = title,
-            modifier = Modifier.weight(1f).padding(start = if (showUp) 0.dp else 12.dp),
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = if (showUp) 0.dp else 12.dp)
+                .testTag("screen_title"),
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onBackground,
         )
@@ -396,11 +403,12 @@ private fun ScreenHeader(
 }
 
 @Composable
-private fun OfflineBanner(onRetry: () -> Unit) {
+internal fun OfflineBanner(onRetry: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 4.dp),
+            .padding(horizontal = 12.dp, vertical = 4.dp)
+            .testTag("offline_banner"),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(

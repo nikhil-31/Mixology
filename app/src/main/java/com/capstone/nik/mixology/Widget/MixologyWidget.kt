@@ -160,13 +160,13 @@ private fun DrinkRow(
     }
 }
 
-private fun openAppIntent(context: Context): Intent {
+internal fun openAppIntent(context: Context): Intent {
     return Intent(context, ActivityMain::class.java).apply {
         flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
     }
 }
 
-private fun openDrinkIntent(context: Context, drink: Drink): Intent {
+internal fun openDrinkIntent(context: Context, drink: Drink): Intent {
     return Intent(context, ActivityMain::class.java)
         .setAction(DrinkIntents.ACTION_OPEN_DRINK)
         .putDrinkExtra(drink)

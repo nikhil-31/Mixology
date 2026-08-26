@@ -8,11 +8,16 @@ import app.cash.turbine.test
 import com.capstone.nik.mixology.FakeCocktailService
 import com.capstone.nik.mixology.MainDispatcherRule
 import com.capstone.nik.mixology.Network.remoteModel.CocktailDbResponse
+import com.capstone.nik.mixology.analytics.AnalyticsTracker
+import com.capstone.nik.mixology.analytics.EVENT_REMOVE_FROM_WISHLIST
+import com.capstone.nik.mixology.analytics.PARAM_RESULT_COUNT
+import com.capstone.nik.mixology.analytics.PARAM_SEARCH_MODE
 import com.capstone.nik.mixology.catalog
 import com.capstone.nik.mixology.cocktailDrink
 import com.capstone.nik.mixology.data.MixologyDatabase
 import com.capstone.nik.mixology.repository.DrinkRepository
 import com.capstone.nik.mixology.repository.FilterKind
+import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -40,6 +45,7 @@ class SearchViewModelTest {
 
     private lateinit var database: MixologyDatabase
     private lateinit var service: FakeCocktailService
+    private lateinit var analytics: AnalyticsTracker
     private lateinit var viewModel: SearchViewModel
 
     @Before
@@ -57,9 +63,11 @@ class SearchViewModelTest {
         service = FakeCocktailService().apply {
             ingredients = catalog("Gin", "Ginger", "Vodka", "Virgin")
         }
+        analytics = AnalyticsTracker.forTests()
         viewModel = SearchViewModel(
             DrinkRepository(database.drinkDao(), database.shoppingDao(), database.barDao(), service, context),
             context,
+            analytics,
         )
     }
 
@@ -81,6 +89,10 @@ class SearchViewModelTest {
         advanceUntilIdle()
         assertEquals(listOf("Mojito"), viewModel.state.value.results.map { it.name })
         assertTrue(!viewModel.state.value.loading)
+        val search = analytics.recorded.single { it.name == FirebaseAnalytics.Event.SEARCH }
+        assertEquals("mo", search.params[FirebaseAnalytics.Param.SEARCH_TERM])
+        assertEquals("NAME", search.params[PARAM_SEARCH_MODE])
+        assertEquals(1, search.params[PARAM_RESULT_COUNT])
     }
 
     @Test
@@ -92,6 +104,9 @@ class SearchViewModelTest {
         assertEquals("Vodka", viewModel.state.value.query)
         assertEquals(listOf("Bloody Mary"), viewModel.state.value.results.map { it.name })
         assertTrue(viewModel.state.value.suggestions.isEmpty())
+        val search = analytics.recorded.single { it.name == FirebaseAnalytics.Event.SEARCH }
+        assertEquals("Vodka", search.params[FirebaseAnalytics.Param.SEARCH_TERM])
+        assertEquals("INGREDIENT", search.params[PARAM_SEARCH_MODE])
     }
 
     @Test
@@ -104,6 +119,7 @@ class SearchViewModelTest {
         assertTrue(viewModel.state.value.results.isEmpty())
         assertTrue(!viewModel.state.value.empty)
         assertTrue(!viewModel.state.value.loading)
+        assertTrue(analytics.recorded.none { it.name == FirebaseAnalytics.Event.SEARCH })
     }
 
     @Test
@@ -116,6 +132,8 @@ class SearchViewModelTest {
         assertEquals(SearchMode.INGREDIENT, viewModel.state.value.mode)
         assertEquals(listOf("Bloody Mary"), viewModel.state.value.results.map { it.name })
         assertTrue(viewModel.state.value.suggestions.isEmpty())
+        val search = analytics.recorded.single { it.name == FirebaseAnalytics.Event.SEARCH }
+        assertEquals("Vodka", search.params[FirebaseAnalytics.Param.SEARCH_TERM])
     }
 
     @Test
@@ -169,5 +187,19 @@ class SearchViewModelTest {
             context.getSharedPreferences("mixology", Context.MODE_PRIVATE)
                 .getBoolean("saved_list_view", false),
         )
+    }
+
+    @Test
+    fun toggleSaved_logsWishlistEvents() = runTest(dispatcher) {
+        val drink = cocktailDrink("1", "Mojito").toDrink()!!
+        viewModel.onIntent(SearchIntent.ToggleSaved(drink))
+        advanceUntilIdle()
+        viewModel.onIntent(SearchIntent.ToggleSaved(drink.copy(saved = true)))
+        advanceUntilIdle()
+        assertEquals(
+            listOf(FirebaseAnalytics.Event.ADD_TO_WISHLIST, EVENT_REMOVE_FROM_WISHLIST),
+            analytics.recorded.map { it.name },
+        )
+        assertEquals("1", analytics.recorded[0].params[FirebaseAnalytics.Param.ITEM_ID])
     }
 }

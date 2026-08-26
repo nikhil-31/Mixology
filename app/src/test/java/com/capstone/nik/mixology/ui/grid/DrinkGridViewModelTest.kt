@@ -9,10 +9,13 @@ import com.capstone.nik.mixology.FakeCocktailService
 import com.capstone.nik.mixology.MainDispatcherRule
 import com.capstone.nik.mixology.Network.NetworkMonitor
 import com.capstone.nik.mixology.Network.remoteModel.CocktailDbResponse
+import com.capstone.nik.mixology.analytics.AnalyticsTracker
+import com.capstone.nik.mixology.analytics.EVENT_REMOVE_FROM_WISHLIST
 import com.capstone.nik.mixology.cocktailDrink
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.data.MixologyDatabase
 import com.capstone.nik.mixology.repository.DrinkRepository
+import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -34,6 +37,7 @@ class DrinkGridViewModelTest {
     private lateinit var database: MixologyDatabase
     private lateinit var service: FakeCocktailService
     private lateinit var repository: DrinkRepository
+    private lateinit var analytics: AnalyticsTracker
     private lateinit var viewModel: DrinkGridViewModel
 
     @Before
@@ -45,6 +49,8 @@ class DrinkGridViewModelTest {
             .apply()
         database = Room.inMemoryDatabaseBuilder(context, MixologyDatabase::class.java)
             .allowMainThreadQueries()
+            .setQueryExecutor { it.run() }
+            .setTransactionExecutor { it.run() }
             .build()
         service = FakeCocktailService()
         repository = DrinkRepository(
@@ -54,7 +60,8 @@ class DrinkGridViewModelTest {
             service,
             context,
         )
-        viewModel = DrinkGridViewModel(repository, NetworkMonitor.forTests(), context)
+        analytics = AnalyticsTracker.forTests()
+        viewModel = DrinkGridViewModel(repository, NetworkMonitor.forTests(), context, analytics)
     }
 
     @After
@@ -86,6 +93,12 @@ class DrinkGridViewModelTest {
             }
         }
         assertTrue(repository.getSavedSync().any { it.id == "1" })
+        assertEquals(FirebaseAnalytics.Event.ADD_TO_WISHLIST, analytics.recorded.single().name)
+        viewModel.onIntent(DrinkGridIntent.ToggleSaved(loadedDrink(saved = true)))
+        assertEquals(
+            listOf(FirebaseAnalytics.Event.ADD_TO_WISHLIST, EVENT_REMOVE_FROM_WISHLIST),
+            analytics.recorded.map { it.name },
+        )
     }
 
     @Test
@@ -107,6 +120,8 @@ class DrinkGridViewModelTest {
             .getBoolean("saved_list_view", false)
         assertTrue(persisted)
     }
+
+    private fun loadedDrink(saved: Boolean) = cocktailDrink("1", "Gin Fizz").toDrink()!!.copy(saved = saved)
 }
 
 private suspend fun <T> app.cash.turbine.ReceiveTurbine<T>.awaitItemUntil(predicate: (T) -> Boolean): T {

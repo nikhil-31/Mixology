@@ -60,5 +60,25 @@ class ShoppingScreenTest {
         composeRule.onNodeWithContentDescription("Remove item").performClick()
         assertEquals(listOf(3L), toggled)
         assertEquals(listOf(3L), removed)
+        composeRule.onNodeWithText("Clear checked").assertDoesNotExist()
+    }
+
+    @Test
+    fun checkedItem_showsClearChecked() {
+        var cleared = 0
+        composeRule.setContent {
+            MixologyTheme {
+                ShoppingScreen(
+                    state = ShoppingUiState(
+                        items = listOf(ShoppingItemEntity(id = 3, name = "Lime", checked = true)),
+                    ),
+                    onToggle = {},
+                    onRemove = {},
+                    onClearChecked = { cleared += 1 },
+                )
+            }
+        }
+        composeRule.onNodeWithText("Clear checked").performClick()
+        assertEquals(1, cleared)
     }
 }

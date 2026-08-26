@@ -1,6 +1,7 @@
 package com.capstone.nik.mixology.ui.details
 
 import android.app.Application
+import android.content.Intent
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
@@ -10,6 +11,8 @@ import com.capstone.nik.mixology.Network.NetworkMonitor
 import com.capstone.nik.mixology.Network.remoteModel.CocktailDbResponse
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.analytics.AnalyticsTracker
+import com.capstone.nik.mixology.analytics.EVENT_REMOVE_FROM_WISHLIST
+import com.capstone.nik.mixology.analytics.PARAM_SAVED
 import com.capstone.nik.mixology.cocktailDrink
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.MixologyDatabase
@@ -99,6 +102,61 @@ class DrinkDetailsViewModelTest {
             viewModel.onIntent(DrinkDetailsIntent.OpenVideo("https://example.com/v"))
             assertEquals("https://example.com/v", (awaitItem() as DrinkDetailsEffect.OpenUrl).url)
         }
+    }
+
+    @Test
+    fun reloadSameDrink_logsViewOnce() = runTest {
+        service.lookup = CocktailDbResponse(drinks = listOf(cocktailDrink("11007", "Margarita")))
+        val drink = Drink("11007", "Margarita", "")
+        viewModel.onIntent(DrinkDetailsIntent.Load(drink))
+        viewModel.onIntent(DrinkDetailsIntent.Load(drink))
+        viewModel.onIntent(DrinkDetailsIntent.Load(Drink("11728", "Martini", "")))
+        assertEquals(
+            listOf("11007", "11728"),
+            analytics.recorded.filter { it.name == FirebaseAnalytics.Event.VIEW_ITEM }
+                .map { it.params[FirebaseAnalytics.Param.ITEM_ID] },
+        )
+    }
+
+    @Test
+    fun toggleSaved_logsWishlistEvents() = runTest {
+        service.lookup = CocktailDbResponse(drinks = listOf(cocktailDrink("11007", "Margarita")))
+        viewModel.onIntent(DrinkDetailsIntent.Load(Drink("11007", "Margarita", "")))
+        viewModel.state.test {
+            awaitItemUntil { it.drink?.hasRecipe == true }
+            viewModel.onIntent(DrinkDetailsIntent.ToggleSaved)
+            awaitItemUntil { it.saved }
+            viewModel.onIntent(DrinkDetailsIntent.ToggleSaved)
+            awaitItemUntil { !it.saved }
+            cancelAndIgnoreRemainingEvents()
+        }
+        val wishlist = analytics.recorded.filter {
+            it.name == FirebaseAnalytics.Event.ADD_TO_WISHLIST || it.name == EVENT_REMOVE_FROM_WISHLIST
+        }
+        assertEquals(
+            listOf(FirebaseAnalytics.Event.ADD_TO_WISHLIST, EVENT_REMOVE_FROM_WISHLIST),
+            wishlist.map { it.name },
+        )
+        assertEquals(true, wishlist[0].params[PARAM_SAVED])
+        assertEquals(false, wishlist[1].params[PARAM_SAVED])
+    }
+
+    @Test
+    fun share_logsShareEvent() = runTest {
+        service.lookup = CocktailDbResponse(drinks = listOf(cocktailDrink("11007", "Margarita")))
+        viewModel.onIntent(DrinkDetailsIntent.Load(Drink("11007", "Margarita", "")))
+        viewModel.state.test {
+            awaitItemUntil { it.drink != null }
+            cancelAndIgnoreRemainingEvents()
+        }
+        viewModel.effects.test {
+            viewModel.onIntent(DrinkDetailsIntent.Share)
+            val share = awaitItem() as DrinkDetailsEffect.ShareRecipe
+            assertEquals(Intent.ACTION_SEND, share.intent.action)
+        }
+        val event = analytics.recorded.single { it.name == FirebaseAnalytics.Event.SHARE }
+        assertEquals("11007", event.params[FirebaseAnalytics.Param.ITEM_ID])
+        assertEquals("drink", event.params[FirebaseAnalytics.Param.CONTENT_TYPE])
     }
 }
 

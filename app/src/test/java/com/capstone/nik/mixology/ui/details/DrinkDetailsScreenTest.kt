@@ -14,6 +14,7 @@ import androidx.compose.ui.test.performScrollTo
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.ui.model.IngredientMeasure
 import com.capstone.nik.mixology.ui.theme.MixologyTheme
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -150,5 +151,34 @@ class DrinkDetailsScreenTest {
         composeRule.onNodeWithContentDescription("Full screen cocktail image").assertIsDisplayed()
         composeRule.onNodeWithContentDescription("Up navigation").performClick()
         composeRule.onNodeWithContentDescription("Full screen cocktail image").assertDoesNotExist()
+    }
+
+    @Test
+    fun savedRecipe_addToShoppingListAndNotes() {
+        var shopping = 0
+        var notes = ""
+        val drink = Drink(
+            id = "11007",
+            name = "Margarita",
+            thumb = "",
+            instructions = "Shake and strain.",
+            ingredients = listOf(IngredientMeasure("Tequila", "1 1/2 oz")),
+            notes = "Salt the rim",
+        )
+        composeRule.setContent {
+            MixologyTheme {
+                DrinkDetailsContent(
+                    state = DrinkDetailsUiState(drink = drink, saved = true),
+                    onToggleSaved = {},
+                    onNotesChanged = { notes = it },
+                    onAddToShoppingList = { shopping += 1 },
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("Add ingredients to shopping list").performScrollTo().performClick()
+        composeRule.onNodeWithText("Salt the rim").performScrollTo().assertIsDisplayed()
+        assertEquals(1, shopping)
+        assertTrue(notes.isEmpty())
     }
 }

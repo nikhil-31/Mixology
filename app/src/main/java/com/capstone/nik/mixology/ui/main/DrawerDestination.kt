@@ -1,10 +1,10 @@
 package com.capstone.nik.mixology.ui.main
 
+import android.net.Uri
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.repository.FilterKind
 import com.capstone.nik.mixology.ui.search.SearchMode
-import java.net.URLEncoder
 
 sealed class DrawerDestination(val route: String) {
     data class Filter(val filter: DrinkFilter) : DrawerDestination(gridRoute(filter))
@@ -52,6 +52,4 @@ fun isOverlayRoute(route: String?): Boolean {
     return route.startsWith("search") || route.startsWith("details")
 }
 
-private fun encodeRouteArg(value: String): String {
-    return URLEncoder.encode(value, "UTF-8").replace("+", "%20")
-}
+private fun encodeRouteArg(value: String): String = Uri.encode(value).orEmpty()

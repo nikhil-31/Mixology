@@ -43,7 +43,29 @@ class SettingsScreenTest {
         composeRule.onNodeWithTag("settings_theme_dark").performClick()
         composeRule.onNodeWithTag("settings_theme_light").performClick()
         composeRule.onNodeWithText("Privacy policy").assertIsDisplayed()
+        composeRule.onNodeWithText("Shopping list").assertIsDisplayed()
 
         assertEquals(listOf(ThemeMode.DARK, ThemeMode.LIGHT), selected)
+    }
+
+    @Test
+    fun shoppingListAndPrivacyPolicy_reportClicks() {
+        var shopping = 0
+        var privacy = 0
+        composeRule.setContent {
+            MixologyTheme {
+                SettingsScreen(
+                    themeMode = ThemeMode.SYSTEM,
+                    onThemeModeSelected = {},
+                    onPrivacyPolicy = { privacy += 1 },
+                    onShoppingList = { shopping += 1 },
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("settings_shopping_list").performClick()
+        composeRule.onNodeWithTag("settings_privacy_policy").performClick()
+        assertEquals(1, shopping)
+        assertEquals(1, privacy)
     }
 }

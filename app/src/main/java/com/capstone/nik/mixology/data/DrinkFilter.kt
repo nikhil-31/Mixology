@@ -1,5 +1,6 @@
 package com.capstone.nik.mixology.data
 
+import android.net.Uri
 import androidx.annotation.StringRes
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.repository.FilterKind
@@ -83,7 +84,7 @@ data class DrinkFilter(
         }
 
         fun fromName(name: String): DrinkFilter {
-            val decoded = java.net.URLDecoder.decode(name, "UTF-8")
+            val decoded = Uri.decode(name)
             presets.firstOrNull { it.name == decoded }?.let { return it }
             val separator = decoded.indexOf(':')
             if (separator > 0) {

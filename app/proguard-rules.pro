@@ -5,8 +5,11 @@
 -keepattributes SourceFile,LineNumberTable
 -renamesourcefileattribute SourceFile
 
-# Gson models used by Retrofit
+# Gson models used by Retrofit and Room converters
 -keep class com.capstone.nik.mixology.Network.remoteModel.** { *; }
+-keep class com.capstone.nik.mixology.ui.model.IngredientMeasure { *; }
+-keep class com.google.gson.reflect.TypeToken { *; }
+-keep class * extends com.google.gson.reflect.TypeToken
 -keep class * implements com.google.gson.TypeAdapterFactory
 -keep class * implements com.google.gson.JsonSerializer
 -keep class * implements com.google.gson.JsonDeserializer

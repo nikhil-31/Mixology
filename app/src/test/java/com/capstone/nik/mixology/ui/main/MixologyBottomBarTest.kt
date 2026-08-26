@@ -55,4 +55,20 @@ class MixologyBottomBarTest {
         assertEquals(DrinkFilter.SAVED, (selected[2] as DrawerDestination.Filter).filter)
         assertTrue(selected[3] is DrawerDestination.Randomixer)
     }
+
+    @Test
+    fun homeTab_reportsHomeWhenComingFromCatalog() {
+        val selected = mutableListOf<DrawerDestination>()
+        composeRule.setContent {
+            MixologyTheme {
+                MixologyBottomBar(
+                    currentDestination = DrawerDestination.Catalog,
+                    onDestinationSelected = { selected.add(it) },
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("bottom_Home").performClick()
+        assertTrue(selected.single() is DrawerDestination.Hot)
+    }
 }

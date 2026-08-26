@@ -153,4 +153,26 @@ class BarScreenTest {
         composeRule.onNodeWithTag("bar_chip_Gin").assertIsDisplayed()
         composeRule.onNodeWithTag("bar_chip_Aperol").assertIsDisplayed()
     }
+
+    @Test
+    fun emptyBar_showsHint() {
+        composeRule.setContent {
+            MixologyTheme {
+                BarScreen(
+                    state = BarUiState(loading = false),
+                    onOpenPicker = {},
+                    onClosePicker = {},
+                    onQueryChanged = {},
+                    onToggleIngredient = {},
+                    onDrinkClick = {},
+                    onToggleSaved = {},
+                )
+            }
+        }
+
+        composeRule.onNodeWithText(
+            "Add the bottles and mixers you have, then see what you can make.",
+        ).assertIsDisplayed()
+        composeRule.onNodeWithText("You can make").assertDoesNotExist()
+    }
 }

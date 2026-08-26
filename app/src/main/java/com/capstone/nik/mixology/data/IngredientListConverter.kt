@@ -7,7 +7,7 @@ import com.google.gson.reflect.TypeToken
 
 class IngredientListConverter {
     private val gson = Gson()
-    private val type = object : TypeToken<List<IngredientMeasure>>() {}.type
+    private val type = TypeToken.getParameterized(List::class.java, IngredientMeasure::class.java).type
 
     @TypeConverter
     fun fromJson(value: String?): List<IngredientMeasure> {

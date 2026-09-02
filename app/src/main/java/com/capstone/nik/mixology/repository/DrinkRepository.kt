@@ -2,13 +2,13 @@ package com.capstone.nik.mixology.repository
 
 import android.content.Context
 import android.content.Intent
-import com.capstone.nik.mixology.Network.CocktailService
 import com.capstone.nik.mixology.Network.remoteModel.CocktailDbDrink
 import com.capstone.nik.mixology.data.BarDao
 import com.capstone.nik.mixology.data.BarIngredientEntity
 import com.capstone.nik.mixology.data.CatalogSeed
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkDao
+import com.capstone.nik.mixology.data.DrinkEntity
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.data.ShoppingDao
 import com.capstone.nik.mixology.data.ShoppingItemEntity
@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -34,7 +33,6 @@ class DrinkRepository @Inject constructor(
     private val dao: DrinkDao,
     private val shoppingDao: ShoppingDao,
     private val barDao: BarDao,
-    private val service: CocktailService,
     @ApplicationContext private val context: Context,
 ) {
 
@@ -50,22 +48,13 @@ class DrinkRepository @Inject constructor(
         }
     }
 
-    @Throws(IOException::class)
     suspend fun fetchAndCache(filter: DrinkFilter): List<Drink> {
         val kind = filter.kind ?: return emptyList()
         val query = filter.query ?: return emptyList()
-        val remoteDrinks = when (kind) {
-            FilterKind.ALCOHOL -> service.getAlcoholFilter(query)
-            FilterKind.GLASS -> service.getGlassFilter(query)
-            FilterKind.INGREDIENT -> service.getIngredientFilter(query)
-            FilterKind.DRINK_TYPE -> service.getDrinkTypeFilter(query)
-        }.drinks.orEmpty()
-        val entities = remoteDrinks.mapNotNull { drink ->
-            if (!drink.hasUsableThumb()) return@mapNotNull null
-            drink.toDrink()?.toEntity()
-        }
+        ensureLocalCatalog()
+        val entities = matchingRecipes(kind, query).filter { it.toDrink().hasUsableThumb() }
         dao.cacheFilterResults(filter.name, entities)
-        return entities.map { it.toDrink() }
+        return toDrinks(entities)
     }
 
     fun observeSavedIds(): Flow<Set<String>> = dao.observeSavedIds().map { it.toSet() }
@@ -84,30 +73,11 @@ class DrinkRepository @Inject constructor(
 
     suspend fun cachedDrink(id: String): Drink? = dao.getById(id)?.toDrink()
 
-    @Throws(IOException::class)
-    suspend fun lookupDrink(id: String): Drink? {
-        val remote = try {
-            service.getDrinkById(id).drinks?.firstOrNull()?.toDrink()
-        } catch (e: Exception) {
-            return dao.getById(id)?.toDrink()?.takeIf { it.hasRecipe }
-                ?: throw IOException("HTTP lookup failed", e)
-        }
-        if (remote != null) {
-            dao.upsertRecipe(remote.toEntity())
-        }
-        return dao.getById(id)?.toDrink() ?: remote
-    }
+    suspend fun lookupDrink(id: String): Drink? = cachedDrink(id)
 
     suspend fun localRecipes(): List<Drink> {
-        var recipes = dao.getRecipes()
-        if (recipes.isEmpty()) {
-            CatalogSeed.importIfNeeded(context, dao)
-            recipes = dao.getRecipes()
-        }
-        val saved = dao.observeSavedIds().first().toSet()
-        return recipes.map { entity ->
-            entity.toDrink(savedOverride = entity.id in saved || entity.saved)
-        }
+        ensureLocalCatalog()
+        return toDrinks(dao.getRecipes())
     }
 
     suspend fun randomDrink(): Drink? = localRecipes().randomOrNull()
@@ -116,38 +86,23 @@ class DrinkRepository @Inject constructor(
         dao.observeCatalog(kind.name).map { terms -> terms.map { it.name } }
 
     suspend fun refreshCatalogs() {
-        FilterKind.entries.forEach { kind ->
-            val names = when (kind) {
-                FilterKind.ALCOHOL -> service.listAlcoholic()
-                FilterKind.GLASS -> service.listGlasses()
-                FilterKind.INGREDIENT -> service.listIngredients()
-                FilterKind.DRINK_TYPE -> service.listCategories()
-            }.drinks.orEmpty().mapNotNull { it.term() }
-            if (names.isNotEmpty()) {
-                dao.replaceCatalog(kind.name, names)
-            }
-        }
+        ensureLocalCatalog()
     }
 
-    @Throws(IOException::class)
     suspend fun search(query: String): List<Drink> {
-        val drinks = service.getSearchResults(query).drinks.orEmpty().mapNotNull { it.toDrink() }
-        drinks.filter { it.hasRecipe }.forEach { dao.upsertRecipe(it.toEntity()) }
-        return drinks
+        val needle = query.trim()
+        if (needle.isEmpty()) return emptyList()
+        ensureLocalCatalog()
+        return toDrinks(
+            dao.getRecipes()
+                .filter { it.name.contains(needle, ignoreCase = true) }
+                .sortedBy { it.name.lowercase() },
+        )
     }
 
-    @Throws(IOException::class)
     suspend fun searchByIngredient(query: String): List<Drink> {
         val filter = DrinkFilter.dynamic(FilterKind.INGREDIENT, query)
-        val remoteDrinks = service.getIngredientFilter(query).drinks.orEmpty()
-        val entities = remoteDrinks.mapNotNull { drink ->
-            if (!drink.hasUsableThumb()) return@mapNotNull null
-            drink.toDrink()?.toEntity()
-        }
-        if (entities.isNotEmpty()) {
-            dao.cacheFilterResults(filter.name, entities)
-        }
-        return entities.map { it.toDrink() }
+        return fetchAndCache(filter)
     }
 
     suspend fun save(drink: Drink) {
@@ -215,6 +170,32 @@ class DrinkRepository @Inject constructor(
 
     fun getSavedSync(): List<Drink> = dao.getSavedSync().map { it.toDrink(savedOverride = true) }
 
+    private suspend fun ensureLocalCatalog() {
+        if (dao.getRecipes().isEmpty()) {
+            CatalogSeed.importIfNeeded(context, dao)
+        }
+    }
+
+    private suspend fun matchingRecipes(kind: FilterKind, query: String): List<DrinkEntity> {
+        return dao.getRecipes().filter { entity ->
+            when (kind) {
+                FilterKind.ALCOHOL -> entity.alcoholic.matchesFilterValue(query)
+                FilterKind.GLASS -> entity.glass.matchesFilterValue(query)
+                FilterKind.DRINK_TYPE -> entity.category.matchesFilterValue(query)
+                FilterKind.INGREDIENT -> entity.ingredients.orEmpty().any {
+                    it.ingredient.matchesFilterValue(query)
+                }
+            }
+        }
+    }
+
+    private suspend fun toDrinks(entities: List<DrinkEntity>): List<Drink> {
+        val saved = dao.observeSavedIds().first().toSet()
+        return entities.map { entity ->
+            entity.toDrink(savedOverride = entity.id in saved || entity.saved)
+        }
+    }
+
     private suspend fun nextViewedAt(): Long {
         val now = System.currentTimeMillis()
         val latest = dao.latestViewedAt() ?: 0L
@@ -233,4 +214,11 @@ class DrinkRepository @Inject constructor(
 
         fun hasUsableThumb(drink: CocktailDbDrink): Boolean = drink.hasUsableThumb()
     }
+}
+
+private fun String?.matchesFilterValue(query: String): Boolean {
+    val value = this?.trim().orEmpty()
+    if (value.isEmpty()) return false
+    if (value.equals(query, ignoreCase = true)) return true
+    return value.replace('_', ' ').equals(query.replace('_', ' '), ignoreCase = true)
 }

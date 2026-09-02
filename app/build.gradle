@@ -4,11 +4,18 @@ apply plugin: 'org.jetbrains.kotlin.plugin.compose'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'dagger.hilt.android.plugin'
 
-def keystorePropertiesFile = rootProject.file('keystore.properties')
-def keystoreProperties = new Properties()
-if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+def loadKeystoreProperties(String fileName) {
+    def file = rootProject.file(fileName)
+    def props = new Properties()
+    if (file.exists()) {
+        props.load(new FileInputStream(file))
+        return props
+    }
+    return null
 }
+
+def keystoreProperties = loadKeystoreProperties('keystore.properties')
+def mixKeystoreProperties = loadKeystoreProperties('keystore.mix.properties')
 
 def localPropertiesFile = rootProject.file('local.properties')
 def localProperties = new Properties()
@@ -18,13 +25,21 @@ if (localPropertiesFile.exists()) {
 def cocktailDbApiKey = localProperties.getProperty('COCKTAIL_DB_API_KEY', '1')
 
 android {
-    if (keystorePropertiesFile.exists()) {
-        signingConfigs {
+    signingConfigs {
+        if (keystoreProperties != null) {
             config {
                 keyAlias keystoreProperties['keyAlias']
                 keyPassword keystoreProperties['keyPassword']
                 storeFile rootProject.file(keystoreProperties['storeFile'])
                 storePassword keystoreProperties['storePassword']
+            }
+        }
+        if (mixKeystoreProperties != null) {
+            mix {
+                keyAlias mixKeystoreProperties['keyAlias']
+                keyPassword mixKeystoreProperties['keyPassword']
+                storeFile rootProject.file(mixKeystoreProperties['storeFile'])
+                storePassword mixKeystoreProperties['storePassword']
             }
         }
     }
@@ -33,11 +48,11 @@ android {
         targetSdkVersion 36
         compileSdk 36
         minSdkVersion 23
-        versionCode 20
-        versionName "2.00"
+        versionCode 21
+        versionName "2.01"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField "String", "COCKTAIL_DB_API_KEY", "\"${cocktailDbApiKey}\""
-        if (keystorePropertiesFile.exists()) {
+        if (keystoreProperties != null) {
             signingConfig signingConfigs.config
         }
     }
@@ -46,8 +61,15 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            if (keystorePropertiesFile.exists()) {
+            if (keystoreProperties != null) {
                 signingConfig signingConfigs.config
+            }
+        }
+        mix {
+            initWith release
+            matchingFallbacks = ['release']
+            if (mixKeystoreProperties != null) {
+                signingConfig signingConfigs.mix
             }
         }
     }

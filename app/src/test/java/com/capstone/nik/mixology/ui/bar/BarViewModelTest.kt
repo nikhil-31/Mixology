@@ -4,17 +4,17 @@ import android.app.Application
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
-import com.capstone.nik.mixology.FakeCocktailService
 import com.capstone.nik.mixology.MainDispatcherRule
 import com.capstone.nik.mixology.Network.NetworkMonitor
 import com.capstone.nik.mixology.analytics.AnalyticsTracker
 import com.capstone.nik.mixology.analytics.EVENT_REMOVE_FROM_WISHLIST
-import com.capstone.nik.mixology.catalog
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.MixologyDatabase
 import com.capstone.nik.mixology.data.toEntity
 import com.capstone.nik.mixology.repository.DrinkRepository
+import com.capstone.nik.mixology.repository.FilterKind
 import com.capstone.nik.mixology.ui.model.IngredientMeasure
+import kotlinx.coroutines.runBlocking
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -46,8 +46,19 @@ class BarViewModelTest {
             .setQueryExecutor { it.run() }
             .setTransactionExecutor { it.run() }
             .build()
-        val service = FakeCocktailService().apply {
-            ingredients = catalog("Gin", "Campari", "Sweet Vermouth")
+        runBlocking {
+            database.drinkDao().upsertRecipe(
+                Drink(
+                    id = "seed-skip",
+                    name = "ZZZ Unmatchable",
+                    thumb = "https://example.com/s.jpg",
+                    ingredients = listOf(IngredientMeasure("SeedSkipIngredient", "1 oz")),
+                ).toEntity(),
+            )
+            database.drinkDao().replaceCatalog(
+                FilterKind.INGREDIENT.name,
+                listOf("Gin", "Campari", "Sweet Vermouth"),
+            )
         }
         analytics = AnalyticsTracker.forTests()
         viewModel = BarViewModel(
@@ -55,7 +66,6 @@ class BarViewModelTest {
                 database.drinkDao(),
                 database.shoppingDao(),
                 database.barDao(),
-                service,
                 context,
             ),
             NetworkMonitor.forTests(),

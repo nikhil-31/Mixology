@@ -1,16 +1,16 @@
 # Graph Report - Mixology  (2026-08-26)
 
 ## Corpus Check
-- 135 files · ~87,447 words
+- 134 files · ~87,378 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 971 nodes · 1806 edges · 60 communities (48 shown, 12 thin omitted)
+- 970 nodes · 1806 edges · 59 communities (47 shown, 12 thin omitted)
 - Extraction: 77% EXTRACTED · 23% INFERRED · 0% AMBIGUOUS · INFERRED: 416 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `3e1d6c73`
+- Built from commit: `5426da25`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -96,7 +96,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (60 total, 12 thin omitted)
+## Communities (59 total, 12 thin omitted)
 
 ### Community 0 - "AnalyticsTracker"
 Cohesion: 0.08
@@ -271,7 +271,7 @@ Nodes (9): DrinkImage(), Modifier, DrinkHeroImage(), DrinkRecipeBody(), Instruct
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `Drink` connect `Drink` to `DrinkRepository`, `DrinkDetailsViewModelTest.kt`, `HotViewModel`, `openDrinkIntent`, `SearchViewModel`, `BarMatcher`, `BarViewModel`, `MixologyApp`, `CocktailDbDrink`, `BarMatcherTest`, `BarViewModelTest.kt`, `ActivityMainEspressoTest`, `SwipeableDrinkCard`, `.sendEffect`, `MainViewModel`, `DrinkGridViewModel`, `IntentExtrasTest`, `RandomixerViewModel`?**
-  _High betweenness centrality (0.318) - this node is a cross-community bridge._
+  _High betweenness centrality (0.319) - this node is a cross-community bridge._
 - **Why does `MixologyApp()` connect `MixologyApp` to `AnalyticsTracker`, `Drink`, `HotViewModel`, `SearchViewModel`, `BarViewModel`, `CatalogViewModel`, `MviViewModel`, `ShoppingViewModel`, `MainViewModel`, `ThemeMode`?**
   _High betweenness centrality (0.113) - this node is a cross-community bridge._
 - **Why does `DrinkRepository` connect `DrinkRepository` to `MixologyDatabase`, `CatalogViewModel`, `HotViewModelTest.kt`, `RandomixerViewModelTest.kt`, `ShoppingViewModel`, `DrinkGridViewModelTest.kt`, `FakeCocktailService`?**

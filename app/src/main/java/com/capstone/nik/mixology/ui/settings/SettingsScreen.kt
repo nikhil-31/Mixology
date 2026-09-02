@@ -1,7 +1,5 @@
 package com.capstone.nik.mixology.ui.settings
 
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,7 +19,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.capstone.nik.mixology.R
-import com.capstone.nik.mixology.ui.PRIVACY_POLICY_URL
 import com.capstone.nik.mixology.ui.theme.ThemeMode
 import com.capstone.nik.mixology.ui.theme.ThemePreferences
 import com.capstone.nik.mixology.ui.theme.rememberThemeMode
@@ -35,9 +32,6 @@ fun SettingsRoute(
     SettingsScreen(
         themeMode = themeMode,
         onThemeModeSelected = { ThemePreferences.set(context, it) },
-        onPrivacyPolicy = {
-            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(PRIVACY_POLICY_URL)))
-        },
         onShoppingList = onShoppingList,
     )
 }
@@ -46,7 +40,6 @@ fun SettingsRoute(
 fun SettingsScreen(
     themeMode: ThemeMode,
     onThemeModeSelected: (ThemeMode) -> Unit,
-    onPrivacyPolicy: () -> Unit = {},
     onShoppingList: () -> Unit = {},
 ) {
     val colors = MaterialTheme.colorScheme
@@ -93,17 +86,6 @@ fun SettingsScreen(
                 .clickable(onClick = onShoppingList)
                 .padding(top = 24.dp, bottom = 12.dp)
                 .testTag("settings_shopping_list"),
-        )
-        Text(
-            text = stringResource(R.string.privacy_policy_link),
-            color = colors.onBackground,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable(onClick = onPrivacyPolicy)
-                .padding(top = 24.dp, bottom = 12.dp)
-                .testTag("settings_privacy_policy"),
         )
     }
 }

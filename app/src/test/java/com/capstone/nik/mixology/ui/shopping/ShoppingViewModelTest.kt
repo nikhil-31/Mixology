@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
-import com.capstone.nik.mixology.FakeCocktailService
 import com.capstone.nik.mixology.MainDispatcherRule
 import com.capstone.nik.mixology.data.MixologyDatabase
 import com.capstone.nik.mixology.repository.DrinkRepository
@@ -40,7 +39,6 @@ class ShoppingViewModelTest {
             database.drinkDao(),
             database.shoppingDao(),
             database.barDao(),
-            FakeCocktailService(),
             context,
         )
         viewModel = ShoppingViewModel(repository)

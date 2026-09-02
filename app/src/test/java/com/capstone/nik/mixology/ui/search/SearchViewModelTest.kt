@@ -5,18 +5,17 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
-import com.capstone.nik.mixology.FakeCocktailService
 import com.capstone.nik.mixology.MainDispatcherRule
-import com.capstone.nik.mixology.Network.remoteModel.CocktailDbResponse
 import com.capstone.nik.mixology.analytics.AnalyticsTracker
 import com.capstone.nik.mixology.analytics.EVENT_REMOVE_FROM_WISHLIST
 import com.capstone.nik.mixology.analytics.PARAM_RESULT_COUNT
 import com.capstone.nik.mixology.analytics.PARAM_SEARCH_MODE
-import com.capstone.nik.mixology.catalog
 import com.capstone.nik.mixology.cocktailDrink
 import com.capstone.nik.mixology.data.MixologyDatabase
+import com.capstone.nik.mixology.data.toEntity
 import com.capstone.nik.mixology.repository.DrinkRepository
 import com.capstone.nik.mixology.repository.FilterKind
+import kotlinx.coroutines.runBlocking
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
@@ -44,7 +43,6 @@ class SearchViewModelTest {
     val mainDispatcherRule = MainDispatcherRule(dispatcher)
 
     private lateinit var database: MixologyDatabase
-    private lateinit var service: FakeCocktailService
     private lateinit var analytics: AnalyticsTracker
     private lateinit var viewModel: SearchViewModel
 
@@ -60,12 +58,20 @@ class SearchViewModelTest {
             .setQueryExecutor { it.run() }
             .setTransactionExecutor { it.run() }
             .build()
-        service = FakeCocktailService().apply {
-            ingredients = catalog("Gin", "Ginger", "Vodka", "Virgin")
+        runBlocking {
+            database.drinkDao().upsertRecipe(
+                cocktailDrink("seed-skip", "ZZZ Unmatchable", ingredient = "SeedSkipIngredient")
+                    .toDrink()!!
+                    .toEntity(),
+            )
+            database.drinkDao().replaceCatalog(
+                FilterKind.INGREDIENT.name,
+                listOf("Gin", "Ginger", "Vodka", "Virgin"),
+            )
         }
         analytics = AnalyticsTracker.forTests()
         viewModel = SearchViewModel(
-            DrinkRepository(database.drinkDao(), database.shoppingDao(), database.barDao(), service, context),
+            DrinkRepository(database.drinkDao(), database.shoppingDao(), database.barDao(), context),
             context,
             analytics,
         )
@@ -78,7 +84,7 @@ class SearchViewModelTest {
 
     @Test
     fun search_debouncesThenLoadsResults() = runTest(dispatcher) {
-        service.search = CocktailDbResponse(drinks = listOf(cocktailDrink("1", "Mojito")))
+        seedRecipe("1", "Mojito")
         viewModel.onIntent(SearchIntent.Search("mo"))
         runCurrent()
         assertTrue(viewModel.state.value.results.isEmpty())
@@ -96,8 +102,8 @@ class SearchViewModelTest {
     }
 
     @Test
-    fun ingredientSearch_usesFilterEndpoint() = runTest(dispatcher) {
-        service.ingredient = CocktailDbResponse(drinks = listOf(cocktailDrink("3", "Bloody Mary")))
+    fun ingredientSearch_matchesLocalRecipes() = runTest(dispatcher) {
+        seedRecipe("3", "Bloody Mary", ingredient = "Vodka")
         viewModel.onIntent(SearchIntent.Search("Vodka", SearchMode.INGREDIENT, commit = true))
         advanceUntilIdle()
         assertEquals(SearchMode.INGREDIENT, viewModel.state.value.mode)
@@ -111,7 +117,7 @@ class SearchViewModelTest {
 
     @Test
     fun ingredientTyping_showsSuggestionsWithoutSearchingDrinks() = runTest(dispatcher) {
-        service.ingredient = CocktailDbResponse(drinks = listOf(cocktailDrink("3", "Bloody Mary")))
+        seedRecipe("3", "Bloody Mary", ingredient = "Vodka")
         viewModel.onIntent(SearchIntent.Search("gin", SearchMode.INGREDIENT))
         advanceTimeBy(250)
         advanceUntilIdle()
@@ -124,7 +130,7 @@ class SearchViewModelTest {
 
     @Test
     fun selectSuggestion_searchesDrinksImmediately() = runTest(dispatcher) {
-        service.ingredient = CocktailDbResponse(drinks = listOf(cocktailDrink("3", "Bloody Mary")))
+        seedRecipe("3", "Bloody Mary", ingredient = "Vodka")
         viewModel.onIntent(SearchIntent.SelectSuggestion("Vodka"))
         runCurrent()
         assertEquals("Vodka", viewModel.state.value.query)
@@ -151,14 +157,14 @@ class SearchViewModelTest {
 
     @Test
     fun catalogTermSearch_replacesPreviousResultsImmediately() = runTest(dispatcher) {
-        service.ingredient = CocktailDbResponse(drinks = listOf(cocktailDrink("1", "Gin Fizz")))
+        seedRecipe("1", "Gin Fizz", ingredient = "Gin")
         viewModel.onIntent(
             SearchIntent.Search("Gin", SearchMode.INGREDIENT, FilterKind.INGREDIENT),
         )
         advanceUntilIdle()
         assertEquals(listOf("Gin Fizz"), viewModel.state.value.results.map { it.name })
 
-        service.ingredient = CocktailDbResponse(drinks = listOf(cocktailDrink("2", "Tequila Sunrise")))
+        seedRecipe("2", "Tequila Sunrise", ingredient = "Tequila")
         viewModel.onIntent(
             SearchIntent.Search("Tequila", SearchMode.INGREDIENT, FilterKind.INGREDIENT),
         )
@@ -201,5 +207,11 @@ class SearchViewModelTest {
             analytics.recorded.map { it.name },
         )
         assertEquals("1", analytics.recorded[0].params[FirebaseAnalytics.Param.ITEM_ID])
+    }
+
+    private suspend fun seedRecipe(id: String, name: String, ingredient: String = "Gin") {
+        database.drinkDao().upsertRecipe(
+            cocktailDrink(id, name, ingredient = ingredient).toDrink()!!.toEntity(),
+        )
     }
 }

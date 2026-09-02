@@ -1,5 +1,6 @@
 package com.capstone.nik.mixology
 
+import android.app.Application
 import com.capstone.nik.mixology.Network.remoteModel.CocktailDbDrink
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.repository.DrinkRepository
@@ -9,7 +10,12 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(application = Application::class, sdk = [34])
 class DrinkFilterTest {
 
     @Test

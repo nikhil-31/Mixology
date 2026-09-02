@@ -84,7 +84,7 @@ data class DrinkFilter(
         }
 
         fun fromName(name: String): DrinkFilter {
-            val decoded = Uri.decode(name)
+            val decoded = Uri.decode(name).orEmpty()
             presets.firstOrNull { it.name == decoded }?.let { return it }
             val separator = decoded.indexOf(':')
             if (separator > 0) {

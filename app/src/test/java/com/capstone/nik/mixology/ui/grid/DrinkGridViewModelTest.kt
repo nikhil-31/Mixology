@@ -5,15 +5,14 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
-import com.capstone.nik.mixology.FakeCocktailService
 import com.capstone.nik.mixology.MainDispatcherRule
 import com.capstone.nik.mixology.Network.NetworkMonitor
-import com.capstone.nik.mixology.Network.remoteModel.CocktailDbResponse
 import com.capstone.nik.mixology.analytics.AnalyticsTracker
 import com.capstone.nik.mixology.analytics.EVENT_REMOVE_FROM_WISHLIST
 import com.capstone.nik.mixology.cocktailDrink
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.data.MixologyDatabase
+import com.capstone.nik.mixology.data.toEntity
 import com.capstone.nik.mixology.repository.DrinkRepository
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.test.runTest
@@ -35,7 +34,6 @@ class DrinkGridViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private lateinit var database: MixologyDatabase
-    private lateinit var service: FakeCocktailService
     private lateinit var repository: DrinkRepository
     private lateinit var analytics: AnalyticsTracker
     private lateinit var viewModel: DrinkGridViewModel
@@ -52,12 +50,10 @@ class DrinkGridViewModelTest {
             .setQueryExecutor { it.run() }
             .setTransactionExecutor { it.run() }
             .build()
-        service = FakeCocktailService()
         repository = DrinkRepository(
             database.drinkDao(),
             database.shoppingDao(),
             database.barDao(),
-            service,
             context,
         )
         analytics = AnalyticsTracker.forTests()
@@ -71,7 +67,7 @@ class DrinkGridViewModelTest {
 
     @Test
     fun bind_loadsCachedFilterDrinks() = runTest {
-        service.ingredient = CocktailDbResponse(drinks = listOf(cocktailDrink("1", "Gin Fizz")))
+        database.drinkDao().upsertRecipe(cocktailDrink("1", "Gin Fizz").toDrink()!!.toEntity())
         viewModel.onIntent(DrinkGridIntent.Bind(DrinkFilter.GIN))
         viewModel.state.test {
             val loaded = awaitItemUntil { it.drinks.any { drink -> drink.name == "Gin Fizz" } }
@@ -82,7 +78,7 @@ class DrinkGridViewModelTest {
 
     @Test
     fun toggleSaved_savesDrinkWithoutMessage() = runTest {
-        service.ingredient = CocktailDbResponse(drinks = listOf(cocktailDrink("1", "Gin Fizz")))
+        database.drinkDao().upsertRecipe(cocktailDrink("1", "Gin Fizz").toDrink()!!.toEntity())
         viewModel.onIntent(DrinkGridIntent.Bind(DrinkFilter.GIN))
         viewModel.state.test {
             val loaded = awaitItemUntil { it.drinks.isNotEmpty() }

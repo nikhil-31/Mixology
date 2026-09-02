@@ -3,18 +3,18 @@ package com.capstone.nik.mixology.repository
 import android.app.Application
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
-import com.capstone.nik.mixology.FakeCocktailService
 import com.capstone.nik.mixology.MainDispatcherRule
-import com.capstone.nik.mixology.catalog
 import com.capstone.nik.mixology.cocktailDrink
+import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.data.MixologyDatabase
+import com.capstone.nik.mixology.data.toEntity
 import com.capstone.nik.mixology.ui.model.IngredientMeasure
-import com.capstone.nik.mixology.Network.remoteModel.CocktailDbResponse
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -31,7 +31,6 @@ class DrinkRepositoryTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private lateinit var database: MixologyDatabase
-    private lateinit var service: FakeCocktailService
     private lateinit var repository: DrinkRepository
 
     @Before
@@ -40,8 +39,7 @@ class DrinkRepositoryTest {
         database = Room.inMemoryDatabaseBuilder(context, MixologyDatabase::class.java)
             .allowMainThreadQueries()
             .build()
-        service = FakeCocktailService()
-        repository = DrinkRepository(database.drinkDao(), database.shoppingDao(), database.barDao(), service, context)
+        repository = DrinkRepository(database.drinkDao(), database.shoppingDao(), database.barDao(), context)
     }
 
     @After
@@ -50,10 +48,11 @@ class DrinkRepositoryTest {
     }
 
     @Test
-    fun fetchAndCache_replacesPreviousFilterMemberships() = runTest {
-        service.ingredient = CocktailDbResponse(drinks = listOf(cocktailDrink("1", "Old Fashioned")))
-        repository.fetchAndCache(DrinkFilter.GIN)
-        service.ingredient = CocktailDbResponse(drinks = listOf(cocktailDrink("2", "Gin Fizz")))
+    fun fetchAndCache_matchesLocalRecipesByIngredient() = runTest {
+        seedRecipe(cocktailDrink("1", "Old Fashioned").toDrink()!!.copy(
+            ingredients = listOf(IngredientMeasure("Whiskey", "2 oz")),
+        ))
+        seedRecipe(cocktailDrink("2", "Gin Fizz").toDrink()!!)
         repository.fetchAndCache(DrinkFilter.GIN)
         val drinks = repository.observeDrinks(DrinkFilter.GIN).first()
         assertEquals(listOf("Gin Fizz"), drinks.map { it.name })
@@ -61,12 +60,8 @@ class DrinkRepositoryTest {
 
     @Test
     fun fetchAndCache_observesFilterResultsAndSkipsBadThumbs() = runTest {
-        service.ingredient = CocktailDbResponse(
-            drinks = listOf(
-                cocktailDrink("1", "Gin Fizz"),
-                cocktailDrink("2", "No Thumb", thumb = "null"),
-            ),
-        )
+        seedRecipe(cocktailDrink("1", "Gin Fizz").toDrink()!!)
+        seedRecipe(cocktailDrink("2", "No Thumb", thumb = "null").toDrink()!!)
         repository.fetchAndCache(DrinkFilter.GIN)
         val drinks = repository.observeDrinks(DrinkFilter.GIN).first()
         assertEquals(listOf("Gin Fizz"), drinks.map { it.name })
@@ -82,22 +77,20 @@ class DrinkRepositoryTest {
     }
 
     @Test
-    fun lookupDrink_cachesRecipe() = runTest {
-        service.lookup = CocktailDbResponse(drinks = listOf(cocktailDrink("9", "Negroni")))
+    fun lookupDrink_readsCachedRecipe() = runTest {
+        seedRecipe(cocktailDrink("9", "Negroni").toDrink()!!)
         val drink = repository.lookupDrink("9")
         assertEquals("Negroni", drink?.name)
         assertEquals("Shake.", drink?.instructions)
         assertEquals("Negroni", repository.cachedDrink("9")?.name)
+        assertNull(repository.lookupDrink("missing"))
     }
 
     @Test
-    fun refreshCatalogs_storesTerms() = runTest {
-        service.ingredients = catalog("Tequila", "Rum")
-        service.categories = catalog("Cocktail")
-        service.glasses = catalog("Highball glass")
-        service.alcoholic = catalog("Alcoholic")
-        repository.refreshCatalogs()
-        assertEquals(listOf("Rum", "Tequila"), repository.observeCatalog(FilterKind.INGREDIENT).first())
+    fun search_filtersLocalRecipesByName() = runTest {
+        seedRecipe(cocktailDrink("1", "Mojito").toDrink()!!)
+        seedRecipe(cocktailDrink("2", "Margarita").toDrink()!!)
+        assertEquals(listOf("Mojito"), repository.search("moj").map { it.name })
     }
 
     @Test
@@ -159,11 +152,13 @@ class DrinkRepositoryTest {
 
     @Test
     fun randomDrink_usesLocalRecipe_notEndpoint() = runTest {
-        service.failRandom = true
-        service.random = CocktailDbResponse(drinks = listOf(cocktailDrink("999", "Remote")))
         repository.save(cocktailDrink("11007", "Margarita").toDrink()!!)
         val drink = repository.randomDrink()
         assertEquals("11007", drink?.id)
         assertEquals("Margarita", drink?.name)
+    }
+
+    private suspend fun seedRecipe(drink: Drink) {
+        database.drinkDao().upsertRecipe(drink.toEntity())
     }
 }

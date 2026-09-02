@@ -2,6 +2,7 @@
 .gradle
 /local.properties
 /keystore.properties
+/keystore.mix.properties
 *.jks
 /.idea/workspace.xml
 /.idea/libraries

@@ -100,8 +100,6 @@
     <string name="empty_string_add_a_drink">Añade un cóctel. Aquí hay poco ambiente.</string>
     <string name="empty_string_cocktail_image">imagen_coctel</string>
 
-    <string name="privacy_policy_link">Política de privacidad</string>
-
     <string name="detail_watch_video">Ver vídeo</string>
     <string name="detail_notes">Notas</string>
     <string name="shopping_add_ingredients">Añadir ingredientes a la lista</string>

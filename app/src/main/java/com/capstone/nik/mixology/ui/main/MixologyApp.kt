@@ -163,9 +163,6 @@ fun MixologyApp(
                     .fillMaxSize()
                     .padding(padding),
             ) {
-                if (!online) {
-                    OfflineBanner(onRetry = { networkMonitor.retry() })
-                }
                 if (!overlay) {
                     ScreenHeader(
                         title = title,

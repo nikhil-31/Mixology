@@ -1,6 +1,7 @@
 package com.capstone.nik.mixology.data
 
 import android.app.Application
+import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.capstone.nik.mixology.repository.FilterKind
@@ -8,6 +9,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -30,6 +32,11 @@ class CatalogSeedTest {
 
     @After
     fun tearDown() {
+        ApplicationProvider.getApplicationContext<Application>()
+            .getSharedPreferences("mixology", Context.MODE_PRIVATE)
+            .edit()
+            .remove(CatalogSeed.PREF_VERSION)
+            .apply()
         database.close()
     }
 
@@ -67,6 +74,24 @@ class CatalogSeedTest {
         assertEquals(
             listOf("Cocktail"),
             database.drinkDao().observeCatalog(FilterKind.DRINK_TYPE.name).first().map { it.name },
+        )
+    }
+
+    @Test
+    fun importIfNeeded_reimportsWhenRecipesMissingEvenIfVersionPrefSet() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Application>()
+        context.getSharedPreferences("mixology", Context.MODE_PRIVATE)
+            .edit()
+            .putInt(CatalogSeed.PREF_VERSION, CatalogSeed.VERSION)
+            .apply()
+
+        CatalogSeed.importIfNeeded(context, database.drinkDao())
+
+        assertTrue(database.drinkDao().getRecipes().isNotEmpty())
+        assertEquals(
+            CatalogSeed.VERSION,
+            context.getSharedPreferences("mixology", Context.MODE_PRIVATE)
+                .getInt(CatalogSeed.PREF_VERSION, 0),
         )
     }
 }

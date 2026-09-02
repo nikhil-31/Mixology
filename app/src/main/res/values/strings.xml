@@ -110,8 +110,6 @@
     <string name="empty_string_add_a_drink">Add a drink !!! Its lonely here.</string>
     <string name="empty_string_cocktail_image">cocktail_image</string>
 
-    <string name="privacy_policy_link">Privacy policy</string>
-
     <string name="admob_app_id" translatable="false">ca-app-pub-3113257282676296~5106481563</string>
     <string name="banner_ad_unit_id" translatable="false">ca-app-pub-3113257282676296/3350546766</string>
     <string name="banner_ad_unit_id_details" translatable="false">ca-app-pub-3113257282676296/2081424367</string>

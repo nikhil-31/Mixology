@@ -485,8 +485,8 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/settings/SettingsScreen.kt": {
-    "mtime": 1787025423.2857985,
-    "ast_hash": "40d9c6286faa3a10ec0c34e90eaea03d",
+    "mtime": 1787744372.026306,
+    "ast_hash": "2c614dcac0c370df8d85c1f07bcbb378",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/theme/ThemePreferences.kt": {
@@ -495,8 +495,8 @@
     "semantic_hash": ""
   },
   "app/src/test/java/com/capstone/nik/mixology/ui/settings/SettingsScreenTest.kt": {
-    "mtime": 1787306138.6183174,
-    "ast_hash": "5994ee46651ea6486511ab5829db8b21",
+    "mtime": 1787744376.4849792,
+    "ast_hash": "66d69fb0b05eebfa0d16717a407d28a8",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/components/DrinkCard.kt": {
@@ -532,11 +532,6 @@
   "app/src/androidTest/java/com/capstone/nik/mixology/ActivityMainEspressoTest.kt": {
     "mtime": 1787312444.0124002,
     "ast_hash": "1e8a1a8e0120c2fe2b406d41a7d47719",
-    "semantic_hash": ""
-  },
-  "app/src/main/java/com/capstone/nik/mixology/ui/Legal.kt": {
-    "mtime": 1786963221.788873,
-    "ast_hash": "fd1234a457d008688e210dff43bb79c0",
     "semantic_hash": ""
   },
   "app/src/main/java/com/capstone/nik/mixology/ui/SaveConfetti.kt": {

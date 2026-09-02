@@ -3007,17 +3007,6 @@
       "norm_label": "intent"
     },
     {
-      "label": "Legal.kt",
-      "file_type": "code",
-      "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/Legal.kt",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "app_src_main_java_com_capstone_nik_mixology_ui_legal",
-      "community": 18,
-      "community_name": "Legal.kt",
-      "norm_label": "legal.kt"
-    },
-    {
       "label": "SaveConfetti.kt",
       "file_type": "code",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/SaveConfetti.kt",
@@ -6541,7 +6530,7 @@
       "label": "SettingsRoute()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/settings/SettingsScreen.kt",
-      "source_location": "L29",
+      "source_location": "L26",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_settings_settingsscreen_settingsroute",
       "community": 22,
@@ -6552,7 +6541,7 @@
       "label": "SettingsScreen()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/settings/SettingsScreen.kt",
-      "source_location": "L45",
+      "source_location": "L39",
       "_origin": "ast",
       "id": "app_src_main_java_com_capstone_nik_mixology_ui_settings_settingsscreen_settingsscreen",
       "community": 22,
@@ -9838,15 +9827,15 @@
       "norm_label": ".showsappearanceoptions_andreportsselection()"
     },
     {
-      "label": ".shoppingListAndPrivacyPolicy_reportClicks()",
+      "label": ".shoppingList_reportsClicks()",
       "file_type": "code",
       "source_file": "app/src/test/java/com/capstone/nik/mixology/ui/settings/SettingsScreenTest.kt",
-      "source_location": "L51",
+      "source_location": "L50",
       "_origin": "ast",
-      "id": "app_src_test_java_com_capstone_nik_mixology_ui_settings_settingsscreentest_settingsscreentest_shoppinglistandprivacypolicy_reportclicks",
+      "id": "app_src_test_java_com_capstone_nik_mixology_ui_settings_settingsscreentest_settingsscreentest_shoppinglist_reportsclicks",
       "community": 22,
       "community_name": "ThemeMode",
-      "norm_label": ".shoppinglistandprivacypolicy_reportclicks()"
+      "norm_label": ".shoppinglist_reportsclicks()"
     },
     {
       "label": "ShoppingScreenTest.kt",
@@ -25397,7 +25386,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/settings/SettingsScreen.kt",
-      "source_location": "L29",
+      "source_location": "L26",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_settings_settingsscreen",
@@ -25408,7 +25397,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/settings/SettingsScreen.kt",
-      "source_location": "L45",
+      "source_location": "L39",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_settings_settingsscreen",
@@ -25420,7 +25409,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/settings/SettingsScreen.kt",
-      "source_location": "L35",
+      "source_location": "L32",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_settings_settingsscreen_settingsroute",
@@ -25433,7 +25422,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/settings/SettingsScreen.kt",
-      "source_location": "L34",
+      "source_location": "L31",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_capstone_nik_mixology_ui_settings_settingsscreen_settingsroute",
@@ -25443,7 +25432,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/capstone/nik/mixology/ui/settings/SettingsScreen.kt",
-      "source_location": "L45",
+      "source_location": "L39",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -25457,10 +25446,10 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "app/src/test/java/com/capstone/nik/mixology/ui/settings/SettingsScreenTest.kt",
-      "source_location": "L57",
+      "source_location": "L55",
       "weight": 1.0,
       "_origin": "ast",
-      "source": "app_src_test_java_com_capstone_nik_mixology_ui_settings_settingsscreentest_settingsscreentest_shoppinglistandprivacypolicy_reportclicks",
+      "source": "app_src_test_java_com_capstone_nik_mixology_ui_settings_settingsscreentest_settingsscreentest_shoppinglist_reportsclicks",
       "target": "app_src_main_java_com_capstone_nik_mixology_ui_settings_settingsscreen_settingsscreen"
     },
     {
@@ -26418,10 +26407,10 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "app/src/test/java/com/capstone/nik/mixology/ui/settings/SettingsScreenTest.kt",
-      "source_location": "L56",
+      "source_location": "L54",
       "weight": 1.0,
       "_origin": "ast",
-      "source": "app_src_test_java_com_capstone_nik_mixology_ui_settings_settingsscreentest_settingsscreentest_shoppinglistandprivacypolicy_reportclicks",
+      "source": "app_src_test_java_com_capstone_nik_mixology_ui_settings_settingsscreentest_settingsscreentest_shoppinglist_reportsclicks",
       "target": "app_src_main_java_com_capstone_nik_mixology_ui_theme_theme_mixologytheme"
     },
     {
@@ -30394,11 +30383,11 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/test/java/com/capstone/nik/mixology/ui/settings/SettingsScreenTest.kt",
-      "source_location": "L51",
+      "source_location": "L50",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_test_java_com_capstone_nik_mixology_ui_settings_settingsscreentest_settingsscreentest",
-      "target": "app_src_test_java_com_capstone_nik_mixology_ui_settings_settingsscreentest_settingsscreentest_shoppinglistandprivacypolicy_reportclicks",
+      "target": "app_src_test_java_com_capstone_nik_mixology_ui_settings_settingsscreentest_settingsscreentest_shoppinglist_reportsclicks",
       "confidence_score": 1.0
     },
     {
@@ -31606,5 +31595,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "3e1d6c73f0860bfba62585813ca780e7246d8035"
+  "built_at_commit": "5426da25232b7a66e4e9bef84513cb12588febf8"
 }

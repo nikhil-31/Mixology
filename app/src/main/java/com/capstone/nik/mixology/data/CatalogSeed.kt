@@ -1,6 +1,7 @@
 package com.capstone.nik.mixology.data
 
 import android.content.Context
+import android.util.Log
 import com.capstone.nik.mixology.repository.FilterKind
 import com.capstone.nik.mixology.ui.model.IngredientMeasure
 import com.google.gson.Gson
@@ -33,14 +34,17 @@ object CatalogSeed {
 
     suspend fun importIfNeeded(context: Context, dao: DrinkDao) {
         val prefs = context.getSharedPreferences("mixology", Context.MODE_PRIVATE)
-        if (prefs.getInt(PREF_VERSION, 0) >= VERSION) return
+        if (prefs.getInt(PREF_VERSION, 0) >= VERSION && dao.getRecipes().isNotEmpty()) return
         val payload = readAsset(context) ?: return
+        if (payload.drinks.none { it.id.isNotBlank() && it.name.isNotBlank() }) return
         importPayload(payload, dao)
         prefs.edit().putInt(PREF_VERSION, VERSION).apply()
     }
 
     fun parse(json: String): CatalogSeedPayload? =
-        runCatching { gson.fromJson(json, CatalogSeedPayload::class.java) }.getOrNull()
+        runCatching { gson.fromJson(json, CatalogSeedPayload::class.java) }
+            .onFailure { Log.e(TAG, "Failed to parse catalog seed", it) }
+            .getOrNull()
 
     suspend fun importPayload(payload: CatalogSeedPayload, dao: DrinkDao) {
         val now = System.currentTimeMillis()
@@ -63,6 +67,26 @@ object CatalogSeed {
                     recipeUpdatedAt = now,
                 ),
             )
+            val memberships = buildList {
+                drink.ingredients.forEach { measure ->
+                    val ingredient = measure.ingredient.trim()
+                    if (ingredient.isNotEmpty()) {
+                        add(DrinkFilterCrossRef(id, DrinkFilter.dynamic(FilterKind.INGREDIENT, ingredient).name))
+                    }
+                }
+                term(drink.category, FilterKind.DRINK_TYPE)?.let {
+                    add(DrinkFilterCrossRef(id, DrinkFilter.dynamic(FilterKind.DRINK_TYPE, it.name).name))
+                }
+                term(drink.glass, FilterKind.GLASS)?.let {
+                    add(DrinkFilterCrossRef(id, DrinkFilter.dynamic(FilterKind.GLASS, it.name).name))
+                }
+                term(drink.alcoholic, FilterKind.ALCOHOL)?.let {
+                    add(DrinkFilterCrossRef(id, DrinkFilter.dynamic(FilterKind.ALCOHOL, it.name).name))
+                }
+            }
+            if (memberships.isNotEmpty()) {
+                dao.insertMemberships(memberships)
+            }
         }
         val ingredientNames = payload.ingredients
             .map { it.trim() }
@@ -93,6 +117,8 @@ object CatalogSeed {
     private fun readAsset(context: Context): CatalogSeedPayload? {
         return runCatching {
             context.assets.open(ASSET).bufferedReader().use { parse(it.readText()) }
-        }.getOrNull()
+        }.onFailure { Log.e(TAG, "Failed to read $ASSET", it) }.getOrNull()
     }
+
+    private const val TAG = "CatalogSeed"
 }

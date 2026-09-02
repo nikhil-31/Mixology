@@ -5,7 +5,6 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
-import com.capstone.nik.mixology.FakeCocktailService
 import com.capstone.nik.mixology.MainDispatcherRule
 import com.capstone.nik.mixology.analytics.AnalyticsTracker
 import com.capstone.nik.mixology.analytics.EVENT_RANDOMIXER_SKIP
@@ -33,7 +32,6 @@ class RandomixerViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private lateinit var database: MixologyDatabase
-    private lateinit var service: FakeCocktailService
     private lateinit var viewModel: RandomixerViewModel
 
     @Before
@@ -46,7 +44,6 @@ class RandomixerViewModelTest {
         database = Room.inMemoryDatabaseBuilder(context, MixologyDatabase::class.java)
             .allowMainThreadQueries()
             .build()
-        service = FakeCocktailService().apply { failRandom = true }
     }
 
     @After
@@ -113,7 +110,6 @@ class RandomixerViewModelTest {
                 database.drinkDao(),
                 database.shoppingDao(),
                 database.barDao(),
-                service,
                 context,
             ),
             context,

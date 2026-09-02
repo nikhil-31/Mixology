@@ -5,10 +5,8 @@ import android.content.Intent
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
-import com.capstone.nik.mixology.FakeCocktailService
 import com.capstone.nik.mixology.MainDispatcherRule
 import com.capstone.nik.mixology.Network.NetworkMonitor
-import com.capstone.nik.mixology.Network.remoteModel.CocktailDbResponse
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.analytics.AnalyticsTracker
 import com.capstone.nik.mixology.analytics.EVENT_REMOVE_FROM_WISHLIST
@@ -16,6 +14,7 @@ import com.capstone.nik.mixology.analytics.PARAM_SAVED
 import com.capstone.nik.mixology.cocktailDrink
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.MixologyDatabase
+import com.capstone.nik.mixology.data.toEntity
 import com.capstone.nik.mixology.repository.DrinkRepository
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.flow.first
@@ -38,7 +37,6 @@ class DrinkDetailsViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private lateinit var database: MixologyDatabase
-    private lateinit var service: FakeCocktailService
     private lateinit var repository: DrinkRepository
     private lateinit var analytics: AnalyticsTracker
     private lateinit var viewModel: DrinkDetailsViewModel
@@ -49,12 +47,10 @@ class DrinkDetailsViewModelTest {
         database = Room.inMemoryDatabaseBuilder(context, MixologyDatabase::class.java)
             .allowMainThreadQueries()
             .build()
-        service = FakeCocktailService()
         repository = DrinkRepository(
             database.drinkDao(),
             database.shoppingDao(),
             database.barDao(),
-            service,
             context,
         )
         analytics = AnalyticsTracker.forTests()
@@ -68,7 +64,7 @@ class DrinkDetailsViewModelTest {
 
     @Test
     fun load_usesLookupRecipe() = runTest {
-        service.lookup = CocktailDbResponse(drinks = listOf(cocktailDrink("11007", "Margarita")))
+        seedMargarita()
         viewModel.onIntent(DrinkDetailsIntent.Load(Drink("11007", "Margarita", "")))
         viewModel.state.test {
             val loaded = awaitItemUntil { it.drink?.hasRecipe == true }
@@ -82,7 +78,7 @@ class DrinkDetailsViewModelTest {
 
     @Test
     fun addToShoppingList_insertsIngredients() = runTest {
-        service.lookup = CocktailDbResponse(drinks = listOf(cocktailDrink("11007", "Margarita")))
+        seedMargarita()
         viewModel.onIntent(DrinkDetailsIntent.Load(Drink("11007", "Margarita", "")))
         viewModel.state.test {
             awaitItemUntil { it.drink?.ingredients?.isNotEmpty() == true }
@@ -106,7 +102,6 @@ class DrinkDetailsViewModelTest {
 
     @Test
     fun reloadSameDrink_logsViewOnce() = runTest {
-        service.lookup = CocktailDbResponse(drinks = listOf(cocktailDrink("11007", "Margarita")))
         val drink = Drink("11007", "Margarita", "")
         viewModel.onIntent(DrinkDetailsIntent.Load(drink))
         viewModel.onIntent(DrinkDetailsIntent.Load(drink))
@@ -120,7 +115,7 @@ class DrinkDetailsViewModelTest {
 
     @Test
     fun toggleSaved_logsWishlistEvents() = runTest {
-        service.lookup = CocktailDbResponse(drinks = listOf(cocktailDrink("11007", "Margarita")))
+        seedMargarita()
         viewModel.onIntent(DrinkDetailsIntent.Load(Drink("11007", "Margarita", "")))
         viewModel.state.test {
             awaitItemUntil { it.drink?.hasRecipe == true }
@@ -143,7 +138,7 @@ class DrinkDetailsViewModelTest {
 
     @Test
     fun share_logsShareEvent() = runTest {
-        service.lookup = CocktailDbResponse(drinks = listOf(cocktailDrink("11007", "Margarita")))
+        seedMargarita()
         viewModel.onIntent(DrinkDetailsIntent.Load(Drink("11007", "Margarita", "")))
         viewModel.state.test {
             awaitItemUntil { it.drink != null }
@@ -157,6 +152,10 @@ class DrinkDetailsViewModelTest {
         val event = analytics.recorded.single { it.name == FirebaseAnalytics.Event.SHARE }
         assertEquals("11007", event.params[FirebaseAnalytics.Param.ITEM_ID])
         assertEquals("drink", event.params[FirebaseAnalytics.Param.CONTENT_TYPE])
+    }
+
+    private suspend fun seedMargarita() {
+        database.drinkDao().upsertRecipe(cocktailDrink("11007", "Margarita").toDrink()!!.toEntity())
     }
 }
 

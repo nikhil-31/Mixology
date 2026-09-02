@@ -4,14 +4,12 @@ import android.app.Application
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
-import com.capstone.nik.mixology.FakeCocktailService
 import com.capstone.nik.mixology.MainDispatcherRule
 import com.capstone.nik.mixology.Network.NetworkMonitor
-import com.capstone.nik.mixology.Network.remoteModel.CocktailDbResponse
-import com.capstone.nik.mixology.catalog
 import com.capstone.nik.mixology.cocktailDrink
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.data.MixologyDatabase
+import com.capstone.nik.mixology.data.toEntity
 import com.capstone.nik.mixology.repository.DrinkRepository
 import com.capstone.nik.mixology.repository.FilterKind
 import kotlinx.coroutines.test.runTest
@@ -32,7 +30,6 @@ class HotViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private lateinit var database: MixologyDatabase
-    private lateinit var service: FakeCocktailService
     private lateinit var viewModel: HotViewModel
 
     @Before
@@ -40,8 +37,9 @@ class HotViewModelTest {
         val context = ApplicationProvider.getApplicationContext<Application>()
         database = Room.inMemoryDatabaseBuilder(context, MixologyDatabase::class.java)
             .allowMainThreadQueries()
+            .setQueryExecutor { it.run() }
+            .setTransactionExecutor { it.run() }
             .build()
-        service = FakeCocktailService()
     }
 
     @After
@@ -51,10 +49,12 @@ class HotViewModelTest {
 
     @Test
     fun load_usesDrinkTypeCatalogTerms() = runTest {
-        service.categories = catalog("Cocktail", "Shake")
-        service.drinkTypesByQuery = mapOf(
-            "Cocktail" to CocktailDbResponse(drinks = listOf(cocktailDrink("1", "Margarita"))),
-            "Shake" to CocktailDbResponse(drinks = listOf(cocktailDrink("2", "Milk Shake"))),
+        database.drinkDao().replaceCatalog(FilterKind.DRINK_TYPE.name, listOf("Cocktail", "Shake"))
+        database.drinkDao().upsertRecipe(
+            cocktailDrink("1", "Margarita").toDrink()!!.copy(category = "Cocktail").toEntity(),
+        )
+        database.drinkDao().upsertRecipe(
+            cocktailDrink("2", "Milk Shake").toDrink()!!.copy(category = "Shake").toEntity(),
         )
         viewModel = createViewModel()
         viewModel.state.test {
@@ -72,12 +72,13 @@ class HotViewModelTest {
 
     @Test
     fun load_fallsBackToPresetDrinkTypesWhenCatalogEmpty() = runTest {
-        service.drinkType = CocktailDbResponse(drinks = listOf(cocktailDrink("1", "Negroni")))
+        database.drinkDao().upsertRecipe(
+            cocktailDrink("1", "Negroni").toDrink()!!.copy(category = "Cocktail").toEntity(),
+        )
         viewModel = createViewModel()
         viewModel.state.test {
             val loaded = awaitItemUntil { state ->
-                state.visibleCategories.map { it.filter } ==
-                    listOf(DrinkFilter.COCKTAIL, DrinkFilter.ORDINARY_DRINK)
+                state.visibleCategories.map { it.filter } == listOf(DrinkFilter.COCKTAIL)
             }
             assertEquals("Negroni", loaded.visibleCategories.first().drinks.single().name)
             cancelAndIgnoreRemainingEvents()
@@ -86,7 +87,9 @@ class HotViewModelTest {
 
     @Test
     fun save_addsRecentlyViewedRowFirst() = runTest {
-        service.drinkType = CocktailDbResponse(drinks = listOf(cocktailDrink("1", "Negroni")))
+        database.drinkDao().upsertRecipe(
+            cocktailDrink("1", "Negroni").toDrink()!!.copy(category = "Cocktail").toEntity(),
+        )
         viewModel = createViewModel()
         val drink = cocktailDrink("9", "Negroni").toDrink()!!
         viewModel.state.test {
@@ -103,7 +106,7 @@ class HotViewModelTest {
     private fun createViewModel(): HotViewModel {
         val context = ApplicationProvider.getApplicationContext<Application>()
         return HotViewModel(
-            DrinkRepository(database.drinkDao(), database.shoppingDao(), database.barDao(), service, context),
+            DrinkRepository(database.drinkDao(), database.shoppingDao(), database.barDao(), context),
             NetworkMonitor.forTests(),
         )
     }

@@ -13,6 +13,7 @@ import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.data.ShoppingDao
 import com.capstone.nik.mixology.data.ShoppingItemEntity
 import com.capstone.nik.mixology.data.toEntity
+import com.capstone.nik.mixology.play.PlayReviewController
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -34,6 +35,7 @@ class DrinkRepository @Inject constructor(
     private val shoppingDao: ShoppingDao,
     private val barDao: BarDao,
     @ApplicationContext private val context: Context,
+    private val playReviews: PlayReviewController = PlayReviewController.disabled(),
 ) {
 
     fun observeDrinks(filter: DrinkFilter): Flow<List<Drink>> {
@@ -109,6 +111,7 @@ class DrinkRepository @Inject constructor(
         dao.saveDrink(drink.toEntity().copy(saved = true))
         recordViewed(drink)
         notifyWidgets()
+        playReviews.onDrinkSaved()
     }
 
     suspend fun unsave(id: String) {

@@ -26,6 +26,8 @@ import com.capstone.nik.mixology.ui.theme.rememberThemeMode
 @Composable
 fun SettingsRoute(
     onShoppingList: () -> Unit = {},
+    onCheckForUpdates: () -> Unit = {},
+    onRateApp: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val themeMode = rememberThemeMode()
@@ -33,6 +35,8 @@ fun SettingsRoute(
         themeMode = themeMode,
         onThemeModeSelected = { ThemePreferences.set(context, it) },
         onShoppingList = onShoppingList,
+        onCheckForUpdates = onCheckForUpdates,
+        onRateApp = onRateApp,
     )
 }
 
@@ -41,6 +45,8 @@ fun SettingsScreen(
     themeMode: ThemeMode,
     onThemeModeSelected: (ThemeMode) -> Unit,
     onShoppingList: () -> Unit = {},
+    onCheckForUpdates: () -> Unit = {},
+    onRateApp: () -> Unit = {},
 ) {
     val colors = MaterialTheme.colorScheme
     Column(
@@ -86,6 +92,33 @@ fun SettingsScreen(
                 .clickable(onClick = onShoppingList)
                 .padding(top = 24.dp, bottom = 12.dp)
                 .testTag("settings_shopping_list"),
+        )
+        Text(
+            text = stringResource(R.string.settings_play),
+            color = colors.onBackground,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(top = 12.dp, bottom = 8.dp),
+        )
+        Text(
+            text = stringResource(R.string.settings_check_for_updates),
+            color = colors.onBackground,
+            fontSize = 16.sp,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onCheckForUpdates)
+                .padding(vertical = 12.dp)
+                .testTag("settings_check_for_updates"),
+        )
+        Text(
+            text = stringResource(R.string.settings_rate_app),
+            color = colors.onBackground,
+            fontSize = 16.sp,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onRateApp)
+                .padding(vertical = 12.dp)
+                .testTag("settings_rate_app"),
         )
     }
 }

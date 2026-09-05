@@ -68,6 +68,12 @@
     <string name="settings_theme_system">System default</string>
     <string name="settings_theme_light">Light</string>
     <string name="settings_theme_dark">Dark</string>
+    <string name="settings_play">Google Play</string>
+    <string name="settings_check_for_updates">Check for updates</string>
+    <string name="settings_rate_app">Rate Mixology</string>
+    <string name="update_downloaded">Update downloaded</string>
+    <string name="update_restart">Restart</string>
+    <string name="update_up_to_date">You\u2019re up to date</string>
 
     <string name="nav_item_non_alcoholic">Non Alcoholic</string>
     <string name="nav_item_alcoholic">Alcoholic</string>

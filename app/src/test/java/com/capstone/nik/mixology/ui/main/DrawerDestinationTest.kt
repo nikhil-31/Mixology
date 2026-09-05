@@ -54,6 +54,43 @@ class DrawerDestinationTest {
         assertTrue(isOverlayRoute("search?query={query}&mode={mode}&kind={kind}"))
         assertTrue(isOverlayRoute("details/{id}?name={name}&thumb={thumb}"))
         assertFalse(isOverlayRoute("hot"))
+        assertTrue(isSearchRoute("search?query=gin&mode=NAME&kind="))
+        assertTrue(isDetailsRoute("details/11007?name=Margarita&thumb="))
+    }
+
+    @Test
+    fun showsTwoPaneDetails_includesBarCatalogAndSearch() {
+        assertTrue(showsTwoPaneDetails(true, "bar", DrawerDestination.Bar))
+        assertFalse(showsTwoPaneDetails(true, "catalog", DrawerDestination.Catalog))
+        assertTrue(
+            showsTwoPaneDetails(
+                true,
+                "search?query=Gin&mode=INGREDIENT&kind=INGREDIENT",
+                DrawerDestination.Catalog,
+            ),
+        )
+        assertTrue(showsTwoPaneDetails(true, "hot", DrawerDestination.Hot))
+        assertTrue(
+            showsTwoPaneDetails(true, "grid/SAVED", DrawerDestination.Filter(DrinkFilter.SAVED)),
+        )
+        assertFalse(showsTwoPaneDetails(false, "bar", DrawerDestination.Bar))
+        assertFalse(showsTwoPaneDetails(true, "randomixer", DrawerDestination.Randomixer))
+        assertFalse(showsTwoPaneDetails(true, "settings", DrawerDestination.Settings))
+        assertFalse(showsTwoPaneDetails(true, "shopping", DrawerDestination.Shopping))
+        assertFalse(
+            showsTwoPaneDetails(
+                true,
+                "details/11007?name=Margarita&thumb=",
+                DrawerDestination.Bar,
+            ),
+        )
+        assertTrue(
+            showsTwoPaneDetails(
+                true,
+                "search?query=&mode=NAME&kind=",
+                DrawerDestination.Randomixer,
+            ),
+        )
     }
 
     @Test

@@ -14,6 +14,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -25,13 +26,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
@@ -41,6 +47,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import com.capstone.nik.mixology.BuildConfig
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
@@ -57,6 +65,9 @@ import com.capstone.nik.mixology.ui.search.SearchMode
 import com.capstone.nik.mixology.ui.search.SearchRoute
 import com.capstone.nik.mixology.ui.settings.SettingsRoute
 import com.capstone.nik.mixology.ui.shopping.ShoppingRoute
+import com.capstone.nik.mixology.play.PlayUpdateEvent
+import com.capstone.nik.mixology.play.findActivity
+import com.capstone.nik.mixology.play.openPlayStoreListing
 import com.capstone.nik.mixology.di.AppEntryPoint
 import com.capstone.nik.mixology.analytics.analyticsScreenName
 import dagger.hilt.android.EntryPointAccessors
@@ -74,7 +85,10 @@ fun MixologyApp(
     val snackbarHostState = remember { SnackbarHostState() }
     val twoPane = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val overlay = isOverlayRoute(navBackStackEntry?.destination?.route)
+    val route = navBackStackEntry?.destination?.route
+    val overlay = isOverlayRoute(route)
+    val showTwoPane = showsTwoPaneDetails(twoPane, route, state.destination)
+    val selectDrinkTwoPane = rememberUpdatedState(showTwoPane)
     val context = LocalContext.current
     val appEntry = remember {
         EntryPointAccessors.fromApplication(
@@ -84,7 +98,44 @@ fun MixologyApp(
     }
     val networkMonitor = remember { appEntry.networkMonitor() }
     val analytics = remember { appEntry.analyticsTracker() }
+    val playUpdates = remember { appEntry.playUpdateController() }
+    val playReviews = remember { appEntry.playReviewController() }
     val online by networkMonitor.online.collectAsStateWithLifecycle()
+    val activity = context.findActivity()
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val playScope = rememberCoroutineScope()
+
+    LaunchedEffect(playReviews) {
+        playReviews.onAppOpen()
+    }
+    LaunchedEffect(activity, playUpdates, lifecycleOwner) {
+        val host = activity ?: return@LaunchedEffect
+        launch {
+            playUpdates.events.collect { event ->
+                when (event) {
+                    PlayUpdateEvent.Downloaded -> {
+                        val result = snackbarHostState.showSnackbar(
+                            message = context.getString(R.string.update_downloaded),
+                            actionLabel = context.getString(R.string.update_restart),
+                        )
+                        if (result == SnackbarResult.ActionPerformed) {
+                            playUpdates.completeUpdate()
+                        }
+                    }
+                    PlayUpdateEvent.UpToDate -> {
+                        snackbarHostState.showSnackbar(context.getString(R.string.update_up_to_date))
+                    }
+                }
+            }
+        }
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            playUpdates.start(host)
+        }
+    }
+    LaunchedEffect(activity, playReviews) {
+        val host = activity ?: return@LaunchedEffect
+        playReviews.prompts.collect { playReviews.launch(host) }
+    }
 
     LaunchedEffect(navBackStackEntry?.destination?.route) {
         val screen = analyticsScreenName(navBackStackEntry?.destination?.route) ?: return@LaunchedEffect
@@ -143,7 +194,7 @@ fun MixologyApp(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             Column {
-                if (online) {
+                if (online && !BuildConfig.DEBUG) {
                     BannerAd(
                         details = navBackStackEntry?.destination?.route?.startsWith("details") == true,
                     )
@@ -202,7 +253,7 @@ fun MixologyApp(
                                 filter = filter,
                                 snackbarHostState = snackbarHostState,
                                 onDrinkClick = { drink ->
-                                    viewModel.onIntent(MainIntent.DrinkSelected(drink, twoPane && !overlay))
+                                    viewModel.onIntent(MainIntent.DrinkSelected(drink, selectDrinkTwoPane.value))
                                 },
                             )
                         }
@@ -226,7 +277,7 @@ fun MixologyApp(
                         composable(BAR_ROUTE) {
                             BarRoute(
                                 onDrinkClick = { drink ->
-                                    viewModel.onIntent(MainIntent.DrinkSelected(drink, twoPane && !overlay))
+                                    viewModel.onIntent(MainIntent.DrinkSelected(drink, selectDrinkTwoPane.value))
                                 },
                             )
                         }
@@ -234,7 +285,7 @@ fun MixologyApp(
                             HotRoute(
                                 snackbarHostState = snackbarHostState,
                                 onDrinkClick = { drink ->
-                                    viewModel.onIntent(MainIntent.DrinkSelected(drink, twoPane && !overlay))
+                                    viewModel.onIntent(MainIntent.DrinkSelected(drink, selectDrinkTwoPane.value))
                                 },
                                 onSeeAll = { filter ->
                                     viewModel.onIntent(
@@ -258,6 +309,15 @@ fun MixologyApp(
                             SettingsRoute(
                                 onShoppingList = {
                                     viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Shopping))
+                                },
+                                onCheckForUpdates = {
+                                    activity?.let { host ->
+                                        playScope.launch { playUpdates.start(host, userRequested = true) }
+                                    }
+                                },
+                                onRateApp = {
+                                    playReviews.onOpenedListing()
+                                    openPlayStoreListing(context)
                                 },
                             )
                         }
@@ -287,7 +347,7 @@ fun MixologyApp(
                                 initialFilterKind = filterKindFromRoute(entry.arguments?.getString("kind")),
                                 onBack = { navController.navigateUp() },
                                 onDrinkClick = { drink ->
-                                    viewModel.onIntent(MainIntent.DrinkSelected(drink, twoPane = false))
+                                    viewModel.onIntent(MainIntent.DrinkSelected(drink, selectDrinkTwoPane.value))
                                 },
                             )
                         }
@@ -318,14 +378,7 @@ fun MixologyApp(
                             )
                         }
                     }
-                    if (twoPane &&
-                        !overlay &&
-                        state.destination !is DrawerDestination.Randomixer &&
-                        state.destination !is DrawerDestination.Settings &&
-                        state.destination !is DrawerDestination.Catalog &&
-                        state.destination !is DrawerDestination.Bar &&
-                        state.destination !is DrawerDestination.Shopping
-                    ) {
+                    if (showTwoPane) {
                         Box(modifier = Modifier.weight(1f)) {
                             val drink = state.selectedDrink
                             if (drink != null) {

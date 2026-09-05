@@ -27,7 +27,7 @@ fun BannerAd(
     details: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
-    if (LocalInspectionMode.current) return
+    if (LocalInspectionMode.current || BuildConfig.DEBUG) return
     val adUnitId = stringResource(bannerAdUnitRes(details = details))
     val context = LocalContext.current
     key(adUnitId) {

@@ -60,6 +60,12 @@
     <string name="settings_theme_system">Predeterminado del sistema</string>
     <string name="settings_theme_light">Claro</string>
     <string name="settings_theme_dark">Oscuro</string>
+    <string name="settings_play">Google Play</string>
+    <string name="settings_check_for_updates">Buscar actualizaciones</string>
+    <string name="settings_rate_app">Valorar Mixology</string>
+    <string name="update_downloaded">Actualización descargada</string>
+    <string name="update_restart">Reiniciar</string>
+    <string name="update_up_to_date">Ya tienes la última versión</string>
 
     <string name="nav_item_non_alcoholic">Sin alcohol</string>
     <string name="nav_item_alcoholic">Alcohólico</string>

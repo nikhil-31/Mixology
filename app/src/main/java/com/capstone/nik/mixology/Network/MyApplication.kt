@@ -22,6 +22,8 @@ class MyApplication : Application() {
         crashlytics.setCustomKey("version_code", BuildConfig.VERSION_CODE)
         analyticsTracker.setCollectionEnabled(!BuildConfig.DEBUG)
         networkMonitor.start()
-        MobileAds.initialize(this)
+        if (!BuildConfig.DEBUG) {
+            MobileAds.initialize(this)
+        }
     }
 }

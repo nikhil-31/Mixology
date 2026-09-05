@@ -9,6 +9,9 @@ import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.data.MixologyDatabase
 import com.capstone.nik.mixology.data.toEntity
+import com.capstone.nik.mixology.play.MemoryReviewPromptStore
+import com.capstone.nik.mixology.play.NoOpPlayReviewClient
+import com.capstone.nik.mixology.play.PlayReviewController
 import com.capstone.nik.mixology.ui.model.IngredientMeasure
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -74,6 +77,27 @@ class DrinkRepositoryTest {
         assertEquals(setOf("11007"), repository.observeSavedIds().first())
         repository.unsave("11007")
         assertTrue(repository.observeSavedIds().first().isEmpty())
+    }
+
+    @Test
+    fun save_recordsPlayReviewSave() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Application>()
+        val store = MemoryReviewPromptStore()
+        val playReviews = PlayReviewController(
+            store = store,
+            client = NoOpPlayReviewClient,
+            enabled = true,
+            now = { 0L },
+        )
+        val repo = DrinkRepository(
+            database.drinkDao(),
+            database.shoppingDao(),
+            database.barDao(),
+            context,
+            playReviews,
+        )
+        repo.save(cocktailDrink("11007", "Margarita").toDrink()!!)
+        assertEquals(1, store.state().saveCount)
     }
 
     @Test

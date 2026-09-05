@@ -63,4 +63,26 @@ class SettingsScreenTest {
         composeRule.onNodeWithTag("settings_shopping_list").performClick()
         assertEquals(1, shopping)
     }
+
+    @Test
+    fun playRows_reportClicks() {
+        var updates = 0
+        var rate = 0
+        composeRule.setContent {
+            MixologyTheme {
+                SettingsScreen(
+                    themeMode = ThemeMode.SYSTEM,
+                    onThemeModeSelected = {},
+                    onCheckForUpdates = { updates += 1 },
+                    onRateApp = { rate += 1 },
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("Google Play").assertIsDisplayed()
+        composeRule.onNodeWithTag("settings_check_for_updates").performClick()
+        composeRule.onNodeWithTag("settings_rate_app").performClick()
+        assertEquals(1, updates)
+        assertEquals(1, rate)
+    }
 }

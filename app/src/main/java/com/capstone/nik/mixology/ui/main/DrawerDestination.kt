@@ -49,7 +49,31 @@ fun detailsRoute(drink: Drink): String {
 
 fun isOverlayRoute(route: String?): Boolean {
     if (route == null) return false
-    return route.startsWith("search") || route.startsWith("details")
+    return isSearchRoute(route) || isDetailsRoute(route)
+}
+
+fun isSearchRoute(route: String?): Boolean = route?.startsWith("search") == true
+
+fun isDetailsRoute(route: String?): Boolean = route?.startsWith("details") == true
+
+fun showsTwoPaneDetails(
+    expanded: Boolean,
+    route: String?,
+    destination: DrawerDestination,
+): Boolean {
+    if (!expanded || isDetailsRoute(route)) return false
+    if (isSearchRoute(route)) return true
+    return when (destination) {
+        DrawerDestination.Randomixer,
+        DrawerDestination.Settings,
+        DrawerDestination.Shopping,
+        DrawerDestination.Catalog,
+        -> false
+        DrawerDestination.Hot,
+        DrawerDestination.Bar,
+        is DrawerDestination.Filter,
+        -> true
+    }
 }
 
 private fun encodeRouteArg(value: String): String = Uri.encode(value).orEmpty()

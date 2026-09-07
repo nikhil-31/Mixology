@@ -4,7 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Mixology Support</title>
+  <link rel="canonical" href="https://nikhil-31.github.io/Mixology/support">
   <meta name="color-scheme" content="light">
+  <script>
+    if (location.pathname.endsWith("support.html")) {
+      location.replace("./support" + location.search + location.hash);
+    }
+  </script>
   <style>
     :root {
       --red: #c92228;
@@ -33,6 +39,14 @@
       max-width: 36rem;
       margin: 0 auto;
       padding: 2.5rem 1.25rem 3rem;
+    }
+
+    .logo {
+      display: block;
+      width: 72px;
+      height: 72px;
+      border-radius: 16px;
+      margin: 0 0 1.25rem;
     }
 
     .wordmark {
@@ -120,6 +134,7 @@
 </head>
 <body>
   <main>
+    <img class="logo" src="./logo.png" width="72" height="72" alt="Mixology">
     <p class="wordmark">Mixology</p>
     <h1>How can we help?</h1>
     <p class="lede">

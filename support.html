@@ -41,12 +41,17 @@
       padding: 2.5rem 1.25rem 3rem;
     }
 
+    .hero {
+      text-align: center;
+      margin-bottom: 1.75rem;
+    }
+
     .logo {
       display: block;
       width: 72px;
       height: 72px;
       border-radius: 16px;
-      margin: 0 0 1.25rem;
+      margin: 0 auto 1rem;
     }
 
     .wordmark {
@@ -69,7 +74,7 @@
     .lede {
       color: var(--muted);
       font-size: 1.05rem;
-      margin: 0 0 1.75rem;
+      margin: 0;
     }
 
     .card {
@@ -92,19 +97,13 @@
       margin: 0 0 1rem;
     }
 
-    .card p:last-child {
-      margin-bottom: 0;
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-
-    .email {
+    .mail {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       width: 100%;
       padding: 0.85rem 1rem;
-      margin: 0.25rem 0 1rem;
+      margin: 0;
       border-radius: 12px;
       background: var(--red);
       color: #fff;
@@ -112,7 +111,7 @@
       text-decoration: none;
     }
 
-    .email:hover {
+    .mail:hover {
       filter: brightness(1.05);
     }
 
@@ -134,19 +133,19 @@
 </head>
 <body>
   <main>
-    <img class="logo" src="./logo.png" width="72" height="72" alt="Mixology">
-    <p class="wordmark">Mixology</p>
-    <h1>How can we help?</h1>
-    <p class="lede">
-      Mixology is a free cocktail browser for iPhone. Browse, search, and save recipes
-      from TheCocktailDB.
-    </p>
+    <header class="hero">
+      <img class="logo" src="./logo.png" width="72" height="72" alt="Mixology">
+      <p class="wordmark">Mixology</p>
+      <h1>How can we help?</h1>
+      <p class="lede">
+        Mixology is a free cocktail browser for iPhone. Browse, search, and save recipes.
+      </p>
+    </header>
 
     <section class="card">
       <h2>Contact</h2>
-      <p>For help, bug reports, or feedback, send an email. Include your device model and iOS version if something is broken.</p>
-      <a class="email" href="mailto:nkl07ba@gmail.com">nkl07ba@gmail.com</a>
-      <p>We read every message.</p>
+      <p>For help, bug reports, or feedback, get in touch. Include your device model and iOS version if something is broken.</p>
+      <a class="mail" href="mailto:nkl07ba@gmail.com">Talk to us</a>
     </section>
 
     <footer>

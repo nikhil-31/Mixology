@@ -6,56 +6,137 @@
   <title>Mixology Support</title>
   <meta name="color-scheme" content="light">
   <style>
+    :root {
+      --red: #c92228;
+      --text: #1c1c1e;
+      --muted: #6e6e73;
+      --canvas: #f2f2f7;
+      --card: #ffffff;
+      --line: rgba(0, 0, 0, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
     html, body {
-      background: #fff;
-      color: #111;
+      margin: 0;
+      background: var(--canvas);
+      color: var(--text);
     }
+
     body {
-      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-      padding: 1em;
-      max-width: 40em;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
       line-height: 1.5;
+      min-height: 100vh;
     }
-    nav { margin-bottom: 1.5em; }
-    a { color: #0b57d0; }
+
+    main {
+      max-width: 36rem;
+      margin: 0 auto;
+      padding: 2.5rem 1.25rem 3rem;
+    }
+
+    .wordmark {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin: 0 0 0.75rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin: 0 0 0.75rem;
+    }
+
+    .lede {
+      color: var(--muted);
+      font-size: 1.05rem;
+      margin: 0 0 1.75rem;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 1.35rem 1.4rem;
+      box-shadow: 0 1px 0 var(--line);
+    }
+
+    .card h2 {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 0.5rem;
+    }
+
+    .card p {
+      margin: 0 0 1rem;
+    }
+
+    .card p:last-child {
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .email {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 0.85rem 1rem;
+      margin: 0.25rem 0 1rem;
+      border-radius: 12px;
+      background: var(--red);
+      color: #fff;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .email:hover {
+      filter: brightness(1.05);
+    }
+
+    footer {
+      margin-top: 1.5rem;
+      text-align: center;
+    }
+
+    footer a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.95rem;
+    }
+
+    footer a:hover {
+      color: var(--red);
+    }
   </style>
 </head>
 <body>
-  <nav>
-    <a href="./">Privacy Policy</a>
-  </nav>
+  <main>
+    <p class="wordmark">Mixology</p>
+    <h1>How can we help?</h1>
+    <p class="lede">
+      Mixology is a free cocktail browser for iPhone. Browse, search, and save recipes
+      from TheCocktailDB.
+    </p>
 
-  <h1>Mixology Support</h1>
-  <p>
-    Mixology is a free cocktail browser for iPhone. Browse, search, and save recipes
-    from TheCocktailDB, including Randomixer, a shopping list, and saved drinks.
-  </p>
+    <section class="card">
+      <h2>Contact</h2>
+      <p>For help, bug reports, or feedback, send an email. Include your device model and iOS version if something is broken.</p>
+      <a class="email" href="mailto:nkl07ba@gmail.com">nkl07ba@gmail.com</a>
+      <p>We read every message.</p>
+    </section>
 
-  <h2>Contact</h2>
-  <p>
-    For help, bug reports, or feedback, email
-    <a href="mailto:nkl07ba@gmail.com">nkl07ba@gmail.com</a>.
-  </p>
-  <p>Please include your device model and iOS version when you report a problem.</p>
-
-  <h2>FAQ</h2>
-
-  <p><strong>Where do recipes come from?</strong><br>
-  Recipe names, ingredients, and instructions come from
-  <a href="https://www.thecocktaildb.com">TheCocktailDB</a>. Mixology does not create the recipes.</p>
-
-  <p><strong>Is my data stored on my phone?</strong><br>
-  Saved drinks, notes, shopping list items, and bar ingredients stay on your device.
-  Mixology does not create an account.</p>
-
-  <p><strong>Why do I see ads?</strong><br>
-  The app shows a Google AdMob banner. You can review ad privacy choices in Settings
-  when your region requires them.</p>
-
-  <p><strong>Who is Mixology for?</strong><br>
-  Recipes are for adults of legal drinking age. Drink responsibly.</p>
-
-  <h2>Privacy</h2>
-  <p>Read the <a href="./">Mixology Privacy Policy</a>.</p>
+    <footer>
+      <a href="./">Privacy Policy</a>
+    </footer>
+  </main>
 </body>
 </html>

@@ -152,7 +152,7 @@ fun DrinkHeroImage(
 }
 
 @Composable
-private fun RecipeSectionTitle(text: String) {
+internal fun RecipeSectionTitle(text: String) {
     Text(
         text = text.uppercase(Locale.getDefault()),
         modifier = Modifier.padding(start = 20.dp, top = 24.dp, bottom = 8.dp),

@@ -4,8 +4,11 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,21 +19,26 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.outlined.PlayCircle
+import androidx.compose.material.icons.outlined.RemoveShoppingCart
+import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -48,8 +56,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.ui.components.DrinkHeroImage
@@ -57,6 +65,7 @@ import com.capstone.nik.mixology.ui.components.DrinkHeroImageHeight
 import com.capstone.nik.mixology.ui.components.DrinkHeroViewportHeight
 import com.capstone.nik.mixology.ui.components.DrinkImage
 import com.capstone.nik.mixology.ui.components.DrinkRecipeBody
+import com.capstone.nik.mixology.ui.components.RecipeSectionTitle
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 import com.capstone.nik.mixology.ui.theme.MixologyDetailsTitle
 import com.capstone.nik.mixology.ui.theme.PosterBadge
@@ -204,37 +213,23 @@ fun DrinkDetailsContent(
                         saved = state.saved,
                         onToggleSaved = onToggleSaved,
                         extraBottomContent = {
-                            val video = drink.video
-                            if (!video.isNullOrBlank()) {
-                                TextButton(onClick = { onOpenVideo(video) }) {
-                                    Text(stringResource(R.string.detail_watch_video))
-                                }
-                            }
-                            TextButton(
-                                onClick = if (state.onShoppingList) {
-                                    onRemoveFromShoppingList
-                                } else {
-                                    onAddToShoppingList
-                                },
-                            ) {
-                                Text(
-                                    stringResource(
-                                        if (state.onShoppingList) {
-                                            R.string.shopping_remove_ingredients
-                                        } else {
-                                            R.string.shopping_add_ingredients
-                                        },
-                                    ),
-                                )
-                            }
+                            DrinkActions(
+                                onShoppingList = state.onShoppingList,
+                                video = drink.video,
+                                onAddToShoppingList = onAddToShoppingList,
+                                onRemoveFromShoppingList = onRemoveFromShoppingList,
+                                onOpenVideo = onOpenVideo,
+                            )
                             if (state.saved) {
+                                RecipeSectionTitle(stringResource(R.string.detail_notes))
                                 OutlinedTextField(
                                     value = drink.notes,
                                     onValueChange = onNotesChanged,
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(horizontal = 20.dp, vertical = 8.dp),
-                                    label = { Text(stringResource(R.string.detail_notes)) },
+                                        .padding(horizontal = 20.dp),
+                                    placeholder = { Text(stringResource(R.string.detail_notes_hint)) },
+                                    shape = RoundedCornerShape(12.dp),
                                     minLines = 2,
                                 )
                             }
@@ -263,6 +258,57 @@ fun DrinkDetailsContent(
             url = drink.thumb,
             onDismiss = { fullscreenImage = false },
         )
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun DrinkActions(
+    onShoppingList: Boolean,
+    video: String?,
+    onAddToShoppingList: () -> Unit,
+    onRemoveFromShoppingList: () -> Unit,
+    onOpenVideo: (String) -> Unit,
+) {
+    FlowRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 20.dp, end = 20.dp, top = 24.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        FilledTonalButton(
+            onClick = if (onShoppingList) onRemoveFromShoppingList else onAddToShoppingList,
+        ) {
+            Icon(
+                imageVector = if (onShoppingList) {
+                    Icons.Outlined.RemoveShoppingCart
+                } else {
+                    Icons.Outlined.ShoppingCart
+                },
+                contentDescription = null,
+                modifier = Modifier.padding(end = 8.dp).size(18.dp),
+            )
+            Text(
+                stringResource(
+                    if (onShoppingList) {
+                        R.string.shopping_remove_ingredients
+                    } else {
+                        R.string.shopping_add_ingredients
+                    },
+                ),
+            )
+        }
+        if (!video.isNullOrBlank()) {
+            OutlinedButton(onClick = { onOpenVideo(video) }) {
+                Icon(
+                    imageVector = Icons.Outlined.PlayCircle,
+                    contentDescription = null,
+                    modifier = Modifier.padding(end = 8.dp).size(18.dp),
+                )
+                Text(stringResource(R.string.detail_watch_video))
+            }
+        }
     }
 }
 
@@ -314,8 +360,8 @@ private fun HeroActionButton(
     IconButton(onClick = onClick) {
         Box(
             modifier = Modifier
-                .size(32.dp)
-                .clip(RoundedCornerShape(20.dp))
+                .size(40.dp)
+                .clip(CircleShape)
                 .background(PosterBadge),
             contentAlignment = Alignment.Center,
         ) {

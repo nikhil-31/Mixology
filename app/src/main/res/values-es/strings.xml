@@ -92,7 +92,6 @@
     <string name="detail_share_instructions">Instrucciones: </string>
     <string name="detail_share_ingredients">Ingredientes: </string>
 
-    <string name="empty_string_add_a_drink">Añade un cóctel. Aquí hay poco ambiente.</string>
     <string name="empty_string_cocktail_image">imagen_coctel</string>
 
     <string name="detail_watch_video">Ver vídeo</string>
@@ -151,4 +150,51 @@
         <item>Macerando algunas ideas…</item>
         <item>Eligiendo la copa perfecta…</item>
     </string-array>
+    <string name="action_clear_search">Borrar búsqueda</string>
+    <string name="saved_empty_title">Aún no has guardado bebidas</string>
+    <string name="saved_empty_body">Toca el corazón de cualquier bebida para guardarla aquí.</string>
+    <plurals name="saved_count">
+        <item quantity="one">%d guardada</item>
+        <item quantity="other">%d guardadas</item>
+    </plurals>
+    <string name="bar_your_bar">Tu bar</string>
+    <plurals name="bar_count">
+        <item quantity="one">%d ingrediente</item>
+        <item quantity="other">%d ingredientes</item>
+    </plurals>
+    <string name="bar_empty_title">Tu bar está vacío</string>
+    <string name="detail_notes_hint">Ajustes, valoraciones, dónde la probaste…</string>
+    <string name="settings_library">Biblioteca</string>
+    <string name="settings_privacy_header">Privacidad</string>
+    <string name="paywall_title">Tu prueba gratis ha terminado</string>
+    <string name="paywall_title_premium">Mixology Premium</string>
+    <string name="paywall_subtitle">Suscríbete para seguir usando Mixology.</string>
+    <string name="paywall_benefit_ada">Pídele a Ada, tu bartender con IA, la bebida perfecta</string>
+    <string name="paywall_benefit_bar">Arma Mi Bar y descubre qué puedes preparar hoy</string>
+    <string name="paywall_benefit_saved">Guarda bebidas, notas y listas de compras en todos tus dispositivos</string>
+    <string name="paywall_monthly">Mensual</string>
+    <string name="paywall_yearly">Anual</string>
+    <string name="paywall_best_value">Mejor precio</string>
+    <string name="paywall_price_per_month">%1$s / mes</string>
+    <string name="paywall_price_per_year">%1$s / año</string>
+    <string name="paywall_subscribe">Suscribirme</string>
+    <string name="paywall_restore">Restaurar compras</string>
+    <string name="paywall_sign_out">Cerrar sesión</string>
+    <string name="paywall_close">Cerrar</string>
+    <string name="paywall_retry">Reintentar</string>
+    <string name="paywall_privacy">Política de privacidad</string>
+    <string name="paywall_disclosure">Las suscripciones se renuevan automáticamente hasta que las canceles. Cancela cuando quieras en Google Play al menos 24 horas antes de la renovación.</string>
+    <string name="paywall_pending">Tu compra está pendiente. Premium se activará en cuanto Google Play la confirme.</string>
+    <string name="paywall_nothing_to_restore">No encontramos una suscripción activa para esta cuenta de Google.</string>
+    <string name="paywall_store_unavailable">Google Play no está disponible ahora. Revisa tu conexión e inténtalo de nuevo.</string>
+    <string name="paywall_purchase_failed">La compra no se completó. Inténtalo de nuevo.</string>
+    <string name="settings_subscription_premium">Mixology Premium</string>
+    <string name="settings_subscription_free">Sin suscripción</string>
+    <string name="settings_subscription_manage">Gestionar</string>
+    <string name="settings_subscription_subscribe">Suscribirme</string>
+    <plurals name="settings_trial_days_left">
+        <item quantity="one">Te queda %d día de prueba gratis</item>
+        <item quantity="many">Te quedan %d días de prueba gratis</item>
+        <item quantity="other">Te quedan %d días de prueba gratis</item>
+    </plurals>
 </resources>

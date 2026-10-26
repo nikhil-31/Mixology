@@ -6,6 +6,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import com.capstone.nik.mixology.ui.theme.MixologyTheme
 import com.capstone.nik.mixology.ui.theme.ThemeMode
 import org.junit.Assert.assertEquals
@@ -36,7 +37,7 @@ class SettingsScreenTest {
             }
         }
 
-        composeRule.onNodeWithText("Appearance").assertIsDisplayed()
+        composeRule.onNodeWithText("APPEARANCE").assertIsDisplayed()
         composeRule.onNodeWithText("System default").assertIsDisplayed()
         composeRule.onNodeWithText("Light").assertIsDisplayed()
         composeRule.onNodeWithText("Dark").assertIsDisplayed()
@@ -79,7 +80,7 @@ class SettingsScreenTest {
             }
         }
 
-        composeRule.onNodeWithText("Google Play").assertIsDisplayed()
+        composeRule.onNodeWithText("GOOGLE PLAY").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithTag("settings_check_for_updates").performClick()
         composeRule.onNodeWithTag("settings_rate_app").performClick()
         assertEquals(1, updates)

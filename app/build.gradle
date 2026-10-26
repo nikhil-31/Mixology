@@ -156,6 +156,7 @@ dependencies {
     implementation libs.androidx.credentials
     implementation libs.androidx.credentials.play.services.auth
     implementation libs.googleid
+    implementation libs.play.billing
     implementation libs.kotlinx.coroutines.play.services
     implementation libs.play.services.ads
     implementation libs.user.messaging.platform

@@ -10,6 +10,7 @@ import com.capstone.nik.mixology.Network.remoteModel.AuthTokenResponse
 import com.capstone.nik.mixology.Network.remoteModel.ProviderLoginRequest
 import com.capstone.nik.mixology.Network.remoteModel.LoginRequest
 import com.capstone.nik.mixology.Network.remoteModel.SignupRequest
+import com.capstone.nik.mixology.billing.SubscriptionRepository
 import com.capstone.nik.mixology.data.GoogleAuth
 import com.capstone.nik.mixology.data.Session
 import com.capstone.nik.mixology.data.SessionStore
@@ -28,6 +29,7 @@ class NetworkChatRepository @Inject constructor(
     private val streamer: ChatStreamer,
     private val sessionStore: SessionStore,
     private val googleAuth: GoogleAuth,
+    private val subscriptions: SubscriptionRepository,
 ) : ChatRepository {
 
     override fun currentSession(): Session? = sessionStore.current()
@@ -94,6 +96,9 @@ class NetworkChatRepository @Inject constructor(
             if (error is ChatHttpException && error.code == 401) {
                 sessionStore.clear()
             }
+            if (error is ChatHttpException && error.code == 403) {
+                subscriptions.requireSubscription()
+            }
             throw error
         }
     }
@@ -113,6 +118,8 @@ class NetworkChatRepository @Inject constructor(
                     expiresInSeconds = response.expiresIn,
                     email = response.user.email ?: email,
                     displayName = response.user.displayName ?: displayName.orEmpty(),
+                    uid = response.user.uid,
+                    access = response.user.access,
                 )
                 AuthResult.Success(session)
             }
@@ -129,6 +136,8 @@ class NetworkChatRepository @Inject constructor(
 
     private fun chatFailure(code: Int, body: String?, fallback: String): ChatHttpException {
         if (code == 401) sessionStore.clear()
+        // 403 means the trial is over and there is no subscription.
+        if (code == 403) subscriptions.requireSubscription()
         return ChatHttpException(code, ApiErrors.detail(body, fallback))
     }
 }

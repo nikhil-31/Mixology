@@ -15,14 +15,14 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items as lazyListItems
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,9 +33,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.capstone.nik.mixology.R
@@ -44,7 +44,9 @@ import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.ui.components.DrinkCard
 import com.capstone.nik.mixology.ui.components.DrinkListItem
 import com.capstone.nik.mixology.ui.components.DrinkViewToggle
+import com.capstone.nik.mixology.ui.components.EmptyState
 import com.capstone.nik.mixology.ui.components.SavedDrinkCardAspectRatio
+import com.capstone.nik.mixology.ui.components.SearchField
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 
 @Composable
@@ -102,7 +104,7 @@ fun DrinkGridScreen(
             LaunchedEffect(query) {
                 if (queryText != query) queryText = query
             }
-            TextField(
+            SearchField(
                 value = queryText,
                 onValueChange = { value ->
                     queryText = value
@@ -111,26 +113,29 @@ fun DrinkGridScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp),
-                singleLine = true,
-                placeholder = { Text(stringResource(R.string.action_search)) },
             )
             DrinkViewToggle(
                 listView = listView,
                 onToggleListView = onToggleListView,
+                label = if (drinks.isEmpty()) {
+                    null
+                } else {
+                    pluralStringResource(R.plurals.saved_count, drinks.size, drinks.size)
+                },
             )
         }
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
             when {
-                emptySaved -> Text(
-                    text = stringResource(R.string.empty_string_add_a_drink),
+                emptySaved -> EmptyState(
+                    icon = Icons.Outlined.FavoriteBorder,
+                    title = stringResource(R.string.saved_empty_title),
+                    body = stringResource(R.string.saved_empty_body),
                     modifier = Modifier.align(Alignment.Center),
-                    fontSize = 20.sp,
-                    color = MaterialTheme.colorScheme.onBackground,
                 )
-                noMatches -> Text(
-                    text = stringResource(R.string.search_empty_title),
-                    modifier = Modifier.align(Alignment.Center).padding(24.dp),
-                    color = MaterialTheme.colorScheme.onBackground,
+                noMatches -> EmptyState(
+                    icon = Icons.Outlined.SearchOff,
+                    title = stringResource(R.string.search_empty_title),
+                    modifier = Modifier.align(Alignment.Center),
                 )
                 showList -> LazyColumn(
                     modifier = Modifier.fillMaxSize(),

@@ -101,7 +101,6 @@
     <string name="detail_share_instructions">Instructions: </string>
     <string name="detail_share_ingredients">Ingredients: </string>
 
-    <string name="empty_string_add_a_drink">Add a drink !!! Its lonely here.</string>
     <string name="empty_string_cocktail_image">cocktail_image</string>
 
     <string name="admob_app_id" translatable="false">ca-app-pub-3113257282676296~5106481563</string>
@@ -165,4 +164,50 @@
         <item>Muddling a few ideas…</item>
         <item>Picking the perfect glass…</item>
     </string-array>
+    <string name="action_clear_search">Clear search</string>
+    <string name="saved_empty_title">No saved drinks yet</string>
+    <string name="saved_empty_body">Tap the heart on any drink to save it here.</string>
+    <plurals name="saved_count">
+        <item quantity="one">%d saved</item>
+        <item quantity="other">%d saved</item>
+    </plurals>
+    <string name="bar_your_bar">Your bar</string>
+    <plurals name="bar_count">
+        <item quantity="one">%d ingredient</item>
+        <item quantity="other">%d ingredients</item>
+    </plurals>
+    <string name="bar_empty_title">Your bar is empty</string>
+    <string name="detail_notes_hint">Tweaks, ratings, where you had it…</string>
+    <string name="settings_library">Library</string>
+    <string name="settings_privacy_header">Privacy</string>
+    <string name="paywall_title">Your free trial has ended</string>
+    <string name="paywall_title_premium">Mixology Premium</string>
+    <string name="paywall_subtitle">Subscribe to keep using Mixology.</string>
+    <string name="paywall_benefit_ada">Ask Ada, your AI bartender, for the right drink</string>
+    <string name="paywall_benefit_bar">Build My Bar and see what you can make tonight</string>
+    <string name="paywall_benefit_saved">Save drinks, notes and shopping lists across devices</string>
+    <string name="paywall_monthly">Monthly</string>
+    <string name="paywall_yearly">Yearly</string>
+    <string name="paywall_best_value">Best value</string>
+    <string name="paywall_price_per_month">%1$s / month</string>
+    <string name="paywall_price_per_year">%1$s / year</string>
+    <string name="paywall_subscribe">Subscribe</string>
+    <string name="paywall_restore">Restore purchases</string>
+    <string name="paywall_sign_out">Sign out</string>
+    <string name="paywall_close">Close</string>
+    <string name="paywall_retry">Try again</string>
+    <string name="paywall_privacy">Privacy policy</string>
+    <string name="paywall_disclosure">Subscriptions renew automatically until cancelled. Cancel anytime in Google Play at least 24 hours before the renewal date.</string>
+    <string name="paywall_pending">Your purchase is pending. Premium unlocks as soon as Google Play confirms it.</string>
+    <string name="paywall_nothing_to_restore">No active subscription was found for this Google account.</string>
+    <string name="paywall_store_unavailable">Google Play isn’t available right now. Check your connection and try again.</string>
+    <string name="paywall_purchase_failed">The purchase didn’t go through. Please try again.</string>
+    <string name="settings_subscription_premium">Mixology Premium</string>
+    <string name="settings_subscription_free">No subscription</string>
+    <string name="settings_subscription_manage">Manage</string>
+    <string name="settings_subscription_subscribe">Subscribe</string>
+    <plurals name="settings_trial_days_left">
+        <item quantity="one">%d day left in your free trial</item>
+        <item quantity="other">%d days left in your free trial</item>
+    </plurals>
 </resources>

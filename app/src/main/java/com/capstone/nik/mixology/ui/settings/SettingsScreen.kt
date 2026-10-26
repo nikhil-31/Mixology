@@ -1,34 +1,67 @@
 package com.capstone.nik.mixology.ui.settings
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.outlined.MenuBook
+import androidx.compose.material.icons.outlined.Policy
+import androidx.compose.material.icons.outlined.PrivacyTip
+import androidx.compose.material.icons.outlined.ShoppingCart
+import androidx.compose.material.icons.outlined.StarRate
+import androidx.compose.material.icons.outlined.SystemUpdate
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.capstone.nik.mixology.R
+import com.capstone.nik.mixology.billing.Access
+import com.capstone.nik.mixology.ui.paywall.SubscriptionGateViewModel
 import com.capstone.nik.mixology.ui.auth.SessionViewModel
+import com.capstone.nik.mixology.ui.theme.MixologySectionTitle
 import com.capstone.nik.mixology.ui.theme.ThemeMode
 import com.capstone.nik.mixology.ui.theme.ThemePreferences
 import com.capstone.nik.mixology.ui.theme.rememberThemeMode
+import java.util.Locale
 
 const val PRIVACY_POLICY_URL = "https://nikhil-31.github.io/Mixology/privacy-policy"
+
+/** Google Play's page for managing (and cancelling) this app's subscription. */
+fun playSubscriptionsUrl(productId: String?, packageName: String): String {
+    val sku = productId?.let { "sku=$it&" }.orEmpty()
+    return "https://play.google.com/store/account/subscriptions?${sku}package=$packageName"
+}
 
 @Composable
 fun SettingsRoute(
@@ -40,14 +73,26 @@ fun SettingsRoute(
     onPrivacyPolicy: () -> Unit = {},
     onPrivacyOptions: () -> Unit = {},
     sessionViewModel: SessionViewModel = hiltViewModel(),
+    subscriptionGate: SubscriptionGateViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
+    val uriHandler = LocalUriHandler.current
     val themeMode = rememberThemeMode()
     val session by sessionViewModel.session.collectAsStateWithLifecycle()
+    val access by subscriptionGate.access.collectAsStateWithLifecycle()
     SettingsScreen(
         themeMode = themeMode,
         accountEmail = session?.email.orEmpty(),
         onSignOut = sessionViewModel::signOut,
+        access = access,
+        onSubscriptionAction = {
+            when (val current = access) {
+                is Access.Subscribed -> uriHandler.openUri(
+                    playSubscriptionsUrl(current.productId, context.packageName),
+                )
+                else -> subscriptionGate.openPaywall()
+            }
+        },
         onThemeModeSelected = { ThemePreferences.set(context, it) },
         onCatalog = onCatalog,
         onShoppingList = onShoppingList,
@@ -59,12 +104,15 @@ fun SettingsRoute(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     themeMode: ThemeMode,
     onThemeModeSelected: (ThemeMode) -> Unit,
     accountEmail: String = "",
     onSignOut: () -> Unit = {},
+    access: Access = Access.Unknown,
+    onSubscriptionAction: () -> Unit = {},
     onCatalog: () -> Unit = {},
     onShoppingList: () -> Unit = {},
     onCheckForUpdates: () -> Unit = {},
@@ -77,143 +125,204 @@ fun SettingsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .verticalScroll(rememberScrollState())
+            .padding(bottom = 24.dp),
     ) {
-        Text(
-            text = stringResource(R.string.settings_account),
-            color = colors.onBackground,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 8.dp),
-        )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 24.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = accountEmail,
-                color = colors.onSurfaceVariant,
-                fontSize = 16.sp,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 12.dp)
-                    .testTag("settings_account_email"),
-            )
-            OutlinedButton(
-                onClick = onSignOut,
-                modifier = Modifier.testTag("settings_sign_out"),
-            ) {
-                Text(stringResource(R.string.settings_sign_out))
-            }
-        }
-        Text(
-            text = stringResource(R.string.settings_appearance),
-            color = colors.onBackground,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 8.dp),
-        )
-        ThemeMode.entries.forEach { mode ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onThemeModeSelected(mode) }
-                    .padding(vertical = 4.dp)
-                    .testTag("settings_theme_${mode.name.lowercase()}"),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                RadioButton(
-                    selected = themeMode == mode,
-                    onClick = null,
-                )
+        SettingsSectionTitle(stringResource(R.string.settings_account))
+        ListItem(
+            headlineContent = {
                 Text(
-                    text = stringResource(mode.titleRes),
-                    color = colors.onBackground,
-                    fontSize = 16.sp,
-                    modifier = Modifier.padding(start = 8.dp),
+                    text = accountEmail,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.testTag("settings_account_email"),
                 )
+            },
+            leadingContent = {
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(colors.primaryContainer, CircleShape),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = accountEmail.firstOrNull()?.uppercase().orEmpty(),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = colors.onPrimaryContainer,
+                    )
+                }
+            },
+            trailingContent = {
+                TextButton(
+                    onClick = onSignOut,
+                    modifier = Modifier.testTag("settings_sign_out"),
+                ) {
+                    Text(stringResource(R.string.settings_sign_out))
+                }
+            },
+            colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+        )
+        if (access !is Access.Unknown) {
+            ListItem(
+                headlineContent = {
+                    Text(
+                        text = when (access) {
+                            is Access.Subscribed -> stringResource(R.string.settings_subscription_premium)
+                            is Access.Trial -> pluralStringResource(
+                                R.plurals.settings_trial_days_left,
+                                access.daysLeft,
+                                access.daysLeft,
+                            )
+                            else -> stringResource(R.string.settings_subscription_free)
+                        },
+                        modifier = Modifier.testTag("settings_subscription_status"),
+                    )
+                },
+                trailingContent = {
+                    TextButton(
+                        onClick = onSubscriptionAction,
+                        modifier = Modifier.testTag("settings_subscription_action"),
+                    ) {
+                        Text(
+                            stringResource(
+                                if (access is Access.Subscribed) {
+                                    R.string.settings_subscription_manage
+                                } else {
+                                    R.string.settings_subscription_subscribe
+                                },
+                            ),
+                        )
+                    }
+                },
+                colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+            )
+        }
+
+        SettingsSectionTitle(stringResource(R.string.settings_appearance))
+        SingleChoiceSegmentedButtonRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+        ) {
+            ThemeMode.entries.forEachIndexed { index, mode ->
+                SegmentedButton(
+                    selected = themeMode == mode,
+                    onClick = { onThemeModeSelected(mode) },
+                    shape = SegmentedButtonDefaults.itemShape(index = index, count = ThemeMode.entries.size),
+                    modifier = Modifier.testTag("settings_theme_${mode.name.lowercase()}"),
+                ) {
+                    Text(
+                        text = stringResource(mode.titleRes),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
             }
         }
-        Text(
-            text = stringResource(R.string.nav_item_browse_catalog),
-            color = colors.onBackground,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable(onClick = onCatalog)
-                .padding(top = 24.dp, bottom = 12.dp)
-                .testTag("settings_catalog"),
+
+        SettingsSectionTitle(stringResource(R.string.settings_library))
+        SettingsRow(
+            icon = Icons.AutoMirrored.Outlined.MenuBook,
+            title = stringResource(R.string.nav_item_browse_catalog),
+            onClick = onCatalog,
+            tag = "settings_catalog",
         )
-        Text(
-            text = stringResource(R.string.nav_item_shopping_list),
-            color = colors.onBackground,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable(onClick = onShoppingList)
-                .padding(vertical = 12.dp)
-                .testTag("settings_shopping_list"),
+        SettingsRow(
+            icon = Icons.Outlined.ShoppingCart,
+            title = stringResource(R.string.nav_item_shopping_list),
+            onClick = onShoppingList,
+            tag = "settings_shopping_list",
         )
-        Text(
-            text = stringResource(R.string.settings_privacy),
-            color = colors.onBackground,
-            fontSize = 16.sp,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable(onClick = onPrivacyPolicy)
-                .padding(vertical = 12.dp)
-                .testTag("settings_privacy_policy"),
+
+        SettingsSectionTitle(stringResource(R.string.settings_privacy_header))
+        SettingsRow(
+            icon = Icons.Outlined.Policy,
+            title = stringResource(R.string.settings_privacy),
+            onClick = onPrivacyPolicy,
+            tag = "settings_privacy_policy",
+            chevron = false,
         )
         if (privacyOptionsRequired) {
-            Text(
-                text = stringResource(R.string.settings_privacy_options),
-                color = colors.onBackground,
-                fontSize = 16.sp,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable(onClick = onPrivacyOptions)
-                    .padding(vertical = 12.dp)
-                    .testTag("settings_privacy_options"),
+            SettingsRow(
+                icon = Icons.Outlined.PrivacyTip,
+                title = stringResource(R.string.settings_privacy_options),
+                onClick = onPrivacyOptions,
+                tag = "settings_privacy_options",
+                chevron = false,
             )
         }
-        Text(
-            text = stringResource(R.string.settings_play),
-            color = colors.onBackground,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(top = 12.dp, bottom = 8.dp),
+
+        SettingsSectionTitle(stringResource(R.string.settings_play))
+        SettingsRow(
+            icon = Icons.Outlined.SystemUpdate,
+            title = stringResource(R.string.settings_check_for_updates),
+            onClick = onCheckForUpdates,
+            tag = "settings_check_for_updates",
+            chevron = false,
         )
-        Text(
-            text = stringResource(R.string.settings_check_for_updates),
-            color = colors.onBackground,
-            fontSize = 16.sp,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable(onClick = onCheckForUpdates)
-                .padding(vertical = 12.dp)
-                .testTag("settings_check_for_updates"),
+        SettingsRow(
+            icon = Icons.Outlined.StarRate,
+            title = stringResource(R.string.settings_rate_app),
+            onClick = onRateApp,
+            tag = "settings_rate_app",
+            chevron = false,
         )
-        Text(
-            text = stringResource(R.string.settings_rate_app),
-            color = colors.onBackground,
-            fontSize = 16.sp,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable(onClick = onRateApp)
-                .padding(vertical = 12.dp)
-                .testTag("settings_rate_app"),
-        )
+
         Text(
             text = stringResource(R.string.settings_credits),
-            color = colors.onBackground.copy(alpha = 0.7f),
-            fontSize = 13.sp,
-            modifier = Modifier.padding(top = 24.dp),
+            color = colors.onSurfaceVariant,
+            style = MaterialTheme.typography.bodySmall,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 32.dp, vertical = 24.dp),
         )
     }
+}
+
+@Composable
+private fun SettingsSectionTitle(text: String) {
+    Text(
+        text = text.uppercase(Locale.getDefault()),
+        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 4.dp),
+        style = MixologySectionTitle,
+        color = MaterialTheme.colorScheme.primary,
+    )
+}
+
+@Composable
+private fun SettingsRow(
+    icon: ImageVector,
+    title: String,
+    onClick: () -> Unit,
+    tag: String,
+    chevron: Boolean = true,
+) {
+    ListItem(
+        headlineContent = { Text(title) },
+        leadingContent = {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        },
+        trailingContent = if (chevron) {
+            {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        } else {
+            null
+        },
+        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+        modifier = Modifier
+            .clickable(onClick = onClick)
+            .testTag(tag),
+    )
 }
 
 private val ThemeMode.titleRes: Int

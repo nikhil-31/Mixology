@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -18,6 +19,8 @@ import com.capstone.nik.mixology.ui.auth.AuthRoute
 import com.capstone.nik.mixology.ui.auth.SessionViewModel
 import com.capstone.nik.mixology.ui.drinkExtra
 import com.capstone.nik.mixology.ui.main.MixologyApp
+import com.capstone.nik.mixology.ui.paywall.PaywallRoute
+import com.capstone.nik.mixology.ui.paywall.SubscriptionGateViewModel
 import com.capstone.nik.mixology.ui.theme.MixologyTheme
 
 @AndroidEntryPoint
@@ -25,6 +28,7 @@ class ActivityMain : AppCompatActivity() {
 
     private var pendingDrink by mutableStateOf<Drink?>(null)
     private val sessionViewModel: SessionViewModel by viewModels()
+    private val subscriptionGate: SubscriptionGateViewModel by viewModels()
 
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,9 +38,17 @@ class ActivityMain : AppCompatActivity() {
         setContent {
             MixologyTheme {
                 val session by sessionViewModel.session.collectAsStateWithLifecycle()
+                val showPaywall by subscriptionGate.showPaywall.collectAsStateWithLifecycle()
+                val signedIn = session != null
+                LaunchedEffect(signedIn) {
+                    if (signedIn) subscriptionGate.refresh()
+                }
                 // Nothing in the app opens without an account; a pending drink waits for sign-in.
+                // Once the trial is over, nothing opens without a subscription either.
                 if (session == null) {
                     AuthRoute()
+                } else if (showPaywall) {
+                    PaywallRoute()
                 } else {
                     MixologyApp(
                         windowSizeClass = calculateWindowSizeClass(this),
@@ -46,6 +58,12 @@ class ActivityMain : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Catches renewals, cancellations and purchases made outside the app.
+        if (sessionViewModel.session.value != null) subscriptionGate.refresh()
     }
 
     override fun onNewIntent(intent: Intent) {

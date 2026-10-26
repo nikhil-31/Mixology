@@ -13,6 +13,13 @@ data class SignupRequest(
     @SerializedName("display_name") val displayName: String? = null,
 )
 
+/** Exchanges a Firebase ID token from Google or Apple sign-in for a backend session. */
+data class ProviderLoginRequest(
+    @SerializedName("id_token") val idToken: String,
+    /** Apple shares the user's name only on the first sign-in. */
+    @SerializedName("display_name") val displayName: String? = null,
+)
+
 data class AuthTokenResponse(
     @SerializedName("id_token") val idToken: String = "",
     @SerializedName("refresh_token") val refreshToken: String = "",

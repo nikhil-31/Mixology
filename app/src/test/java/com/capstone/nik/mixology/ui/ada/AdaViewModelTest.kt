@@ -3,6 +3,7 @@ package com.capstone.nik.mixology.ui.ada
 import android.app.Application
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
+import com.capstone.nik.mixology.FakeChatRepository
 import com.capstone.nik.mixology.FakeCocktailService
 import com.capstone.nik.mixology.MainDispatcherRule
 import com.capstone.nik.mixology.Network.ChatHttpException
@@ -71,24 +72,49 @@ class AdaViewModelTest {
     }
 
     @Test
-    fun signIn_loadsHistory() = runTest {
+    fun load_withSessionLoadsHistory() = runTest {
         chat.history = listOf(
             ChatTurn("user", "Alexander tonight"),
             ChatTurn("assistant", "A good fit.", listOf(alexander)),
         )
 
-        viewModel.onIntent(AdaIntent.EmailChanged("ada@mixology.test"))
-        viewModel.onIntent(AdaIntent.PasswordChanged("secret"))
-        viewModel.onIntent(AdaIntent.SignIn)
+        signIn()
 
         val state = viewModel.state.value
         assertTrue(state.signedIn)
-        assertEquals("ada@mixology.test", state.email)
-        assertEquals("", state.password)
         assertEquals("Alexander tonight", state.messages[0].content)
         assertEquals("user", state.messages[0].role)
         assertEquals("A good fit.", state.messages[1].content)
         assertEquals("11014", state.messages[1].drinks.single().id)
+    }
+
+    @Test
+    fun load_opensAtNewestPageThenLoadsOlderOnRequest() = runTest {
+        chat.history = (1L..5L).map { id -> ChatTurn("user", "message $id", serverId = id) }
+        chat.pageSize = 2
+
+        signIn()
+
+        assertEquals(listOf("message 4", "message 5"), viewModel.state.value.messages.map { it.content })
+        assertTrue(viewModel.state.value.hasOlder)
+
+        viewModel.onIntent(AdaIntent.LoadOlder)
+        assertEquals(
+            listOf("message 2", "message 3", "message 4", "message 5"),
+            viewModel.state.value.messages.map { it.content },
+        )
+        assertTrue(viewModel.state.value.hasOlder)
+
+        viewModel.onIntent(AdaIntent.LoadOlder)
+        val state = viewModel.state.value
+        assertEquals((1..5).map { "message $it" }, state.messages.map { it.content })
+        assertFalse(state.hasOlder)
+        assertFalse(state.loadingOlder)
+        assertEquals(listOf(null, 4L, 2L), chat.historyRequests)
+
+        // Nothing older remains, so another request does not hit the server.
+        viewModel.onIntent(AdaIntent.LoadOlder)
+        assertEquals(3, chat.historyRequests.size)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -151,15 +177,18 @@ class AdaViewModelTest {
 
         val state = viewModel.state.value
         assertFalse(state.signedIn)
-        assertEquals("Not authenticated", state.authError)
         assertTrue(state.messages.isEmpty())
         assertTrue(chat.signedOut)
     }
 
     private fun signIn() {
-        viewModel.onIntent(AdaIntent.EmailChanged("ada@mixology.test"))
-        viewModel.onIntent(AdaIntent.PasswordChanged("secret"))
-        viewModel.onIntent(AdaIntent.SignIn)
+        chat.session = Session(
+            idToken = "token",
+            email = "ada@mixology.test",
+            displayName = "Ada",
+            expiresAtEpochMs = Long.MAX_VALUE,
+        )
+        viewModel.onIntent(AdaIntent.Load)
         assertTrue(viewModel.state.value.signedIn)
     }
 }
@@ -169,43 +198,3 @@ private val alexander = Drink(
     name = "Alexander",
     thumb = "https://example.com/a.jpg",
 )
-
-private class FakeChatRepository : ChatRepository {
-    var session: Session? = null
-    var history: List<ChatTurn> = emptyList()
-    var signInResult: AuthResult = AuthResult.Success(
-        Session(
-            idToken = "token",
-            email = "ada@mixology.test",
-            displayName = "Ada",
-            expiresAtEpochMs = Long.MAX_VALUE,
-        ),
-    )
-    var sendFlow: Flow<ChatStreamEvent> = flowOf()
-    val sent = mutableListOf<String>()
-    var signedOut = false
-
-    override fun currentSession(): Session? = session
-
-    override suspend fun signIn(email: String, password: String): AuthResult {
-        val result = signInResult
-        if (result is AuthResult.Success) session = result.session
-        return result
-    }
-
-    override suspend fun signUp(email: String, password: String, displayName: String): AuthResult {
-        return signIn(email, password)
-    }
-
-    override fun signOut() {
-        session = null
-        signedOut = true
-    }
-
-    override suspend fun history(): List<ChatTurn> = history
-
-    override fun send(message: String): Flow<ChatStreamEvent> {
-        sent += message
-        return sendFlow
-    }
-}

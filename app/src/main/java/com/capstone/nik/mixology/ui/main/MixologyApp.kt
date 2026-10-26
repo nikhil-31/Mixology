@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -192,7 +193,8 @@ fun MixologyApp(
         !state.destination.isBottomNavTab() &&
         state.destination !is DrawerDestination.Settings
     val settingsSelected = state.destination is DrawerDestination.Settings ||
-        state.destination is DrawerDestination.Shopping
+        state.destination is DrawerDestination.Shopping ||
+        state.destination is DrawerDestination.Catalog
     val title = when (val destination = state.destination) {
         DrawerDestination.Hot -> stringResource(R.string.nav_item_home)
         DrawerDestination.Settings -> stringResource(R.string.nav_bottom_settings)
@@ -227,7 +229,8 @@ fun MixologyApp(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(padding),
+                    .padding(padding)
+                    .consumeWindowInsets(padding),
             ) {
                 if (!overlay) {
                     ScreenHeader(
@@ -237,7 +240,9 @@ fun MixologyApp(
                         settingsSelected = settingsSelected,
                         onUp = {
                             val parent = when (state.destination) {
-                                DrawerDestination.Shopping -> DrawerDestination.Settings
+                                DrawerDestination.Shopping,
+                                DrawerDestination.Catalog,
+                                -> DrawerDestination.Settings
                                 is DrawerDestination.Filter -> DrawerDestination.Catalog
                                 else -> DrawerDestination.Hot
                             }
@@ -326,6 +331,9 @@ fun MixologyApp(
                         }
                         composable(SETTINGS_ROUTE) {
                             SettingsRoute(
+                                onCatalog = {
+                                    viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Catalog))
+                                },
                                 onShoppingList = {
                                     viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Shopping))
                                 },

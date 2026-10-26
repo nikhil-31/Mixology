@@ -1,49 +1,75 @@
 package com.capstone.nik.mixology.ui.ada
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.StartOffset
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -53,6 +79,7 @@ import com.capstone.nik.mixology.ui.components.DrinkCard
 import com.capstone.nik.mixology.ui.components.DrinkCardRailHeight
 import com.capstone.nik.mixology.ui.components.DrinkCardRailWidth
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
+import kotlinx.coroutines.delay
 
 @Composable
 fun AdaRoute(
@@ -70,34 +97,24 @@ fun AdaRoute(
     }
     AdaScreen(
         state = state,
-        onEmailChanged = { viewModel.onIntent(AdaIntent.EmailChanged(it)) },
-        onPasswordChanged = { viewModel.onIntent(AdaIntent.PasswordChanged(it)) },
-        onDisplayNameChanged = { viewModel.onIntent(AdaIntent.DisplayNameChanged(it)) },
-        onSignIn = { viewModel.onIntent(AdaIntent.SignIn) },
-        onSignUp = { viewModel.onIntent(AdaIntent.SignUp) },
-        onSignOut = { viewModel.onIntent(AdaIntent.SignOut) },
         onDraftChanged = { viewModel.onIntent(AdaIntent.DraftChanged(it)) },
         onSend = { viewModel.onIntent(AdaIntent.Send) },
         onSuggestion = { viewModel.onIntent(AdaIntent.UseSuggestion(it)) },
         onDrinkClick = { viewModel.onIntent(AdaIntent.OpenDrink(it)) },
         onToggleSaved = { viewModel.onIntent(AdaIntent.ToggleSaved(it)) },
+        onLoadOlder = { viewModel.onIntent(AdaIntent.LoadOlder) },
     )
 }
 
 @Composable
 fun AdaScreen(
     state: AdaUiState,
-    onEmailChanged: (String) -> Unit,
-    onPasswordChanged: (String) -> Unit,
-    onDisplayNameChanged: (String) -> Unit,
-    onSignIn: () -> Unit,
-    onSignUp: () -> Unit,
-    onSignOut: () -> Unit,
     onDraftChanged: (String) -> Unit,
     onSend: () -> Unit,
     onSuggestion: (String) -> Unit,
     onDrinkClick: (Drink) -> Unit,
     onToggleSaved: (Drink) -> Unit,
+    onLoadOlder: () -> Unit = {},
 ) {
     Column(
         modifier = Modifier
@@ -105,133 +122,17 @@ fun AdaScreen(
             .imePadding()
             .testTag("ada_screen"),
     ) {
-        if (!state.signedIn) {
-            AdaSignIn(
-                state = state,
-                onEmailChanged = onEmailChanged,
-                onPasswordChanged = onPasswordChanged,
-                onDisplayNameChanged = onDisplayNameChanged,
-                onSignIn = onSignIn,
-                onSignUp = onSignUp,
-            )
-        } else {
+        // Signed-out users never get here: the app shows the login screen instead.
+        if (state.signedIn) {
             AdaTranscript(
                 state = state,
-                onSignOut = onSignOut,
                 onDraftChanged = onDraftChanged,
                 onSend = onSend,
                 onSuggestion = onSuggestion,
                 onDrinkClick = onDrinkClick,
                 onToggleSaved = onToggleSaved,
+                onLoadOlder = onLoadOlder,
                 modifier = Modifier.weight(1f),
-            )
-        }
-    }
-}
-
-@Composable
-private fun AdaSignIn(
-    state: AdaUiState,
-    onEmailChanged: (String) -> Unit,
-    onPasswordChanged: (String) -> Unit,
-    onDisplayNameChanged: (String) -> Unit,
-    onSignIn: () -> Unit,
-    onSignUp: () -> Unit,
-) {
-    val canSubmit = state.email.isNotBlank() && state.password.isNotBlank() && !state.signingIn
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 24.dp, vertical = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        Box(
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .size(88.dp)
-                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f), CircleShape),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                imageVector = AdaPlushieFilled,
-                contentDescription = stringResource(R.string.nav_bottom_ada),
-                modifier = Modifier.size(56.dp),
-                tint = MaterialTheme.colorScheme.primary,
-            )
-        }
-        Text(
-            text = stringResource(R.string.ada_auth_intro),
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onBackground,
-        )
-        OutlinedTextField(
-            value = state.email,
-            onValueChange = onEmailChanged,
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("ada_email"),
-            label = { Text(stringResource(R.string.ada_email)) },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Email,
-                imeAction = ImeAction.Next,
-            ),
-        )
-        OutlinedTextField(
-            value = state.password,
-            onValueChange = onPasswordChanged,
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("ada_password"),
-            label = { Text(stringResource(R.string.ada_password)) },
-            singleLine = true,
-            visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Password,
-                imeAction = ImeAction.Next,
-            ),
-        )
-        OutlinedTextField(
-            value = state.displayName,
-            onValueChange = onDisplayNameChanged,
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("ada_name"),
-            label = { Text(stringResource(R.string.ada_display_name)) },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-        )
-        state.authError?.takeIf { it.isNotBlank() }?.let { detail ->
-            Text(
-                text = detail,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.testTag("ada_auth_error"),
-            )
-        }
-        Button(
-            onClick = onSignIn,
-            enabled = canSubmit,
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("ada_sign_in"),
-        ) {
-            Text(stringResource(R.string.ada_sign_in))
-        }
-        OutlinedButton(
-            onClick = onSignUp,
-            enabled = canSubmit,
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("ada_sign_up"),
-        ) {
-            Text(stringResource(R.string.ada_sign_up))
-        }
-        if (state.signingIn) {
-            CircularProgressIndicator(
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .size(24.dp),
             )
         }
     }
@@ -241,12 +142,12 @@ private fun AdaSignIn(
 @Composable
 private fun AdaTranscript(
     state: AdaUiState,
-    onSignOut: () -> Unit,
     onDraftChanged: (String) -> Unit,
     onSend: () -> Unit,
     onSuggestion: (String) -> Unit,
     onDrinkClick: (Drink) -> Unit,
     onToggleSaved: (Drink) -> Unit,
+    onLoadOlder: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val suggestions = listOf(
@@ -254,42 +155,30 @@ private fun AdaTranscript(
         stringResource(R.string.ada_suggestion_bitter),
         stringResource(R.string.ada_suggestion_easy),
     )
+    // The list is laid out bottom-up (reverseLayout), so item 0 is the newest
+    // message and the chat opens there without scrolling through history.
     val listState = rememberLazyListState()
-    val tail = state.messages.lastOrNull()
-    LaunchedEffect(state.messages.size, tail?.content, tail?.drinks?.size) {
-        if (state.messages.isNotEmpty()) {
-            listState.animateScrollToItem(state.messages.lastIndex)
+    val newest = state.messages.lastOrNull()
+    LaunchedEffect(newest?.id) {
+        // A new message lands below the visible ones; bring it into view.
+        if (newest != null) listState.animateScrollToItem(0)
+    }
+    LaunchedEffect(newest?.content, newest?.drinks?.size) {
+        // Streaming text and drink cards grow the newest message; stay pinned
+        // to it unless the user has scrolled up to read older messages.
+        if (newest != null && listState.firstVisibleItemIndex == 0) listState.scrollToItem(0)
+    }
+    val nearOldest by remember {
+        derivedStateOf {
+            val info = listState.layoutInfo
+            val last = info.visibleItemsInfo.lastOrNull()?.index ?: 0
+            info.totalItemsCount > 0 && last >= info.totalItemsCount - OLDER_PREFETCH
         }
     }
+    LaunchedEffect(nearOldest, state.hasOlder, state.loadingOlder) {
+        if (nearOldest && state.hasOlder && !state.loadingOlder) onLoadOlder()
+    }
     Column(modifier = modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 16.dp, end = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                imageVector = AdaPlushieFilled,
-                contentDescription = null,
-                modifier = Modifier.size(28.dp),
-                tint = MaterialTheme.colorScheme.primary,
-            )
-            Text(
-                text = state.email,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 8.dp),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-            )
-            TextButton(
-                onClick = onSignOut,
-                modifier = Modifier.testTag("ada_sign_out"),
-            ) {
-                Text(stringResource(R.string.ada_sign_out))
-            }
-        }
         when {
             state.loadingHistory && state.messages.isEmpty() -> {
                 Box(
@@ -310,22 +199,22 @@ private fun AdaTranscript(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    Icon(
-                        imageVector = AdaPlushieFilled,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .padding(bottom = 12.dp)
-                            .size(72.dp),
-                        tint = MaterialTheme.colorScheme.primary,
+                    AdaAvatar(size = 88.dp, modifier = Modifier.padding(bottom = 16.dp))
+                    Text(
+                        text = stringResource(R.string.ada_greeting),
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.onBackground,
                     )
                     Text(
                         text = stringResource(R.string.ada_empty),
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onBackground,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(top = 4.dp),
                     )
                     FlowRow(
-                        modifier = Modifier.padding(top = 12.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.padding(top = 20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
                     ) {
                         suggestions.forEachIndexed { index, label ->
                             SuggestionChip(
@@ -340,59 +229,141 @@ private fun AdaTranscript(
             else -> {
                 LazyColumn(
                     state = listState,
+                    reverseLayout = true,
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth()
                         .testTag("ada_messages"),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    contentPadding = PaddingValues(top = 8.dp, bottom = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.Bottom),
                 ) {
-                    items(state.messages, key = { it.id }) { message ->
+                    items(state.messages.asReversed(), key = { it.id }) { message ->
                         AdaMessageRow(
                             message = message,
                             onDrinkClick = onDrinkClick,
                             onToggleSaved = onToggleSaved,
                         )
                     }
+                    if (state.loadingOlder) {
+                        item(key = "ada_loading_older") {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp)
+                                    .testTag("ada_loading_older"),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                            }
+                        }
+                    }
                 }
             }
         }
         state.error?.let { detail ->
-            Text(
-                text = detail.ifBlank { stringResource(R.string.ada_error_generic) },
-                color = MaterialTheme.colorScheme.error,
+            Surface(
                 modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 4.dp)
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 4.dp)
                     .testTag("ada_error"),
-            )
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            OutlinedTextField(
-                value = state.draft,
-                onValueChange = onDraftChanged,
-                modifier = Modifier
-                    .weight(1f)
-                    .testTag("ada_draft"),
-                placeholder = { Text(stringResource(R.string.ada_prompt)) },
-                enabled = !state.sending,
-                maxLines = 4,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                keyboardActions = KeyboardActions(onSend = { onSend() }),
-            )
-            Button(
-                onClick = onSend,
-                enabled = state.draft.isNotBlank() && !state.sending && !state.loadingHistory,
-                modifier = Modifier
-                    .padding(start = 8.dp)
-                    .testTag("ada_send"),
+                color = MaterialTheme.colorScheme.errorContainer,
+                contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                shape = RoundedCornerShape(12.dp),
             ) {
-                Text(stringResource(R.string.ada_send))
+                Row(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.ErrorOutline,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
+                    )
+                    Text(
+                        text = detail.ifBlank { stringResource(R.string.ada_error_generic) },
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(start = 8.dp),
+                    )
+                }
             }
         }
+        AdaComposer(
+            draft = state.draft,
+            canSend = state.draft.isNotBlank() && !state.sending && !state.loadingHistory,
+            onDraftChanged = onDraftChanged,
+            onSend = onSend,
+        )
+    }
+}
+
+@Composable
+private fun AdaComposer(
+    draft: String,
+    canSend: Boolean,
+    onDraftChanged: (String) -> Unit,
+    onSend: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 12.dp, end = 8.dp, top = 6.dp, bottom = 10.dp),
+        verticalAlignment = Alignment.Bottom,
+    ) {
+        TextField(
+            value = draft,
+            onValueChange = onDraftChanged,
+            modifier = Modifier
+                .weight(1f)
+                .testTag("ada_draft"),
+            placeholder = { Text(stringResource(R.string.ada_prompt)) },
+            shape = RoundedCornerShape(24.dp),
+            colors = TextFieldDefaults.colors(
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent,
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+            ),
+            maxLines = 4,
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.Sentences,
+                imeAction = ImeAction.Send,
+            ),
+            keyboardActions = KeyboardActions(onSend = { if (canSend) onSend() }),
+        )
+        FilledIconButton(
+            onClick = onSend,
+            enabled = canSend,
+            modifier = Modifier
+                .padding(start = 8.dp, bottom = 4.dp)
+                .size(48.dp)
+                .testTag("ada_send"),
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.Send,
+                contentDescription = stringResource(R.string.ada_send),
+            )
+        }
+    }
+}
+
+@Composable
+private fun AdaAvatar(
+    modifier: Modifier = Modifier,
+    size: Dp = AvatarSize,
+) {
+    Box(
+        modifier = modifier
+            .size(size)
+            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.16f), CircleShape),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            imageVector = AdaPlushieFilled,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(size * 0.62f),
+        )
     }
 }
 
@@ -404,9 +375,9 @@ private fun AdaMessageRow(
 ) {
     val fromUser = message.role == "user"
     val shape = if (fromUser) {
-        RoundedCornerShape(18.dp, 18.dp, 4.dp, 18.dp)
+        RoundedCornerShape(20.dp, 20.dp, 6.dp, 20.dp)
     } else {
-        RoundedCornerShape(18.dp, 18.dp, 18.dp, 4.dp)
+        RoundedCornerShape(20.dp, 20.dp, 20.dp, 6.dp)
     }
     val container = if (fromUser) {
         MaterialTheme.colorScheme.primaryContainer
@@ -421,33 +392,46 @@ private fun AdaMessageRow(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 4.dp)
             .testTag(if (fromUser) "ada_user_message" else "ada_assistant_message"),
     ) {
         if (message.content.isNotEmpty() || message.streaming) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = if (fromUser) Arrangement.End else Arrangement.Start,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp),
+                verticalAlignment = Alignment.Bottom,
             ) {
-                Surface(
-                    modifier = Modifier.fillMaxWidth(0.86f),
-                    color = container,
-                    contentColor = contentColor,
-                    shape = shape,
-                ) {
-                    Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
-                        if (message.content.isNotEmpty()) {
-                            Text(text = message.content, style = MaterialTheme.typography.bodyLarge)
-                        }
-                        if (message.streaming) {
-                            CircularProgressIndicator(
-                                modifier = Modifier
-                                    .padding(top = if (message.content.isEmpty()) 0.dp else 8.dp)
-                                    .size(14.dp),
-                                strokeWidth = 2.dp,
-                            )
+                if (fromUser) {
+                    Spacer(modifier = Modifier.width(BubbleGutter))
+                    Spacer(modifier = Modifier.weight(1f))
+                } else {
+                    AdaAvatar(modifier = Modifier.padding(end = AvatarGap))
+                }
+                // Bubbles hug their text and only grow up to the gutter on the far side.
+                Box(modifier = Modifier.weight(1f, fill = false)) {
+                    if (message.streaming && message.content.isEmpty()) {
+                        AdaThinkingBubble(shape = shape, container = container, contentColor = contentColor)
+                    } else {
+                        Surface(
+                            color = container,
+                            contentColor = contentColor,
+                            shape = shape,
+                        ) {
+                            Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
+                                if (message.content.isNotEmpty()) {
+                                    SelectionContainer {
+                                        Text(text = message.content, style = MaterialTheme.typography.bodyLarge)
+                                    }
+                                }
+                                if (message.streaming) {
+                                    TypingDots(modifier = Modifier.padding(top = 8.dp))
+                                }
+                            }
                         }
                     }
+                }
+                if (!fromUser) {
+                    Spacer(modifier = Modifier.width(BubbleGutter / 2))
                 }
             }
         }
@@ -456,6 +440,7 @@ private fun AdaMessageRow(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp),
+                contentPadding = PaddingValues(start = 12.dp + AvatarSize + AvatarGap, end = 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 itemsIndexed(message.drinks, key = { index, drink -> "${message.id}-${drink.id}-$index" }) { _, drink ->
@@ -471,3 +456,87 @@ private fun AdaMessageRow(
         }
     }
 }
+
+private val AvatarSize = 32.dp
+private val AvatarGap = 8.dp
+private val BubbleGutter = 48.dp
+
+private const val THINKING_PHRASE_MILLIS = 2_400L
+
+@Composable
+private fun AdaThinkingBubble(
+    shape: Shape,
+    container: Color,
+    contentColor: Color,
+) {
+    val phrases = stringArrayResource(R.array.ada_thinking)
+    var index by remember { mutableIntStateOf(0) }
+    LaunchedEffect(phrases.size) {
+        while (true) {
+            delay(THINKING_PHRASE_MILLIS)
+            index = (index + 1) % phrases.size
+        }
+    }
+    Surface(
+        modifier = Modifier.testTag("ada_thinking"),
+        color = container,
+        contentColor = contentColor,
+        shape = shape,
+    ) {
+        Row(
+            modifier = Modifier
+                .animateContentSize()
+                .padding(start = 4.dp, end = 14.dp, top = 10.dp, bottom = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            AnimatedContent(
+                targetState = phrases[index],
+                transitionSpec = {
+                    (fadeIn() + slideInVertically { it / 2 }) togetherWith
+                        (fadeOut() + slideOutVertically { -it / 2 })
+                },
+                modifier = Modifier.padding(horizontal = 10.dp),
+                label = "adaThinkingPhrase",
+            ) { phrase ->
+                Text(text = phrase, style = MaterialTheme.typography.bodyMedium)
+            }
+            TypingDots()
+        }
+    }
+}
+
+@Composable
+private fun TypingDots(modifier: Modifier = Modifier) {
+    val transition = rememberInfiniteTransition(label = "typingDots")
+    Row(
+        modifier = modifier.height(14.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        repeat(3) { dot ->
+            val offset by transition.animateFloat(
+                initialValue = 0f,
+                targetValue = 0f,
+                animationSpec = infiniteRepeatable(
+                    animation = keyframes {
+                        durationMillis = 1_200
+                        0f at 0
+                        -4f at 300
+                        0f at 600
+                    },
+                    initialStartOffset = StartOffset(dot * 150),
+                ),
+                label = "typingDot$dot",
+            )
+            Box(
+                modifier = Modifier
+                    .offset(y = offset.dp)
+                    .size(6.dp)
+                    .background(LocalContentColor.current.copy(alpha = 0.6f), CircleShape),
+            )
+        }
+    }
+}
+
+/** Start loading older messages when this many items from the oldest loaded one. */
+private const val OLDER_PREFETCH = 3

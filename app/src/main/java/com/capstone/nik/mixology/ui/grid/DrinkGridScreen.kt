@@ -182,25 +182,31 @@ private fun SwipeUnsaveRow(
         state = dismissState,
         enableDismissFromStartToEnd = false,
         backgroundContent = {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.errorContainer)
-                    .padding(horizontal = 20.dp),
-                contentAlignment = Alignment.CenterEnd,
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Delete,
-                    contentDescription = stringResource(R.string.content_desc_unsave_cocktail),
-                    tint = MaterialTheme.colorScheme.onErrorContainer,
-                )
+            // Only reveal the delete affordance while the row is being swiped.
+            if (dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.errorContainer)
+                        .padding(horizontal = 20.dp),
+                    contentAlignment = Alignment.CenterEnd,
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Delete,
+                        contentDescription = stringResource(R.string.content_desc_unsave_cocktail),
+                        tint = MaterialTheme.colorScheme.onErrorContainer,
+                    )
+                }
             }
         },
     ) {
-        DrinkListItem(
-            drink = drink,
-            onDrinkClick = onDrinkClick,
-            onToggleSaved = onToggleSaved,
-        )
+        // Opaque so the swipe background never shows through the row.
+        Box(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
+            DrinkListItem(
+                drink = drink,
+                onDrinkClick = onDrinkClick,
+                onToggleSaved = onToggleSaved,
+            )
+        }
     }
 }

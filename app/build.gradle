@@ -152,6 +152,11 @@ dependencies {
     implementation platform(libs.firebase.bom)
     implementation libs.firebase.crashlytics
     implementation libs.firebase.analytics
+    implementation libs.firebase.auth
+    implementation libs.androidx.credentials
+    implementation libs.androidx.credentials.play.services.auth
+    implementation libs.googleid
+    implementation libs.kotlinx.coroutines.play.services
     implementation libs.play.services.ads
     implementation libs.user.messaging.platform
     implementation libs.play.app.update

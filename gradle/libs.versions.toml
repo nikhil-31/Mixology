@@ -28,6 +28,8 @@ playReview = "2.0.2"
 playServicesAds = "23.6.0"
 userMessagingPlatform = "3.2.0"
 playServicesAuth = "21.3.0"
+credentials = "1.6.0"
+googleId = "1.1.1"
 recyclerview = "1.4.0"
 retrofit = "2.11.0"
 espressoCore = "3.6.1"
@@ -120,6 +122,12 @@ androidx-room-testing = { module = "androidx.room:room-testing", version.ref = "
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+# Pinned below the BOM: firebase-auth 24.1+ ships Kotlin 2.3 metadata, which this project's Kotlin 2.1 can't read.
+firebase-auth = { module = "com.google.firebase:firebase-auth", version = { strictly = "24.0.1" } }
+androidx-credentials = { module = "androidx.credentials:credentials", version.ref = "credentials" }
+androidx-credentials-play-services-auth = { module = "androidx.credentials:credentials-play-services-auth", version.ref = "credentials" }
+googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "googleId" }
+kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "kotlinxCoroutines" }
 firebase-crashlytics-gradle = { module = "com.google.firebase:firebase-crashlytics-gradle", version.ref = "firebaseCrashlyticsGradle" }
 
 [plugins]

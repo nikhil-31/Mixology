@@ -3,6 +3,9 @@ package com.capstone.nik.mixology.data
 import android.content.Context
 import android.content.SharedPreferences
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -20,11 +23,24 @@ class SessionStore @Inject constructor(
     private val prefs: SharedPreferences =
         context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
 
+    private val _session = MutableStateFlow(read())
+
+    /** The signed-in session, or null once it is cleared or found expired. */
+    val session: StateFlow<Session?> = _session.asStateFlow()
+
     fun current(): Session? {
+        val session = read()
+        if (session == null && _session.value != null) {
+            _session.value = null
+        }
+        return session
+    }
+
+    private fun read(): Session? {
         val token = prefs.getString(KEY_TOKEN, null)?.takeIf { it.isNotBlank() } ?: return null
         val expiresAt = prefs.getLong(KEY_EXPIRES, 0L)
         if (expiresAt <= System.currentTimeMillis()) {
-            clear()
+            prefs.edit().clear().apply()
             return null
         }
         return Session(
@@ -55,11 +71,13 @@ class SessionStore @Inject constructor(
             .putString(KEY_NAME, session.displayName)
             .putLong(KEY_EXPIRES, session.expiresAtEpochMs)
             .apply()
+        _session.value = session
         return session
     }
 
     fun clear() {
         prefs.edit().clear().apply()
+        _session.value = null
     }
 
     private companion object {

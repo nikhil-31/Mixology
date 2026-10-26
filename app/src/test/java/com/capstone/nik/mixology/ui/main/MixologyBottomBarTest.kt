@@ -26,7 +26,7 @@ class MixologyBottomBarTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun showsHomeMyBarCatalogSavedAndAda_andReportsSelection() {
+    fun showsHomeMyBarSavedAndAda_andReportsSelection() {
         val selected = mutableListOf<DrawerDestination>()
         composeRule.setContent {
             MixologyTheme {
@@ -38,19 +38,17 @@ class MixologyBottomBarTest {
         }
 
         composeRule.onNodeWithText("Home").assertIsDisplayed()
-        composeRule.onNodeWithText("Catalog").assertIsDisplayed()
         composeRule.onNodeWithText("My Bar").assertIsDisplayed()
         composeRule.onNodeWithText("Saved").assertIsDisplayed()
         composeRule.onNodeWithText("Ada").assertIsDisplayed()
+        composeRule.onNodeWithTag("bottom_Catalog").assertDoesNotExist()
         composeRule.onNodeWithTag("bottom_My Bar").performClick()
-        composeRule.onNodeWithTag("bottom_Catalog").performClick()
         composeRule.onNodeWithTag("bottom_Saved").performClick()
         composeRule.onNodeWithTag("bottom_Ada").performClick()
 
         assertTrue(selected[0] is DrawerDestination.Bar)
-        assertTrue(selected[1] is DrawerDestination.Catalog)
-        assertEquals(DrinkFilter.SAVED, (selected[2] as DrawerDestination.Filter).filter)
-        assertTrue(selected[3] is DrawerDestination.Ada)
+        assertEquals(DrinkFilter.SAVED, (selected[1] as DrawerDestination.Filter).filter)
+        assertTrue(selected[2] is DrawerDestination.Ada)
     }
 
     @Test

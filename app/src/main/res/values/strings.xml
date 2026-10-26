@@ -41,7 +41,6 @@
     <string name="widget_empty_saved_cocktails">Add a cocktail</string>
 
     <string name="nav_bottom_saved">Saved</string>
-    <string name="nav_bottom_catalog">Catalog</string>
     <string name="nav_bottom_settings">Settings</string>
     <string name="nav_bottom_ada">Ada</string>
     <string name="nav_item_my_bar">My Bar</string>
@@ -131,19 +130,39 @@
     <string name="bar_needs">Needs %1$s</string>
     <string name="bar_remove_ingredient">Remove %1$s</string>
     <string name="bar_in_bar">In your bar</string>
-
-    <string name="ada_email">Email</string>
-    <string name="ada_password">Password</string>
-    <string name="ada_display_name">Name (optional)</string>
-    <string name="ada_sign_in">Sign in</string>
-    <string name="ada_sign_up">Create account</string>
-    <string name="ada_sign_out">Sign out</string>
+    <string name="auth_welcome_back">Welcome back</string>
+    <string name="auth_create_title">Create your account</string>
+    <string name="auth_subtitle">Sign in to save drinks, stock your bar and chat with Ada.</string>
+    <string name="auth_sign_up_subtitle">New accounts start with a 7-day Ada trial.</string>
+    <string name="auth_name">Name (optional)</string>
+    <string name="auth_email">Email</string>
+    <string name="auth_password">Password</string>
+    <string name="auth_show_password">Show password</string>
+    <string name="auth_hide_password">Hide password</string>
+    <string name="auth_sign_in">Sign in</string>
+    <string name="auth_sign_up">Create account</string>
+    <string name="auth_switch_to_sign_up">New here? Create an account</string>
+    <string name="auth_or">or</string>
+    <string name="auth_continue_with_google">Continue with Google</string>
+    <string name="auth_continue_with_apple">Continue with Apple</string>
+    <string name="auth_apple_failed">Sign in with Apple didn’t work. Please try again.</string>
+    <string name="auth_google_failed">Google sign-in didn’t work. Please try again.</string>
+    <string name="auth_google_no_account">No Google account is signed in on this device.</string>
+    <string name="auth_switch_to_sign_in">Already have an account? Sign in</string>
+    <string name="settings_account">Account</string>
+    <string name="settings_sign_out">Sign out</string>
     <string name="ada_prompt">Ask for a drink</string>
     <string name="ada_send">Send</string>
+    <string name="ada_greeting">Hi, I\'m Ada</string>
     <string name="ada_empty">Tell Ada what you feel like drinking.</string>
     <string name="ada_suggestion_gin">Something with gin</string>
     <string name="ada_suggestion_bitter">A bitter nightcap</string>
     <string name="ada_suggestion_easy">Low effort, high reward</string>
-    <string name="ada_auth_intro">Sign in to ask Ada for a drink. A new account starts a 7-day trial.</string>
     <string name="ada_error_generic">Something went wrong. Try again.</string>
+    <string-array name="ada_thinking">
+        <item>Shaking things up…</item>
+        <item>Checking the back bar…</item>
+        <item>Muddling a few ideas…</item>
+        <item>Picking the perfect glass…</item>
+    </string-array>
 </resources>

@@ -4,7 +4,6 @@ import androidx.lifecycle.viewModelScope
 import com.capstone.nik.mixology.Network.ChatHttpException
 import com.capstone.nik.mixology.Network.ChatStreamEvent
 import com.capstone.nik.mixology.data.Drink
-import com.capstone.nik.mixology.repository.AuthResult
 import com.capstone.nik.mixology.repository.ChatRepository
 import com.capstone.nik.mixology.repository.ChatTurn
 import com.capstone.nik.mixology.repository.DrinkRepository
@@ -25,6 +24,9 @@ class AdaViewModel @Inject constructor(
     private var savedIds: Set<String> = emptySet()
     private var nextId = 1L
     private var historyJob: Job? = null
+    private var olderJob: Job? = null
+    /** Server id of the oldest loaded message, the cursor for older pages. */
+    private var oldestServerId: Long? = null
     private var sendJob: Job? = null
 
     init {
@@ -40,12 +42,7 @@ class AdaViewModel @Inject constructor(
     override fun onIntent(intent: AdaIntent) {
         when (intent) {
             AdaIntent.Load -> load()
-            is AdaIntent.EmailChanged -> setState { copy(email = intent.value, authError = null) }
-            is AdaIntent.PasswordChanged -> setState { copy(password = intent.value, authError = null) }
-            is AdaIntent.DisplayNameChanged -> setState { copy(displayName = intent.value, authError = null) }
-            AdaIntent.SignIn -> authenticate(create = false)
-            AdaIntent.SignUp -> authenticate(create = true)
-            AdaIntent.SignOut -> signOut()
+            AdaIntent.LoadOlder -> loadOlder()
             is AdaIntent.DraftChanged -> setState { copy(draft = intent.value) }
             AdaIntent.Send -> send()
             is AdaIntent.UseSuggestion -> setState { copy(draft = intent.text) }
@@ -58,6 +55,8 @@ class AdaViewModel @Inject constructor(
         val session = chatRepository.currentSession()
         if (session == null) {
             historyJob?.cancel()
+            olderJob?.cancel()
+            oldestServerId = null
             sendJob?.cancel()
             transcript = emptyList()
             setState {
@@ -66,19 +65,15 @@ class AdaViewModel @Inject constructor(
                     loadingHistory = false,
                     sending = false,
                     messages = emptyList(),
+                    hasOlder = false,
+                    loadingOlder = false,
                     error = null,
                 )
             }
             return
         }
         if (currentState.loadingHistory || currentState.sending) return
-        setState {
-            copy(
-                signedIn = true,
-                email = session.email.ifBlank { email },
-                displayName = session.displayName.ifBlank { displayName },
-            )
-        }
+        setState { copy(signedIn = true) }
         loadHistory()
     }
 
@@ -87,14 +82,22 @@ class AdaViewModel @Inject constructor(
         historyJob = viewModelScope.launch {
             setState { copy(loadingHistory = true, error = null) }
             try {
-                val turns = chatRepository.history()
+                olderJob?.cancel()
+                val page = chatRepository.history()
                 if (!currentState.signedIn || currentState.sending) {
                     setState { copy(loadingHistory = false) }
                     return@launch
                 }
-                transcript = turns.map { it.toAdaMessage() }
+                transcript = page.turns.map { it.toAdaMessage() }
+                oldestServerId = page.turns.firstOrNull()?.serverId?.takeIf { it > 0 }
                 publishMessages()
-                setState { copy(loadingHistory = false) }
+                setState {
+                    copy(
+                        loadingHistory = false,
+                        loadingOlder = false,
+                        hasOlder = page.hasMore && oldestServerId != null,
+                    )
+                }
             } catch (error: CancellationException) {
                 throw error
             } catch (error: ChatHttpException) {
@@ -105,49 +108,26 @@ class AdaViewModel @Inject constructor(
         }
     }
 
-    private fun authenticate(create: Boolean) {
-        val email = currentState.email.trim()
-        val password = currentState.password
-        val name = currentState.displayName
-        if (email.isEmpty() || password.isEmpty() || currentState.signingIn) return
-        setState { copy(signingIn = true, authError = null) }
-        viewModelScope.launch {
-            val result = if (create) {
-                chatRepository.signUp(email, password, name)
-            } else {
-                chatRepository.signIn(email, password)
+    private fun loadOlder() {
+        val before = oldestServerId ?: return
+        val state = currentState
+        if (!state.hasOlder || state.loadingOlder || state.loadingHistory || !state.signedIn) return
+        setState { copy(loadingOlder = true) }
+        olderJob = viewModelScope.launch {
+            try {
+                val page = chatRepository.history(before = before)
+                transcript = page.turns.map { it.toAdaMessage() } + transcript
+                oldestServerId = page.turns.firstOrNull()?.serverId?.takeIf { it > 0 } ?: oldestServerId
+                publishMessages()
+                setState { copy(loadingOlder = false, hasOlder = page.hasMore && page.turns.isNotEmpty()) }
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: ChatHttpException) {
+                setState { copy(loadingOlder = false) }
+                onHttpFailure(error, assistantId = null)
+            } catch (error: Exception) {
+                setState { copy(loadingOlder = false, error = error.message.orEmpty()) }
             }
-            when (result) {
-                is AuthResult.Success -> {
-                    setState {
-                        copy(
-                            signingIn = false,
-                            signedIn = true,
-                            password = "",
-                            authError = null,
-                            email = result.session.email.ifBlank { email },
-                            displayName = result.session.displayName.ifBlank { displayName },
-                        )
-                    }
-                    loadHistory()
-                }
-                is AuthResult.Failure -> setState {
-                    copy(signingIn = false, authError = result.detail)
-                }
-            }
-        }
-    }
-
-    private fun signOut() {
-        historyJob?.cancel()
-        sendJob?.cancel()
-        chatRepository.signOut()
-        transcript = emptyList()
-        setState {
-            AdaUiState(
-                email = currentState.email,
-                displayName = currentState.displayName,
-            )
         }
     }
 
@@ -218,6 +198,8 @@ class AdaViewModel @Inject constructor(
     private fun onHttpFailure(error: ChatHttpException, assistantId: Long?) {
         if (error.code == 401) {
             historyJob?.cancel()
+            olderJob?.cancel()
+            oldestServerId = null
             sendJob?.cancel()
             chatRepository.signOut()
             transcript = emptyList()
@@ -227,9 +209,9 @@ class AdaViewModel @Inject constructor(
                     loadingHistory = false,
                     sending = false,
                     messages = emptyList(),
+                    hasOlder = false,
+                    loadingOlder = false,
                     error = null,
-                    authError = error.detail,
-                    password = "",
                 )
             }
             return

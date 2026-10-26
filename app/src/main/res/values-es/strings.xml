@@ -33,7 +33,6 @@
     <string name="widget_empty_saved_cocktails">Añade un cóctel</string>
 
     <string name="nav_bottom_saved">Guardados</string>
-    <string name="nav_bottom_catalog">Catálogo</string>
     <string name="nav_bottom_settings">Ajustes</string>
     <string name="nav_bottom_ada">Ada</string>
     <string name="nav_item_my_bar">Mi bar</string>
@@ -117,19 +116,39 @@
     <string name="bar_needs">Falta %1$s</string>
     <string name="bar_remove_ingredient">Quitar %1$s</string>
     <string name="bar_in_bar">En tu bar</string>
-
-    <string name="ada_email">Correo</string>
-    <string name="ada_password">Contraseña</string>
-    <string name="ada_display_name">Nombre (opcional)</string>
-    <string name="ada_sign_in">Entrar</string>
-    <string name="ada_sign_up">Crear cuenta</string>
-    <string name="ada_sign_out">Cerrar sesión</string>
+    <string name="auth_welcome_back">Bienvenido de nuevo</string>
+    <string name="auth_create_title">Crea tu cuenta</string>
+    <string name="auth_subtitle">Entra para guardar bebidas, armar tu bar y chatear con Ada.</string>
+    <string name="auth_sign_up_subtitle">Las cuentas nuevas empiezan con 7 días de prueba de Ada.</string>
+    <string name="auth_name">Nombre (opcional)</string>
+    <string name="auth_email">Correo</string>
+    <string name="auth_password">Contraseña</string>
+    <string name="auth_show_password">Mostrar contraseña</string>
+    <string name="auth_hide_password">Ocultar contraseña</string>
+    <string name="auth_sign_in">Entrar</string>
+    <string name="auth_sign_up">Crear cuenta</string>
+    <string name="auth_switch_to_sign_up">¿Eres nuevo? Crea una cuenta</string>
+    <string name="auth_or">o</string>
+    <string name="auth_continue_with_google">Continuar con Google</string>
+    <string name="auth_continue_with_apple">Continuar con Apple</string>
+    <string name="auth_apple_failed">No se pudo iniciar sesión con Apple. Inténtalo de nuevo.</string>
+    <string name="auth_google_failed">No se pudo iniciar sesión con Google. Inténtalo de nuevo.</string>
+    <string name="auth_google_no_account">No hay ninguna cuenta de Google en este dispositivo.</string>
+    <string name="auth_switch_to_sign_in">¿Ya tienes cuenta? Entra</string>
+    <string name="settings_account">Cuenta</string>
+    <string name="settings_sign_out">Cerrar sesión</string>
     <string name="ada_prompt">Pide una bebida</string>
     <string name="ada_send">Enviar</string>
+    <string name="ada_greeting">Hola, soy Ada</string>
     <string name="ada_empty">Dile a Ada qué te apetece beber.</string>
     <string name="ada_suggestion_gin">Algo con ginebra</string>
     <string name="ada_suggestion_bitter">Un trago amargo para la noche</string>
     <string name="ada_suggestion_easy">Poco esfuerzo, mucho premio</string>
-    <string name="ada_auth_intro">Entra para pedirle una bebida a Ada. Una cuenta nueva empieza una prueba de 7 días.</string>
     <string name="ada_error_generic">Algo salió mal. Inténtalo de nuevo.</string>
+    <string-array name="ada_thinking">
+        <item>Agitando ideas…</item>
+        <item>Revisando la barra…</item>
+        <item>Macerando algunas ideas…</item>
+        <item>Eligiendo la copa perfecta…</item>
+    </string-array>
 </resources>

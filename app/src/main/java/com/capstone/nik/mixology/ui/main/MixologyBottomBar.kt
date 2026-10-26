@@ -1,8 +1,6 @@
 package com.capstone.nik.mixology.ui.main
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocalBar
@@ -46,12 +44,6 @@ val bottomNavItems = listOf(
         unselectedIcon = Icons.Outlined.LocalBar,
     ),
     BottomNavItem(
-        titleRes = R.string.nav_bottom_catalog,
-        destination = DrawerDestination.Catalog,
-        selectedIcon = Icons.AutoMirrored.Filled.MenuBook,
-        unselectedIcon = Icons.AutoMirrored.Outlined.MenuBook,
-    ),
-    BottomNavItem(
         titleRes = R.string.nav_bottom_saved,
         destination = DrawerDestination.Filter(DrinkFilter.SAVED),
         selectedIcon = Icons.Filled.Favorite,
@@ -68,9 +60,9 @@ val bottomNavItems = listOf(
 fun DrawerDestination.isSelectedBottomNav(item: BottomNavItem): Boolean {
     return when (val tab = item.destination) {
         DrawerDestination.Hot -> this is DrawerDestination.Hot
-        DrawerDestination.Catalog -> this is DrawerDestination.Catalog
         DrawerDestination.Bar -> this is DrawerDestination.Bar
         DrawerDestination.Ada -> this is DrawerDestination.Ada
+        DrawerDestination.Catalog,
         DrawerDestination.Settings,
         DrawerDestination.Shopping,
         -> false
@@ -79,6 +71,7 @@ fun DrawerDestination.isSelectedBottomNav(item: BottomNavItem): Boolean {
 }
 
 fun DrawerDestination.isBottomNavTab(): Boolean = when (this) {
+    DrawerDestination.Catalog,
     DrawerDestination.Shopping,
     DrawerDestination.Settings,
     -> false

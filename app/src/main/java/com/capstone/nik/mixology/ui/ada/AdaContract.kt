@@ -12,13 +12,12 @@ data class AdaMessage(
 
 data class AdaUiState(
     val signedIn: Boolean = false,
-    val email: String = "",
-    val password: String = "",
-    val displayName: String = "",
-    val signingIn: Boolean = false,
-    val authError: String? = null,
     val loadingHistory: Boolean = false,
+    /** Oldest first; the screen opens at the newest. */
     val messages: List<AdaMessage> = emptyList(),
+    /** Older messages exist on the server. */
+    val hasOlder: Boolean = false,
+    val loadingOlder: Boolean = false,
     val draft: String = "",
     val sending: Boolean = false,
     val error: String? = null,
@@ -26,12 +25,8 @@ data class AdaUiState(
 
 sealed interface AdaIntent {
     data object Load : AdaIntent
-    data class EmailChanged(val value: String) : AdaIntent
-    data class PasswordChanged(val value: String) : AdaIntent
-    data class DisplayNameChanged(val value: String) : AdaIntent
-    data object SignIn : AdaIntent
-    data object SignUp : AdaIntent
-    data object SignOut : AdaIntent
+    /** The user scrolled up to the oldest loaded message. */
+    data object LoadOlder : AdaIntent
     data class DraftChanged(val value: String) : AdaIntent
     data object Send : AdaIntent
     data class UseSuggestion(val text: String) : AdaIntent

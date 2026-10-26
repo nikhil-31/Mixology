@@ -1,5 +1,9 @@
 package com.capstone.nik.mixology.di
 
+import com.capstone.nik.mixology.data.AppleAuth
+import com.capstone.nik.mixology.data.FirebaseAppleAuth
+import com.capstone.nik.mixology.data.FirebaseGoogleAuth
+import com.capstone.nik.mixology.data.GoogleAuth
 import com.capstone.nik.mixology.repository.ChatRepository
 import com.capstone.nik.mixology.repository.NetworkChatRepository
 import dagger.Binds
@@ -14,4 +18,12 @@ abstract class ChatModule {
     @Binds
     @Singleton
     abstract fun bindChatRepository(impl: NetworkChatRepository): ChatRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindGoogleAuth(impl: FirebaseGoogleAuth): GoogleAuth
+
+    @Binds
+    @Singleton
+    abstract fun bindAppleAuth(impl: FirebaseAppleAuth): AppleAuth
 }

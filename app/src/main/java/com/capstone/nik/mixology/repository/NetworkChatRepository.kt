@@ -7,8 +7,10 @@ import com.capstone.nik.mixology.Network.ChatService
 import com.capstone.nik.mixology.Network.ChatStreamEvent
 import com.capstone.nik.mixology.Network.ChatStreamer
 import com.capstone.nik.mixology.Network.remoteModel.AuthTokenResponse
+import com.capstone.nik.mixology.Network.remoteModel.ProviderLoginRequest
 import com.capstone.nik.mixology.Network.remoteModel.LoginRequest
 import com.capstone.nik.mixology.Network.remoteModel.SignupRequest
+import com.capstone.nik.mixology.data.GoogleAuth
 import com.capstone.nik.mixology.data.Session
 import com.capstone.nik.mixology.data.SessionStore
 import kotlinx.coroutines.CancellationException
@@ -25,6 +27,7 @@ class NetworkChatRepository @Inject constructor(
     private val chatService: ChatService,
     private val streamer: ChatStreamer,
     private val sessionStore: SessionStore,
+    private val googleAuth: GoogleAuth,
 ) : ChatRepository {
 
     override fun currentSession(): Session? = sessionStore.current()
@@ -42,19 +45,37 @@ class NetworkChatRepository @Inject constructor(
         }
     }
 
-    override fun signOut() {
-        sessionStore.clear()
+    override suspend fun signInWithGoogle(firebaseIdToken: String): AuthResult {
+        return authenticate("", null) {
+            authService.google(ProviderLoginRequest(firebaseIdToken))
+        }
     }
 
-    override suspend fun history(): List<ChatTurn> {
+    override suspend fun signInWithApple(firebaseIdToken: String, displayName: String?): AuthResult {
+        return authenticate("", displayName) {
+            authService.apple(ProviderLoginRequest(firebaseIdToken, displayName))
+        }
+    }
+
+    override fun signOut() {
+        sessionStore.clear()
+        googleAuth.signOut()
+    }
+
+    override suspend fun history(before: Long?): ChatPage {
         return try {
-            chatService.history().messages.map { message ->
-                ChatTurn(
-                    role = message.role,
-                    content = message.content,
-                    drinks = message.drinks.orEmpty().mapNotNull { it.toDrink() },
-                )
-            }
+            val page = chatService.history(limit = CHAT_PAGE_SIZE, before = before)
+            ChatPage(
+                turns = page.messages.map { message ->
+                    ChatTurn(
+                        role = message.role,
+                        content = message.content,
+                        drinks = message.drinks.orEmpty().mapNotNull { it.toDrink() },
+                        serverId = message.id,
+                    )
+                },
+                hasMore = page.hasMore,
+            )
         } catch (error: CancellationException) {
             throw error
         } catch (error: HttpException) {
@@ -111,3 +132,6 @@ class NetworkChatRepository @Inject constructor(
         return ChatHttpException(code, ApiErrors.detail(body, fallback))
     }
 }
+
+/** Messages per chat page; enough to fill a screen with some to scroll. */
+private const val CHAT_PAGE_SIZE = 20

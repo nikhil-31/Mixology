@@ -94,14 +94,14 @@ class DrawerDestinationTest {
     }
 
     @Test
-    fun bottomNavTab_includesCatalogAndExcludesShoppingAndFilterGrids() {
+    fun bottomNavTab_excludesCatalogShoppingAndFilterGrids() {
         assertTrue(DrawerDestination.Hot.isBottomNavTab())
-        assertTrue(DrawerDestination.Catalog.isBottomNavTab())
         assertTrue(DrawerDestination.Bar.isBottomNavTab())
         assertTrue(DrawerDestination.Filter(DrinkFilter.SAVED).isBottomNavTab())
         assertTrue(DrawerDestination.Ada.isBottomNavTab())
         assertFalse(DrawerDestination.Settings.isBottomNavTab())
         assertFalse(DrawerDestination.Shopping.isBottomNavTab())
+        assertFalse(DrawerDestination.Catalog.isBottomNavTab())
         assertFalse(DrawerDestination.Filter(DrinkFilter.GIN).isBottomNavTab())
         assertFalse(DrawerDestination.Filter(DrinkFilter.ALCOHOLIC).isBottomNavTab())
     }

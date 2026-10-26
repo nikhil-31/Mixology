@@ -6,10 +6,11 @@ import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "shopping_items",
-    indices = [Index(value = ["name"], unique = true)],
+    indices = [Index(value = ["drinkId"])],
 )
 data class ShoppingItemEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val name: String,
     val checked: Boolean = false,
+    val drinkId: String = "",
 )

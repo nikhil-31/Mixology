@@ -80,7 +80,7 @@ class HotScreenTest {
             }
         }
 
-        composeRule.onNodeWithText("Margarita").performClick()
+        composeRule.onAllNodesWithText("Margarita")[0].performClick()
         assertEquals("11007", clicked.single().id)
     }
 
@@ -111,7 +111,7 @@ class HotScreenTest {
         }
 
         composeRule.onNodeWithText("Recently viewed").assertIsDisplayed()
-        composeRule.onNodeWithText("Margarita").assertIsDisplayed()
+        composeRule.onAllNodesWithText("Margarita")[0].assertIsDisplayed()
         composeRule.onAllNodesWithText("See all").fetchSemanticsNodes().let { nodes ->
             assertEquals(1, nodes.size)
         }

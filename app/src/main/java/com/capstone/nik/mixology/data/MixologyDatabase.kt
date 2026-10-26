@@ -20,7 +20,7 @@ import java.util.concurrent.Executors
         RecentlyViewedEntity::class,
         BarIngredientEntity::class,
     ],
-    version = 6,
+    version = 7,
     exportSchema = true,
 )
 @TypeConverters(IngredientListConverter::class)
@@ -98,12 +98,37 @@ abstract class MixologyDatabase : RoomDatabase() {
             )
         }
 
+        internal val MIGRATION_6_7 = Migration(6, 7) { db ->
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `shopping_items_new` (
+                    `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    `name` TEXT NOT NULL,
+                    `checked` INTEGER NOT NULL,
+                    `drinkId` TEXT NOT NULL DEFAULT ''
+                )
+                """.trimIndent(),
+            )
+            db.execSQL(
+                """
+                INSERT INTO shopping_items_new (id, name, checked, drinkId)
+                SELECT id, name, checked, '' FROM shopping_items
+                """.trimIndent(),
+            )
+            db.execSQL("DROP TABLE shopping_items")
+            db.execSQL("ALTER TABLE shopping_items_new RENAME TO shopping_items")
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_shopping_items_drinkId` ON `shopping_items` (`drinkId`)",
+            )
+        }
+
         internal val ALL_MIGRATIONS = arrayOf(
             MIGRATION_1_2,
             MIGRATION_2_3,
             MIGRATION_3_4,
             MIGRATION_4_5,
             MIGRATION_5_6,
+            MIGRATION_6_7,
         )
 
         @Volatile
@@ -120,9 +145,6 @@ abstract class MixologyDatabase : RoomDatabase() {
                         instance = created
                         Executors.newSingleThreadExecutor().execute {
                             importLegacySavedDrinks(appContext, created.drinkDao())
-                            runBlocking {
-                                CatalogSeed.importIfNeeded(appContext, created.drinkDao())
-                            }
                         }
                     }
             }

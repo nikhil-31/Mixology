@@ -26,7 +26,7 @@ class MixologyAppChromeTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun screenHeader_showsTitleAndReportsSearchSettings() {
+    fun screenHeader_showsTitleAndReportsSearch() {
         val events = mutableListOf<String>()
         composeRule.setContent {
             MixologyTheme {
@@ -34,7 +34,6 @@ class MixologyAppChromeTest {
                     title = "Home",
                     showUp = false,
                     showSearch = true,
-                    showSettings = true,
                     onUp = { events.add("up") },
                     onSearch = { events.add("search") },
                     onSettings = { events.add("settings") },
@@ -45,6 +44,7 @@ class MixologyAppChromeTest {
         composeRule.onNodeWithTag("screen_title").assertIsDisplayed()
         composeRule.onNodeWithText("Home").assertIsDisplayed()
         composeRule.onNodeWithContentDescription("Up navigation").assertDoesNotExist()
+        composeRule.onNodeWithTag("header_settings").assertIsDisplayed()
         composeRule.onNodeWithContentDescription("Search").performClick()
         composeRule.onNodeWithContentDescription("Settings").performClick()
         assertEquals(listOf("search", "settings"), events)
@@ -59,7 +59,6 @@ class MixologyAppChromeTest {
                     title = "Saved Cocktails",
                     showUp = true,
                     showSearch = false,
-                    showSettings = false,
                     onUp = { up = true },
                     onSearch = {},
                     onSettings = {},
@@ -69,7 +68,7 @@ class MixologyAppChromeTest {
 
         composeRule.onNodeWithText("Saved Cocktails").assertIsDisplayed()
         composeRule.onNodeWithContentDescription("Search").assertDoesNotExist()
-        composeRule.onNodeWithContentDescription("Settings").assertDoesNotExist()
+        composeRule.onNodeWithTag("header_settings").assertIsDisplayed()
         composeRule.onNodeWithContentDescription("Up navigation").performClick()
         assertTrue(up)
     }

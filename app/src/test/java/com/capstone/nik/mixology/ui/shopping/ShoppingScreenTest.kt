@@ -6,7 +6,10 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.ShoppingItemEntity
+import com.capstone.nik.mixology.data.ShoppingSection
+import com.capstone.nik.mixology.ui.model.IngredientMeasure
 import com.capstone.nik.mixology.ui.theme.MixologyTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -36,7 +39,7 @@ class ShoppingScreenTest {
                 )
             }
         }
-        composeRule.onNodeWithText("No items yet. Add ingredients from a saved cocktail.")
+        composeRule.onNodeWithText("No items yet. Add ingredients from a cocktail.")
             .assertIsDisplayed()
     }
 
@@ -48,7 +51,13 @@ class ShoppingScreenTest {
             MixologyTheme {
                 ShoppingScreen(
                     state = ShoppingUiState(
-                        items = listOf(ShoppingItemEntity(id = 3, name = "Lime", checked = false)),
+                        sections = listOf(
+                            ShoppingSection(
+                                drinkId = "",
+                                drink = null,
+                                items = listOf(ShoppingItemEntity(id = 3, name = "Lime", checked = false)),
+                            ),
+                        ),
                     ),
                     onToggle = { toggled.add(it.id) },
                     onRemove = { removed.add(it.id) },
@@ -70,7 +79,13 @@ class ShoppingScreenTest {
             MixologyTheme {
                 ShoppingScreen(
                     state = ShoppingUiState(
-                        items = listOf(ShoppingItemEntity(id = 3, name = "Lime", checked = true)),
+                        sections = listOf(
+                            ShoppingSection(
+                                drinkId = "",
+                                drink = null,
+                                items = listOf(ShoppingItemEntity(id = 3, name = "Lime", checked = true)),
+                            ),
+                        ),
                     ),
                     onToggle = {},
                     onRemove = {},
@@ -80,5 +95,43 @@ class ShoppingScreenTest {
         }
         composeRule.onNodeWithText("Clear checked").performClick()
         assertEquals(1, cleared)
+    }
+
+    @Test
+    fun section_showsDrinkNameAndMeasure() {
+        val drink = Drink(
+            id = "11007",
+            name = "Margarita",
+            thumb = "",
+            ingredients = listOf(IngredientMeasure("Lime juice", "1 oz")),
+        )
+        composeRule.setContent {
+            MixologyTheme {
+                ShoppingScreen(
+                    state = ShoppingUiState(
+                        sections = listOf(
+                            ShoppingSection(
+                                drinkId = "11007",
+                                drink = drink,
+                                items = listOf(
+                                    ShoppingItemEntity(
+                                        id = 3,
+                                        name = "Lime juice",
+                                        checked = false,
+                                        drinkId = "11007",
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
+                    onToggle = {},
+                    onRemove = {},
+                    onClearChecked = {},
+                )
+            }
+        }
+        composeRule.onNodeWithText("Margarita").assertIsDisplayed()
+        composeRule.onNodeWithText("Lime juice").assertIsDisplayed()
+        composeRule.onNodeWithText("1 oz").assertIsDisplayed()
     }
 }

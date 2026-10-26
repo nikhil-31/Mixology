@@ -14,8 +14,8 @@ class ShoppingViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            repository.observeShopping().collect { items ->
-                setState { copy(items = items) }
+            repository.observeShoppingSections().collect { sections ->
+                setState { copy(sections = sections) }
             }
         }
     }

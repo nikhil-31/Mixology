@@ -23,11 +23,16 @@ import com.capstone.nik.mixology.ui.theme.ThemeMode
 import com.capstone.nik.mixology.ui.theme.ThemePreferences
 import com.capstone.nik.mixology.ui.theme.rememberThemeMode
 
+const val PRIVACY_POLICY_URL = "https://nikhil-31.github.io/Mixology/privacy-policy"
+
 @Composable
 fun SettingsRoute(
     onShoppingList: () -> Unit = {},
     onCheckForUpdates: () -> Unit = {},
     onRateApp: () -> Unit = {},
+    privacyOptionsRequired: Boolean = false,
+    onPrivacyPolicy: () -> Unit = {},
+    onPrivacyOptions: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val themeMode = rememberThemeMode()
@@ -37,6 +42,9 @@ fun SettingsRoute(
         onShoppingList = onShoppingList,
         onCheckForUpdates = onCheckForUpdates,
         onRateApp = onRateApp,
+        privacyOptionsRequired = privacyOptionsRequired,
+        onPrivacyPolicy = onPrivacyPolicy,
+        onPrivacyOptions = onPrivacyOptions,
     )
 }
 
@@ -47,6 +55,9 @@ fun SettingsScreen(
     onShoppingList: () -> Unit = {},
     onCheckForUpdates: () -> Unit = {},
     onRateApp: () -> Unit = {},
+    privacyOptionsRequired: Boolean = false,
+    onPrivacyPolicy: () -> Unit = {},
+    onPrivacyOptions: () -> Unit = {},
 ) {
     val colors = MaterialTheme.colorScheme
     Column(
@@ -94,6 +105,28 @@ fun SettingsScreen(
                 .testTag("settings_shopping_list"),
         )
         Text(
+            text = stringResource(R.string.settings_privacy),
+            color = colors.onBackground,
+            fontSize = 16.sp,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onPrivacyPolicy)
+                .padding(vertical = 12.dp)
+                .testTag("settings_privacy_policy"),
+        )
+        if (privacyOptionsRequired) {
+            Text(
+                text = stringResource(R.string.settings_privacy_options),
+                color = colors.onBackground,
+                fontSize = 16.sp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onPrivacyOptions)
+                    .padding(vertical = 12.dp)
+                    .testTag("settings_privacy_options"),
+            )
+        }
+        Text(
             text = stringResource(R.string.settings_play),
             color = colors.onBackground,
             fontSize = 16.sp,
@@ -119,6 +152,12 @@ fun SettingsScreen(
                 .clickable(onClick = onRateApp)
                 .padding(vertical = 12.dp)
                 .testTag("settings_rate_app"),
+        )
+        Text(
+            text = stringResource(R.string.settings_credits),
+            color = colors.onBackground.copy(alpha = 0.7f),
+            fontSize = 13.sp,
+            modifier = Modifier.padding(top = 24.dp),
         )
     }
 }

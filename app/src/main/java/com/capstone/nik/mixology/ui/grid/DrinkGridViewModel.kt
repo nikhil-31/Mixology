@@ -43,12 +43,13 @@ class DrinkGridViewModel @Inject constructor(
             is DrinkGridIntent.ToggleSaved -> toggleSaved(intent.item)
             is DrinkGridIntent.OpenDrink -> sendEffect(DrinkGridEffect.OpenDrink(intent.drink))
             DrinkGridIntent.ToggleListView -> toggleListView()
+            is DrinkGridIntent.QueryChanged -> setState { copy(query = intent.query) }
         }
     }
 
     private fun bind(filter: DrinkFilter) {
         if (currentState.filter != filter || observeJob == null) {
-            setState { copy(filter = filter) }
+            setState { copy(filter = filter, query = "") }
             observeJob?.cancel()
             observeJob = viewModelScope.launch {
                 repository.observeDrinks(filter).collect { items ->

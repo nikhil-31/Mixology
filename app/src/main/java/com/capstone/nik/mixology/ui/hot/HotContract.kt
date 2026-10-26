@@ -15,6 +15,11 @@ data class HotUiState(
     val visibleCategories: List<HotCategory> get() = categories.filter { it.drinks.isNotEmpty() }
 }
 
+internal fun featuredDrink(categories: List<HotCategory>): Drink? {
+    categories.firstOrNull { it.filter == DrinkFilter.RECENTLY_VIEWED }?.drinks?.firstOrNull()?.let { return it }
+    return categories.firstOrNull { it.drinks.isNotEmpty() }?.drinks?.firstOrNull()
+}
+
 sealed interface HotIntent {
     data object Load : HotIntent
     data class ToggleSaved(val item: Drink) : HotIntent

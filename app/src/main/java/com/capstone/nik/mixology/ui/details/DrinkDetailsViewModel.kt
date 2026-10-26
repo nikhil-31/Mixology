@@ -9,6 +9,7 @@ import com.capstone.nik.mixology.recordCrash
 import com.capstone.nik.mixology.analytics.AnalyticsTracker
 import com.capstone.nik.mixology.Network.NetworkMonitor
 import com.capstone.nik.mixology.data.Drink
+import com.capstone.nik.mixology.data.isOnShoppingList
 import com.capstone.nik.mixology.repository.DrinkRepository
 import com.capstone.nik.mixology.ui.mvi.MviViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -38,6 +39,14 @@ class DrinkDetailsViewModel @Inject constructor(
                 loadedId?.let { lookup(it) }
             }
         }
+        viewModelScope.launch {
+            repository.observeShopping().collect { items ->
+                setState {
+                    val current = drink
+                    copy(onShoppingList = current != null && isOnShoppingList(current, items))
+                }
+            }
+        }
     }
 
     override fun onIntent(intent: DrinkDetailsIntent) {
@@ -48,6 +57,7 @@ class DrinkDetailsViewModel @Inject constructor(
             DrinkDetailsIntent.Back -> sendEffect(DrinkDetailsEffect.NavigateBack)
             is DrinkDetailsIntent.UpdateNotes -> updateNotes(intent.notes)
             DrinkDetailsIntent.AddToShoppingList -> addToShoppingList()
+            DrinkDetailsIntent.RemoveFromShoppingList -> removeFromShoppingList()
             is DrinkDetailsIntent.OpenVideo -> sendEffect(DrinkDetailsEffect.OpenUrl(intent.url))
         }
     }
@@ -110,9 +120,17 @@ class DrinkDetailsViewModel @Inject constructor(
     private fun addToShoppingList() {
         val drink = currentState.drink ?: return
         viewModelScope.launch {
-            repository.addToShoppingList(drink.ingredients.map { it.ingredient })
+            repository.addToShoppingList(drink)
             analytics.logAddToShoppingList(drink.id, drink.name)
             sendEffect(DrinkDetailsEffect.ShowMessageRes(R.string.shopping_added))
+        }
+    }
+
+    private fun removeFromShoppingList() {
+        val drink = currentState.drink ?: return
+        viewModelScope.launch {
+            repository.removeFromShoppingList(drink.id)
+            sendEffect(DrinkDetailsEffect.ShowMessageRes(R.string.shopping_removed))
         }
     }
 

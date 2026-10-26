@@ -43,13 +43,13 @@
     <string name="nav_bottom_saved">Saved</string>
     <string name="nav_bottom_catalog">Catalog</string>
     <string name="nav_bottom_settings">Settings</string>
+    <string name="nav_bottom_ada">Ada</string>
     <string name="nav_item_my_bar">My Bar</string>
 
     <string name="nav_item_saved_cocktails">Saved Cocktails</string>
     <string name="saved_view_images">Images</string>
     <string name="saved_view_list">List</string>
     <string name="nav_item_home">Home</string>
-    <string name="nav_item_randomixer">Mixer</string>
     <string name="nav_item_browse_catalog">Browse catalog</string>
     <string name="nav_item_shopping_list">Shopping list</string>
     <string name="action_see_all">See all</string>
@@ -71,6 +71,9 @@
     <string name="settings_play">Google Play</string>
     <string name="settings_check_for_updates">Check for updates</string>
     <string name="settings_rate_app">Rate Mixology</string>
+    <string name="settings_privacy">Privacy policy</string>
+    <string name="settings_privacy_options">Privacy options</string>
+    <string name="settings_credits">This product uses TheCocktailDB API.</string>
     <string name="update_downloaded">Update downloaded</string>
     <string name="update_restart">Restart</string>
     <string name="update_up_to_date">You\u2019re up to date</string>
@@ -99,20 +102,6 @@
     <string name="detail_share_instructions">Instructions: </string>
     <string name="detail_share_ingredients">Ingredients: </string>
 
-    <!-- Mixer swipe -->
-    <string name="randomixer_save">SAVE</string>
-    <string name="randomixer_nope">NOPE</string>
-    <string name="randomixer_swipe_hint">Swipe right to save · Swipe left to skip</string>
-    <string name="content_desc_randomixer_save">Save this cocktail</string>
-    <string name="content_desc_randomixer_saved">Cocktail already saved</string>
-    <string name="content_desc_randomixer_discard">Discard this cocktail</string>
-    <string name="content_desc_randomixer_info">Show drink details</string>
-    <string name="randomixer_already_saved">Saved</string>
-    <string name="randomixer_saved_hidden">Saved hidden</string>
-    <string name="randomixer_saved_showing">Saved showing</string>
-    <string name="randomixer_skipped">Skipped</string>
-    <string name="randomixer_no_drinks">No drinks to show</string>
-
     <string name="empty_string_add_a_drink">Add a drink !!! Its lonely here.</string>
     <string name="empty_string_cocktail_image">cocktail_image</string>
 
@@ -124,8 +113,10 @@
     <string name="detail_watch_video">Watch video</string>
     <string name="detail_notes">Notes</string>
     <string name="shopping_add_ingredients">Add ingredients to shopping list</string>
+    <string name="shopping_remove_ingredients">Remove ingredients from shopping list</string>
     <string name="shopping_added">Added to shopping list</string>
-    <string name="shopping_empty">No items yet. Add ingredients from a saved cocktail.</string>
+    <string name="shopping_removed">Removed from shopping list</string>
+    <string name="shopping_empty">No items yet. Add ingredients from a cocktail.</string>
     <string name="shopping_clear_checked">Clear checked</string>
     <string name="shopping_remove_item">Remove item</string>
 
@@ -140,4 +131,19 @@
     <string name="bar_needs">Needs %1$s</string>
     <string name="bar_remove_ingredient">Remove %1$s</string>
     <string name="bar_in_bar">In your bar</string>
+
+    <string name="ada_email">Email</string>
+    <string name="ada_password">Password</string>
+    <string name="ada_display_name">Name (optional)</string>
+    <string name="ada_sign_in">Sign in</string>
+    <string name="ada_sign_up">Create account</string>
+    <string name="ada_sign_out">Sign out</string>
+    <string name="ada_prompt">Ask for a drink</string>
+    <string name="ada_send">Send</string>
+    <string name="ada_empty">Tell Ada what you feel like drinking.</string>
+    <string name="ada_suggestion_gin">Something with gin</string>
+    <string name="ada_suggestion_bitter">A bitter nightcap</string>
+    <string name="ada_suggestion_easy">Low effort, high reward</string>
+    <string name="ada_auth_intro">Sign in to ask Ada for a drink. A new account starts a 7-day trial.</string>
+    <string name="ada_error_generic">Something went wrong. Try again.</string>
 </resources>

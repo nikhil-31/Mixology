@@ -3,7 +3,6 @@ package com.capstone.nik.mixology.Network
 import android.app.Application
 import com.capstone.nik.mixology.BuildConfig
 import com.capstone.nik.mixology.analytics.AnalyticsTracker
-import com.google.android.gms.ads.MobileAds
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
@@ -22,8 +21,5 @@ class MyApplication : Application() {
         crashlytics.setCustomKey("version_code", BuildConfig.VERSION_CODE)
         analyticsTracker.setCollectionEnabled(!BuildConfig.DEBUG)
         networkMonitor.start()
-        if (!BuildConfig.DEBUG) {
-            MobileAds.initialize(this)
-        }
     }
 }

@@ -26,6 +26,7 @@ navigationCompose = "2.8.5"
 playAppUpdate = "2.1.0"
 playReview = "2.0.2"
 playServicesAds = "23.6.0"
+userMessagingPlatform = "3.2.0"
 playServicesAuth = "21.3.0"
 recyclerview = "1.4.0"
 retrofit = "2.11.0"
@@ -96,6 +97,7 @@ play-app-update-ktx = { module = "com.google.android.play:app-update-ktx", versi
 play-review = { module = "com.google.android.play:review", version.ref = "playReview" }
 play-review-ktx = { module = "com.google.android.play:review-ktx", version.ref = "playReview" }
 play-services-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "playServicesAds" }
+user-messaging-platform = { module = "com.google.android.ump:user-messaging-platform", version.ref = "userMessagingPlatform" }
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
 recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerview" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }

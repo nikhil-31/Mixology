@@ -8,18 +8,18 @@ import com.capstone.nik.mixology.ui.search.SearchMode
 
 sealed class DrawerDestination(val route: String) {
     data class Filter(val filter: DrinkFilter) : DrawerDestination(gridRoute(filter))
-    data object Randomixer : DrawerDestination("randomixer")
     data object Hot : DrawerDestination("hot")
     data object Settings : DrawerDestination("settings")
+    data object Ada : DrawerDestination("ada")
     data object Catalog : DrawerDestination("catalog")
     data object Bar : DrawerDestination("bar")
     data object Shopping : DrawerDestination("shopping")
 }
 
 const val GRID_ROUTE = "grid/{filter}"
-const val RANDOMIXER_ROUTE = "randomixer"
 const val HOT_ROUTE = "hot"
 const val SETTINGS_ROUTE = "settings"
+const val ADA_ROUTE = "ada"
 const val CATALOG_ROUTE = "catalog"
 const val BAR_ROUTE = "bar"
 const val SHOPPING_ROUTE = "shopping"
@@ -64,10 +64,10 @@ fun showsTwoPaneDetails(
     if (!expanded || isDetailsRoute(route)) return false
     if (isSearchRoute(route)) return true
     return when (destination) {
-        DrawerDestination.Randomixer,
         DrawerDestination.Settings,
         DrawerDestination.Shopping,
         DrawerDestination.Catalog,
+        DrawerDestination.Ada,
         -> false
         DrawerDestination.Hot,
         DrawerDestination.Bar,

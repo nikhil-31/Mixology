@@ -7,6 +7,7 @@ data class DrinkDetailsUiState(
     val loading: Boolean = false,
     val drink: Drink? = null,
     val saved: Boolean = false,
+    val onShoppingList: Boolean = false,
 )
 
 sealed interface DrinkDetailsIntent {
@@ -16,6 +17,7 @@ sealed interface DrinkDetailsIntent {
     data object Back : DrinkDetailsIntent
     data class UpdateNotes(val notes: String) : DrinkDetailsIntent
     data object AddToShoppingList : DrinkDetailsIntent
+    data object RemoveFromShoppingList : DrinkDetailsIntent
     data class OpenVideo(val url: String) : DrinkDetailsIntent
 }
 

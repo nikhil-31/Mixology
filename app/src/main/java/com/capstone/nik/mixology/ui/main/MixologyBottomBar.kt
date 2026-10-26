@@ -6,11 +6,9 @@ import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocalBar
-import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.LocalBar
-import androidx.compose.material.icons.outlined.Shuffle
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -24,6 +22,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.DrinkFilter
+import com.capstone.nik.mixology.ui.ada.AdaPlushieFilled
+import com.capstone.nik.mixology.ui.ada.AdaPlushieOutlined
 
 data class BottomNavItem(
     val titleRes: Int,
@@ -40,16 +40,16 @@ val bottomNavItems = listOf(
         unselectedIcon = Icons.Outlined.Home,
     ),
     BottomNavItem(
-        titleRes = R.string.nav_bottom_catalog,
-        destination = DrawerDestination.Catalog,
-        selectedIcon = Icons.AutoMirrored.Filled.MenuBook,
-        unselectedIcon = Icons.AutoMirrored.Outlined.MenuBook,
-    ),
-    BottomNavItem(
         titleRes = R.string.nav_item_my_bar,
         destination = DrawerDestination.Bar,
         selectedIcon = Icons.Filled.LocalBar,
         unselectedIcon = Icons.Outlined.LocalBar,
+    ),
+    BottomNavItem(
+        titleRes = R.string.nav_bottom_catalog,
+        destination = DrawerDestination.Catalog,
+        selectedIcon = Icons.AutoMirrored.Filled.MenuBook,
+        unselectedIcon = Icons.AutoMirrored.Outlined.MenuBook,
     ),
     BottomNavItem(
         titleRes = R.string.nav_bottom_saved,
@@ -58,26 +58,32 @@ val bottomNavItems = listOf(
         unselectedIcon = Icons.Outlined.FavoriteBorder,
     ),
     BottomNavItem(
-        titleRes = R.string.nav_item_randomixer,
-        destination = DrawerDestination.Randomixer,
-        selectedIcon = Icons.Filled.Shuffle,
-        unselectedIcon = Icons.Outlined.Shuffle,
+        titleRes = R.string.nav_bottom_ada,
+        destination = DrawerDestination.Ada,
+        selectedIcon = AdaPlushieFilled,
+        unselectedIcon = AdaPlushieOutlined,
     ),
 )
 
 fun DrawerDestination.isSelectedBottomNav(item: BottomNavItem): Boolean {
     return when (val tab = item.destination) {
-        DrawerDestination.Randomixer -> this is DrawerDestination.Randomixer
         DrawerDestination.Hot -> this is DrawerDestination.Hot
         DrawerDestination.Catalog -> this is DrawerDestination.Catalog
         DrawerDestination.Bar -> this is DrawerDestination.Bar
-        DrawerDestination.Shopping -> false
-        DrawerDestination.Settings -> false
+        DrawerDestination.Ada -> this is DrawerDestination.Ada
+        DrawerDestination.Settings,
+        DrawerDestination.Shopping,
+        -> false
         is DrawerDestination.Filter -> this is DrawerDestination.Filter && filter == tab.filter
     }
 }
 
-fun DrawerDestination.isBottomNavTab(): Boolean = bottomNavItems.any { isSelectedBottomNav(it) }
+fun DrawerDestination.isBottomNavTab(): Boolean = when (this) {
+    DrawerDestination.Shopping,
+    DrawerDestination.Settings,
+    -> false
+    else -> bottomNavItems.any { isSelectedBottomNav(it) }
+}
 
 @Composable
 fun MixologyBottomBar(

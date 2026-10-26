@@ -1,5 +1,7 @@
 package com.capstone.nik.mixology.ui.main
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -53,6 +56,7 @@ import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.repository.FilterKind
+import com.capstone.nik.mixology.ui.ada.AdaRoute
 import com.capstone.nik.mixology.ui.bar.BarRoute
 import com.capstone.nik.mixology.ui.catalog.CatalogRoute
 import com.capstone.nik.mixology.ui.components.BannerAd
@@ -60,9 +64,9 @@ import com.capstone.nik.mixology.ui.details.DrinkDetailsRoute
 import com.capstone.nik.mixology.ui.grid.DrinkGridRoute
 import com.capstone.nik.mixology.ui.hot.HotRoute
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
-import com.capstone.nik.mixology.ui.randomixer.RandomixerRoute
 import com.capstone.nik.mixology.ui.search.SearchMode
 import com.capstone.nik.mixology.ui.search.SearchRoute
+import com.capstone.nik.mixology.ui.settings.PRIVACY_POLICY_URL
 import com.capstone.nik.mixology.ui.settings.SettingsRoute
 import com.capstone.nik.mixology.ui.shopping.ShoppingRoute
 import com.capstone.nik.mixology.play.PlayUpdateEvent
@@ -100,11 +104,17 @@ fun MixologyApp(
     val analytics = remember { appEntry.analyticsTracker() }
     val playUpdates = remember { appEntry.playUpdateController() }
     val playReviews = remember { appEntry.playReviewController() }
+    val adConsent = remember { appEntry.adConsentController() }
     val online by networkMonitor.online.collectAsStateWithLifecycle()
+    val canRequestAds by adConsent.canRequestAds.collectAsStateWithLifecycle()
+    val privacyOptionsRequired by adConsent.privacyOptionsRequired.collectAsStateWithLifecycle()
     val activity = context.findActivity()
     val lifecycleOwner = LocalLifecycleOwner.current
     val playScope = rememberCoroutineScope()
 
+    LaunchedEffect(activity, adConsent) {
+        activity?.let { adConsent.start(it) }
+    }
     LaunchedEffect(playReviews) {
         playReviews.onAppOpen()
     }
@@ -176,13 +186,17 @@ fun MixologyApp(
 
     val showSearch = !overlay &&
         state.destination !is DrawerDestination.Settings &&
-        state.destination !is DrawerDestination.Shopping
-    val showSettings = !overlay && state.destination !is DrawerDestination.Settings
-    val showUp = !overlay && !state.destination.isBottomNavTab()
+        state.destination !is DrawerDestination.Shopping &&
+        state.destination !is DrawerDestination.Ada
+    val showUp = !overlay &&
+        !state.destination.isBottomNavTab() &&
+        state.destination !is DrawerDestination.Settings
+    val settingsSelected = state.destination is DrawerDestination.Settings ||
+        state.destination is DrawerDestination.Shopping
     val title = when (val destination = state.destination) {
         DrawerDestination.Hot -> stringResource(R.string.nav_item_home)
-        DrawerDestination.Randomixer -> stringResource(R.string.nav_item_randomixer)
         DrawerDestination.Settings -> stringResource(R.string.nav_bottom_settings)
+        DrawerDestination.Ada -> stringResource(R.string.nav_bottom_ada)
         DrawerDestination.Catalog -> stringResource(R.string.nav_item_browse_catalog)
         DrawerDestination.Bar -> stringResource(R.string.nav_item_my_bar)
         DrawerDestination.Shopping -> stringResource(R.string.nav_item_shopping_list)
@@ -194,9 +208,10 @@ fun MixologyApp(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             Column {
-                if (online && !BuildConfig.DEBUG) {
+                if (online && canRequestAds && !BuildConfig.DEBUG) {
                     BannerAd(
                         details = navBackStackEntry?.destination?.route?.startsWith("details") == true,
+                        enabled = true,
                     )
                 }
                 if (!overlay) {
@@ -219,7 +234,7 @@ fun MixologyApp(
                         title = title,
                         showUp = showUp,
                         showSearch = showSearch,
-                        showSettings = showSettings,
+                        settingsSelected = settingsSelected,
                         onUp = {
                             val parent = when (state.destination) {
                                 DrawerDestination.Shopping -> DrawerDestination.Settings
@@ -302,8 +317,12 @@ fun MixologyApp(
                                 },
                             )
                         }
-                        composable(RANDOMIXER_ROUTE) {
-                            RandomixerRoute(snackbarHostState = snackbarHostState)
+                        composable(ADA_ROUTE) {
+                            AdaRoute(
+                                onDrinkClick = { drink ->
+                                    viewModel.onIntent(MainIntent.DrinkSelected(drink, selectDrinkTwoPane.value))
+                                },
+                            )
                         }
                         composable(SETTINGS_ROUTE) {
                             SettingsRoute(
@@ -318,6 +337,15 @@ fun MixologyApp(
                                 onRateApp = {
                                     playReviews.onOpenedListing()
                                     openPlayStoreListing(context)
+                                },
+                                privacyOptionsRequired = privacyOptionsRequired,
+                                onPrivacyPolicy = {
+                                    context.startActivity(
+                                        Intent(Intent.ACTION_VIEW, Uri.parse(PRIVACY_POLICY_URL)),
+                                    )
+                                },
+                                onPrivacyOptions = {
+                                    activity?.let { adConsent.presentPrivacyOptions(it) }
                                 },
                             )
                         }
@@ -401,10 +429,10 @@ internal fun ScreenHeader(
     title: String,
     showUp: Boolean,
     showSearch: Boolean,
-    showSettings: Boolean,
     onUp: () -> Unit,
     onSearch: () -> Unit,
     onSettings: () -> Unit,
+    settingsSelected: Boolean = false,
 ) {
     Row(
         modifier = Modifier
@@ -440,14 +468,19 @@ internal fun ScreenHeader(
                 )
             }
         }
-        if (showSettings) {
-            IconButton(onClick = onSettings) {
-                Icon(
-                    imageVector = Icons.Filled.Settings,
-                    contentDescription = stringResource(R.string.action_settings),
-                    tint = MaterialTheme.colorScheme.onBackground,
-                )
-            }
+        IconButton(
+            onClick = onSettings,
+            modifier = Modifier.testTag("header_settings"),
+        ) {
+            Icon(
+                imageVector = if (settingsSelected) Icons.Filled.Settings else Icons.Outlined.Settings,
+                contentDescription = stringResource(R.string.action_settings),
+                tint = if (settingsSelected) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onBackground
+                },
+            )
         }
     }
 }

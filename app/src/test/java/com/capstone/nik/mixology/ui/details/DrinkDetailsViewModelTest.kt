@@ -5,8 +5,10 @@ import android.content.Intent
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
+import com.capstone.nik.mixology.FakeCocktailService
 import com.capstone.nik.mixology.MainDispatcherRule
 import com.capstone.nik.mixology.Network.NetworkMonitor
+import com.capstone.nik.mixology.Network.remoteModel.CocktailDbResponse
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.analytics.AnalyticsTracker
 import com.capstone.nik.mixology.analytics.EVENT_REMOVE_FROM_WISHLIST
@@ -14,7 +16,6 @@ import com.capstone.nik.mixology.analytics.PARAM_SAVED
 import com.capstone.nik.mixology.cocktailDrink
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.MixologyDatabase
-import com.capstone.nik.mixology.data.toEntity
 import com.capstone.nik.mixology.repository.DrinkRepository
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.flow.first
@@ -37,6 +38,7 @@ class DrinkDetailsViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private lateinit var database: MixologyDatabase
+    private val service = FakeCocktailService()
     private lateinit var repository: DrinkRepository
     private lateinit var analytics: AnalyticsTracker
     private lateinit var viewModel: DrinkDetailsViewModel
@@ -51,6 +53,7 @@ class DrinkDetailsViewModelTest {
             database.drinkDao(),
             database.shoppingDao(),
             database.barDao(),
+            service,
             context,
         )
         analytics = AnalyticsTracker.forTests()
@@ -154,8 +157,10 @@ class DrinkDetailsViewModelTest {
         assertEquals("drink", event.params[FirebaseAnalytics.Param.CONTENT_TYPE])
     }
 
-    private suspend fun seedMargarita() {
-        database.drinkDao().upsertRecipe(cocktailDrink("11007", "Margarita").toDrink()!!.toEntity())
+    private fun seedMargarita() {
+        service.lookupsById = mapOf(
+            "11007" to CocktailDbResponse(listOf(cocktailDrink("11007", "Margarita"))),
+        )
     }
 }
 

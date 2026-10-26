@@ -11,8 +11,8 @@ interface ShoppingDao {
     @Query("SELECT * FROM shopping_items ORDER BY checked ASC, name COLLATE NOCASE ASC")
     fun observeAll(): Flow<List<ShoppingItemEntity>>
 
-    @Query("SELECT LOWER(name) FROM shopping_items")
-    suspend fun namesLowercase(): List<String>
+    @Query("SELECT LOWER(name) FROM shopping_items WHERE drinkId = :drinkId")
+    suspend fun namesForDrink(drinkId: String): List<String>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(item: ShoppingItemEntity)
@@ -25,4 +25,7 @@ interface ShoppingDao {
 
     @Query("DELETE FROM shopping_items WHERE checked = 1")
     suspend fun deleteChecked()
+
+    @Query("DELETE FROM shopping_items WHERE drinkId = :drinkId")
+    suspend fun deleteForDrink(drinkId: String)
 }

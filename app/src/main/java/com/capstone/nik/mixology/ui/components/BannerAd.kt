@@ -25,9 +25,10 @@ internal fun bannerAdUnitRes(debug: Boolean = BuildConfig.DEBUG, details: Boolea
 @Composable
 fun BannerAd(
     details: Boolean = false,
+    enabled: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
-    if (LocalInspectionMode.current || BuildConfig.DEBUG) return
+    if (!enabled || LocalInspectionMode.current || BuildConfig.DEBUG) return
     val adUnitId = stringResource(bannerAdUnitRes(details = details))
     val context = LocalContext.current
     key(adUnitId) {

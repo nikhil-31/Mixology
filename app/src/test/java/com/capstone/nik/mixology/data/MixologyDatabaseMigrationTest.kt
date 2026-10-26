@@ -206,6 +206,88 @@ class MixologyDatabaseMigrationTest {
             .addMigrations(*MixologyDatabase.ALL_MIGRATIONS)
             .build()
         database.openHelper.writableDatabase.query("SELECT name FROM bar_ingredients").close()
+        database.openHelper.writableDatabase.query("SELECT drinkId FROM shopping_items").close()
+        database.close()
+    }
+
+    @Test
+    fun migrate6To7_keepsExistingShoppingRowsWithoutADrink() {
+        val context = ApplicationProvider.getApplicationContext<Application>()
+        val dbName = "migration-6-7.db"
+        context.deleteDatabase(dbName)
+        val path = context.getDatabasePath(dbName)
+        path.parentFile?.mkdirs()
+        SQLiteDatabase.openOrCreateDatabase(path, null).use { sqlite ->
+            sqlite.execSQL(
+                """
+                CREATE TABLE drinks (
+                    id TEXT NOT NULL PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    thumb TEXT NOT NULL,
+                    saved INTEGER NOT NULL,
+                    alcoholic TEXT,
+                    glass TEXT,
+                    category TEXT,
+                    iba TEXT,
+                    instructions TEXT,
+                    video TEXT,
+                    ingredients TEXT,
+                    notes TEXT NOT NULL DEFAULT '',
+                    recipeUpdatedAt INTEGER NOT NULL DEFAULT 0
+                )
+                """.trimIndent(),
+            )
+            sqlite.execSQL(
+                """
+                CREATE TABLE drink_filter (
+                    drinkId TEXT NOT NULL,
+                    filterName TEXT NOT NULL,
+                    PRIMARY KEY(drinkId, filterName)
+                )
+                """.trimIndent(),
+            )
+            sqlite.execSQL(
+                """
+                CREATE TABLE catalog_terms (
+                    kind TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    PRIMARY KEY(kind, name)
+                )
+                """.trimIndent(),
+            )
+            sqlite.execSQL(
+                """
+                CREATE TABLE shopping_items (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    name TEXT NOT NULL,
+                    checked INTEGER NOT NULL
+                )
+                """.trimIndent(),
+            )
+            sqlite.execSQL("CREATE UNIQUE INDEX index_shopping_items_name ON shopping_items(name)")
+            sqlite.execSQL("INSERT INTO shopping_items (name, checked) VALUES ('Lime', 0)")
+            sqlite.execSQL(
+                """
+                CREATE TABLE recently_viewed (
+                    drinkId TEXT NOT NULL PRIMARY KEY,
+                    viewedAt INTEGER NOT NULL
+                )
+                """.trimIndent(),
+            )
+            sqlite.execSQL("CREATE TABLE bar_ingredients (name TEXT NOT NULL PRIMARY KEY)")
+            sqlite.execSQL("PRAGMA user_version = 6")
+        }
+
+        val database = Room.databaseBuilder(context, MixologyDatabase::class.java, dbName)
+            .addMigrations(*MixologyDatabase.ALL_MIGRATIONS)
+            .build()
+        database.openHelper.writableDatabase.query(
+            "SELECT name, drinkId FROM shopping_items",
+        ).use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            assertTrue(cursor.getString(0) == "Lime")
+            assertTrue(cursor.getString(1).isEmpty())
+        }
         database.close()
     }
 }

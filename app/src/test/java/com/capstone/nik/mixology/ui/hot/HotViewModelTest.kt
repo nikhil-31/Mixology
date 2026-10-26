@@ -4,12 +4,14 @@ import android.app.Application
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
+import com.capstone.nik.mixology.FakeCocktailService
 import com.capstone.nik.mixology.MainDispatcherRule
 import com.capstone.nik.mixology.Network.NetworkMonitor
+import com.capstone.nik.mixology.Network.remoteModel.CocktailDbResponse
+import com.capstone.nik.mixology.catalog
 import com.capstone.nik.mixology.cocktailDrink
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.data.MixologyDatabase
-import com.capstone.nik.mixology.data.toEntity
 import com.capstone.nik.mixology.repository.DrinkRepository
 import com.capstone.nik.mixology.repository.FilterKind
 import kotlinx.coroutines.test.runTest
@@ -30,6 +32,7 @@ class HotViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private lateinit var database: MixologyDatabase
+    private val service = FakeCocktailService()
     private lateinit var viewModel: HotViewModel
 
     @Before
@@ -49,12 +52,10 @@ class HotViewModelTest {
 
     @Test
     fun load_usesDrinkTypeCatalogTerms() = runTest {
-        database.drinkDao().replaceCatalog(FilterKind.DRINK_TYPE.name, listOf("Cocktail", "Shake"))
-        database.drinkDao().upsertRecipe(
-            cocktailDrink("1", "Margarita").toDrink()!!.copy(category = "Cocktail").toEntity(),
-        )
-        database.drinkDao().upsertRecipe(
-            cocktailDrink("2", "Milk Shake").toDrink()!!.copy(category = "Shake").toEntity(),
+        service.categories = catalog("Cocktail", "Shake")
+        service.drinkTypesByQuery = mapOf(
+            "Cocktail" to CocktailDbResponse(listOf(cocktailDrink("1", "Margarita"))),
+            "Shake" to CocktailDbResponse(listOf(cocktailDrink("2", "Milk Shake"))),
         )
         viewModel = createViewModel()
         viewModel.state.test {
@@ -72,8 +73,8 @@ class HotViewModelTest {
 
     @Test
     fun load_fallsBackToPresetDrinkTypesWhenCatalogEmpty() = runTest {
-        database.drinkDao().upsertRecipe(
-            cocktailDrink("1", "Negroni").toDrink()!!.copy(category = "Cocktail").toEntity(),
+        service.drinkTypesByQuery = mapOf(
+            "Cocktail" to CocktailDbResponse(listOf(cocktailDrink("1", "Negroni"))),
         )
         viewModel = createViewModel()
         viewModel.state.test {
@@ -87,9 +88,6 @@ class HotViewModelTest {
 
     @Test
     fun save_addsRecentlyViewedRowFirst() = runTest {
-        database.drinkDao().upsertRecipe(
-            cocktailDrink("1", "Negroni").toDrink()!!.copy(category = "Cocktail").toEntity(),
-        )
         viewModel = createViewModel()
         val drink = cocktailDrink("9", "Negroni").toDrink()!!
         viewModel.state.test {
@@ -106,7 +104,13 @@ class HotViewModelTest {
     private fun createViewModel(): HotViewModel {
         val context = ApplicationProvider.getApplicationContext<Application>()
         return HotViewModel(
-            DrinkRepository(database.drinkDao(), database.shoppingDao(), database.barDao(), context),
+            DrinkRepository(
+                database.drinkDao(),
+                database.shoppingDao(),
+                database.barDao(),
+                service,
+                context,
+            ),
             NetworkMonitor.forTests(),
         )
     }

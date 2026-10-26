@@ -24,9 +24,9 @@ class DrawerDestinationTest {
             gridRoute(DrinkFilter.dynamic(com.capstone.nik.mixology.repository.FilterKind.INGREDIENT, "Chartreuse")),
         )
         assertEquals("grid/SAVED", DrawerDestination.Filter(DrinkFilter.SAVED).route)
-        assertEquals("randomixer", DrawerDestination.Randomixer.route)
         assertEquals("hot", DrawerDestination.Hot.route)
         assertEquals("settings", DrawerDestination.Settings.route)
+        assertEquals("ada", DrawerDestination.Ada.route)
         assertEquals("catalog", DrawerDestination.Catalog.route)
         assertEquals("bar", DrawerDestination.Bar.route)
         assertEquals("shopping", DrawerDestination.Shopping.route)
@@ -74,8 +74,8 @@ class DrawerDestinationTest {
             showsTwoPaneDetails(true, "grid/SAVED", DrawerDestination.Filter(DrinkFilter.SAVED)),
         )
         assertFalse(showsTwoPaneDetails(false, "bar", DrawerDestination.Bar))
-        assertFalse(showsTwoPaneDetails(true, "randomixer", DrawerDestination.Randomixer))
         assertFalse(showsTwoPaneDetails(true, "settings", DrawerDestination.Settings))
+        assertFalse(showsTwoPaneDetails(true, "ada", DrawerDestination.Ada))
         assertFalse(showsTwoPaneDetails(true, "shopping", DrawerDestination.Shopping))
         assertFalse(
             showsTwoPaneDetails(
@@ -88,7 +88,7 @@ class DrawerDestinationTest {
             showsTwoPaneDetails(
                 true,
                 "search?query=&mode=NAME&kind=",
-                DrawerDestination.Randomixer,
+                DrawerDestination.Settings,
             ),
         )
     }
@@ -99,7 +99,7 @@ class DrawerDestinationTest {
         assertTrue(DrawerDestination.Catalog.isBottomNavTab())
         assertTrue(DrawerDestination.Bar.isBottomNavTab())
         assertTrue(DrawerDestination.Filter(DrinkFilter.SAVED).isBottomNavTab())
-        assertTrue(DrawerDestination.Randomixer.isBottomNavTab())
+        assertTrue(DrawerDestination.Ada.isBottomNavTab())
         assertFalse(DrawerDestination.Settings.isBottomNavTab())
         assertFalse(DrawerDestination.Shopping.isBottomNavTab())
         assertFalse(DrawerDestination.Filter(DrinkFilter.GIN).isBottomNavTab())

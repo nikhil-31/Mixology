@@ -4,9 +4,12 @@ import android.app.Application
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
+import com.capstone.nik.mixology.FakeCocktailService
 import com.capstone.nik.mixology.MainDispatcherRule
+import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.MixologyDatabase
 import com.capstone.nik.mixology.repository.DrinkRepository
+import com.capstone.nik.mixology.ui.model.IngredientMeasure
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -39,6 +42,7 @@ class ShoppingViewModelTest {
             database.drinkDao(),
             database.shoppingDao(),
             database.barDao(),
+            FakeCocktailService(),
             context,
         )
         viewModel = ShoppingViewModel(repository)
@@ -53,7 +57,17 @@ class ShoppingViewModelTest {
     fun observesItems_toggleRemoveAndClearChecked() = runTest {
         viewModel.state.test {
             awaitItemUntil { it.items.isEmpty() }
-            repository.addToShoppingList(listOf("Lime", "Salt"))
+            repository.addToShoppingList(
+                Drink(
+                    id = "1",
+                    name = "Margarita",
+                    thumb = "",
+                    ingredients = listOf(
+                        IngredientMeasure("Lime", "1"),
+                        IngredientMeasure("Salt", "1 pinch"),
+                    ),
+                ),
+            )
             val added = awaitItemUntil { it.items.size == 2 }
             assertEquals(listOf("Lime", "Salt"), added.items.map { it.name }.sorted())
 

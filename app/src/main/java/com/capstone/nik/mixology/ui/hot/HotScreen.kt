@@ -1,8 +1,12 @@
 package com.capstone.nik.mixology.ui.hot
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,11 +26,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -35,6 +41,7 @@ import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.ui.components.DrinkCard
+import com.capstone.nik.mixology.ui.components.DrinkImage
 import com.capstone.nik.mixology.ui.components.DrinkCardRailHeight
 import com.capstone.nik.mixology.ui.components.DrinkCardRailWidth
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
@@ -74,6 +81,7 @@ fun HotScreen(
     onSeeAll: (DrinkFilter) -> Unit,
 ) {
     val categories = state.visibleCategories
+    val featured = featuredDrink(categories)
     Box(modifier = Modifier.fillMaxSize()) {
         if (state.loading && categories.isEmpty()) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -82,6 +90,11 @@ fun HotScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(bottom = 24.dp),
             ) {
+                if (featured != null) {
+                    item(key = "hero") {
+                        HomeHero(drink = featured, onOpen = { onDrinkClick(featured) })
+                    }
+                }
                 items(categories, key = { it.filter.name }) { category ->
                     HotCategoryRow(
                         category = category,
@@ -92,6 +105,48 @@ fun HotScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun HomeHero(
+    drink: Drink,
+    onOpen: () -> Unit,
+) {
+    val background = MaterialTheme.colorScheme.background
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(1.15f)
+            .clickable(onClick = onOpen),
+    ) {
+        DrinkImage(
+            url = drink.thumb,
+            modifier = Modifier.fillMaxSize(),
+            contentDescription = drink.name,
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.45f)
+                .align(Alignment.BottomCenter)
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(Color.Transparent, background),
+                    ),
+                ),
+        )
+        Text(
+            text = drink.name,
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(horizontal = 16.dp, vertical = 20.dp),
+            color = MaterialTheme.colorScheme.onBackground,
+            fontSize = 28.sp,
+            fontWeight = FontWeight.Bold,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+        )
     }
 }
 

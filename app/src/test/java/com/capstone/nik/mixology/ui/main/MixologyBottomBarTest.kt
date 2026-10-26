@@ -1,10 +1,8 @@
 package com.capstone.nik.mixology.ui.main
 
 import android.app.Application
-import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -28,7 +26,7 @@ class MixologyBottomBarTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun showsHomeCatalogMyBarSavedAndRandomixer_andReportsSelection() {
+    fun showsHomeMyBarCatalogSavedAndAda_andReportsSelection() {
         val selected = mutableListOf<DrawerDestination>()
         composeRule.setContent {
             MixologyTheme {
@@ -43,17 +41,16 @@ class MixologyBottomBarTest {
         composeRule.onNodeWithText("Catalog").assertIsDisplayed()
         composeRule.onNodeWithText("My Bar").assertIsDisplayed()
         composeRule.onNodeWithText("Saved").assertIsDisplayed()
-        composeRule.onNodeWithText("Mixer").assertIsDisplayed()
-        composeRule.onAllNodesWithText("Settings").assertCountEquals(0)
-        composeRule.onNodeWithTag("bottom_Catalog").performClick()
+        composeRule.onNodeWithText("Ada").assertIsDisplayed()
         composeRule.onNodeWithTag("bottom_My Bar").performClick()
+        composeRule.onNodeWithTag("bottom_Catalog").performClick()
         composeRule.onNodeWithTag("bottom_Saved").performClick()
-        composeRule.onNodeWithTag("bottom_Mixer").performClick()
+        composeRule.onNodeWithTag("bottom_Ada").performClick()
 
-        assertTrue(selected[0] is DrawerDestination.Catalog)
-        assertTrue(selected[1] is DrawerDestination.Bar)
+        assertTrue(selected[0] is DrawerDestination.Bar)
+        assertTrue(selected[1] is DrawerDestination.Catalog)
         assertEquals(DrinkFilter.SAVED, (selected[2] as DrawerDestination.Filter).filter)
-        assertTrue(selected[3] is DrawerDestination.Randomixer)
+        assertTrue(selected[3] is DrawerDestination.Ada)
     }
 
     @Test

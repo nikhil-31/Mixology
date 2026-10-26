@@ -4,14 +4,13 @@ import android.app.Application
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
+import com.capstone.nik.mixology.FakeCocktailService
 import com.capstone.nik.mixology.MainDispatcherRule
 import com.capstone.nik.mixology.Network.NetworkMonitor
-import com.capstone.nik.mixology.cocktailDrink
+import com.capstone.nik.mixology.catalog
 import com.capstone.nik.mixology.data.MixologyDatabase
-import com.capstone.nik.mixology.data.toEntity
 import com.capstone.nik.mixology.repository.DrinkRepository
 import com.capstone.nik.mixology.repository.FilterKind
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -34,6 +33,7 @@ class CatalogViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private lateinit var database: MixologyDatabase
+    private val service = FakeCocktailService()
     private lateinit var viewModel: CatalogViewModel
 
     @Before
@@ -42,15 +42,18 @@ class CatalogViewModelTest {
         database = Room.inMemoryDatabaseBuilder(context, MixologyDatabase::class.java)
             .allowMainThreadQueries()
             .build()
-        runBlocking {
-            database.drinkDao().upsertRecipe(cocktailDrink("seed-skip", "Seed Skip").toDrink()!!.toEntity())
-            database.drinkDao().replaceCatalog(FilterKind.INGREDIENT.name, listOf("Tequila"))
-            database.drinkDao().replaceCatalog(FilterKind.DRINK_TYPE.name, listOf("Cocktail"))
-            database.drinkDao().replaceCatalog(FilterKind.GLASS.name, listOf("Highball glass"))
-            database.drinkDao().replaceCatalog(FilterKind.ALCOHOL.name, listOf("Alcoholic"))
-        }
+        service.ingredients = catalog("Tequila")
+        service.categories = catalog("Cocktail")
+        service.glasses = catalog("Highball glass")
+        service.alcoholic = catalog("Alcoholic")
         viewModel = CatalogViewModel(
-            DrinkRepository(database.drinkDao(), database.shoppingDao(), database.barDao(), context),
+            DrinkRepository(
+                database.drinkDao(),
+                database.shoppingDao(),
+                database.barDao(),
+                service,
+                context,
+            ),
             NetworkMonitor.forTests(),
         )
     }
@@ -72,9 +75,15 @@ class CatalogViewModelTest {
     @Test
     fun queryChanged_filtersTermsAcrossMultipleSearches() = runTest {
         val context = ApplicationProvider.getApplicationContext<Application>()
-        database.drinkDao().replaceCatalog(FilterKind.INGREDIENT.name, listOf("Tequila", "Rum", "Vodka"))
+        service.ingredients = catalog("Tequila", "Rum", "Vodka")
         viewModel = CatalogViewModel(
-            DrinkRepository(database.drinkDao(), database.shoppingDao(), database.barDao(), context),
+            DrinkRepository(
+                database.drinkDao(),
+                database.shoppingDao(),
+                database.barDao(),
+                service,
+                context,
+            ),
             NetworkMonitor.forTests(),
         )
 

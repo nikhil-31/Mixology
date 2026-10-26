@@ -1,22 +1,35 @@
 package com.capstone.nik.mixology.ui.grid
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items as lazyListItems
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -59,6 +72,8 @@ fun DrinkGridRoute(
         filter = filter,
         drinks = state.drinks,
         listView = state.listView,
+        query = state.query,
+        onQueryChanged = { viewModel.onIntent(DrinkGridIntent.QueryChanged(it)) },
         onDrinkClick = { viewModel.onIntent(DrinkGridIntent.OpenDrink(it)) },
         onToggleSaved = { viewModel.onIntent(DrinkGridIntent.ToggleSaved(it)) },
         onToggleListView = { viewModel.onIntent(DrinkGridIntent.ToggleListView) },
@@ -73,59 +88,119 @@ fun DrinkGridScreen(
     onToggleSaved: (Drink) -> Unit,
     listView: Boolean = false,
     onToggleListView: () -> Unit = {},
+    query: String = "",
+    onQueryChanged: (String) -> Unit = {},
 ) {
-    val empty = filter.showEmptySaved && drinks.isEmpty()
-    val showList = filter.showEmptySaved && listView
+    val saved = filter.showEmptySaved
+    val visible = if (saved) filterSavedDrinks(drinks, query) else drinks
+    val emptySaved = saved && drinks.isEmpty()
+    val noMatches = saved && drinks.isNotEmpty() && visible.isEmpty()
+    val showList = saved && listView
     Column(modifier = Modifier.fillMaxSize()) {
-        if (filter.showEmptySaved) {
+        if (saved) {
+            var queryText by remember(filter.name) { mutableStateOf(query) }
+            LaunchedEffect(query) {
+                if (queryText != query) queryText = query
+            }
+            TextField(
+                value = queryText,
+                onValueChange = { value ->
+                    queryText = value
+                    onQueryChanged(value)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                singleLine = true,
+                placeholder = { Text(stringResource(R.string.action_search)) },
+            )
             DrinkViewToggle(
                 listView = listView,
                 onToggleListView = onToggleListView,
             )
         }
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-            if (empty) {
-                Text(
+            when {
+                emptySaved -> Text(
                     text = stringResource(R.string.empty_string_add_a_drink),
                     modifier = Modifier.align(Alignment.Center),
                     fontSize = 20.sp,
                     color = MaterialTheme.colorScheme.onBackground,
                 )
-            } else if (showList) {
-                LazyColumn(
+                noMatches -> Text(
+                    text = stringResource(R.string.search_empty_title),
+                    modifier = Modifier.align(Alignment.Center).padding(24.dp),
+                    color = MaterialTheme.colorScheme.onBackground,
+                )
+                showList -> LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(bottom = 50.dp),
                 ) {
-                    lazyListItems(drinks, key = { it.id }) { item ->
-                        DrinkListItem(
-                            drink = item,
-                            onDrinkClick = onDrinkClick,
-                            onToggleSaved = onToggleSaved,
-                        )
+                    lazyListItems(visible, key = { it.id }) { item ->
+                        SwipeUnsaveRow(drink = item, onDrinkClick = onDrinkClick, onToggleSaved = onToggleSaved)
                     }
                 }
-            } else {
-                LazyVerticalGrid(
+                else -> LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(6.dp, 6.dp, 6.dp, 50.dp),
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
-                    items(drinks, key = { it.id }) { item ->
+                    items(visible, key = { it.id }) { item ->
                         DrinkCard(
                             item = item,
                             onClick = { onDrinkClick(item) },
                             onToggleSaved = { onToggleSaved(item) },
-                            posterAspectRatio = if (filter.showEmptySaved) {
-                                SavedDrinkCardAspectRatio
-                            } else {
-                                1f
-                            },
+                            posterAspectRatio = if (saved) SavedDrinkCardAspectRatio else 1f,
                         )
                     }
                 }
             }
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SwipeUnsaveRow(
+    drink: Drink,
+    onDrinkClick: (Drink) -> Unit,
+    onToggleSaved: (Drink) -> Unit,
+) {
+    val dismissState = rememberSwipeToDismissBoxState(
+        confirmValueChange = { value ->
+            if (value == SwipeToDismissBoxValue.EndToStart && drink.saved) {
+                onToggleSaved(drink)
+                true
+            } else {
+                false
+            }
+        },
+    )
+    SwipeToDismissBox(
+        state = dismissState,
+        enableDismissFromStartToEnd = false,
+        backgroundContent = {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.errorContainer)
+                    .padding(horizontal = 20.dp),
+                contentAlignment = Alignment.CenterEnd,
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Delete,
+                    contentDescription = stringResource(R.string.content_desc_unsave_cocktail),
+                    tint = MaterialTheme.colorScheme.onErrorContainer,
+                )
+            }
+        },
+    ) {
+        DrinkListItem(
+            drink = drink,
+            onDrinkClick = onDrinkClick,
+            onToggleSaved = onToggleSaved,
+        )
     }
 }

@@ -17,8 +17,8 @@ class AnalyticsTrackerTest {
     @Test
     fun screenName_mapsNavRoutes() {
         assertEquals(SCREEN_HOME, analyticsScreenName("hot"))
-        assertEquals(SCREEN_RANDOMIXER, analyticsScreenName("randomixer"))
         assertEquals(SCREEN_SETTINGS, analyticsScreenName("settings"))
+        assertEquals(SCREEN_ADA, analyticsScreenName("ada"))
         assertEquals(SCREEN_CATALOG, analyticsScreenName("catalog"))
         assertEquals(SCREEN_MY_BAR, analyticsScreenName("bar"))
         assertEquals(SCREEN_SHOPPING_LIST, analyticsScreenName("shopping"))
@@ -41,7 +41,6 @@ class AnalyticsTrackerTest {
         analytics.logSaveDrink("11007", "Margarita", saved = false)
         analytics.logShareDrink("11007", "Margarita")
         analytics.logAddToShoppingList("11007", "Margarita")
-        analytics.logRandomixerSkip("11007", "Margarita")
 
         assertEquals(
             listOf(
@@ -52,7 +51,6 @@ class AnalyticsTrackerTest {
                 EVENT_REMOVE_FROM_WISHLIST,
                 FirebaseAnalytics.Event.SHARE,
                 FirebaseAnalytics.Event.ADD_TO_CART,
-                EVENT_RANDOMIXER_SKIP,
             ),
             analytics.recorded.map { it.name },
         )
@@ -65,7 +63,7 @@ class AnalyticsTrackerTest {
         assertTrue(analytics.recorded[3].params[PARAM_SAVED] as Boolean)
         assertEquals(false, analytics.recorded[4].params[PARAM_SAVED])
         assertEquals("drink", analytics.recorded[5].params[FirebaseAnalytics.Param.CONTENT_TYPE])
-        assertEquals("11007", analytics.recorded[7].params[FirebaseAnalytics.Param.ITEM_ID])
+        assertEquals("11007", analytics.recorded[6].params[FirebaseAnalytics.Param.ITEM_ID])
     }
 
     @Test

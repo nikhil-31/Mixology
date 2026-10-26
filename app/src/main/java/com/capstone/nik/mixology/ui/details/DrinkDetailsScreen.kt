@@ -95,6 +95,7 @@ fun DrinkDetailsRoute(
             onToggleSaved = { viewModel.onIntent(DrinkDetailsIntent.ToggleSaved) },
             onNotesChanged = { viewModel.onIntent(DrinkDetailsIntent.UpdateNotes(it)) },
             onAddToShoppingList = { viewModel.onIntent(DrinkDetailsIntent.AddToShoppingList) },
+            onRemoveFromShoppingList = { viewModel.onIntent(DrinkDetailsIntent.RemoveFromShoppingList) },
             onOpenVideo = { viewModel.onIntent(DrinkDetailsIntent.OpenVideo(it)) },
         )
     }
@@ -170,6 +171,7 @@ fun DrinkDetailsContent(
     onToggleSaved: () -> Unit,
     onNotesChanged: (String) -> Unit = {},
     onAddToShoppingList: () -> Unit = {},
+    onRemoveFromShoppingList: () -> Unit = {},
     onOpenVideo: (String) -> Unit = {},
 ) {
     val drink = state.drink
@@ -208,10 +210,24 @@ fun DrinkDetailsContent(
                                     Text(stringResource(R.string.detail_watch_video))
                                 }
                             }
+                            TextButton(
+                                onClick = if (state.onShoppingList) {
+                                    onRemoveFromShoppingList
+                                } else {
+                                    onAddToShoppingList
+                                },
+                            ) {
+                                Text(
+                                    stringResource(
+                                        if (state.onShoppingList) {
+                                            R.string.shopping_remove_ingredients
+                                        } else {
+                                            R.string.shopping_add_ingredients
+                                        },
+                                    ),
+                                )
+                            }
                             if (state.saved) {
-                                TextButton(onClick = onAddToShoppingList) {
-                                    Text(stringResource(R.string.shopping_add_ingredients))
-                                }
                                 OutlinedTextField(
                                     value = drink.notes,
                                     onValueChange = onNotesChanged,

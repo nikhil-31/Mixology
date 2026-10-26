@@ -21,8 +21,8 @@ fun analyticsScreenName(route: String?): String? {
         path.startsWith("search") -> SCREEN_SEARCH
         path.startsWith("grid") -> SCREEN_DRINK_GRID
         path.startsWith("hot") -> SCREEN_HOME
-        path.startsWith("randomixer") -> SCREEN_RANDOMIXER
         path.startsWith("settings") -> SCREEN_SETTINGS
+        path.startsWith("ada") -> SCREEN_ADA
         path.startsWith("catalog") -> SCREEN_CATALOG
         path.startsWith("bar") -> SCREEN_MY_BAR
         path.startsWith("shopping") -> SCREEN_SHOPPING_LIST
@@ -34,13 +34,12 @@ const val SCREEN_HOME = "home"
 const val SCREEN_DRINK_GRID = "drink_grid"
 const val SCREEN_DRINK_DETAILS = "drink_details"
 const val SCREEN_SEARCH = "search"
-const val SCREEN_RANDOMIXER = "randomixer"
 const val SCREEN_SETTINGS = "settings"
+const val SCREEN_ADA = "ada"
 const val SCREEN_CATALOG = "catalog"
 const val SCREEN_MY_BAR = "my_bar"
 const val SCREEN_SHOPPING_LIST = "shopping_list"
 
-const val EVENT_RANDOMIXER_SKIP = "randomixer_skip"
 const val EVENT_REMOVE_FROM_WISHLIST = "remove_from_wishlist"
 const val PARAM_SEARCH_MODE = "search_mode"
 const val PARAM_RESULT_COUNT = "result_count"
@@ -122,10 +121,6 @@ class AnalyticsTracker internal constructor(
             FirebaseAnalytics.Event.ADD_TO_CART,
             drinkParams(id, name),
         )
-    }
-
-    fun logRandomixerSkip(id: String, name: String) {
-        log(EVENT_RANDOMIXER_SKIP, drinkParams(id, name))
     }
 
     private fun drinkParams(id: String, name: String): Map<String, Any> = mapOf(

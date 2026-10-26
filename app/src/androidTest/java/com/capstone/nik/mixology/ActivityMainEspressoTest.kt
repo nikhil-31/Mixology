@@ -50,7 +50,8 @@ class ActivityMainEspressoTest {
             composeRule.onNodeWithTag("bottom_Catalog").assertIsDisplayed()
             composeRule.onNodeWithTag("bottom_My Bar").assertIsDisplayed()
             composeRule.onNodeWithTag("bottom_Saved").assertIsDisplayed()
-            composeRule.onNodeWithTag("bottom_Mixer").assertIsDisplayed()
+            composeRule.onNodeWithTag("bottom_Ada").assertIsDisplayed()
+            composeRule.onNodeWithTag("header_settings").assertIsDisplayed()
         }
     }
 
@@ -85,7 +86,7 @@ class ActivityMainEspressoTest {
         ActivityScenario.launch(ActivityMain::class.java).use {
             waitUntilIdle()
             waitForTag("screen_header")
-            composeRule.onNodeWithContentDescription("Settings").performClick()
+            composeRule.onNodeWithTag("header_settings").performClick()
             waitUntilIdle()
             waitForText("Appearance")
             composeRule.onNodeWithText("Appearance").assertIsDisplayed()

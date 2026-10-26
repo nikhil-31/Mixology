@@ -3,7 +3,9 @@ package com.capstone.nik.mixology.repository
 import android.app.Application
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
+import com.capstone.nik.mixology.FakeCocktailService
 import com.capstone.nik.mixology.MainDispatcherRule
+import com.capstone.nik.mixology.Network.remoteModel.CocktailDbResponse
 import com.capstone.nik.mixology.cocktailDrink
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
@@ -34,6 +36,7 @@ class DrinkRepositoryTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private lateinit var database: MixologyDatabase
+    private lateinit var service: FakeCocktailService
     private lateinit var repository: DrinkRepository
 
     @Before
@@ -42,7 +45,14 @@ class DrinkRepositoryTest {
         database = Room.inMemoryDatabaseBuilder(context, MixologyDatabase::class.java)
             .allowMainThreadQueries()
             .build()
-        repository = DrinkRepository(database.drinkDao(), database.shoppingDao(), database.barDao(), context)
+        service = FakeCocktailService()
+        repository = DrinkRepository(
+            database.drinkDao(),
+            database.shoppingDao(),
+            database.barDao(),
+            service,
+            context,
+        )
     }
 
     @After
@@ -51,23 +61,26 @@ class DrinkRepositoryTest {
     }
 
     @Test
-    fun fetchAndCache_matchesLocalRecipesByIngredient() = runTest {
-        seedRecipe(cocktailDrink("1", "Old Fashioned").toDrink()!!.copy(
-            ingredients = listOf(IngredientMeasure("Whiskey", "2 oz")),
-        ))
-        seedRecipe(cocktailDrink("2", "Gin Fizz").toDrink()!!)
-        repository.fetchAndCache(DrinkFilter.GIN)
-        val drinks = repository.observeDrinks(DrinkFilter.GIN).first()
+    fun fetchAndCache_returnsIngredientMatchesFromApi() = runTest {
+        service.ingredient = CocktailDbResponse(listOf(cocktailDrink("2", "Gin Fizz")))
+        val drinks = repository.fetchAndCache(DrinkFilter.GIN)
         assertEquals(listOf("Gin Fizz"), drinks.map { it.name })
+        assertEquals(listOf("Gin Fizz"), repository.observeDrinks(DrinkFilter.GIN).first().map { it.name })
+        assertTrue(database.drinkDao().getRecipes().isEmpty())
     }
 
     @Test
     fun fetchAndCache_observesFilterResultsAndSkipsBadThumbs() = runTest {
-        seedRecipe(cocktailDrink("1", "Gin Fizz").toDrink()!!)
-        seedRecipe(cocktailDrink("2", "No Thumb", thumb = "null").toDrink()!!)
+        service.ingredient = CocktailDbResponse(
+            listOf(
+                cocktailDrink("1", "Gin Fizz"),
+                cocktailDrink("2", "No Thumb", thumb = "null"),
+            ),
+        )
         repository.fetchAndCache(DrinkFilter.GIN)
         val drinks = repository.observeDrinks(DrinkFilter.GIN).first()
         assertEquals(listOf("Gin Fizz"), drinks.map { it.name })
+        assertTrue(database.drinkDao().getRecipes().isEmpty())
     }
 
     @Test
@@ -93,6 +106,7 @@ class DrinkRepositoryTest {
             database.drinkDao(),
             database.shoppingDao(),
             database.barDao(),
+            service,
             context,
             playReviews,
         )
@@ -101,31 +115,59 @@ class DrinkRepositoryTest {
     }
 
     @Test
-    fun lookupDrink_readsCachedRecipe() = runTest {
-        seedRecipe(cocktailDrink("9", "Negroni").toDrink()!!)
+    fun lookupDrink_readsEndpointWithoutSaving() = runTest {
+        service.lookupsById = mapOf(
+            "9" to CocktailDbResponse(listOf(cocktailDrink("9", "Negroni"))),
+        )
         val drink = repository.lookupDrink("9")
         assertEquals("Negroni", drink?.name)
         assertEquals("Shake.", drink?.instructions)
-        assertEquals("Negroni", repository.cachedDrink("9")?.name)
+        assertNull(repository.cachedDrink("9"))
         assertNull(repository.lookupDrink("missing"))
     }
 
     @Test
-    fun search_filtersLocalRecipesByName() = runTest {
-        seedRecipe(cocktailDrink("1", "Mojito").toDrink()!!)
-        seedRecipe(cocktailDrink("2", "Margarita").toDrink()!!)
+    fun search_returnsNameMatchesFromApi() = runTest {
+        service.search = CocktailDbResponse(listOf(cocktailDrink("1", "Mojito")))
         assertEquals(listOf("Mojito"), repository.search("moj").map { it.name })
+        assertTrue(database.drinkDao().getRecipes().isEmpty())
     }
 
     @Test
-    fun shoppingList_addsDistinctIngredients() = runTest {
-        repository.addToShoppingList(listOf("Gin", "gin", "Lime"))
-        val names = repository.observeShopping().first().map { it.name }
-        assertEquals(listOf("Gin", "Lime"), names)
+    fun shoppingList_groupsIngredientsByDrinkAndKeepsMeasures() = runTest {
+        val margarita = Drink(
+            id = "11007",
+            name = "Margarita",
+            thumb = "https://example.com/m.jpg",
+            instructions = "Shake.",
+            ingredients = listOf(
+                IngredientMeasure("Tequila", "1 1/2 oz"),
+                IngredientMeasure("Lime juice", "1 oz"),
+                IngredientMeasure("tequila", "skip"),
+            ),
+        )
+        val mojito = Drink(
+            id = "11000",
+            name = "Mojito",
+            thumb = "",
+            ingredients = listOf(IngredientMeasure("Lime juice", "1/2 oz")),
+        )
+        database.drinkDao().upsertRecipe(margarita.toEntity())
+        database.drinkDao().upsertRecipe(mojito.toEntity())
+        repository.addToShoppingList(margarita)
+        repository.addToShoppingList(mojito)
+        val sections = repository.observeShoppingSections().first()
+        assertEquals(listOf("11007", "11000"), sections.map { it.drinkId })
+        assertEquals(listOf("Tequila", "Lime juice"), sections[0].items.map { it.name })
+        assertEquals("1 1/2 oz", sections[0].measure(sections[0].items.first()))
+        assertEquals(listOf("Lime juice"), sections[1].items.map { it.name })
+        assertTrue(repository.observeShopping().first().count { it.name.equals("Lime juice", true) } == 2)
+        repository.removeFromShoppingList("11007")
+        assertEquals(listOf("11000"), repository.observeShoppingSections().first().map { it.drinkId })
     }
 
     @Test
-    fun bar_addRemoveAndRecommendFromCachedRecipes() = runTest {
+    fun bar_addRemoveAndRecommendFromApi() = runTest {
         val negroni = cocktailDrink("11003", "Negroni").toDrink()!!.copy(
             instructions = "Stir.",
             ingredients = listOf(
@@ -133,7 +175,7 @@ class DrinkRepositoryTest {
                 IngredientMeasure("Campari", "1 oz"),
             ),
         )
-        repository.save(negroni)
+        service.recommendationDrinks = listOf(negroni)
         repository.addToBar("Gin")
         assertEquals(listOf("Gin"), repository.observeBar().first())
         val almost = repository.observeBarRecommendations().first()
@@ -144,6 +186,16 @@ class DrinkRepositoryTest {
         assertEquals(listOf("Negroni"), makeable.makeable.map { it.name })
         repository.removeFromBar("Gin")
         assertEquals(listOf("Campari"), repository.observeBar().first())
+    }
+
+    @Test
+    fun barRecommendations_networkFailureReturnsEmpty() = runTest {
+        service.failRecommendations = true
+        repository.addToBar("Gin")
+        val recommendations = repository.observeBarRecommendations().first()
+        assertTrue(recommendations.makeable.isEmpty())
+        assertTrue(recommendations.almost.isEmpty())
+        assertEquals(listOf("Gin"), repository.observeBar().first())
     }
 
     @Test
@@ -174,15 +226,4 @@ class DrinkRepositoryTest {
         assertTrue(moved.none { it.id == "2" })
     }
 
-    @Test
-    fun randomDrink_usesLocalRecipe_notEndpoint() = runTest {
-        repository.save(cocktailDrink("11007", "Margarita").toDrink()!!)
-        val drink = repository.randomDrink()
-        assertEquals("11007", drink?.id)
-        assertEquals("Margarita", drink?.name)
-    }
-
-    private suspend fun seedRecipe(drink: Drink) {
-        database.drinkDao().upsertRecipe(drink.toEntity())
-    }
 }

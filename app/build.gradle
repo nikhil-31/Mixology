@@ -23,6 +23,10 @@ if (localPropertiesFile.exists()) {
     localProperties.load(new FileInputStream(localPropertiesFile))
 }
 def cocktailDbApiKey = localProperties.getProperty('COCKTAIL_DB_API_KEY', '1')
+def mixologyApiBaseUrl = localProperties.getProperty('MIXOLOGY_API_BASE_URL', 'http://10.0.2.2:8000/')
+if (!mixologyApiBaseUrl.endsWith('/')) {
+    mixologyApiBaseUrl += '/'
+}
 
 android {
     signingConfigs {
@@ -52,6 +56,7 @@ android {
         versionName "2.01"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField "String", "COCKTAIL_DB_API_KEY", "\"${cocktailDbApiKey}\""
+        buildConfigField "String", "MIXOLOGY_API_BASE_URL", "\"${mixologyApiBaseUrl}\""
         if (keystoreProperties != null) {
             signingConfig signingConfigs.config
         }
@@ -148,6 +153,7 @@ dependencies {
     implementation libs.firebase.crashlytics
     implementation libs.firebase.analytics
     implementation libs.play.services.ads
+    implementation libs.user.messaging.platform
     implementation libs.play.app.update
     implementation libs.play.app.update.ktx
     implementation libs.play.review

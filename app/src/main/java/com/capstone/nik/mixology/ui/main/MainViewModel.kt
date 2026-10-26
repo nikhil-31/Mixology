@@ -11,16 +11,7 @@ class MainViewModel @Inject constructor() : MviViewModel<MainIntent, MainUiState
     override fun onIntent(intent: MainIntent) {
         when (intent) {
             is MainIntent.SelectDestination -> {
-                setState {
-                    copy(
-                        destination = intent.destination,
-                        selectedDrink = if (intent.destination is DrawerDestination.Randomixer) {
-                            selectedDrink
-                        } else {
-                            null
-                        },
-                    )
-                }
+                setState { copy(destination = intent.destination, selectedDrink = null) }
                 sendEffect(MainEffect.Navigate(intent.destination))
             }
             MainIntent.ToggleSearch -> sendEffect(MainEffect.OpenSearch(""))

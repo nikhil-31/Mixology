@@ -69,6 +69,12 @@ import com.capstone.nik.mixology.ui.components.RecipeSectionTitle
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 import com.capstone.nik.mixology.ui.theme.MixologyDetailsTitle
 import com.capstone.nik.mixology.ui.theme.PosterBadge
+import androidx.compose.ui.platform.testTag
+import java.util.Locale
+import com.capstone.nik.mixology.repository.DrinkRating
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.material.icons.outlined.StarBorder
+import androidx.compose.material.icons.filled.Star
 
 @Composable
 fun DrinkDetailsRoute(
@@ -106,6 +112,7 @@ fun DrinkDetailsRoute(
             onAddToShoppingList = { viewModel.onIntent(DrinkDetailsIntent.AddToShoppingList) },
             onRemoveFromShoppingList = { viewModel.onIntent(DrinkDetailsIntent.RemoveFromShoppingList) },
             onOpenVideo = { viewModel.onIntent(DrinkDetailsIntent.OpenVideo(it)) },
+            onRate = { viewModel.onIntent(DrinkDetailsIntent.Rate(it)) },
         )
     }
 
@@ -182,6 +189,7 @@ fun DrinkDetailsContent(
     onAddToShoppingList: () -> Unit = {},
     onRemoveFromShoppingList: () -> Unit = {},
     onOpenVideo: (String) -> Unit = {},
+    onRate: (Int) -> Unit = {},
 ) {
     val drink = state.drink
     var fullscreenImage by remember { mutableStateOf(false) }
@@ -220,6 +228,9 @@ fun DrinkDetailsContent(
                                 onRemoveFromShoppingList = onRemoveFromShoppingList,
                                 onOpenVideo = onOpenVideo,
                             )
+                            state.rating?.let { rating ->
+                                DrinkRatingSection(rating = rating, onRate = onRate)
+                            }
                             if (state.saved) {
                                 RecipeSectionTitle(stringResource(R.string.detail_notes))
                                 OutlinedTextField(
@@ -371,6 +382,56 @@ private fun HeroActionButton(
                 modifier = Modifier.size(20.dp),
                 tint = Color.White,
             )
+        }
+    }
+}
+
+/** Everyone's average plus five stars for the user's own 1–5 rating. */
+@Composable
+private fun DrinkRatingSection(rating: DrinkRating, onRate: (Int) -> Unit) {
+    val colors = MaterialTheme.colorScheme
+    RecipeSectionTitle(stringResource(R.string.detail_rating))
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp)
+            .testTag("detail_rating"),
+    ) {
+        Text(
+            text = rating.average?.let { average ->
+                stringResource(
+                    R.string.detail_rating_average,
+                    String.format(Locale.getDefault(), "%.1f", average),
+                    pluralStringResource(R.plurals.detail_rating_count, rating.count, rating.count),
+                )
+            } ?: stringResource(R.string.detail_rating_none),
+            style = MaterialTheme.typography.bodyLarge,
+            color = colors.onSurface,
+            modifier = Modifier.testTag("detail_rating_average"),
+        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(top = 4.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.detail_rating_yours),
+                style = MaterialTheme.typography.bodyMedium,
+                color = colors.onSurfaceVariant,
+                modifier = Modifier.padding(end = 4.dp),
+            )
+            for (stars in 1..5) {
+                val filled = (rating.mine ?: 0) >= stars
+                IconButton(
+                    onClick = { onRate(stars) },
+                    modifier = Modifier.testTag("detail_rate_$stars"),
+                ) {
+                    Icon(
+                        imageVector = if (filled) Icons.Filled.Star else Icons.Outlined.StarBorder,
+                        contentDescription = pluralStringResource(R.plurals.detail_rate_stars, stars, stars),
+                        tint = if (filled) colors.primary else colors.onSurfaceVariant,
+                    )
+                }
+            }
         }
     }
 }

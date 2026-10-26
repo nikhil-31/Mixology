@@ -210,4 +210,24 @@
         <item quantity="one">%d day left in your free trial</item>
         <item quantity="other">%d days left in your free trial</item>
     </plurals>
+    <string name="detail_rating">Rating</string>
+    <string name="detail_rating_average">★ %1$s · %2$s</string>
+    <string name="detail_rating_none">No ratings yet. Be the first!</string>
+    <string name="detail_rating_yours">Your rating</string>
+    <string name="detail_rating_failed">Couldn’t save your rating. Please try again.</string>
+    <plurals name="detail_rating_count">
+        <item quantity="one">%d rating</item>
+        <item quantity="other">%d ratings</item>
+    </plurals>
+    <plurals name="detail_rate_stars">
+        <item quantity="one">Rate %d star</item>
+        <item quantity="other">Rate %d stars</item>
+    </plurals>
+    <string name="home_featured">Featured</string>
+    <string name="home_continue">Pick up where you left off</string>
+    <string name="home_view_recipe">View recipe</string>
+    <string name="home_quick_bar_title">What can I make?</string>
+    <string name="home_quick_bar_hint">From what\'s in your bar</string>
+    <string name="home_quick_ada_title">Ask Ada</string>
+    <string name="home_quick_ada_hint">Get a drink suggestion</string>
 </resources>

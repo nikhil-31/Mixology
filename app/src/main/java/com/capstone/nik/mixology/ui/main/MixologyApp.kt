@@ -304,6 +304,8 @@ fun MixologyApp(
                         composable(HOT_ROUTE) {
                             HotRoute(
                                 snackbarHostState = snackbarHostState,
+                                onOpenBar = { viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Bar)) },
+                                onOpenAda = { viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Ada)) },
                                 onDrinkClick = { drink ->
                                     viewModel.onIntent(MainIntent.DrinkSelected(drink, selectDrinkTwoPane.value))
                                 },

@@ -197,4 +197,26 @@
         <item quantity="many">Te quedan %d días de prueba gratis</item>
         <item quantity="other">Te quedan %d días de prueba gratis</item>
     </plurals>
+    <string name="detail_rating">Valoración</string>
+    <string name="detail_rating_average">★ %1$s · %2$s</string>
+    <string name="detail_rating_none">Aún no tiene valoraciones. ¡Sé el primero!</string>
+    <string name="detail_rating_yours">Tu valoración</string>
+    <string name="detail_rating_failed">No se pudo guardar tu valoración. Inténtalo de nuevo.</string>
+    <plurals name="detail_rating_count">
+        <item quantity="one">%d valoración</item>
+        <item quantity="many">%d valoraciones</item>
+        <item quantity="other">%d valoraciones</item>
+    </plurals>
+    <plurals name="detail_rate_stars">
+        <item quantity="one">Valorar con %d estrella</item>
+        <item quantity="many">Valorar con %d estrellas</item>
+        <item quantity="other">Valorar con %d estrellas</item>
+    </plurals>
+    <string name="home_featured">Destacada</string>
+    <string name="home_continue">Continúa donde lo dejaste</string>
+    <string name="home_view_recipe">Ver receta</string>
+    <string name="home_quick_bar_title">¿Qué puedo preparar?</string>
+    <string name="home_quick_bar_hint">Con lo que hay en tu bar</string>
+    <string name="home_quick_ada_title">Pregunta a Ada</string>
+    <string name="home_quick_ada_hint">Recibe una sugerencia</string>
 </resources>

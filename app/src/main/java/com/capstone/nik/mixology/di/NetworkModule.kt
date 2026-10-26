@@ -4,6 +4,7 @@ import android.content.Context
 import com.capstone.nik.mixology.BuildConfig
 import com.capstone.nik.mixology.Network.AuthService
 import com.capstone.nik.mixology.Network.BillingService
+import com.capstone.nik.mixology.Network.RatingService
 import com.capstone.nik.mixology.Network.ChatService
 import com.capstone.nik.mixology.Network.CocktailService
 import com.capstone.nik.mixology.Network.CocktailURLs
@@ -76,6 +77,12 @@ object NetworkModule {
     @Singleton
     fun provideChatService(@AuthenticatedClient client: OkHttpClient): ChatService {
         return retrofit(client).create(ChatService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideRatingService(@AuthenticatedClient client: OkHttpClient): RatingService {
+        return retrofit(client).create(RatingService::class.java)
     }
 
     @Provides

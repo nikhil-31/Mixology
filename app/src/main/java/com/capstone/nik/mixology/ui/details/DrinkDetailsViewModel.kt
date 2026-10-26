@@ -10,7 +10,9 @@ import com.capstone.nik.mixology.analytics.AnalyticsTracker
 import com.capstone.nik.mixology.Network.NetworkMonitor
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.isOnShoppingList
+import com.capstone.nik.mixology.repository.DrinkRating
 import com.capstone.nik.mixology.repository.DrinkRepository
+import com.capstone.nik.mixology.repository.RatingRepository
 import com.capstone.nik.mixology.ui.mvi.MviViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -24,6 +26,7 @@ class DrinkDetailsViewModel @Inject constructor(
     private val networkMonitor: NetworkMonitor,
     @ApplicationContext private val appContext: Context,
     private val analytics: AnalyticsTracker = AnalyticsTracker.forTests(),
+    private val ratings: RatingRepository = RatingRepository.None,
 ) : MviViewModel<DrinkDetailsIntent, DrinkDetailsUiState, DrinkDetailsEffect>(
     DrinkDetailsUiState(),
 ) {
@@ -32,6 +35,7 @@ class DrinkDetailsViewModel @Inject constructor(
     private var savedJob: Job? = null
     private var lookupJob: Job? = null
     private var retryJob: Job? = null
+    private var ratingJob: Job? = null
 
     init {
         retryJob = viewModelScope.launch {
@@ -59,6 +63,7 @@ class DrinkDetailsViewModel @Inject constructor(
             DrinkDetailsIntent.AddToShoppingList -> addToShoppingList()
             DrinkDetailsIntent.RemoveFromShoppingList -> removeFromShoppingList()
             is DrinkDetailsIntent.OpenVideo -> sendEffect(DrinkDetailsEffect.OpenUrl(intent.url))
+            is DrinkDetailsIntent.Rate -> rate(intent.stars)
         }
     }
 
@@ -73,8 +78,10 @@ class DrinkDetailsViewModel @Inject constructor(
             copy(
                 loading = !drink.hasRecipe,
                 drink = drink,
+                rating = null,
             )
         }
+        loadRating(drink.id)
         savedJob?.cancel()
         savedJob = viewModelScope.launch {
             repository.observeSavedIds().collect { ids ->
@@ -105,6 +112,34 @@ class DrinkDetailsViewModel @Inject constructor(
                 if (currentState.drink?.hasRecipe != true) {
                     sendEffect(DrinkDetailsEffect.ShowMessageRes(R.string.network_error))
                 }
+            }
+        }
+    }
+
+    private fun loadRating(id: String) {
+        ratingJob?.cancel()
+        ratingJob = viewModelScope.launch {
+            val rating = runCatching { ratings.rating(id) }.getOrNull()
+            if (loadedId == id) setState { copy(rating = rating) }
+        }
+    }
+
+    private fun rate(stars: Int) {
+        val id = loadedId ?: return
+        val before = currentState.rating ?: DrinkRating(null, 0, null)
+        val next = if (before.mine == stars) null else stars.coerceIn(1, 5)
+        // Show the new stars right away; the server answer brings the new average.
+        setState { copy(rating = before.copy(mine = next)) }
+        ratingJob?.cancel()
+        ratingJob = viewModelScope.launch {
+            try {
+                val updated = ratings.rate(id, next)
+                if (loadedId == id) setState { copy(rating = updated) }
+            } catch (error: kotlinx.coroutines.CancellationException) {
+                throw error
+            } catch (e: Exception) {
+                if (loadedId == id) setState { copy(rating = before) }
+                sendEffect(DrinkDetailsEffect.ShowMessageRes(R.string.detail_rating_failed))
             }
         }
     }

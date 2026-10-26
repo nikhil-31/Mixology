@@ -36,6 +36,8 @@ import com.capstone.nik.mixology.ui.theme.PosterScrimStart
 
 val DrinkCardRailWidth = 140.dp
 val DrinkCardRailHeight = 200.dp
+val DrinkCardCompactWidth = 112.dp
+val DrinkCardCompactHeight = 150.dp
 const val SavedDrinkCardAspectRatio = 3f / 4f
 
 @OptIn(ExperimentalFoundationApi::class)

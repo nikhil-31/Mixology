@@ -74,6 +74,7 @@ class NetworkChatRepository @Inject constructor(
                         content = message.content,
                         drinks = message.drinks.orEmpty().mapNotNull { it.toDrink() },
                         serverId = message.id,
+                        hasMore = message.hasMore,
                     )
                 },
                 hasMore = page.hasMore,

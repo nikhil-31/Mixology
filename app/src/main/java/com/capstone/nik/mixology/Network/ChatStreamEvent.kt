@@ -4,7 +4,8 @@ import com.capstone.nik.mixology.data.Drink
 
 sealed interface ChatStreamEvent {
     data class Delta(val text: String) : ChatStreamEvent
-    data class Recommendations(val drinks: List<Drink>) : ChatStreamEvent
+    /** [hasMore]: more drinks match than were shown; sending "Show more" pages them. */
+    data class Recommendations(val drinks: List<Drink>, val hasMore: Boolean = false) : ChatStreamEvent
     data class Done(val content: String) : ChatStreamEvent
     data class Error(val detail: String) : ChatStreamEvent
 }

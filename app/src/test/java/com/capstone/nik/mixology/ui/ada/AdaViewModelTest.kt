@@ -89,6 +89,20 @@ class AdaViewModelTest {
     }
 
     @Test
+    fun load_keepsShowMoreOnHistoryReplies() = runTest {
+        chat.history = listOf(
+            ChatTurn("user", "drinks with gin"),
+            ChatTurn("assistant", "Here are a few.", listOf(alexander), hasMore = true),
+        )
+
+        signIn()
+
+        val messages = viewModel.state.value.messages
+        assertFalse(messages[0].hasMore)
+        assertTrue(messages[1].hasMore)
+    }
+
+    @Test
     fun load_opensAtNewestPageThenLoadsOlderOnRequest() = runTest {
         chat.history = (1L..5L).map { id -> ChatTurn("user", "message $id", serverId = id) }
         chat.pageSize = 2
@@ -150,6 +164,23 @@ class AdaViewModelTest {
         assertEquals("A good fit.", done.messages[1].content)
         assertEquals("11014", done.messages[1].drinks.single().id)
         assertFalse(done.messages[1].streaming)
+    }
+
+    @Test
+    fun showMore_sendsTheLabelAndKeepsHasMore() = runTest {
+        signIn()
+        chat.sendFlow = flowOf(
+            ChatStreamEvent.Recommendations(listOf(alexander), hasMore = true),
+            ChatStreamEvent.Done("Here are 20 more."),
+        )
+
+        viewModel.onIntent(AdaIntent.ShowMore("Show more"))
+
+        val state = viewModel.state.value
+        assertEquals(listOf("Show more"), chat.sent)
+        assertEquals("", state.draft)
+        assertTrue(state.messages.last().hasMore)
+        assertFalse(state.sending)
     }
 
     @Test

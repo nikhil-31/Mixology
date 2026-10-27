@@ -1,6 +1,7 @@
 package com.capstone.nik.mixology.Network
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -25,8 +26,19 @@ class SseParserTest {
         assertEquals("11014", drinks.single().id)
         assertEquals("Alexander", drinks.single().name)
         assertEquals("https://example.com/a.jpg", drinks.single().thumb)
+        assertFalse((events[1] as ChatStreamEvent.Recommendations).hasMore)
         assertEquals(ChatStreamEvent.Done("A good fit."), events[2])
         assertEquals(ChatStreamEvent.Error("save failed"), events[3])
+    }
+
+    @Test
+    fun recommendations_readHasMore() {
+        val event = parseSseBlock(
+            "event: recommendations\ndata: {\"drinks\":[{\"id\":\"1\",\"name\":\"Gin\"}],\"has_more\":true}",
+        )?.toChatStreamEvent() as ChatStreamEvent.Recommendations
+
+        assertEquals("1", event.drinks.single().id)
+        assertTrue(event.hasMore)
     }
 
     @Test

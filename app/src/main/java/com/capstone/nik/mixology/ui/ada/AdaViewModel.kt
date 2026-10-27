@@ -46,6 +46,10 @@ class AdaViewModel @Inject constructor(
             is AdaIntent.DraftChanged -> setState { copy(draft = intent.value) }
             AdaIntent.Send -> send()
             is AdaIntent.UseSuggestion -> setState { copy(draft = intent.text) }
+            is AdaIntent.ShowMore -> {
+                setState { copy(draft = intent.text) }
+                send()
+            }
             is AdaIntent.OpenDrink -> sendEffect(AdaEffect.OpenDrink(intent.drink))
             is AdaIntent.ToggleSaved -> toggleSaved(intent.drink)
         }
@@ -159,7 +163,7 @@ class AdaViewModel @Inject constructor(
                             it.copy(content = it.content + event.text)
                         }
                         is ChatStreamEvent.Recommendations -> updateAssistant(assistantId) {
-                            it.copy(drinks = event.drinks)
+                            it.copy(drinks = event.drinks, hasMore = event.hasMore)
                         }
                         is ChatStreamEvent.Done -> updateAssistant(assistantId) {
                             it.copy(content = event.content, streaming = false)
@@ -242,6 +246,7 @@ class AdaViewModel @Inject constructor(
             role = role,
             content = content,
             drinks = drinks,
+            hasMore = hasMore,
         )
     }
 }

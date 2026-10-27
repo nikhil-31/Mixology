@@ -82,11 +82,9 @@ fun SseEvent.toChatStreamEvent(): ChatStreamEvent? {
                 text.takeIf { it.isNotEmpty() }?.let(ChatStreamEvent::Delta)
             }
             "recommendations" -> {
-                val drinks = chatGson.fromJson(data, RecommendationsPayload::class.java)
-                    ?.drinks
-                    .orEmpty()
-                    .mapNotNull { it.toDrink() }
-                ChatStreamEvent.Recommendations(drinks)
+                val payload = chatGson.fromJson(data, RecommendationsPayload::class.java)
+                val drinks = payload?.drinks.orEmpty().mapNotNull { it.toDrink() }
+                ChatStreamEvent.Recommendations(drinks, hasMore = payload?.hasMore ?: false)
             }
             "done" -> {
                 val content = chatGson.fromJson(data, DonePayload::class.java)?.content.orEmpty()

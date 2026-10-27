@@ -8,6 +8,8 @@ data class AdaMessage(
     val content: String,
     val drinks: List<Drink> = emptyList(),
     val streaming: Boolean = false,
+    /** More drinks match than this reply shows. */
+    val hasMore: Boolean = false,
 )
 
 data class AdaUiState(
@@ -30,6 +32,8 @@ sealed interface AdaIntent {
     data class DraftChanged(val value: String) : AdaIntent
     data object Send : AdaIntent
     data class UseSuggestion(val text: String) : AdaIntent
+    /** Sends [text] ("Show more") to page the last search. */
+    data class ShowMore(val text: String) : AdaIntent
     data class OpenDrink(val drink: Drink) : AdaIntent
     data class ToggleSaved(val drink: Drink) : AdaIntent
 }

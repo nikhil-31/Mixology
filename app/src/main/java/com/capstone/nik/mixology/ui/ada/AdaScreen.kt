@@ -103,6 +103,7 @@ fun AdaRoute(
         onDrinkClick = { viewModel.onIntent(AdaIntent.OpenDrink(it)) },
         onToggleSaved = { viewModel.onIntent(AdaIntent.ToggleSaved(it)) },
         onLoadOlder = { viewModel.onIntent(AdaIntent.LoadOlder) },
+        onShowMore = { viewModel.onIntent(AdaIntent.ShowMore(it)) },
     )
 }
 
@@ -115,6 +116,7 @@ fun AdaScreen(
     onDrinkClick: (Drink) -> Unit,
     onToggleSaved: (Drink) -> Unit,
     onLoadOlder: () -> Unit = {},
+    onShowMore: (String) -> Unit = {},
 ) {
     Column(
         modifier = Modifier
@@ -132,6 +134,7 @@ fun AdaScreen(
                 onDrinkClick = onDrinkClick,
                 onToggleSaved = onToggleSaved,
                 onLoadOlder = onLoadOlder,
+                onShowMore = onShowMore,
                 modifier = Modifier.weight(1f),
             )
         }
@@ -148,6 +151,7 @@ private fun AdaTranscript(
     onDrinkClick: (Drink) -> Unit,
     onToggleSaved: (Drink) -> Unit,
     onLoadOlder: () -> Unit,
+    onShowMore: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val suggestions = listOf(
@@ -237,11 +241,14 @@ private fun AdaTranscript(
                     contentPadding = PaddingValues(top = 8.dp, bottom = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.Bottom),
                 ) {
+                    val newestId = state.messages.lastOrNull()?.id
                     items(state.messages.asReversed(), key = { it.id }) { message ->
                         AdaMessageRow(
                             message = message,
                             onDrinkClick = onDrinkClick,
                             onToggleSaved = onToggleSaved,
+                            // Only the newest reply pages; older ones would page the wrong search.
+                            onShowMore = onShowMore.takeIf { message.id == newestId && !state.sending },
                         )
                     }
                     if (state.loadingOlder) {
@@ -372,6 +379,7 @@ private fun AdaMessageRow(
     message: AdaMessage,
     onDrinkClick: (Drink) -> Unit,
     onToggleSaved: (Drink) -> Unit,
+    onShowMore: ((String) -> Unit)? = null,
 ) {
     val fromUser = message.role == "user"
     val shape = if (fromUser) {
@@ -453,6 +461,16 @@ private fun AdaMessageRow(
                     )
                 }
             }
+        }
+        if (!fromUser && message.hasMore && onShowMore != null) {
+            val label = stringResource(R.string.ada_show_more)
+            SuggestionChip(
+                onClick = { onShowMore(label) },
+                label = { Text(label) },
+                modifier = Modifier
+                    .padding(start = 12.dp + AvatarSize + AvatarGap, top = 4.dp)
+                    .testTag("ada_show_more"),
+            )
         }
     }
 }

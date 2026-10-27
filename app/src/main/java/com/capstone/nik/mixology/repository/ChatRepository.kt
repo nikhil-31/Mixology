@@ -11,6 +11,8 @@ data class ChatTurn(
     val drinks: List<Drink> = emptyList(),
     /** Server message id, used to page backwards; 0 when unknown. */
     val serverId: Long = 0,
+    /** More drinks match than this assistant reply shows. */
+    val hasMore: Boolean = false,
 )
 
 /** One page of chat, oldest first. [hasMore] means older messages remain. */

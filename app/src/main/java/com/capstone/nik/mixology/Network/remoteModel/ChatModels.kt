@@ -19,6 +19,8 @@ data class ChatMessageDto(
     val content: String = "",
     val at: String = "",
     val drinks: List<ApiDrink>? = null,
+    /** On assistant messages: more drinks match than this reply shows. */
+    @SerializedName("has_more") val hasMore: Boolean = false,
 )
 
 data class DeltaPayload(
@@ -27,6 +29,7 @@ data class DeltaPayload(
 
 data class RecommendationsPayload(
     val drinks: List<ApiDrink> = emptyList(),
+    @SerializedName("has_more") val hasMore: Boolean = false,
 )
 
 data class DonePayload(

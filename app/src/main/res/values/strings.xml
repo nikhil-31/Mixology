@@ -152,6 +152,7 @@
     <string name="settings_sign_out">Sign out</string>
     <string name="ada_prompt">Ask for a drink</string>
     <string name="ada_send">Send</string>
+    <string name="ada_show_more">Show more</string>
     <string name="ada_greeting">Hi, I\'m Ada</string>
     <string name="ada_empty">Tell Ada what you feel like drinking.</string>
     <string name="ada_suggestion_gin">Something with gin</string>

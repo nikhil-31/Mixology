@@ -14,6 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.outlined.MenuBook
+import androidx.compose.material.icons.outlined.EditNote
 import androidx.compose.material.icons.outlined.Policy
 import androidx.compose.material.icons.outlined.PrivacyTip
 import androidx.compose.material.icons.outlined.ShoppingCart
@@ -67,6 +68,7 @@ fun playSubscriptionsUrl(productId: String?, packageName: String): String {
 fun SettingsRoute(
     onCatalog: () -> Unit = {},
     onShoppingList: () -> Unit = {},
+    onMyRecipes: () -> Unit = {},
     onCheckForUpdates: () -> Unit = {},
     onRateApp: () -> Unit = {},
     privacyOptionsRequired: Boolean = false,
@@ -96,6 +98,7 @@ fun SettingsRoute(
         onThemeModeSelected = { ThemePreferences.set(context, it) },
         onCatalog = onCatalog,
         onShoppingList = onShoppingList,
+        onMyRecipes = onMyRecipes,
         onCheckForUpdates = onCheckForUpdates,
         onRateApp = onRateApp,
         privacyOptionsRequired = privacyOptionsRequired,
@@ -115,6 +118,7 @@ fun SettingsScreen(
     onSubscriptionAction: () -> Unit = {},
     onCatalog: () -> Unit = {},
     onShoppingList: () -> Unit = {},
+    onMyRecipes: () -> Unit = {},
     onCheckForUpdates: () -> Unit = {},
     onRateApp: () -> Unit = {},
     privacyOptionsRequired: Boolean = false,
@@ -232,6 +236,12 @@ fun SettingsScreen(
             title = stringResource(R.string.nav_item_shopping_list),
             onClick = onShoppingList,
             tag = "settings_shopping_list",
+        )
+        SettingsRow(
+            icon = Icons.Outlined.EditNote,
+            title = stringResource(R.string.my_recipes_title),
+            onClick = onMyRecipes,
+            tag = "settings_my_recipes",
         )
 
         SettingsSectionTitle(stringResource(R.string.settings_privacy_header))

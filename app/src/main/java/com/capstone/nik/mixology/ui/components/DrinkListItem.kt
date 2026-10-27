@@ -46,7 +46,7 @@ fun DrinkListItem(
                 .fillMaxWidth()
                 .combinedClickable(
                     onClick = { onDrinkClick(drink) },
-                    onLongClick = { menuOpen = true },
+                    onLongClick = { if (!drink.isUserRecipe) menuOpen = true },
                 )
                 .padding(horizontal = 16.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -75,10 +75,12 @@ fun DrinkListItem(
                     )
                 }
             }
-            FavoriteButton(
-                saved = drink.saved,
-                onClick = { onToggleSaved(drink) },
-            )
+            if (!drink.isUserRecipe) {
+                FavoriteButton(
+                    saved = drink.saved,
+                    onClick = { onToggleSaved(drink) },
+                )
+            }
         }
             DropdownMenu(
                 expanded = menuOpen,

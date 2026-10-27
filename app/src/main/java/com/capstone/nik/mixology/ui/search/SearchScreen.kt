@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items as lazyListItems
@@ -64,6 +65,7 @@ import com.capstone.nik.mixology.ui.components.DrinkCard
 import com.capstone.nik.mixology.ui.components.DrinkListItem
 import com.capstone.nik.mixology.ui.components.DrinkViewToggle
 import com.capstone.nik.mixology.ui.components.IngredientImage
+import com.capstone.nik.mixology.ui.components.SectionHeader
 import com.capstone.nik.mixology.ui.model.ingredientImageUrl
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 
@@ -236,6 +238,15 @@ fun SearchScreen(
                         modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(bottom = 50.dp),
                     ) {
+                        if (state.myRecipes.isNotEmpty()) {
+                            item(key = "my_recipes_header") { SearchSectionHeader(R.string.my_recipes_title, "search_my_recipes") }
+                            lazyListItems(state.myRecipes, key = { it.id }) { item ->
+                                DrinkListItem(drink = item, onDrinkClick = onDrinkClick, onToggleSaved = onToggleSaved)
+                            }
+                            if (state.results.isNotEmpty()) {
+                                item(key = "catalog_header") { SearchSectionHeader(R.string.search_catalog_results, "search_catalog") }
+                            }
+                        }
                         lazyListItems(state.results, key = { it.id }) { item ->
                             DrinkListItem(
                                 drink = item,
@@ -251,6 +262,23 @@ fun SearchScreen(
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
                         verticalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
+                        if (state.myRecipes.isNotEmpty()) {
+                            item(key = "my_recipes_header", span = { GridItemSpan(maxLineSpan) }) {
+                                SearchSectionHeader(R.string.my_recipes_title, "search_my_recipes")
+                            }
+                            items(state.myRecipes, key = { it.id }) { item ->
+                                DrinkCard(
+                                    item = item,
+                                    onClick = { onDrinkClick(item) },
+                                    onToggleSaved = { onToggleSaved(item) },
+                                )
+                            }
+                            if (state.results.isNotEmpty()) {
+                                item(key = "catalog_header", span = { GridItemSpan(maxLineSpan) }) {
+                                    SearchSectionHeader(R.string.search_catalog_results, "search_catalog")
+                                }
+                            }
+                        }
                         items(
                             items = state.results,
                             key = { item -> item.id },
@@ -266,6 +294,14 @@ fun SearchScreen(
             }
         }
     }
+}
+
+@Composable
+private fun SearchSectionHeader(titleRes: Int, tag: String) {
+    SectionHeader(
+        title = stringResource(titleRes),
+        modifier = Modifier.testTag(tag),
+    )
 }
 
 @Composable

@@ -66,6 +66,8 @@ import com.capstone.nik.mixology.ui.details.DrinkDetailsRoute
 import com.capstone.nik.mixology.ui.grid.DrinkGridRoute
 import com.capstone.nik.mixology.ui.hot.HotRoute
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
+import com.capstone.nik.mixology.ui.recipes.MyRecipesRoute
+import com.capstone.nik.mixology.ui.recipes.RecipeEditorRoute
 import com.capstone.nik.mixology.ui.search.SearchMode
 import com.capstone.nik.mixology.ui.search.SearchRoute
 import com.capstone.nik.mixology.ui.settings.PRIVACY_POLICY_URL
@@ -195,7 +197,8 @@ fun MixologyApp(
         state.destination !is DrawerDestination.Settings
     val settingsSelected = state.destination is DrawerDestination.Settings ||
         state.destination is DrawerDestination.Shopping ||
-        state.destination is DrawerDestination.Catalog
+        state.destination is DrawerDestination.Catalog ||
+        state.destination is DrawerDestination.Recipes
     val title = when (val destination = state.destination) {
         DrawerDestination.Hot -> stringResource(R.string.nav_item_home)
         DrawerDestination.Settings -> stringResource(R.string.nav_bottom_settings)
@@ -203,6 +206,7 @@ fun MixologyApp(
         DrawerDestination.Catalog -> stringResource(R.string.nav_item_browse_catalog)
         DrawerDestination.Bar -> stringResource(R.string.nav_item_my_bar)
         DrawerDestination.Shopping -> stringResource(R.string.nav_item_shopping_list)
+        DrawerDestination.Recipes -> stringResource(R.string.my_recipes_title)
         is DrawerDestination.Filter -> destination.filter.titleRes?.let { stringResource(it) }
             ?: destination.filter.displayName()
     }
@@ -243,6 +247,7 @@ fun MixologyApp(
                             val parent = when (state.destination) {
                                 DrawerDestination.Shopping,
                                 DrawerDestination.Catalog,
+                                DrawerDestination.Recipes,
                                 -> DrawerDestination.Settings
                                 is DrawerDestination.Filter -> DrawerDestination.Catalog
                                 else -> DrawerDestination.Hot
@@ -369,6 +374,9 @@ fun MixologyApp(
                                 onShoppingList = {
                                     viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Shopping))
                                 },
+                                onMyRecipes = {
+                                    viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Recipes))
+                                },
                                 onCheckForUpdates = {
                                     activity?.let { host ->
                                         playScope.launch { playUpdates.start(host, userRequested = true) }
@@ -391,6 +399,32 @@ fun MixologyApp(
                         }
                         composable(SHOPPING_ROUTE) {
                             ShoppingRoute()
+                        }
+                        composable(MY_RECIPES_ROUTE) {
+                            MyRecipesRoute(
+                                onRecipeClick = { drink ->
+                                    viewModel.onIntent(MainIntent.DrinkSelected(drink, selectDrinkTwoPane.value))
+                                },
+                                onAddRecipe = {
+                                    navController.navigate(recipeEditorRoute()) { launchSingleTop = true }
+                                },
+                            )
+                        }
+                        composable(
+                            route = RECIPE_EDITOR_ROUTE,
+                            arguments = listOf(
+                                navArgument("id") {
+                                    type = NavType.StringType
+                                    defaultValue = ""
+                                },
+                            ),
+                        ) { entry ->
+                            RecipeEditorRoute(
+                                recipeId = entry.arguments?.getString("id")?.takeIf { it.isNotBlank() },
+                                onClose = { navController.navigateUp() },
+                                // Details for the deleted recipe closes itself once it's gone.
+                                onDeleted = { navController.navigateUp() },
+                            )
                         }
                         composable(
                             route = SEARCH_ROUTE,
@@ -442,6 +476,9 @@ fun MixologyApp(
                                 drink = drink,
                                 showUpNavigation = true,
                                 onBack = { navController.navigateUp() },
+                                onEditRecipe = { id ->
+                                    navController.navigate(recipeEditorRoute(id)) { launchSingleTop = true }
+                                },
                                 wrapInScaffold = true,
                             )
                         }
@@ -453,7 +490,10 @@ fun MixologyApp(
                                 DrinkDetailsRoute(
                                     drink = drink,
                                     showUpNavigation = false,
-                                    onBack = {},
+                                    onBack = { viewModel.onIntent(MainIntent.CloseDetails) },
+                                    onEditRecipe = { id ->
+                                        navController.navigate(recipeEditorRoute(id)) { launchSingleTop = true }
+                                    },
                                     wrapInScaffold = true,
                                 )
                             }

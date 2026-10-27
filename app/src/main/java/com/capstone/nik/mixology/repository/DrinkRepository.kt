@@ -88,6 +88,7 @@ class DrinkRepository @Inject constructor(
     }
 
     suspend fun recordViewed(drink: Drink) {
+        if (drink.isUserRecipe) return
         val viewedAt = nextViewedAt()
         dao.recordViewed(drink.toEntity(), viewedAt, MAX_RECENTLY_VIEWED)
     }
@@ -127,6 +128,8 @@ class DrinkRepository @Inject constructor(
     }
 
     suspend fun save(drink: Drink) {
+        // The server refuses recipe ids; the user's recipes live under My recipes instead.
+        if (drink.isUserRecipe) return
         dao.saveDrink(drink.toEntity().copy(saved = true))
         recordViewed(drink)
         notifyWidgets()

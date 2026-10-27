@@ -50,6 +50,8 @@ fun DrinkRecipeBody(
     category: String? = null,
     iba: String? = null,
     extraBottomContent: @Composable () -> Unit = {},
+    /** False for the user's own recipes, which can't be saved. */
+    showSave: Boolean = true,
 ) {
     val chips = remember(alcoholic, glass, category, iba) {
         listOfNotNull(
@@ -80,7 +82,9 @@ fun DrinkRecipeBody(
                 style = MixologyDetailsTitle,
                 color = MaterialTheme.colorScheme.onSurface,
             )
-            FavoriteButton(saved = saved, onClick = onToggleSaved, size = 40)
+            if (showSave) {
+                FavoriteButton(saved = saved, onClick = onToggleSaved, size = 40)
+            }
         }
         if (chips.isNotEmpty()) {
             FlowRow(

@@ -19,7 +19,21 @@ data class SearchUiState(
     val empty: Boolean = false,
     val listView: Boolean = false,
     val suggestions: List<String> = emptyList(),
+    /** The user's own recipes that match, shown above the catalog's results. */
+    val myRecipes: List<Drink> = emptyList(),
 )
+
+/** Recipes whose name contains [query], or in ingredient mode one of whose ingredients does. */
+internal fun filterMyRecipes(recipes: List<Drink>, query: String, mode: SearchMode): List<Drink> {
+    val needle = query.trim()
+    if (needle.length < SEARCH_MIN_CHARS) return emptyList()
+    return recipes.filter { recipe ->
+        when (mode) {
+            SearchMode.NAME -> recipe.name.contains(needle, ignoreCase = true)
+            SearchMode.INGREDIENT -> recipe.ingredients.any { it.ingredient.contains(needle, ignoreCase = true) }
+        }
+    }
+}
 
 internal fun filterIngredientSuggestions(
     terms: List<String>,

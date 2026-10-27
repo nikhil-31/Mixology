@@ -11,7 +11,10 @@ data class DrinkDetailsUiState(
     val onShoppingList: Boolean = false,
     /** Null until loaded, or when ratings couldn't be reached. */
     val rating: DrinkRating? = null,
-)
+) {
+    /** The user's own recipe: editable, but never saved or rated. */
+    val isUserRecipe: Boolean get() = drink?.isUserRecipe == true
+}
 
 sealed interface DrinkDetailsIntent {
     data class Load(val drink: Drink) : DrinkDetailsIntent
@@ -24,6 +27,8 @@ sealed interface DrinkDetailsIntent {
     data class OpenVideo(val url: String) : DrinkDetailsIntent
     /** Tapping the star that is already the user's rating clears it. */
     data class Rate(val stars: Int) : DrinkDetailsIntent
+    /** Opens the editor for the user's own recipe. */
+    data object EditRecipe : DrinkDetailsIntent
 }
 
 sealed interface DrinkDetailsEffect {
@@ -31,4 +36,5 @@ sealed interface DrinkDetailsEffect {
     data class ShareRecipe(val intent: Intent) : DrinkDetailsEffect
     data class OpenUrl(val url: String) : DrinkDetailsEffect
     data object NavigateBack : DrinkDetailsEffect
+    data class OpenRecipeEditor(val recipeId: String) : DrinkDetailsEffect
 }

@@ -31,6 +31,7 @@ class FakeCocktailService : CocktailService {
     var recommendationDrinks: List<Drink> = emptyList()
     var failRecommendations = false
     var failLookup = false
+    val lookedUp = mutableListOf<String>()
 
     override suspend fun getAlcoholFilter(filter: String) = alcoholByQuery[filter] ?: alcohol
     override suspend fun getGlassFilter(filter: String) = glassByQuery[filter] ?: glass
@@ -38,6 +39,7 @@ class FakeCocktailService : CocktailService {
     override suspend fun getDrinkTypeFilter(filter: String) = drinkTypesByQuery[filter] ?: drinkType
     override suspend fun getSearchResults(search: String) = this.search
     override suspend fun getDrinkById(id: String): CocktailDbResponse {
+        lookedUp += id
         if (failLookup) error("lookup failed")
         return lookupsById[id] ?: lookup
     }

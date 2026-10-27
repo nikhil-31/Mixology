@@ -55,7 +55,7 @@ fun DrinkCard(
     Card(
         modifier = modifier.combinedClickable(
             onClick = onClick,
-            onLongClick = { menuOpen = true },
+            onLongClick = { if (!item.isUserRecipe) menuOpen = true },
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -94,14 +94,17 @@ fun DrinkCard(
                 style = MaterialTheme.typography.titleSmall,
                 color = Color.White,
             )
-            FavoriteButton(
-                saved = item.saved,
-                onClick = onToggleSaved,
-                overlay = true,
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(8.dp),
-            )
+            // The user's own recipes can't be saved; they live under My recipes.
+            if (!item.isUserRecipe) {
+                FavoriteButton(
+                    saved = item.saved,
+                    onClick = onToggleSaved,
+                    overlay = true,
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(8.dp),
+                )
+            }
         }
     }
         DropdownMenu(

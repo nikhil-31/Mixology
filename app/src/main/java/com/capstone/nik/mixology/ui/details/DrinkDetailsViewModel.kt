@@ -13,6 +13,7 @@ import com.capstone.nik.mixology.data.isOnShoppingList
 import com.capstone.nik.mixology.repository.DrinkRating
 import com.capstone.nik.mixology.repository.DrinkRepository
 import com.capstone.nik.mixology.repository.RatingRepository
+import com.capstone.nik.mixology.repository.RecipeRepository
 import com.capstone.nik.mixology.ui.mvi.MviViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -27,6 +28,7 @@ class DrinkDetailsViewModel @Inject constructor(
     @ApplicationContext private val appContext: Context,
     private val analytics: AnalyticsTracker = AnalyticsTracker.forTests(),
     private val ratings: RatingRepository = RatingRepository.None,
+    private val recipes: RecipeRepository = RecipeRepository.None,
 ) : MviViewModel<DrinkDetailsIntent, DrinkDetailsUiState, DrinkDetailsEffect>(
     DrinkDetailsUiState(),
 ) {
@@ -36,6 +38,7 @@ class DrinkDetailsViewModel @Inject constructor(
     private var lookupJob: Job? = null
     private var retryJob: Job? = null
     private var ratingJob: Job? = null
+    private var recipeJob: Job? = null
 
     init {
         retryJob = viewModelScope.launch {
@@ -64,16 +67,24 @@ class DrinkDetailsViewModel @Inject constructor(
             DrinkDetailsIntent.RemoveFromShoppingList -> removeFromShoppingList()
             is DrinkDetailsIntent.OpenVideo -> sendEffect(DrinkDetailsEffect.OpenUrl(intent.url))
             is DrinkDetailsIntent.Rate -> rate(intent.stars)
+            DrinkDetailsIntent.EditRecipe -> currentState.drink?.takeIf { it.isUserRecipe }?.let {
+                sendEffect(DrinkDetailsEffect.OpenRecipeEditor(it.id))
+            }
         }
     }
 
     private fun load(drink: Drink) {
+        if (drink.isUserRecipe) {
+            loadRecipe(drink)
+            return
+        }
         viewModelScope.launch { repository.recordViewed(drink) }
         if (loadedId != drink.id) {
             analytics.logViewDrink(drink.id, drink.name)
         }
         if (loadedId == drink.id && currentState.drink?.hasRecipe == true) return
         loadedId = drink.id
+        recipeJob?.cancel()
         setState {
             copy(
                 loading = !drink.hasRecipe,
@@ -91,7 +102,49 @@ class DrinkDetailsViewModel @Inject constructor(
         lookup(drink.id)
     }
 
+    /**
+     * The user's own recipe comes from My recipes, not the catalog. The server
+     * refuses recipe ids for saving, ratings and recently viewed, so none of those run.
+     */
+    private fun loadRecipe(drink: Drink) {
+        if (loadedId == drink.id) return
+        analytics.logViewDrink(drink.id, drink.name)
+        loadedId = drink.id
+        savedJob?.cancel()
+        ratingJob?.cancel()
+        val cached = recipes.recipes.value.firstOrNull { it.id == drink.id }
+        setState {
+            copy(
+                loading = cached == null && !drink.hasRecipe,
+                drink = cached ?: drink,
+                saved = false,
+                rating = null,
+            )
+        }
+        recipeJob?.cancel()
+        recipeJob = viewModelScope.launch {
+            var seen = cached != null
+            recipes.recipes.collect { list ->
+                val current = list.firstOrNull { it.id == drink.id }
+                when {
+                    current != null -> {
+                        // Follows edits made in the editor.
+                        seen = true
+                        setState { copy(loading = false, drink = current) }
+                    }
+                    // It was there and now isn't: the user deleted it.
+                    seen -> sendEffect(DrinkDetailsEffect.NavigateBack)
+                }
+            }
+        }
+        lookup(drink.id)
+    }
+
     private fun lookup(id: String) {
+        if (id.startsWith(Drink.USER_RECIPE_PREFIX)) {
+            lookupRecipe(id)
+            return
+        }
         lookupJob?.cancel()
         lookupJob = viewModelScope.launch {
             val cached = repository.cachedDrink(id)
@@ -116,6 +169,24 @@ class DrinkDetailsViewModel @Inject constructor(
         }
     }
 
+    private fun lookupRecipe(id: String) {
+        lookupJob?.cancel()
+        lookupJob = viewModelScope.launch {
+            try {
+                // Updates the repository's list, which the recipe job shows.
+                recipes.get(id)
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to load recipe $id", e)
+                setState { copy(loading = false) }
+                if (currentState.drink?.hasRecipe != true) {
+                    sendEffect(DrinkDetailsEffect.ShowMessageRes(R.string.network_error))
+                }
+            }
+        }
+    }
+
     private fun loadRating(id: String) {
         ratingJob?.cancel()
         ratingJob = viewModelScope.launch {
@@ -126,6 +197,7 @@ class DrinkDetailsViewModel @Inject constructor(
 
     private fun rate(stars: Int) {
         val id = loadedId ?: return
+        if (currentState.isUserRecipe) return
         val before = currentState.rating ?: DrinkRating(null, 0, null)
         val next = if (before.mine == stars) null else stars.coerceIn(1, 5)
         // Show the new stars right away; the server answer brings the new average.
@@ -170,7 +242,7 @@ class DrinkDetailsViewModel @Inject constructor(
     }
 
     private fun toggleSaved() {
-        val drink = currentState.drink ?: return
+        val drink = currentState.drink?.takeUnless { it.isUserRecipe } ?: return
         viewModelScope.launch {
             if (currentState.saved) {
                 repository.unsave(drink.id)

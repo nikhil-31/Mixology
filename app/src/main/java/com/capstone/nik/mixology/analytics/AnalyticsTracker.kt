@@ -27,6 +27,8 @@ fun analyticsScreenName(route: String?): String? {
         path.startsWith("catalog") -> SCREEN_CATALOG
         path.startsWith("bar") -> SCREEN_MY_BAR
         path.startsWith("shopping") -> SCREEN_SHOPPING_LIST
+        path.startsWith("recipe_editor") -> SCREEN_RECIPE_EDITOR
+        path.startsWith("recipes") -> SCREEN_MY_RECIPES
         else -> path.substringBefore("/").takeIf { it.isNotBlank() }
     }
 }
@@ -41,8 +43,13 @@ const val SCREEN_ADA_MORE = "ada_more"
 const val SCREEN_CATALOG = "catalog"
 const val SCREEN_MY_BAR = "my_bar"
 const val SCREEN_SHOPPING_LIST = "shopping_list"
+const val SCREEN_MY_RECIPES = "my_recipes"
+const val SCREEN_RECIPE_EDITOR = "recipe_editor"
 
 const val EVENT_REMOVE_FROM_WISHLIST = "remove_from_wishlist"
+const val EVENT_RECIPE_CREATED = "recipe_created"
+const val EVENT_RECIPE_UPDATED = "recipe_updated"
+const val EVENT_RECIPE_DELETED = "recipe_deleted"
 const val PARAM_SEARCH_MODE = "search_mode"
 const val PARAM_RESULT_COUNT = "result_count"
 const val PARAM_SAVED = "saved"
@@ -123,6 +130,18 @@ class AnalyticsTracker internal constructor(
             FirebaseAnalytics.Event.ADD_TO_CART,
             drinkParams(id, name),
         )
+    }
+
+    fun logRecipeCreated(id: String, name: String) {
+        log(EVENT_RECIPE_CREATED, drinkParams(id, name))
+    }
+
+    fun logRecipeUpdated(id: String, name: String) {
+        log(EVENT_RECIPE_UPDATED, drinkParams(id, name))
+    }
+
+    fun logRecipeDeleted(id: String, name: String) {
+        log(EVENT_RECIPE_DELETED, drinkParams(id, name))
     }
 
     private fun drinkParams(id: String, name: String): Map<String, Any> = mapOf(

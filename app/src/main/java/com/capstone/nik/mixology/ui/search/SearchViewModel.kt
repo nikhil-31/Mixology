@@ -10,6 +10,7 @@ import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.repository.DrinkRepository
 import com.capstone.nik.mixology.repository.FilterKind
+import com.capstone.nik.mixology.repository.RecipeRepository
 import com.capstone.nik.mixology.ui.components.DrinkViewPreferences
 import com.capstone.nik.mixology.ui.mvi.MviViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,6 +29,7 @@ class SearchViewModel @Inject constructor(
     private val repository: DrinkRepository,
     @ApplicationContext private val context: Context,
     private val analytics: AnalyticsTracker = AnalyticsTracker.forTests(),
+    private val recipes: RecipeRepository = RecipeRepository.None,
 ) : MviViewModel<SearchIntent, SearchUiState, SearchEffect>(SearchUiState()) {
 
     private val drinks = MutableStateFlow<List<Drink>>(emptyList())
@@ -49,6 +51,10 @@ class SearchViewModel @Inject constructor(
             }
         }
         viewModelScope.launch {
+            // Brings in My recipes so they can match; search works without them.
+            runCatching { recipes.load() }
+        }
+        viewModelScope.launch {
             combine(
                 combine(
                     drinks,
@@ -67,7 +73,8 @@ class SearchViewModel @Inject constructor(
                 mode,
                 listView,
                 repository.observeCatalog(FilterKind.INGREDIENT),
-            ) { ui, currentMode, isList, ingredients ->
+                recipes.recipes,
+            ) { ui, currentMode, isList, ingredients, myRecipes ->
                 val suggestions = if (
                     currentMode == SearchMode.INGREDIENT &&
                     !ui.loading &&
@@ -77,11 +84,13 @@ class SearchViewModel @Inject constructor(
                 } else {
                     emptyList()
                 }
+                val matchingRecipes = filterMyRecipes(myRecipes, ui.query, currentMode)
                 ui.copy(
                     mode = currentMode,
                     listView = isList,
-                    empty = ui.empty && suggestions.isEmpty(),
+                    empty = ui.empty && suggestions.isEmpty() && matchingRecipes.isEmpty(),
                     suggestions = suggestions,
+                    myRecipes = matchingRecipes,
                 )
             }.collect { newState -> setState { newState } }
         }

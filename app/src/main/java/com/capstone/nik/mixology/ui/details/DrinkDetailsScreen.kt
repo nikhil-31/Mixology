@@ -25,6 +25,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.PlayCircle
 import androidx.compose.material.icons.outlined.RemoveShoppingCart
 import androidx.compose.material.icons.outlined.ShoppingCart
@@ -81,6 +82,7 @@ fun DrinkDetailsRoute(
     drink: Drink,
     showUpNavigation: Boolean,
     onBack: () -> Unit,
+    onEditRecipe: (String) -> Unit = {},
     viewModel: DrinkDetailsViewModel = hiltViewModel(),
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     wrapInScaffold: Boolean = true,
@@ -101,6 +103,7 @@ fun DrinkDetailsRoute(
             is DrinkDetailsEffect.OpenUrl ->
                 context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(effect.url)))
             DrinkDetailsEffect.NavigateBack -> onBack()
+            is DrinkDetailsEffect.OpenRecipeEditor -> onEditRecipe(effect.recipeId)
         }
     }
 
@@ -122,6 +125,11 @@ fun DrinkDetailsRoute(
             edgeToEdge = false,
             onBack = { viewModel.onIntent(DrinkDetailsIntent.Back) },
             onShare = { viewModel.onIntent(DrinkDetailsIntent.Share) },
+            onEdit = if (state.isUserRecipe) {
+                { viewModel.onIntent(DrinkDetailsIntent.EditRecipe) }
+            } else {
+                null
+            },
             snackbarHostState = snackbarHostState,
             content = content,
         )
@@ -138,6 +146,8 @@ fun DrinkDetailsScaffold(
     snackbarHostState: SnackbarHostState,
     content: @Composable () -> Unit,
     edgeToEdge: Boolean = showUpNavigation,
+    /** Shown for the user's own recipes. */
+    onEdit: (() -> Unit)? = null,
 ) {
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -171,6 +181,13 @@ fun DrinkDetailsScaffold(
                     )
                 }
                 Box(Modifier.weight(1f))
+                if (onEdit != null) {
+                    HeroActionButton(
+                        onClick = onEdit,
+                        contentDescription = stringResource(R.string.recipe_editor_edit_title),
+                        imageVector = Icons.Outlined.Edit,
+                    )
+                }
                 HeroActionButton(
                     onClick = onShare,
                     contentDescription = stringResource(R.string.action_detail_share),
@@ -220,6 +237,7 @@ fun DrinkDetailsContent(
                         ingredients = drink.ingredients,
                         saved = state.saved,
                         onToggleSaved = onToggleSaved,
+                        showSave = !state.isUserRecipe,
                         extraBottomContent = {
                             DrinkActions(
                                 onShoppingList = state.onShoppingList,

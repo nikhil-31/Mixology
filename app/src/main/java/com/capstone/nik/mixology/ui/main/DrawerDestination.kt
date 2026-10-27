@@ -14,6 +14,7 @@ sealed class DrawerDestination(val route: String) {
     data object Catalog : DrawerDestination("catalog")
     data object Bar : DrawerDestination("bar")
     data object Shopping : DrawerDestination("shopping")
+    data object Recipes : DrawerDestination("recipes")
 }
 
 const val GRID_ROUTE = "grid/{filter}"
@@ -23,9 +24,11 @@ const val ADA_ROUTE = "ada"
 const val CATALOG_ROUTE = "catalog"
 const val BAR_ROUTE = "bar"
 const val SHOPPING_ROUTE = "shopping"
+const val MY_RECIPES_ROUTE = "recipes"
 const val SEARCH_ROUTE = "search?query={query}&mode={mode}&kind={kind}"
 const val DETAILS_ROUTE = "details/{id}?name={name}&thumb={thumb}"
 const val ADA_MORE_ROUTE = "ada_more?q={q}&exclude={exclude}"
+const val RECIPE_EDITOR_ROUTE = "recipe_editor?id={id}"
 
 fun gridRoute(filter: DrinkFilter) = "grid/${encodeRouteArg(filter.name)}"
 
@@ -53,10 +56,16 @@ fun adaMoreRoute(query: String, exclude: List<String>): String {
     return "ada_more?q=${encodeRouteArg(query)}&exclude=${encodeRouteArg(exclude.joinToString(","))}"
 }
 
+/** The recipe editor for recipe [id], or for a new recipe when null. */
+fun recipeEditorRoute(id: String? = null): String = "recipe_editor?id=${encodeRouteArg(id.orEmpty())}"
+
 fun isOverlayRoute(route: String?): Boolean {
     if (route == null) return false
-    return isSearchRoute(route) || isDetailsRoute(route) || isAdaMoreRoute(route)
+    return isSearchRoute(route) || isDetailsRoute(route) || isAdaMoreRoute(route) ||
+        isRecipeEditorRoute(route)
 }
+
+fun isRecipeEditorRoute(route: String?): Boolean = route?.startsWith("recipe_editor") == true
 
 fun isAdaMoreRoute(route: String?): Boolean = route?.startsWith("ada_more") == true
 
@@ -69,13 +78,14 @@ fun showsTwoPaneDetails(
     route: String?,
     destination: DrawerDestination,
 ): Boolean {
-    if (!expanded || isDetailsRoute(route)) return false
+    if (!expanded || isDetailsRoute(route) || isRecipeEditorRoute(route)) return false
     if (isSearchRoute(route)) return true
     return when (destination) {
         DrawerDestination.Settings,
         DrawerDestination.Shopping,
         DrawerDestination.Catalog,
         DrawerDestination.Ada,
+        DrawerDestination.Recipes,
         -> false
         DrawerDestination.Hot,
         DrawerDestination.Bar,

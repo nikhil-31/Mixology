@@ -27,6 +27,7 @@ class MainViewModel @Inject constructor() : MviViewModel<MainIntent, MainUiState
                     sendEffect(MainEffect.OpenDetails(intent.drink))
                 }
             }
+            MainIntent.CloseDetails -> setState { copy(selectedDrink = null) }
         }
     }
 }

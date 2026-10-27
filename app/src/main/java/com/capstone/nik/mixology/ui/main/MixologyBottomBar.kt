@@ -65,6 +65,7 @@ fun DrawerDestination.isSelectedBottomNav(item: BottomNavItem): Boolean {
         DrawerDestination.Catalog,
         DrawerDestination.Settings,
         DrawerDestination.Shopping,
+        DrawerDestination.Recipes,
         -> false
         is DrawerDestination.Filter -> this is DrawerDestination.Filter && filter == tab.filter
     }
@@ -73,6 +74,7 @@ fun DrawerDestination.isSelectedBottomNav(item: BottomNavItem): Boolean {
 fun DrawerDestination.isBottomNavTab(): Boolean = when (this) {
     DrawerDestination.Catalog,
     DrawerDestination.Shopping,
+    DrawerDestination.Recipes,
     DrawerDestination.Settings,
     -> false
     else -> bottomNavItems.any { isSelectedBottomNav(it) }

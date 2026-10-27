@@ -21,6 +21,8 @@ sealed interface MainIntent {
     data object OpenMenu : MainIntent
     data object DismissMenu : MainIntent
     data class DrinkSelected(val drink: Drink, val twoPane: Boolean) : MainIntent
+    /** The two-pane details went away, e.g. the user deleted their recipe. */
+    data object CloseDetails : MainIntent
 }
 
 sealed interface MainEffect {

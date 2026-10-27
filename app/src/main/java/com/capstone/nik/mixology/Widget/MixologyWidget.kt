@@ -51,7 +51,7 @@ class MixologyWidget : GlanceAppWidget() {
         ).drinkRepository()
         val drinks = repository.getSavedSync()
         val thumbs = drinks.associate { drink ->
-            drink.id to loadThumb(context, drink.thumb)
+            drink.id to loadThumb(context, drink.thumbUrl.orEmpty())
         }
         provideContent {
             GlanceTheme {

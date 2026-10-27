@@ -30,6 +30,14 @@ class DrawerDestinationTest {
         assertEquals("catalog", DrawerDestination.Catalog.route)
         assertEquals("bar", DrawerDestination.Bar.route)
         assertEquals("shopping", DrawerDestination.Shopping.route)
+        assertEquals("recipes", DrawerDestination.Recipes.route)
+        assertEquals(MY_RECIPES_ROUTE, DrawerDestination.Recipes.route)
+        assertEquals("recipe_editor?id=", recipeEditorRoute())
+        assertEquals("recipe_editor?id=u-abc", recipeEditorRoute("u-abc"))
+        assertTrue(isOverlayRoute(RECIPE_EDITOR_ROUTE))
+        assertTrue(isRecipeEditorRoute("recipe_editor?id=u-abc"))
+        assertFalse(isOverlayRoute(MY_RECIPES_ROUTE))
+        assertFalse(isRecipeEditorRoute("recipes"))
         assertEquals("search?query=gin&mode=NAME&kind=", searchRoute("gin"))
         assertEquals(
             "search?query=Coffee%20liqueur&mode=INGREDIENT&kind=INGREDIENT",
@@ -77,6 +85,8 @@ class DrawerDestinationTest {
         assertFalse(showsTwoPaneDetails(true, "settings", DrawerDestination.Settings))
         assertFalse(showsTwoPaneDetails(true, "ada", DrawerDestination.Ada))
         assertFalse(showsTwoPaneDetails(true, "shopping", DrawerDestination.Shopping))
+        assertFalse(showsTwoPaneDetails(true, "recipes", DrawerDestination.Recipes))
+        assertFalse(showsTwoPaneDetails(true, "recipe_editor?id=u-1", DrawerDestination.Hot))
         assertFalse(
             showsTwoPaneDetails(
                 true,
@@ -102,6 +112,7 @@ class DrawerDestinationTest {
         assertFalse(DrawerDestination.Settings.isBottomNavTab())
         assertFalse(DrawerDestination.Shopping.isBottomNavTab())
         assertFalse(DrawerDestination.Catalog.isBottomNavTab())
+        assertFalse(DrawerDestination.Recipes.isBottomNavTab())
         assertFalse(DrawerDestination.Filter(DrinkFilter.GIN).isBottomNavTab())
         assertFalse(DrawerDestination.Filter(DrinkFilter.ALCOHOLIC).isBottomNavTab())
     }

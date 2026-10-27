@@ -8,6 +8,10 @@ import com.capstone.nik.mixology.repository.ChatRepository
 import com.capstone.nik.mixology.repository.NetworkChatRepository
 import com.capstone.nik.mixology.repository.NetworkRatingRepository
 import com.capstone.nik.mixology.repository.RatingRepository
+import com.capstone.nik.mixology.repository.NetworkRecipeRepository
+import com.capstone.nik.mixology.repository.RecipeRepository
+import com.capstone.nik.mixology.ui.recipes.ContentRecipePhotoLoader
+import com.capstone.nik.mixology.ui.recipes.RecipePhotoLoader
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -24,6 +28,14 @@ abstract class ChatModule {
     @Binds
     @Singleton
     abstract fun bindRatingRepository(impl: NetworkRatingRepository): RatingRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindRecipeRepository(impl: NetworkRecipeRepository): RecipeRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindRecipePhotoLoader(impl: ContentRecipePhotoLoader): RecipePhotoLoader
 
     @Binds
     @Singleton

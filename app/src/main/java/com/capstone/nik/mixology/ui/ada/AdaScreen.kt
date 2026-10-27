@@ -84,6 +84,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun AdaRoute(
     onDrinkClick: (Drink) -> Unit,
+    onOpenMore: (query: String, exclude: List<String>) -> Unit = { _, _ -> },
     viewModel: AdaViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -93,6 +94,7 @@ fun AdaRoute(
     CollectMviEffects(viewModel.effects) { effect ->
         when (effect) {
             is AdaEffect.OpenDrink -> onDrinkClick(effect.drink)
+            is AdaEffect.OpenMore -> onOpenMore(effect.query, effect.exclude)
         }
     }
     AdaScreen(
@@ -103,7 +105,7 @@ fun AdaRoute(
         onDrinkClick = { viewModel.onIntent(AdaIntent.OpenDrink(it)) },
         onToggleSaved = { viewModel.onIntent(AdaIntent.ToggleSaved(it)) },
         onLoadOlder = { viewModel.onIntent(AdaIntent.LoadOlder) },
-        onShowMore = { viewModel.onIntent(AdaIntent.ShowMore(it)) },
+        onShowMore = { viewModel.onIntent(AdaIntent.OpenMore(it)) },
     )
 }
 
@@ -116,7 +118,7 @@ fun AdaScreen(
     onDrinkClick: (Drink) -> Unit,
     onToggleSaved: (Drink) -> Unit,
     onLoadOlder: () -> Unit = {},
-    onShowMore: (String) -> Unit = {},
+    onShowMore: (messageId: Long) -> Unit = {},
 ) {
     Column(
         modifier = Modifier
@@ -151,7 +153,7 @@ private fun AdaTranscript(
     onDrinkClick: (Drink) -> Unit,
     onToggleSaved: (Drink) -> Unit,
     onLoadOlder: () -> Unit,
-    onShowMore: (String) -> Unit,
+    onShowMore: (messageId: Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val suggestions = listOf(
@@ -248,7 +250,7 @@ private fun AdaTranscript(
                             onDrinkClick = onDrinkClick,
                             onToggleSaved = onToggleSaved,
                             // Only the newest reply pages; older ones would page the wrong search.
-                            onShowMore = onShowMore.takeIf { message.id == newestId && !state.sending },
+                            onShowMore = { onShowMore(message.id) }.takeIf { message.id == newestId && !state.sending },
                         )
                     }
                     if (state.loadingOlder) {
@@ -379,7 +381,7 @@ private fun AdaMessageRow(
     message: AdaMessage,
     onDrinkClick: (Drink) -> Unit,
     onToggleSaved: (Drink) -> Unit,
-    onShowMore: ((String) -> Unit)? = null,
+    onShowMore: (() -> Unit)? = null,
 ) {
     val fromUser = message.role == "user"
     val shape = if (fromUser) {
@@ -463,10 +465,9 @@ private fun AdaMessageRow(
             }
         }
         if (!fromUser && message.hasMore && onShowMore != null) {
-            val label = stringResource(R.string.ada_show_more)
             SuggestionChip(
-                onClick = { onShowMore(label) },
-                label = { Text(label) },
+                onClick = onShowMore,
+                label = { Text(stringResource(R.string.ada_show_more)) },
                 modifier = Modifier
                     .padding(start = 12.dp + AvatarSize + AvatarGap, top = 4.dp)
                     .testTag("ada_show_more"),

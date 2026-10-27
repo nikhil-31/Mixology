@@ -32,12 +32,14 @@ sealed interface AdaIntent {
     data class DraftChanged(val value: String) : AdaIntent
     data object Send : AdaIntent
     data class UseSuggestion(val text: String) : AdaIntent
-    /** Sends [text] ("Show more") to page the last search. */
-    data class ShowMore(val text: String) : AdaIntent
+    /** Opens the full list of drinks that fit the request behind reply [messageId]. */
+    data class OpenMore(val messageId: Long) : AdaIntent
     data class OpenDrink(val drink: Drink) : AdaIntent
     data class ToggleSaved(val drink: Drink) : AdaIntent
 }
 
 sealed interface AdaEffect {
     data class OpenDrink(val drink: Drink) : AdaEffect
+    /** Lists drinks for [query], leaving out the [exclude] ids the reply showed. */
+    data class OpenMore(val query: String, val exclude: List<String>) : AdaEffect
 }

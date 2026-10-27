@@ -1,11 +1,13 @@
 package com.capstone.nik.mixology
 
 import com.capstone.nik.mixology.Network.ChatStreamEvent
+import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.Session
 import com.capstone.nik.mixology.repository.AuthResult
 import com.capstone.nik.mixology.repository.ChatPage
 import com.capstone.nik.mixology.repository.ChatRepository
 import com.capstone.nik.mixology.repository.ChatTurn
+import com.capstone.nik.mixology.repository.DrinkMatchPage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
@@ -64,6 +66,25 @@ class FakeChatRepository : ChatRepository {
         val older = if (before == null) history else history.filter { it.serverId in 1 until before }
         val page = older.takeLast(pageSize)
         return ChatPage(page, hasMore = older.size > page.size)
+    }
+
+    /** Drinks [matches] serves for any query, [matchPageSize] at a time. */
+    var matchDrinks: List<Drink> = emptyList()
+    var matchPageSize = 20
+    var matchError: Exception? = null
+    /** The search [matches] reports, when it differs from the request. */
+    var matchQuery: String? = null
+    val matchRequests = mutableListOf<Triple<String, List<String>, Int>>()
+
+    override suspend fun matches(query: String, exclude: List<String>, offset: Int): DrinkMatchPage {
+        matchRequests += Triple(query, exclude, offset)
+        matchError?.let { throw it }
+        val rest = matchDrinks.filter { it.id !in exclude }.drop(offset)
+        return DrinkMatchPage(
+            query = matchQuery ?: query,
+            drinks = rest.take(matchPageSize),
+            hasMore = rest.size > matchPageSize,
+        )
     }
 
     override fun send(message: String): Flow<ChatStreamEvent> {

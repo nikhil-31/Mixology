@@ -103,6 +103,25 @@ class AdaViewModelTest {
     }
 
     @Test
+    fun openMore_opensTheListForThatReplyWithoutSending() = runTest {
+        chat.history = listOf(
+            ChatTurn("user", "drinks with gin"),
+            ChatTurn("assistant", "Here are a few.", listOf(alexander), hasMore = true),
+        )
+        signIn()
+        val effects = mutableListOf<AdaEffect>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.effects.collect { effects += it }
+        }
+
+        viewModel.onIntent(AdaIntent.OpenMore(viewModel.state.value.messages[1].id))
+
+        assertEquals(listOf(AdaEffect.OpenMore("drinks with gin", listOf("11014"))), effects)
+        assertTrue(chat.sent.isEmpty())
+        assertEquals(2, viewModel.state.value.messages.size)
+    }
+
+    @Test
     fun load_opensAtNewestPageThenLoadsOlderOnRequest() = runTest {
         chat.history = (1L..5L).map { id -> ChatTurn("user", "message $id", serverId = id) }
         chat.pageSize = 2
@@ -167,17 +186,18 @@ class AdaViewModelTest {
     }
 
     @Test
-    fun showMore_sendsTheLabelAndKeepsHasMore() = runTest {
+    fun send_keepsHasMoreFromTheStream() = runTest {
         signIn()
         chat.sendFlow = flowOf(
             ChatStreamEvent.Recommendations(listOf(alexander), hasMore = true),
-            ChatStreamEvent.Done("Here are 20 more."),
+            ChatStreamEvent.Done("Here are a few."),
         )
 
-        viewModel.onIntent(AdaIntent.ShowMore("Show more"))
+        viewModel.onIntent(AdaIntent.DraftChanged("drinks with gin"))
+        viewModel.onIntent(AdaIntent.Send)
 
         val state = viewModel.state.value
-        assertEquals(listOf("Show more"), chat.sent)
+        assertEquals(listOf("drinks with gin"), chat.sent)
         assertEquals("", state.draft)
         assertTrue(state.messages.last().hasMore)
         assertFalse(state.sending)

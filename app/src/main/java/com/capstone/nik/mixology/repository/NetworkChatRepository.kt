@@ -86,6 +86,25 @@ class NetworkChatRepository @Inject constructor(
         }
     }
 
+    override suspend fun matches(query: String, exclude: List<String>, offset: Int): DrinkMatchPage {
+        return try {
+            val page = chatService.matches(
+                q = query,
+                exclude = exclude.joinToString(",").takeIf { it.isNotEmpty() },
+                offset = offset,
+            )
+            DrinkMatchPage(
+                query = page.query.ifEmpty { query },
+                drinks = page.drinks.mapNotNull { it.toDrink() },
+                hasMore = page.hasMore,
+            )
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: HttpException) {
+            throw chatFailure(error.code(), error.response()?.errorBody()?.string(), error.message())
+        }
+    }
+
     override fun send(message: String): Flow<ChatStreamEvent> {
         if (sessionStore.current() == null) {
             return flow {

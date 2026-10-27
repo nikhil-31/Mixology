@@ -46,10 +46,7 @@ class AdaViewModel @Inject constructor(
             is AdaIntent.DraftChanged -> setState { copy(draft = intent.value) }
             AdaIntent.Send -> send()
             is AdaIntent.UseSuggestion -> setState { copy(draft = intent.text) }
-            is AdaIntent.ShowMore -> {
-                setState { copy(draft = intent.text) }
-                send()
-            }
+            is AdaIntent.OpenMore -> openMore(intent.messageId)
             is AdaIntent.OpenDrink -> sendEffect(AdaEffect.OpenDrink(intent.drink))
             is AdaIntent.ToggleSaved -> toggleSaved(intent.drink)
         }
@@ -185,6 +182,13 @@ class AdaViewModel @Inject constructor(
                 setState { copy(sending = false, error = error.message.orEmpty()) }
             }
         }
+    }
+
+    private fun openMore(messageId: Long) {
+        val index = transcript.indexOfFirst { it.id == messageId }
+        if (index < 0) return
+        val query = transcript.subList(0, index).lastOrNull { it.role == "user" }?.content ?: return
+        sendEffect(AdaEffect.OpenMore(query, transcript[index].drinks.map { it.id }))
     }
 
     private fun toggleSaved(drink: Drink) {

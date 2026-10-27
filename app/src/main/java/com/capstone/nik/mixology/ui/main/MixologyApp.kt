@@ -57,6 +57,7 @@ import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.repository.FilterKind
+import com.capstone.nik.mixology.ui.ada.AdaMoreRoute
 import com.capstone.nik.mixology.ui.ada.AdaRoute
 import com.capstone.nik.mixology.ui.bar.BarRoute
 import com.capstone.nik.mixology.ui.catalog.CatalogRoute
@@ -326,6 +327,35 @@ fun MixologyApp(
                         }
                         composable(ADA_ROUTE) {
                             AdaRoute(
+                                onDrinkClick = { drink ->
+                                    viewModel.onIntent(MainIntent.DrinkSelected(drink, selectDrinkTwoPane.value))
+                                },
+                                onOpenMore = { query, exclude ->
+                                    navController.navigate(adaMoreRoute(query, exclude)) {
+                                        launchSingleTop = true
+                                    }
+                                },
+                            )
+                        }
+                        composable(
+                            route = ADA_MORE_ROUTE,
+                            arguments = listOf(
+                                navArgument("q") {
+                                    type = NavType.StringType
+                                    defaultValue = ""
+                                },
+                                navArgument("exclude") {
+                                    type = NavType.StringType
+                                    defaultValue = ""
+                                },
+                            ),
+                        ) { entry ->
+                            AdaMoreRoute(
+                                query = entry.arguments?.getString("q").orEmpty(),
+                                exclude = entry.arguments?.getString("exclude").orEmpty()
+                                    .split(',')
+                                    .filter { it.isNotBlank() },
+                                onBack = { navController.navigateUp() },
                                 onDrinkClick = { drink ->
                                     viewModel.onIntent(MainIntent.DrinkSelected(drink, selectDrinkTwoPane.value))
                                 },

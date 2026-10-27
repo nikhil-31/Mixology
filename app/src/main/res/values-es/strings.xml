@@ -139,6 +139,8 @@
     <string name="ada_prompt">Pide una bebida</string>
     <string name="ada_send">Enviar</string>
     <string name="ada_show_more">Mostrar más</string>
+    <string name="ada_more_title">Más para “%1$s”</string>
+    <string name="ada_more_empty">No hay más bebidas para eso.</string>
     <string name="ada_greeting">Hola, soy Ada</string>
     <string name="ada_empty">Dile a Ada qué te apetece beber.</string>
     <string name="ada_suggestion_gin">Algo con ginebra</string>

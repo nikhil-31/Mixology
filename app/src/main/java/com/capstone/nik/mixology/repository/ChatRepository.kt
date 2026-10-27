@@ -21,6 +21,14 @@ data class ChatPage(
     val hasMore: Boolean,
 )
 
+/** One page of drinks for Ada's Show more list. [hasMore] means more follow. */
+data class DrinkMatchPage(
+    /** The search listed, which can differ from the request when it was "Show more". */
+    val query: String,
+    val drinks: List<Drink>,
+    val hasMore: Boolean,
+)
+
 sealed interface AuthResult {
     data class Success(val session: Session) : AuthResult
     data class Failure(val detail: String) : AuthResult
@@ -43,6 +51,9 @@ interface ChatRepository {
 
     /** The newest page of chat, or the page just before message id [before]. */
     suspend fun history(before: Long? = null): ChatPage
+
+    /** Drinks that fit [query], leaving out [exclude], starting at [offset]. */
+    suspend fun matches(query: String, exclude: List<String>, offset: Int): DrinkMatchPage
 
     fun send(message: String): Flow<ChatStreamEvent>
 }

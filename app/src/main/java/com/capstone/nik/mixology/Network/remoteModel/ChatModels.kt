@@ -23,6 +23,14 @@ data class ChatMessageDto(
     @SerializedName("has_more") val hasMore: Boolean = false,
 )
 
+data class ChatMatchesResponse(
+    /** The search listed: the request, or the one a bare "Show more" pages. */
+    val query: String = "",
+    val drinks: List<ApiDrink> = emptyList(),
+    /** More drinks follow this page. */
+    @SerializedName("has_more") val hasMore: Boolean = false,
+)
+
 data class DeltaPayload(
     val text: String = "",
 )

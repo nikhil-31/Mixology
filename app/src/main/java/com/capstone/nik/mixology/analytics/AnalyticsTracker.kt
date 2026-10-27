@@ -22,6 +22,7 @@ fun analyticsScreenName(route: String?): String? {
         path.startsWith("grid") -> SCREEN_DRINK_GRID
         path.startsWith("hot") -> SCREEN_HOME
         path.startsWith("settings") -> SCREEN_SETTINGS
+        path.startsWith("ada_more") -> SCREEN_ADA_MORE
         path.startsWith("ada") -> SCREEN_ADA
         path.startsWith("catalog") -> SCREEN_CATALOG
         path.startsWith("bar") -> SCREEN_MY_BAR
@@ -36,6 +37,7 @@ const val SCREEN_DRINK_DETAILS = "drink_details"
 const val SCREEN_SEARCH = "search"
 const val SCREEN_SETTINGS = "settings"
 const val SCREEN_ADA = "ada"
+const val SCREEN_ADA_MORE = "ada_more"
 const val SCREEN_CATALOG = "catalog"
 const val SCREEN_MY_BAR = "my_bar"
 const val SCREEN_SHOPPING_LIST = "shopping_list"

@@ -25,6 +25,7 @@ const val BAR_ROUTE = "bar"
 const val SHOPPING_ROUTE = "shopping"
 const val SEARCH_ROUTE = "search?query={query}&mode={mode}&kind={kind}"
 const val DETAILS_ROUTE = "details/{id}?name={name}&thumb={thumb}"
+const val ADA_MORE_ROUTE = "ada_more?q={q}&exclude={exclude}"
 
 fun gridRoute(filter: DrinkFilter) = "grid/${encodeRouteArg(filter.name)}"
 
@@ -47,10 +48,17 @@ fun detailsRoute(drink: Drink): String {
     return "details/$id?name=$name&thumb=$thumb"
 }
 
+/** Ada's Show more list for request [query], leaving out the [exclude] ids. */
+fun adaMoreRoute(query: String, exclude: List<String>): String {
+    return "ada_more?q=${encodeRouteArg(query)}&exclude=${encodeRouteArg(exclude.joinToString(","))}"
+}
+
 fun isOverlayRoute(route: String?): Boolean {
     if (route == null) return false
-    return isSearchRoute(route) || isDetailsRoute(route)
+    return isSearchRoute(route) || isDetailsRoute(route) || isAdaMoreRoute(route)
 }
+
+fun isAdaMoreRoute(route: String?): Boolean = route?.startsWith("ada_more") == true
 
 fun isSearchRoute(route: String?): Boolean = route?.startsWith("search") == true
 

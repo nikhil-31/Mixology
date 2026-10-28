@@ -161,6 +161,12 @@
     <string name="ada_suggestion_bitter">A bitter nightcap</string>
     <string name="ada_suggestion_easy">Low effort, high reward</string>
     <string name="ada_error_generic">Something went wrong. Try again.</string>
+    <string name="ada_mic_start">Talk to Ada</string>
+    <string name="ada_mic_stop">Stop listening</string>
+    <string name="ada_listening">Listening…</string>
+    <string name="ada_mic_denied">Turn on microphone access in Settings to talk to Ada.</string>
+    <string name="ada_mic_error">Couldn\'t catch that. Try again.</string>
+    <string name="ada_mic_open_settings">Settings</string>
     <string-array name="ada_thinking">
         <item>Shaking things up…</item>
         <item>Checking the back bar…</item>

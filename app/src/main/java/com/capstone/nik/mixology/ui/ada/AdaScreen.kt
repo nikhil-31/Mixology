@@ -1,5 +1,12 @@
 package com.capstone.nik.mixology.ui.ada
 
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.StartOffset
@@ -41,18 +48,24 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -63,6 +76,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
@@ -71,7 +85,10 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.Drink
@@ -88,6 +105,12 @@ fun AdaRoute(
     viewModel: AdaViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val speech = remember { AndroidAdaSpeechInput(context.applicationContext) }
+    val voiceAvailable = remember { speech.available }
+    val askMicrophone = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        viewModel.onIntent(AdaIntent.VoicePermission(granted))
+    }
     LaunchedEffect(Unit) {
         viewModel.onIntent(AdaIntent.Load)
     }
@@ -95,6 +118,37 @@ fun AdaRoute(
         when (effect) {
             is AdaEffect.OpenDrink -> onDrinkClick(effect.drink)
             is AdaEffect.OpenMore -> onOpenMore(effect.query, effect.exclude)
+            AdaEffect.RequestMicrophone -> {
+                val permission = Manifest.permission.RECORD_AUDIO
+                if (ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED) {
+                    viewModel.onIntent(AdaIntent.VoicePermission(granted = true))
+                } else {
+                    askMicrophone.launch(permission)
+                }
+            }
+        }
+    }
+    LaunchedEffect(state.listening) {
+        if (state.listening) {
+            speech.start { event ->
+                viewModel.onIntent(
+                    when (event) {
+                        is AdaSpeechEvent.Transcript -> AdaIntent.VoiceTranscript(event.text, event.final)
+                        is AdaSpeechEvent.Ended -> AdaIntent.VoiceEnded(event.failed)
+                    },
+                )
+            }
+        } else {
+            speech.stop()
+        }
+    }
+    LifecycleEventEffect(Lifecycle.Event.ON_STOP) {
+        viewModel.onIntent(AdaIntent.StopVoice)
+    }
+    DisposableEffect(speech) {
+        onDispose {
+            speech.release()
+            viewModel.onIntent(AdaIntent.StopVoice)
         }
     }
     AdaScreen(
@@ -106,6 +160,13 @@ fun AdaRoute(
         onToggleSaved = { viewModel.onIntent(AdaIntent.ToggleSaved(it)) },
         onLoadOlder = { viewModel.onIntent(AdaIntent.LoadOlder) },
         onShowMore = { viewModel.onIntent(AdaIntent.OpenMore(it)) },
+        voiceAvailable = voiceAvailable,
+        onToggleVoice = { viewModel.onIntent(AdaIntent.ToggleVoice) },
+        onOpenSettings = {
+            context.startActivity(
+                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null)),
+            )
+        },
     )
 }
 
@@ -119,6 +180,9 @@ fun AdaScreen(
     onToggleSaved: (Drink) -> Unit,
     onLoadOlder: () -> Unit = {},
     onShowMore: (messageId: Long) -> Unit = {},
+    voiceAvailable: Boolean = false,
+    onToggleVoice: () -> Unit = {},
+    onOpenSettings: () -> Unit = {},
 ) {
     Column(
         modifier = Modifier
@@ -137,6 +201,9 @@ fun AdaScreen(
                 onToggleSaved = onToggleSaved,
                 onLoadOlder = onLoadOlder,
                 onShowMore = onShowMore,
+                voiceAvailable = voiceAvailable,
+                onToggleVoice = onToggleVoice,
+                onOpenSettings = onOpenSettings,
                 modifier = Modifier.weight(1f),
             )
         }
@@ -154,6 +221,9 @@ private fun AdaTranscript(
     onToggleSaved: (Drink) -> Unit,
     onLoadOlder: () -> Unit,
     onShowMore: (messageId: Long) -> Unit,
+    voiceAvailable: Boolean,
+    onToggleVoice: () -> Unit,
+    onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val suggestions = listOf(
@@ -270,38 +340,71 @@ private fun AdaTranscript(
             }
         }
         state.error?.let { detail ->
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 4.dp)
-                    .testTag("ada_error"),
-                color = MaterialTheme.colorScheme.errorContainer,
-                contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                shape = RoundedCornerShape(12.dp),
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.ErrorOutline,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp),
-                    )
-                    Text(
-                        text = detail.ifBlank { stringResource(R.string.ada_error_generic) },
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(start = 8.dp),
-                    )
-                }
-            }
+            AdaNotice(
+                text = detail.ifBlank { stringResource(R.string.ada_error_generic) },
+                modifier = Modifier.testTag("ada_error"),
+            )
+        }
+        when (state.voiceProblem) {
+            AdaVoiceProblem.Denied -> AdaNotice(
+                text = stringResource(R.string.ada_mic_denied),
+                modifier = Modifier.testTag("ada_mic_denied"),
+                action = {
+                    TextButton(onClick = onOpenSettings) {
+                        Text(stringResource(R.string.ada_mic_open_settings))
+                    }
+                },
+            )
+            AdaVoiceProblem.Failed -> AdaNotice(
+                text = stringResource(R.string.ada_mic_error),
+                modifier = Modifier.testTag("ada_mic_error"),
+            )
+            null -> Unit
         }
         AdaComposer(
             draft = state.draft,
             canSend = state.draft.isNotBlank() && !state.sending && !state.loadingHistory,
+            listening = state.listening,
+            showMic = voiceAvailable && !state.sending,
             onDraftChanged = onDraftChanged,
             onSend = onSend,
+            onToggleVoice = onToggleVoice,
         )
+    }
+}
+
+@Composable
+private fun AdaNotice(
+    text: String,
+    modifier: Modifier = Modifier,
+    action: (@Composable () -> Unit)? = null,
+) {
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 4.dp),
+        color = MaterialTheme.colorScheme.errorContainer,
+        contentColor = MaterialTheme.colorScheme.onErrorContainer,
+        shape = RoundedCornerShape(12.dp),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.ErrorOutline,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp),
+            )
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 8.dp),
+            )
+            action?.invoke()
+        }
     }
 }
 
@@ -309,8 +412,11 @@ private fun AdaTranscript(
 private fun AdaComposer(
     draft: String,
     canSend: Boolean,
+    listening: Boolean,
+    showMic: Boolean,
     onDraftChanged: (String) -> Unit,
     onSend: () -> Unit,
+    onToggleVoice: () -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -324,7 +430,9 @@ private fun AdaComposer(
             modifier = Modifier
                 .weight(1f)
                 .testTag("ada_draft"),
-            placeholder = { Text(stringResource(R.string.ada_prompt)) },
+            placeholder = {
+                Text(stringResource(if (listening) R.string.ada_listening else R.string.ada_prompt))
+            },
             shape = RoundedCornerShape(24.dp),
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = Color.Transparent,
@@ -340,6 +448,28 @@ private fun AdaComposer(
             ),
             keyboardActions = KeyboardActions(onSend = { if (canSend) onSend() }),
         )
+        if (showMic) {
+            FilledTonalIconButton(
+                onClick = onToggleVoice,
+                modifier = Modifier
+                    .padding(start = 8.dp, bottom = 4.dp)
+                    .size(48.dp)
+                    .testTag("ada_mic"),
+                colors = if (listening) {
+                    IconButtonDefaults.filledTonalIconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                    )
+                } else {
+                    IconButtonDefaults.filledTonalIconButtonColors()
+                },
+            ) {
+                Icon(
+                    imageVector = if (listening) Icons.Filled.Stop else Icons.Filled.Mic,
+                    contentDescription = stringResource(if (listening) R.string.ada_mic_stop else R.string.ada_mic_start),
+                )
+            }
+        }
         FilledIconButton(
             onClick = onSend,
             enabled = canSend,

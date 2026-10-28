@@ -8,6 +8,9 @@ import com.capstone.nik.mixology.FakeCocktailService
 import com.capstone.nik.mixology.MainDispatcherRule
 import com.capstone.nik.mixology.Network.ChatHttpException
 import com.capstone.nik.mixology.Network.ChatStreamEvent
+import com.capstone.nik.mixology.analytics.AnalyticsTracker
+import com.capstone.nik.mixology.analytics.EVENT_ADA_VOICE_INPUT
+import com.capstone.nik.mixology.analytics.PARAM_RESULT
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.MixologyDatabase
 import com.capstone.nik.mixology.data.Session
@@ -27,6 +30,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -44,6 +48,7 @@ class AdaViewModelTest {
 
     private lateinit var database: MixologyDatabase
     private val chat = FakeChatRepository()
+    private val analytics = AnalyticsTracker.forTests()
     private lateinit var viewModel: AdaViewModel
 
     @Before
@@ -63,6 +68,7 @@ class AdaViewModelTest {
                 FakeCocktailService(),
                 context,
             ),
+            analytics,
         )
     }
 
@@ -231,6 +237,96 @@ class AdaViewModelTest {
         assertTrue(state.messages.isEmpty())
         assertTrue(chat.signedOut)
     }
+
+    @Test
+    fun voice_toggleAsksForTheMicrophone() = runTest {
+        signIn()
+        val effects = mutableListOf<AdaEffect>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.effects.collect { effects += it }
+        }
+
+        viewModel.onIntent(AdaIntent.ToggleVoice)
+
+        assertEquals(listOf<AdaEffect>(AdaEffect.RequestMicrophone), effects)
+        assertFalse(viewModel.state.value.listening)
+    }
+
+    @Test
+    fun voice_transcriptsReplaceTheDraftWithoutSending() = runTest {
+        signIn()
+        viewModel.onIntent(AdaIntent.DraftChanged("typed"))
+
+        viewModel.onIntent(AdaIntent.VoicePermission(granted = true))
+        assertTrue(viewModel.state.value.listening)
+        assertEquals("", viewModel.state.value.draft)
+
+        viewModel.onIntent(AdaIntent.VoiceTranscript("something smoky", final = false))
+        assertEquals("something smoky", viewModel.state.value.draft)
+        assertTrue(viewModel.state.value.listening)
+
+        viewModel.onIntent(AdaIntent.VoiceTranscript("something smoky with mezcal", final = true))
+        val state = viewModel.state.value
+        assertEquals("something smoky with mezcal", state.draft)
+        assertFalse(state.listening)
+        assertTrue(chat.sent.isEmpty())
+        assertEquals(listOf("started", "completed"), voiceResults())
+    }
+
+    @Test
+    fun voice_transcriptsAfterStoppingAreIgnored() = runTest {
+        signIn()
+        viewModel.onIntent(AdaIntent.VoicePermission(granted = true))
+        viewModel.onIntent(AdaIntent.VoiceTranscript("negroni", final = false))
+
+        viewModel.onIntent(AdaIntent.ToggleVoice)
+        viewModel.onIntent(AdaIntent.VoiceTranscript("negroni please", final = true))
+
+        assertFalse(viewModel.state.value.listening)
+        assertEquals("negroni", viewModel.state.value.draft)
+        assertEquals(listOf("started", "completed"), voiceResults())
+    }
+
+    @Test
+    fun voice_sendStopsListening() = runTest {
+        signIn()
+        chat.sendFlow = flowOf(ChatStreamEvent.Done("Try a Paloma."))
+        viewModel.onIntent(AdaIntent.VoicePermission(granted = true))
+        viewModel.onIntent(AdaIntent.VoiceTranscript("tequila", final = false))
+
+        viewModel.onIntent(AdaIntent.Send)
+
+        assertFalse(viewModel.state.value.listening)
+        assertEquals(listOf("tequila"), chat.sent)
+    }
+
+    @Test
+    fun voice_deniedShowsTheSettingsNotice() = runTest {
+        signIn()
+
+        viewModel.onIntent(AdaIntent.VoicePermission(granted = false))
+
+        assertFalse(viewModel.state.value.listening)
+        assertEquals(AdaVoiceProblem.Denied, viewModel.state.value.voiceProblem)
+        assertEquals(listOf("denied"), voiceResults())
+    }
+
+    @Test
+    fun voice_failureShowsANoticeButSilenceDoesNot() = runTest {
+        signIn()
+        viewModel.onIntent(AdaIntent.VoicePermission(granted = true))
+        viewModel.onIntent(AdaIntent.VoiceEnded(failed = false))
+        assertFalse(viewModel.state.value.listening)
+        assertNull(viewModel.state.value.voiceProblem)
+
+        viewModel.onIntent(AdaIntent.VoicePermission(granted = true))
+        viewModel.onIntent(AdaIntent.VoiceEnded(failed = true))
+        assertEquals(AdaVoiceProblem.Failed, viewModel.state.value.voiceProblem)
+        assertEquals(listOf("started", "cancelled", "started", "error"), voiceResults())
+    }
+
+    private fun voiceResults(): List<Any?> =
+        analytics.recorded.filter { it.name == EVENT_ADA_VOICE_INPUT }.map { it.params[PARAM_RESULT] }
 
     private fun signIn() {
         chat.session = Session(

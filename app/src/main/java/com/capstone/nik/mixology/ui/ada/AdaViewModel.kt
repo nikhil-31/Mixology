@@ -2,6 +2,12 @@ package com.capstone.nik.mixology.ui.ada
 
 import androidx.lifecycle.viewModelScope
 import com.capstone.nik.mixology.Network.ChatHttpException
+import com.capstone.nik.mixology.analytics.AnalyticsTracker
+import com.capstone.nik.mixology.analytics.VOICE_CANCELLED
+import com.capstone.nik.mixology.analytics.VOICE_COMPLETED
+import com.capstone.nik.mixology.analytics.VOICE_DENIED
+import com.capstone.nik.mixology.analytics.VOICE_ERROR
+import com.capstone.nik.mixology.analytics.VOICE_STARTED
 import com.capstone.nik.mixology.Network.ChatStreamEvent
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.repository.ChatRepository
@@ -18,6 +24,7 @@ import javax.inject.Inject
 class AdaViewModel @Inject constructor(
     private val chatRepository: ChatRepository,
     private val drinkRepository: DrinkRepository,
+    private val analytics: AnalyticsTracker = AnalyticsTracker.forTests(),
 ) : MviViewModel<AdaIntent, AdaUiState, AdaEffect>(AdaUiState()) {
 
     private var transcript: List<AdaMessage> = emptyList()
@@ -49,6 +56,11 @@ class AdaViewModel @Inject constructor(
             is AdaIntent.OpenMore -> openMore(intent.messageId)
             is AdaIntent.OpenDrink -> sendEffect(AdaEffect.OpenDrink(intent.drink))
             is AdaIntent.ToggleSaved -> toggleSaved(intent.drink)
+            AdaIntent.ToggleVoice -> toggleVoice()
+            is AdaIntent.VoicePermission -> onVoicePermission(intent.granted)
+            is AdaIntent.VoiceTranscript -> onVoiceTranscript(intent.text, intent.final)
+            is AdaIntent.VoiceEnded -> onVoiceEnded(intent.failed)
+            AdaIntent.StopVoice -> stopVoice()
         }
     }
 
@@ -137,6 +149,7 @@ class AdaViewModel @Inject constructor(
         if (text.isEmpty() || currentState.sending || currentState.loadingHistory || !currentState.signedIn) {
             return
         }
+        stopVoice()
         val userId = freshId()
         val assistantId = freshId()
         transcript = transcript + AdaMessage(
@@ -182,6 +195,45 @@ class AdaViewModel @Inject constructor(
                 setState { copy(sending = false, error = error.message.orEmpty()) }
             }
         }
+    }
+
+    private fun toggleVoice() {
+        if (currentState.listening) {
+            stopVoice()
+        } else if (!currentState.sending) {
+            sendEffect(AdaEffect.RequestMicrophone)
+        }
+    }
+
+    private fun onVoicePermission(granted: Boolean) {
+        if (!granted) {
+            analytics.logAdaVoiceInput(VOICE_DENIED)
+            setState { copy(voiceProblem = AdaVoiceProblem.Denied) }
+            return
+        }
+        if (currentState.sending || currentState.listening) return
+        analytics.logAdaVoiceInput(VOICE_STARTED)
+        // Dictation replaces whatever was typed.
+        setState { copy(listening = true, draft = "", voiceProblem = null, error = null) }
+    }
+
+    private fun onVoiceTranscript(text: String, final: Boolean) {
+        if (!currentState.listening) return
+        setState { copy(draft = text, listening = !final) }
+        if (final) analytics.logAdaVoiceInput(VOICE_COMPLETED)
+    }
+
+    private fun onVoiceEnded(failed: Boolean) {
+        if (!currentState.listening) return
+        analytics.logAdaVoiceInput(if (failed) VOICE_ERROR else VOICE_CANCELLED)
+        setState { copy(listening = false, voiceProblem = AdaVoiceProblem.Failed.takeIf { failed }) }
+    }
+
+    /** Keeps the words heard so far in the draft. */
+    private fun stopVoice() {
+        if (!currentState.listening) return
+        analytics.logAdaVoiceInput(if (currentState.draft.isBlank()) VOICE_CANCELLED else VOICE_COMPLETED)
+        setState { copy(listening = false) }
     }
 
     private fun openMore(messageId: Long) {

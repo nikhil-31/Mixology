@@ -50,9 +50,17 @@ const val EVENT_REMOVE_FROM_WISHLIST = "remove_from_wishlist"
 const val EVENT_RECIPE_CREATED = "recipe_created"
 const val EVENT_RECIPE_UPDATED = "recipe_updated"
 const val EVENT_RECIPE_DELETED = "recipe_deleted"
+const val EVENT_ADA_VOICE_INPUT = "ada_voice_input"
 const val PARAM_SEARCH_MODE = "search_mode"
 const val PARAM_RESULT_COUNT = "result_count"
 const val PARAM_SAVED = "saved"
+const val PARAM_RESULT = "result"
+
+const val VOICE_STARTED = "started"
+const val VOICE_COMPLETED = "completed"
+const val VOICE_CANCELLED = "cancelled"
+const val VOICE_DENIED = "denied"
+const val VOICE_ERROR = "error"
 
 private const val MAX_PARAM_VALUE_LENGTH = 100
 private const val ITEM_CATEGORY_DRINK = "drink"
@@ -142,6 +150,10 @@ class AnalyticsTracker internal constructor(
 
     fun logRecipeDeleted(id: String, name: String) {
         log(EVENT_RECIPE_DELETED, drinkParams(id, name))
+    }
+
+    fun logAdaVoiceInput(result: String) {
+        log(EVENT_ADA_VOICE_INPUT, mapOf(PARAM_RESULT to result))
     }
 
     private fun drinkParams(id: String, name: String): Map<String, Any> = mapOf(

@@ -23,7 +23,16 @@ data class AdaUiState(
     val draft: String = "",
     val sending: Boolean = false,
     val error: String? = null,
+    /** The mic is open and transcripts are replacing [draft]. */
+    val listening: Boolean = false,
+    val voiceProblem: AdaVoiceProblem? = null,
 )
+
+enum class AdaVoiceProblem {
+    /** The microphone permission was refused. */
+    Denied,
+    Failed,
+}
 
 sealed interface AdaIntent {
     data object Load : AdaIntent
@@ -36,10 +45,21 @@ sealed interface AdaIntent {
     data class OpenMore(val messageId: Long) : AdaIntent
     data class OpenDrink(val drink: Drink) : AdaIntent
     data class ToggleSaved(val drink: Drink) : AdaIntent
+    /** The mic button: asks for the microphone, or stops listening. */
+    data object ToggleVoice : AdaIntent
+    data class VoicePermission(val granted: Boolean) : AdaIntent
+    /** Recognised speech so far; [final] ends the session. */
+    data class VoiceTranscript(val text: String, val final: Boolean) : AdaIntent
+    /** Recognition ended without a transcript; [failed] is false when nothing was said. */
+    data class VoiceEnded(val failed: Boolean) : AdaIntent
+    /** The screen went away mid-dictation. */
+    data object StopVoice : AdaIntent
 }
 
 sealed interface AdaEffect {
     data class OpenDrink(val drink: Drink) : AdaEffect
     /** Lists drinks for [query], leaving out the [exclude] ids the reply showed. */
     data class OpenMore(val query: String, val exclude: List<String>) : AdaEffect
+    /** Start listening once RECORD_AUDIO is granted; answer with [AdaIntent.VoicePermission]. */
+    data object RequestMicrophone : AdaEffect
 }

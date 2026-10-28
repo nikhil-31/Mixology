@@ -147,6 +147,12 @@
     <string name="ada_suggestion_bitter">Un trago amargo para la noche</string>
     <string name="ada_suggestion_easy">Poco esfuerzo, mucho premio</string>
     <string name="ada_error_generic">Algo salió mal. Inténtalo de nuevo.</string>
+    <string name="ada_mic_start">Habla con Ada</string>
+    <string name="ada_mic_stop">Dejar de escuchar</string>
+    <string name="ada_listening">Escuchando…</string>
+    <string name="ada_mic_denied">Activa el micrófono en Ajustes para hablar con Ada.</string>
+    <string name="ada_mic_error">No te he entendido. Inténtalo de nuevo.</string>
+    <string name="ada_mic_open_settings">Ajustes</string>
     <string-array name="ada_thinking">
         <item>Agitando ideas…</item>
         <item>Revisando la barra…</item>

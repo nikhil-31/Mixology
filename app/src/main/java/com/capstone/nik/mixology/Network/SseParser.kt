@@ -87,8 +87,8 @@ fun SseEvent.toChatStreamEvent(): ChatStreamEvent? {
                 ChatStreamEvent.Recommendations(drinks, hasMore = payload?.hasMore ?: false)
             }
             "done" -> {
-                val content = chatGson.fromJson(data, DonePayload::class.java)?.content.orEmpty()
-                ChatStreamEvent.Done(content)
+                val payload = chatGson.fromJson(data, DonePayload::class.java)
+                ChatStreamEvent.Done(payload?.content.orEmpty(), payload?.credits)
             }
             "error" -> {
                 val detail = chatGson.fromJson(data, ApiDetail::class.java)?.detail.orEmpty()

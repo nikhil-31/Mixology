@@ -32,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,13 +49,17 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.billing.Access
+import com.capstone.nik.mixology.billing.ChatCredits
 import com.capstone.nik.mixology.ui.paywall.SubscriptionGateViewModel
 import com.capstone.nik.mixology.ui.auth.SessionViewModel
 import com.capstone.nik.mixology.ui.theme.MixologySectionTitle
 import com.capstone.nik.mixology.ui.theme.ThemeMode
 import com.capstone.nik.mixology.ui.theme.ThemePreferences
 import com.capstone.nik.mixology.ui.theme.rememberThemeMode
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 
 const val PRIVACY_POLICY_URL = "https://nikhil-31.github.io/Mixology/privacy-policy"
 
@@ -82,11 +87,13 @@ fun SettingsRoute(
     val themeMode = rememberThemeMode()
     val session by sessionViewModel.session.collectAsStateWithLifecycle()
     val access by subscriptionGate.access.collectAsStateWithLifecycle()
+    val chatCredits by subscriptionGate.chatCredits.collectAsStateWithLifecycle()
     SettingsScreen(
         themeMode = themeMode,
         accountEmail = session?.email.orEmpty(),
         onSignOut = sessionViewModel::signOut,
         access = access,
+        chatCredits = chatCredits,
         onSubscriptionAction = {
             when (val current = access) {
                 is Access.Subscribed -> uriHandler.openUri(
@@ -115,6 +122,7 @@ fun SettingsScreen(
     accountEmail: String = "",
     onSignOut: () -> Unit = {},
     access: Access = Access.Unknown,
+    chatCredits: ChatCredits? = null,
     onSubscriptionAction: () -> Unit = {},
     onCatalog: () -> Unit = {},
     onShoppingList: () -> Unit = {},
@@ -198,6 +206,26 @@ fun SettingsScreen(
                         )
                     }
                 },
+                colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+            )
+        }
+        // Ada is Premium only, so free accounts have no credits to show.
+        if (chatCredits != null && (access is Access.Trial || access is Access.Subscribed)) {
+            val resetsOn = chatCredits.resetsAt?.let { rememberMonthDay(it) }
+            ListItem(
+                headlineContent = {
+                    Text(
+                        text = stringResource(
+                            R.string.settings_chat_credits_left,
+                            chatCredits.remaining,
+                            chatCredits.limit,
+                        ),
+                    )
+                },
+                supportingContent = resetsOn?.let {
+                    { Text(stringResource(R.string.settings_chat_credits_resets, it)) }
+                },
+                modifier = Modifier.testTag("settings_chat_credits"),
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent),
             )
         }
@@ -341,3 +369,13 @@ private val ThemeMode.titleRes: Int
         ThemeMode.LIGHT -> R.string.settings_theme_light
         ThemeMode.DARK -> R.string.settings_theme_dark
     }
+
+/** "Nov 1" in the user's locale. Credits reset at midnight UTC, so the day is read in UTC. */
+@Composable
+private fun rememberMonthDay(date: Date): String {
+    val locale = Locale.getDefault()
+    return remember(date, locale) {
+        val pattern = android.text.format.DateFormat.getBestDateTimePattern(locale, "MMMd")
+        SimpleDateFormat(pattern, locale).apply { timeZone = TimeZone.getTimeZone("UTC") }.format(date)
+    }
+}

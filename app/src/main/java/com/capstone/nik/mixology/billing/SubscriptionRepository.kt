@@ -2,6 +2,7 @@ package com.capstone.nik.mixology.billing
 
 import com.capstone.nik.mixology.Network.BillingService
 import com.capstone.nik.mixology.Network.remoteModel.BillingStatusDto
+import com.capstone.nik.mixology.Network.remoteModel.ChatCreditsDto
 import com.capstone.nik.mixology.Network.remoteModel.PlayVerifyRequest
 import com.capstone.nik.mixology.data.SessionStore
 import kotlinx.coroutines.CancellationException
@@ -15,6 +16,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -26,6 +32,31 @@ sealed interface Access {
     data class Subscribed(val productId: String?, val expiresAt: String?) : Access
     /** The trial ended and there is no subscription: the app shows only the paywall. */
     data object Free : Access
+}
+
+/** Ada chat credits left this month; [resetsAt] is midnight UTC on the 1st. */
+data class ChatCredits(val remaining: Int, val limit: Int, val resetsAt: Date?) {
+    companion object {
+        /** Null when the server doesn't meter chat. */
+        fun from(dto: ChatCreditsDto?): ChatCredits? {
+            if (dto == null || dto.unlimited) return null
+            return ChatCredits(dto.remaining, dto.limit, parseDay(dto.resetsAt))
+        }
+
+        /** Reads the day of an ISO timestamp such as `2026-11-01T00:00:00+00:00`. */
+        private fun parseDay(value: String?): Date? {
+            val day = value?.take(10) ?: return null
+            val format = SimpleDateFormat("yyyy-MM-dd", Locale.US).apply {
+                timeZone = TimeZone.getTimeZone("UTC")
+                isLenient = false
+            }
+            return try {
+                format.parse(day)
+            } catch (_: ParseException) {
+                null
+            }
+        }
+    }
 }
 
 /**
@@ -42,6 +73,10 @@ class SubscriptionRepository @Inject constructor(
 
     private val _access = MutableStateFlow(accessFor(sessionStore.current()?.access))
     val access: StateFlow<Access> = _access.asStateFlow()
+
+    private val _chatCredits = MutableStateFlow<ChatCredits?>(null)
+    /** Ada credits left this month; null until known, or when chat isn't metered. */
+    val chatCredits: StateFlow<ChatCredits?> = _chatCredits.asStateFlow()
 
     /** Set when the user opens the paywall themselves, e.g. during the trial. */
     private val paywallRequested = MutableStateFlow(false)
@@ -60,6 +95,7 @@ class SubscriptionRepository @Inject constructor(
             sessionStore.session.collect { session ->
                 if (session == null) {
                     _access.value = Access.Unknown
+                    _chatCredits.value = null
                     paywallRequested.value = false
                 }
             }
@@ -123,6 +159,11 @@ class SubscriptionRepository @Inject constructor(
         scope.launch { refresh() }
     }
 
+    /** An Ada reply reported the credits left after it. */
+    fun updateChatCredits(credits: ChatCreditsDto?) {
+        if (credits != null) _chatCredits.value = ChatCredits.from(credits)
+    }
+
     fun openPaywall() {
         paywallRequested.value = true
     }
@@ -143,6 +184,7 @@ class SubscriptionRepository @Inject constructor(
         _access.value = access
         if (access is Access.Subscribed) paywallRequested.value = false
         if (status.products.isNotEmpty()) products = status.products
+        _chatCredits.value = ChatCredits.from(status.chatCredits)
         sessionStore.updateAccess(status.access)
     }
 

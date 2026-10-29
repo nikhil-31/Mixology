@@ -4,10 +4,12 @@ import android.app.Application
 import androidx.test.core.app.ApplicationProvider
 import com.capstone.nik.mixology.MainDispatcherRule
 import com.capstone.nik.mixology.Network.remoteModel.BillingStatusDto
+import com.capstone.nik.mixology.Network.remoteModel.ChatCreditsDto
 import com.capstone.nik.mixology.data.SessionStore
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -52,6 +54,45 @@ class SubscriptionRepositoryTest {
         assertTrue(repository.showPaywall.value)
         assertEquals(listOf("mixology_premium_yearly"), repository.products)
         assertEquals("free", sessions.current()?.access)
+    }
+
+    @Test
+    fun chatCreditsFollowTheBackendAndAdaReplies() = runTest {
+        assertNull(repository.chatCredits.value)
+        backend.status = BillingStatusDto(
+            access = "trial",
+            trialDaysLeft = 3,
+            chatCredits = ChatCreditsDto(500, 12, 488, "2026-11-01T00:00:00+00:00"),
+        )
+
+        repository.refresh()
+
+        val credits = repository.chatCredits.value!!
+        assertEquals(488, credits.remaining)
+        assertEquals(500, credits.limit)
+        assertEquals(1_793_491_200_000L, credits.resetsAt?.time)
+
+        repository.updateChatCredits(ChatCreditsDto(500, 15, 485, "2026-11-01T00:00:00+00:00"))
+        assertEquals(485, repository.chatCredits.value?.remaining)
+
+        // A reply without credits (an older server) keeps what we had.
+        repository.updateChatCredits(null)
+        assertEquals(485, repository.chatCredits.value?.remaining)
+
+        sessions.clear()
+        assertNull(repository.chatCredits.value)
+    }
+
+    @Test
+    fun unmeteredChatHasNoCredits() = runTest {
+        backend.status = BillingStatusDto(
+            access = "subscribed",
+            chatCredits = ChatCreditsDto(unlimited = true, resetsAt = "2026-11-01T00:00:00+00:00"),
+        )
+
+        repository.refresh()
+
+        assertNull(repository.chatCredits.value)
     }
 
     @Test

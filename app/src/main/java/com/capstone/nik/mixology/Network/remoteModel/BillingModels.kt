@@ -9,6 +9,18 @@ data class BillingStatusDto(
     @SerializedName("trial_days_left") val trialDaysLeft: Int = 0,
     val subscription: SubscriptionDto? = null,
     val products: List<String> = emptyList(),
+    /** This month's Ada allowance; missing from servers that don't meter chat. */
+    @SerializedName("chat_credits") val chatCredits: ChatCreditsDto? = null,
+)
+
+/** Ada chat credits: model tokens used this month, shown as credits. */
+data class ChatCreditsDto(
+    val limit: Int = 0,
+    val used: Int = 0,
+    val remaining: Int = 0,
+    @SerializedName("resets_at") val resetsAt: String? = null,
+    /** Metering is off on the server; the counts mean nothing. */
+    val unlimited: Boolean = false,
 )
 
 data class SubscriptionDto(

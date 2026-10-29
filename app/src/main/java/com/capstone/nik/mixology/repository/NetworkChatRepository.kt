@@ -18,6 +18,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onEach
 import retrofit2.HttpException
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -111,7 +112,9 @@ class NetworkChatRepository @Inject constructor(
                 throw ChatHttpException(401, "Not authenticated")
             }
         }
-        return streamer.stream(message).catch { error ->
+        return streamer.stream(message).onEach { event ->
+            if (event is ChatStreamEvent.Done) subscriptions.updateChatCredits(event.credits)
+        }.catch { error ->
             if (error is CancellationException) throw error
             if (error is ChatHttpException && error.code == 401) {
                 sessionStore.clear()

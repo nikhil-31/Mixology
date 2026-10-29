@@ -42,4 +42,5 @@ data class RecommendationsPayload(
 
 data class DonePayload(
     val content: String = "",
+    val credits: ChatCreditsDto? = null,
 )

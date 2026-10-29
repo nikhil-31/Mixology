@@ -3,6 +3,7 @@ package com.capstone.nik.mixology.ui.paywall
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.capstone.nik.mixology.billing.Access
+import com.capstone.nik.mixology.billing.ChatCredits
 import com.capstone.nik.mixology.billing.SubscriptionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.StateFlow
@@ -16,6 +17,7 @@ class SubscriptionGateViewModel @Inject constructor(
 ) : ViewModel() {
     val showPaywall: StateFlow<Boolean> = subscriptions.showPaywall
     val access: StateFlow<Access> = subscriptions.access
+    val chatCredits: StateFlow<ChatCredits?> = subscriptions.chatCredits
 
     /** On sign-in and whenever the app comes back to the foreground. */
     fun refresh() {

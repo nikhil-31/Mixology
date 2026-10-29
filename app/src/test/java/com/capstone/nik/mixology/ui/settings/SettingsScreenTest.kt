@@ -7,8 +7,13 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import com.capstone.nik.mixology.billing.Access
+import com.capstone.nik.mixology.billing.ChatCredits
 import com.capstone.nik.mixology.ui.theme.MixologyTheme
 import com.capstone.nik.mixology.ui.theme.ThemeMode
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -46,6 +51,46 @@ class SettingsScreenTest {
         composeRule.onNodeWithText("Shopping list").assertIsDisplayed()
 
         assertEquals(listOf(ThemeMode.DARK, ThemeMode.LIGHT), selected)
+    }
+
+    @Test
+    fun chatCredits_showWhatIsLeftAndWhenTheyReset() {
+        composeRule.setContent {
+            MixologyTheme {
+                SettingsScreen(
+                    themeMode = ThemeMode.SYSTEM,
+                    onThemeModeSelected = {},
+                    access = Access.Trial(3),
+                    // 2026-11-01T00:00:00Z
+                    chatCredits = ChatCredits(488, 500, java.util.Date(1_793_491_200_000L)),
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("settings_chat_credits").assertIsDisplayed()
+        composeRule.onNodeWithText("488 of 500 Ada credits left").assertIsDisplayed()
+        composeRule.onNodeWithText("Resets Nov 1").assertIsDisplayed()
+    }
+
+    @Test
+    fun chatCredits_hiddenWithoutPremiumOrCredits() {
+        var access by mutableStateOf<Access>(Access.Free)
+        var credits by mutableStateOf<ChatCredits?>(ChatCredits(488, 500, null))
+        composeRule.setContent {
+            MixologyTheme {
+                SettingsScreen(
+                    themeMode = ThemeMode.SYSTEM,
+                    onThemeModeSelected = {},
+                    access = access,
+                    chatCredits = credits,
+                )
+            }
+        }
+        composeRule.onNodeWithTag("settings_chat_credits").assertDoesNotExist()
+
+        access = Access.Subscribed(null, null)
+        credits = null
+        composeRule.onNodeWithTag("settings_chat_credits").assertDoesNotExist()
     }
 
     @Test

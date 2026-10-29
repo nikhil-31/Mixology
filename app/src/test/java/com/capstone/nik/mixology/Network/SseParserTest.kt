@@ -32,6 +32,21 @@ class SseParserTest {
     }
 
     @Test
+    fun done_readsCreditsWhenSent() {
+        val withCredits = parseSseBlock(
+            "event: done\ndata: {\"content\":\"Hi\",\"credits\":{\"limit\":500,\"used\":12," +
+                "\"remaining\":488,\"resets_at\":\"2026-11-01T00:00:00+00:00\",\"unlimited\":false}}",
+        )?.toChatStreamEvent() as ChatStreamEvent.Done
+        assertEquals("Hi", withCredits.content)
+        assertEquals(488, withCredits.credits?.remaining)
+        assertEquals(500, withCredits.credits?.limit)
+        assertEquals("2026-11-01T00:00:00+00:00", withCredits.credits?.resetsAt)
+
+        val without = parseSseBlock("event: done\ndata: {\"content\":\"Hi\"}")?.toChatStreamEvent()
+        assertEquals(ChatStreamEvent.Done("Hi"), without)
+    }
+
+    @Test
     fun recommendations_readHasMore() {
         val event = parseSseBlock(
             "event: recommendations\ndata: {\"drinks\":[{\"id\":\"1\",\"name\":\"Gin\"}],\"has_more\":true}",

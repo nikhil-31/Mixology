@@ -66,6 +66,7 @@ import com.capstone.nik.mixology.ui.details.DrinkDetailsRoute
 import com.capstone.nik.mixology.ui.grid.DrinkGridRoute
 import com.capstone.nik.mixology.ui.hot.HotRoute
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
+import com.capstone.nik.mixology.ui.recipes.ImportRecipeRoute
 import com.capstone.nik.mixology.ui.recipes.MyRecipesRoute
 import com.capstone.nik.mixology.ui.recipes.RecipeEditorRoute
 import com.capstone.nik.mixology.ui.search.SearchMode
@@ -377,6 +378,9 @@ fun MixologyApp(
                                 onMyRecipes = {
                                     viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Recipes))
                                 },
+                                onImportRecipe = {
+                                    navController.navigate(IMPORT_RECIPE_ROUTE) { launchSingleTop = true }
+                                },
                                 onCheckForUpdates = {
                                     activity?.let { host ->
                                         playScope.launch { playUpdates.start(host, userRequested = true) }
@@ -424,6 +428,17 @@ fun MixologyApp(
                                 onClose = { navController.navigateUp() },
                                 // Details for the deleted recipe closes itself once it's gone.
                                 onDeleted = { navController.navigateUp() },
+                            )
+                        }
+                        composable(IMPORT_RECIPE_ROUTE) {
+                            ImportRecipeRoute(
+                                onBack = { navController.navigateUp() },
+                                // The editor takes the import's place, so Back returns to Settings.
+                                onImported = { id ->
+                                    navController.navigate(recipeEditorRoute(id)) {
+                                        popUpTo(IMPORT_RECIPE_ROUTE) { inclusive = true }
+                                    }
+                                },
                             )
                         }
                         composable(

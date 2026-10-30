@@ -131,4 +131,23 @@ class SettingsScreenTest {
         assertEquals(1, updates)
         assertEquals(1, rate)
     }
+
+    @Test
+    fun importRecipeRow_reportsClicks() {
+        var imports = 0
+        composeRule.setContent {
+            MixologyTheme {
+                SettingsScreen(
+                    themeMode = ThemeMode.SYSTEM,
+                    onThemeModeSelected = {},
+                    onImportRecipe = { imports += 1 },
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("settings_import_recipe").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Import recipe").assertIsDisplayed()
+        composeRule.onNodeWithTag("settings_import_recipe").performClick()
+        assertEquals(1, imports)
+    }
 }

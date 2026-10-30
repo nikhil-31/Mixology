@@ -3,6 +3,9 @@ package com.capstone.nik.mixology
 import com.capstone.nik.mixology.Network.RecipeService
 import com.capstone.nik.mixology.Network.remoteModel.RecipeWrite
 import com.capstone.nik.mixology.Network.remoteModel.ApiDrink
+import com.capstone.nik.mixology.Network.remoteModel.ChatCreditsDto
+import com.capstone.nik.mixology.Network.remoteModel.RecipeImportRequest
+import com.capstone.nik.mixology.Network.remoteModel.RecipeImportResponse
 import com.capstone.nik.mixology.ui.model.IngredientMeasure
 import okhttp3.RequestBody
 import okhttp3.ResponseBody.Companion.toResponseBody
@@ -20,6 +23,17 @@ class FakeRecipeService : RecipeService {
     val uploads = mutableListOf<Pair<String, ByteArray>>()
     val writes = mutableListOf<RecipeWrite>()
     val calls = mutableListOf<String>()
+    val imports = mutableListOf<RecipeImportRequest>()
+    /** What an import saves; importing it again while it's stored is a duplicate. */
+    var importReply = ApiDrink(
+        id = "u-import",
+        name = "Imported Sour",
+        thumb = "recipe-photos/import.jpg",
+        ingredients = listOf(IngredientMeasure("Whiskey", "2 oz")),
+    )
+    var importCredits: ChatCreditsDto? = null
+    /** Only imports fail, with this status and detail, while set. */
+    var failImportWith: Pair<Int, String>? = null
     private var nextId = 1
 
     override suspend fun list(): List<ApiDrink> {
@@ -69,6 +83,15 @@ class FakeRecipeService : RecipeService {
         val updated = find(id).copy(thumb = null)
         replace(updated)
         return updated
+    }
+
+    override suspend fun importRecipe(body: RecipeImportRequest): RecipeImportResponse {
+        record("import")
+        failImportWith?.let { (code, detail) -> throw httpError(code, detail) }
+        imports += body
+        val duplicate = recipes.any { it.id == importReply.id }
+        if (!duplicate) recipes.add(0, importReply)
+        return RecipeImportResponse(saved = importReply, duplicate = duplicate, credits = importCredits)
     }
 
     private fun record(call: String) {

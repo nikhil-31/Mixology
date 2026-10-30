@@ -5,6 +5,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.capstone.nik.mixology.FakeRecipeService
 import com.capstone.nik.mixology.MainDispatcherRule
 import com.capstone.nik.mixology.Network.remoteModel.ApiDrink
+import com.capstone.nik.mixology.Network.remoteModel.ChatCreditsDto
 import com.capstone.nik.mixology.billing.Access
 import com.capstone.nik.mixology.billing.FakeBillingService
 import com.capstone.nik.mixology.billing.FakeStoreBilling
@@ -132,6 +133,44 @@ class RecipeRepositoryTest {
             assertEquals(401, error.code)
         }
         assertNull(sessions.current())
+        assertTrue(repository.recipes.value.isEmpty())
+    }
+
+    @Test
+    fun importSavesTheRecipeOnceAndUpdatesCredits() = runTest {
+        service.recipes += ApiDrink(id = "u-9", name = "Older")
+        repository.load()
+        service.importCredits = ChatCreditsDto(limit = 100, used = 3, remaining = 97)
+
+        val first = repository.importRecipe("Look! https://vm.tiktok.com/ZM6/")
+
+        val sent = service.imports.single()
+        assertEquals("Look! https://vm.tiktok.com/ZM6/", sent.text)
+        assertTrue(sent.save)
+        assertEquals(false, first.duplicate)
+        assertEquals("recipe-photos/import.jpg", first.recipe.thumb)
+        assertEquals(listOf("u-import", "u-9"), repository.recipes.value.map { it.id })
+        assertEquals(97, subscriptions.chatCredits.value?.remaining)
+
+        val again = repository.importRecipe("https://vm.tiktok.com/ZM6/")
+
+        assertTrue(again.duplicate)
+        assertEquals(listOf("u-import", "u-9"), repository.recipes.value.map { it.id })
+    }
+
+    @Test
+    fun importOutOfCreditsMarksThemSpent() = runTest {
+        subscriptions.updateChatCredits(ChatCreditsDto(limit = 100, used = 90, remaining = 10))
+        service.failImportWith = 402 to "Out of chat credits until 2026-11-01"
+
+        try {
+            repository.importRecipe("2 oz gin, 1 oz lime")
+            fail("Expected a 402")
+        } catch (error: RecipeHttpException) {
+            assertEquals(402, error.code)
+            assertEquals("Out of chat credits until 2026-11-01", error.message)
+        }
+        assertEquals(0, subscriptions.chatCredits.value?.remaining)
         assertTrue(repository.recipes.value.isEmpty())
     }
 }

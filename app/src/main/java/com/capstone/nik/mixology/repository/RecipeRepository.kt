@@ -3,6 +3,7 @@ package com.capstone.nik.mixology.repository
 import com.capstone.nik.mixology.Network.ApiErrors
 import com.capstone.nik.mixology.Network.remoteModel.RecipeIngredientWrite
 import com.capstone.nik.mixology.Network.RecipeService
+import com.capstone.nik.mixology.Network.remoteModel.RecipeImportRequest
 import com.capstone.nik.mixology.Network.remoteModel.RecipeWrite
 import com.capstone.nik.mixology.Network.remoteModel.ApiDrink
 import com.capstone.nik.mixology.billing.SubscriptionRepository
@@ -33,6 +34,9 @@ data class RecipeDraft(
     val ingredients: List<IngredientMeasure> = emptyList(),
 )
 
+/** A recipe read from a link or text and saved; [duplicate] when it was saved before. */
+data class ImportedRecipe(val recipe: Drink, val duplicate: Boolean)
+
 /** The server refused a recipe call; the message is its `detail` when it sent one. */
 class RecipeHttpException(val code: Int, message: String) : Exception(message)
 
@@ -56,6 +60,12 @@ interface RecipeRepository {
 
     suspend fun deletePhoto(id: String): Drink
 
+    /**
+     * Saves the recipe in a social post, a page or pasted [text], with the post's
+     * photo. The server may use Ada's credits to read it.
+     */
+    suspend fun importRecipe(text: String): ImportedRecipe
+
     companion object {
         const val MAX_RECIPES = 100
 
@@ -69,6 +79,7 @@ interface RecipeRepository {
             override suspend fun delete(id: String): Unit = error("No recipes")
             override suspend fun uploadPhoto(id: String, jpeg: ByteArray): Drink = error("No recipes")
             override suspend fun deletePhoto(id: String): Drink = error("No recipes")
+            override suspend fun importRecipe(text: String): ImportedRecipe = error("No recipes")
         }
     }
 }
@@ -126,6 +137,20 @@ class NetworkRecipeRepository @Inject constructor(
 
     override suspend fun deletePhoto(id: String): Drink = call {
         service.deletePhoto(id).requireRecipe().also(::upsert)
+    }
+
+    override suspend fun importRecipe(text: String): ImportedRecipe {
+        val response = try {
+            call { service.importRecipe(RecipeImportRequest(text = text)) }
+        } catch (error: RecipeHttpException) {
+            // 402: this month's Ada credits are spent.
+            if (error.code == 402) subscriptions.markChatCreditsSpent()
+            throw error
+        }
+        subscriptions.updateChatCredits(response.credits)
+        val recipe = response.saved?.requireRecipe() ?: error("Malformed recipe")
+        upsert(recipe)
+        return ImportedRecipe(recipe, response.duplicate)
     }
 
     /** Replaces the recipe in place, or adds it at the top as the newest. */

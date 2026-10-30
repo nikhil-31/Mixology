@@ -1,6 +1,8 @@
 package com.capstone.nik.mixology.Network
 
 import com.capstone.nik.mixology.Network.remoteModel.ApiDrink
+import com.capstone.nik.mixology.Network.remoteModel.RecipeImportRequest
+import com.capstone.nik.mixology.Network.remoteModel.RecipeImportResponse
 import com.capstone.nik.mixology.Network.remoteModel.RecipeWrite
 import okhttp3.RequestBody
 import retrofit2.http.Body
@@ -35,4 +37,8 @@ interface RecipeService {
 
     @DELETE("me/recipes/{id}/photo")
     suspend fun deletePhoto(@Path("id") id: String): ApiDrink
+
+    /** Reads a recipe from a social post, a page or pasted text; 201 when new, 200 when a duplicate. */
+    @POST("me/recipes/import")
+    suspend fun importRecipe(@Body body: RecipeImportRequest): RecipeImportResponse
 }

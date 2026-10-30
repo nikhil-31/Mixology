@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.outlined.EditNote
+import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material.icons.outlined.Policy
 import androidx.compose.material.icons.outlined.PrivacyTip
 import androidx.compose.material.icons.outlined.ShoppingCart
@@ -71,6 +72,7 @@ fun SettingsRoute(
     onCatalog: () -> Unit = {},
     onShoppingList: () -> Unit = {},
     onMyRecipes: () -> Unit = {},
+    onImportRecipe: () -> Unit = {},
     onCheckForUpdates: () -> Unit = {},
     onRateApp: () -> Unit = {},
     privacyOptionsRequired: Boolean = false,
@@ -103,6 +105,7 @@ fun SettingsRoute(
         onCatalog = onCatalog,
         onShoppingList = onShoppingList,
         onMyRecipes = onMyRecipes,
+        onImportRecipe = onImportRecipe,
         onCheckForUpdates = onCheckForUpdates,
         onRateApp = onRateApp,
         privacyOptionsRequired = privacyOptionsRequired,
@@ -124,6 +127,7 @@ fun SettingsScreen(
     onCatalog: () -> Unit = {},
     onShoppingList: () -> Unit = {},
     onMyRecipes: () -> Unit = {},
+    onImportRecipe: () -> Unit = {},
     onCheckForUpdates: () -> Unit = {},
     onRateApp: () -> Unit = {},
     privacyOptionsRequired: Boolean = false,
@@ -267,6 +271,12 @@ fun SettingsScreen(
             title = stringResource(R.string.my_recipes_title),
             onClick = onMyRecipes,
             tag = "settings_my_recipes",
+        )
+        SettingsRow(
+            icon = Icons.Outlined.Link,
+            title = stringResource(R.string.settings_import_recipe),
+            onClick = onImportRecipe,
+            tag = "settings_import_recipe",
         )
 
         SettingsSectionTitle(stringResource(R.string.settings_privacy_header))

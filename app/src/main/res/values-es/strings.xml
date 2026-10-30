@@ -283,4 +283,14 @@
     <string name="recipe_error_too_long">Máximo %d caracteres</string>
     <string name="recipe_error_limit">Puedes guardar hasta %d recetas. Elimina una para añadir otra.</string>
     <string name="recipe_error_generic">No se pudo guardar tu receta. Inténtalo de nuevo.</string>
+    <string name="settings_import_recipe">Importar receta</string>
+    <string name="recipe_import_title">Importar receta</string>
+    <string name="recipe_import_hint">Pega un enlace de TikTok, Instagram, YouTube, X, Reddit o Pinterest, o el texto de una receta. Se guarda en Mis recetas con la foto de la publicación.</string>
+    <string name="recipe_import_field">Enlace o texto de la receta</string>
+    <string name="recipe_import_paste">Pegar</string>
+    <string name="recipe_import_submit">Importar</string>
+    <string name="recipe_import_reading">Leyendo la publicación…</string>
+    <string name="recipe_import_duplicate">Ya importaste esta receta</string>
+    <string name="recipe_import_unreachable">No se pudo leer esa publicación. Prueba a pegar también su descripción.</string>
+    <string name="recipe_import_error_generic">No se pudo importar esa receta. Inténtalo de nuevo.</string>
 </resources>

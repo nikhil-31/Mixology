@@ -29,6 +29,7 @@ const val SEARCH_ROUTE = "search?query={query}&mode={mode}&kind={kind}"
 const val DETAILS_ROUTE = "details/{id}?name={name}&thumb={thumb}"
 const val ADA_MORE_ROUTE = "ada_more?q={q}&exclude={exclude}"
 const val RECIPE_EDITOR_ROUTE = "recipe_editor?id={id}"
+const val IMPORT_RECIPE_ROUTE = "recipe_import"
 
 fun gridRoute(filter: DrinkFilter) = "grid/${encodeRouteArg(filter.name)}"
 
@@ -62,8 +63,10 @@ fun recipeEditorRoute(id: String? = null): String = "recipe_editor?id=${encodeRo
 fun isOverlayRoute(route: String?): Boolean {
     if (route == null) return false
     return isSearchRoute(route) || isDetailsRoute(route) || isAdaMoreRoute(route) ||
-        isRecipeEditorRoute(route)
+        isRecipeEditorRoute(route) || isImportRecipeRoute(route)
 }
+
+fun isImportRecipeRoute(route: String?): Boolean = route?.startsWith(IMPORT_RECIPE_ROUTE) == true
 
 fun isRecipeEditorRoute(route: String?): Boolean = route?.startsWith("recipe_editor") == true
 
@@ -78,7 +81,9 @@ fun showsTwoPaneDetails(
     route: String?,
     destination: DrawerDestination,
 ): Boolean {
-    if (!expanded || isDetailsRoute(route) || isRecipeEditorRoute(route)) return false
+    if (!expanded || isDetailsRoute(route) || isRecipeEditorRoute(route) || isImportRecipeRoute(route)) {
+        return false
+    }
     if (isSearchRoute(route)) return true
     return when (destination) {
         DrawerDestination.Settings,

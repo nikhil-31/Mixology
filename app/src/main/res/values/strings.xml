@@ -294,4 +294,14 @@
     <string name="recipe_error_too_long">Keep it to %d characters or fewer</string>
     <string name="recipe_error_limit">You can keep up to %d recipes. Delete one to add another.</string>
     <string name="recipe_error_generic">Couldn’t save your recipe. Please try again.</string>
+    <string name="settings_import_recipe">Import recipe</string>
+    <string name="recipe_import_title">Import recipe</string>
+    <string name="recipe_import_hint">Paste a TikTok, Instagram, YouTube, X, Reddit or Pinterest link, or a recipe\'s text. It\'s saved to My recipes with the post\'s photo.</string>
+    <string name="recipe_import_field">Link or recipe text</string>
+    <string name="recipe_import_paste">Paste</string>
+    <string name="recipe_import_submit">Import</string>
+    <string name="recipe_import_reading">Reading the post…</string>
+    <string name="recipe_import_duplicate">You already imported this one</string>
+    <string name="recipe_import_unreachable">Couldn’t read that post. Try pasting its caption too.</string>
+    <string name="recipe_import_error_generic">Couldn’t import that recipe. Please try again.</string>
 </resources>

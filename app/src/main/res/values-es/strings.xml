@@ -206,6 +206,8 @@
         <item quantity="many">Te quedan %d días de prueba gratis</item>
         <item quantity="other">Te quedan %d días de prueba gratis</item>
     </plurals>
+    <string name="ada_out_of_credits">Has usado los créditos de Ada de este mes. Se renuevan el %1$s.</string>
+    <string name="ada_out_of_credits_no_date">Has usado los créditos de Ada de este mes. Se renuevan a comienzos del próximo mes.</string>
     <string name="settings_chat_credits_left">Quedan %1$d de %2$d créditos de Ada</string>
     <string name="settings_chat_credits_resets">Se renuevan el %1$s</string>
     <string name="detail_rating">Valoración</string>

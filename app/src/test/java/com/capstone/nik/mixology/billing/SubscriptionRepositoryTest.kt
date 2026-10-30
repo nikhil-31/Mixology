@@ -84,6 +84,23 @@ class SubscriptionRepositoryTest {
     }
 
     @Test
+    fun spentCreditsDropToZeroAndKeepTheResetDate() = runTest {
+        backend.status = BillingStatusDto(
+            access = "trial",
+            trialDaysLeft = 3,
+            chatCredits = ChatCreditsDto(5, 4, 1, "2026-11-01T00:00:00+00:00"),
+        )
+        repository.refresh()
+
+        repository.markChatCreditsSpent()
+
+        val credits = repository.chatCredits.value!!
+        assertEquals(0, credits.remaining)
+        assertEquals(5, credits.limit)
+        assertEquals(1_793_491_200_000L, credits.resetsAt?.time)
+    }
+
+    @Test
     fun unmeteredChatHasNoCredits() = runTest {
         backend.status = BillingStatusDto(
             access = "subscribed",

@@ -164,6 +164,11 @@ class SubscriptionRepository @Inject constructor(
         if (credits != null) _chatCredits.value = ChatCredits.from(credits)
     }
 
+    /** The server answered 402: this month's Ada credits are spent. */
+    fun markChatCreditsSpent() {
+        _chatCredits.value = _chatCredits.value?.copy(remaining = 0)
+    }
+
     fun openPaywall() {
         paywallRequested.value = true
     }

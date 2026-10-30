@@ -67,8 +67,27 @@ class AdaScreenTest {
         assertEquals(1, opened)
     }
 
+    @Test
+    fun outOfCredits_saysWhenTheyReset() {
+        // 2026-11-01T00:00:00Z
+        show(AdaUiState(signedIn = true, outOfCredits = true), creditsResetAt = java.util.Date(1_793_491_200_000L))
+
+        composeRule.onNodeWithTag("ada_out_of_credits").assertIsDisplayed()
+        composeRule.onNodeWithText("You've used this month's Ada credits. They reset on Nov 1.").assertIsDisplayed()
+    }
+
+    @Test
+    fun outOfCredits_withoutADateStillExplains() {
+        show(AdaUiState(signedIn = true, outOfCredits = true))
+
+        composeRule.onNodeWithText(
+            "You've used this month's Ada credits. They reset at the start of next month.",
+        ).assertIsDisplayed()
+    }
+
     private fun show(
         state: AdaUiState,
+        creditsResetAt: java.util.Date? = null,
         voiceAvailable: Boolean = true,
         onToggleVoice: () -> Unit = {},
         onOpenSettings: () -> Unit = {},
@@ -83,6 +102,7 @@ class AdaScreenTest {
                     onDrinkClick = {},
                     onToggleSaved = {},
                     voiceAvailable = voiceAvailable,
+                    creditsResetAt = creditsResetAt,
                     onToggleVoice = onToggleVoice,
                     onOpenSettings = onOpenSettings,
                 )

@@ -239,6 +239,27 @@ class AdaViewModelTest {
     }
 
     @Test
+    fun send_outOfCreditsShowsTheNoticeInsteadOfAnError() = runTest {
+        signIn()
+        chat.sendFlow = flow { throw ChatHttpException(402, "Out of chat credits until 2026-11-01T00:00:00+00:00") }
+
+        viewModel.onIntent(AdaIntent.DraftChanged("one more"))
+        viewModel.onIntent(AdaIntent.Send)
+
+        val state = viewModel.state.value
+        assertTrue(state.outOfCredits)
+        assertNull(state.error)
+        assertFalse(state.sending)
+        assertEquals(listOf("one more"), state.messages.map { it.content })
+
+        chat.sendFlow = flowOf(ChatStreamEvent.Done("Here's one."))
+        viewModel.onIntent(AdaIntent.DraftChanged("show more"))
+        viewModel.onIntent(AdaIntent.Send)
+
+        assertFalse(viewModel.state.value.outOfCredits)
+    }
+
+    @Test
     fun voice_toggleAsksForTheMicrophone() = runTest {
         signIn()
         val effects = mutableListOf<AdaEffect>()

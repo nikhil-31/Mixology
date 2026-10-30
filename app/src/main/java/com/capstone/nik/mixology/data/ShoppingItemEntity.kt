@@ -13,4 +13,6 @@ data class ShoppingItemEntity(
     val name: String,
     val checked: Boolean = false,
     val drinkId: String = "",
+    /** The server's id for this item; null until it has been synced. */
+    val remoteId: Long? = null,
 )

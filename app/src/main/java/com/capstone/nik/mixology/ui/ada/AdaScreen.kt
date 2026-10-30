@@ -19,51 +19,56 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.ErrorOutline
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.LocalFlorist
+import androidx.compose.material.icons.outlined.Nightlight
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledIconButton
-import androidx.compose.material3.FilledTonalIconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -74,12 +79,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
@@ -95,16 +105,21 @@ import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.ui.components.DrinkCard
 import com.capstone.nik.mixology.ui.components.DrinkCardRailHeight
 import com.capstone.nik.mixology.ui.components.DrinkCardRailWidth
+import com.capstone.nik.mixology.ui.components.rememberMonthDay
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
+import com.capstone.nik.mixology.ui.paywall.SubscriptionGateViewModel
 import kotlinx.coroutines.delay
+import java.util.Date
 
 @Composable
 fun AdaRoute(
     onDrinkClick: (Drink) -> Unit,
     onOpenMore: (query: String, exclude: List<String>) -> Unit = { _, _ -> },
     viewModel: AdaViewModel = hiltViewModel(),
+    subscriptionGate: SubscriptionGateViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val chatCredits by subscriptionGate.chatCredits.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val speech = remember { AndroidAdaSpeechInput(context.applicationContext) }
     val voiceAvailable = remember { speech.available }
@@ -161,6 +176,7 @@ fun AdaRoute(
         onLoadOlder = { viewModel.onIntent(AdaIntent.LoadOlder) },
         onShowMore = { viewModel.onIntent(AdaIntent.OpenMore(it)) },
         voiceAvailable = voiceAvailable,
+        creditsResetAt = chatCredits?.resetsAt,
         onToggleVoice = { viewModel.onIntent(AdaIntent.ToggleVoice) },
         onOpenSettings = {
             context.startActivity(
@@ -181,6 +197,8 @@ fun AdaScreen(
     onLoadOlder: () -> Unit = {},
     onShowMore: (messageId: Long) -> Unit = {},
     voiceAvailable: Boolean = false,
+    /** When this month's credits come back, for the out-of-credits notice. */
+    creditsResetAt: Date? = null,
     onToggleVoice: () -> Unit = {},
     onOpenSettings: () -> Unit = {},
 ) {
@@ -202,6 +220,7 @@ fun AdaScreen(
                 onLoadOlder = onLoadOlder,
                 onShowMore = onShowMore,
                 voiceAvailable = voiceAvailable,
+                creditsResetAt = creditsResetAt,
                 onToggleVoice = onToggleVoice,
                 onOpenSettings = onOpenSettings,
                 modifier = Modifier.weight(1f),
@@ -210,7 +229,6 @@ fun AdaScreen(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun AdaTranscript(
     state: AdaUiState,
@@ -222,14 +240,15 @@ private fun AdaTranscript(
     onLoadOlder: () -> Unit,
     onShowMore: (messageId: Long) -> Unit,
     voiceAvailable: Boolean,
+    creditsResetAt: Date?,
     onToggleVoice: () -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val suggestions = listOf(
-        stringResource(R.string.ada_suggestion_gin),
-        stringResource(R.string.ada_suggestion_bitter),
-        stringResource(R.string.ada_suggestion_easy),
+        stringResource(R.string.ada_suggestion_gin) to Icons.Outlined.LocalFlorist,
+        stringResource(R.string.ada_suggestion_bitter) to Icons.Outlined.Nightlight,
+        stringResource(R.string.ada_suggestion_easy) to Icons.Outlined.AutoAwesome,
     )
     // The list is laid out bottom-up (reverseLayout), so item 0 is the newest
     // message and the chat opens there without scrolling through history.
@@ -271,31 +290,38 @@ private fun AdaTranscript(
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
+                        // Sits a little above centre so it doesn't crowd the composer.
+                        .padding(start = 24.dp, end = 24.dp, top = 24.dp, bottom = 56.dp),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    AdaAvatar(size = 88.dp, modifier = Modifier.padding(bottom = 16.dp))
+                    AdaAvatar(size = 88.dp, modifier = Modifier.padding(bottom = 24.dp))
                     Text(
                         text = stringResource(R.string.ada_greeting),
                         style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.onBackground,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.semantics { heading() },
                     )
                     Text(
                         text = stringResource(R.string.ada_empty),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(top = 4.dp),
+                        modifier = Modifier.padding(top = 8.dp),
                     )
-                    FlowRow(
-                        modifier = Modifier.padding(top = 20.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                    Column(
+                        modifier = Modifier
+                            .padding(top = 24.dp)
+                            .widthIn(max = 360.dp)
+                            .fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        suggestions.forEachIndexed { index, label ->
-                            SuggestionChip(
+                        suggestions.forEachIndexed { index, (label, icon) ->
+                            AdaSuggestion(
+                                label = label,
+                                icon = icon,
                                 onClick = { onSuggestion(label) },
-                                label = { Text(label) },
                                 modifier = Modifier.testTag("ada_suggestion_$index"),
                             )
                         }
@@ -311,12 +337,16 @@ private fun AdaTranscript(
                         .fillMaxWidth()
                         .testTag("ada_messages"),
                     contentPadding = PaddingValues(top = 8.dp, bottom = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.Bottom),
+                    verticalArrangement = Arrangement.Bottom,
                 ) {
                     val newestId = state.messages.lastOrNull()?.id
-                    items(state.messages.asReversed(), key = { it.id }) { message ->
+                    val newestFirst = state.messages.asReversed()
+                    itemsIndexed(newestFirst, key = { _, message -> message.id }) { index, message ->
+                        // Newest first: index - 1 is the message after this one, index + 1 the one before.
                         AdaMessageRow(
                             message = message,
+                            continuesRun = newestFirst.getOrNull(index + 1)?.role == message.role,
+                            endsRun = newestFirst.getOrNull(index - 1)?.role != message.role,
                             onDrinkClick = onDrinkClick,
                             onToggleSaved = onToggleSaved,
                             // Only the newest reply pages; older ones would page the wrong search.
@@ -338,6 +368,19 @@ private fun AdaTranscript(
                     }
                 }
             }
+        }
+        if (state.outOfCredits) {
+            val resetsOn = creditsResetAt?.let { rememberMonthDay(it) }
+            AdaNotice(
+                text = if (resetsOn != null) {
+                    stringResource(R.string.ada_out_of_credits, resetsOn)
+                } else {
+                    stringResource(R.string.ada_out_of_credits_no_date)
+                },
+                modifier = Modifier.testTag("ada_out_of_credits"),
+                // Spent credits aren't a failure, so this one gets a calmer icon.
+                icon = Icons.Outlined.Info,
+            )
         }
         state.error?.let { detail ->
             AdaNotice(
@@ -373,10 +416,46 @@ private fun AdaTranscript(
     }
 }
 
+/** A starter request, in the composer's bubble style. */
+@Composable
+private fun AdaSuggestion(
+    label: String,
+    icon: ImageVector,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(ComposerRadius),
+        color = adaBubbleFill(),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(20.dp),
+            )
+            Text(
+                text = label,
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(start = 12.dp),
+            )
+        }
+    }
+}
+
 @Composable
 private fun AdaNotice(
     text: String,
     modifier: Modifier = Modifier,
+    icon: ImageVector = Icons.Outlined.ErrorOutline,
     action: (@Composable () -> Unit)? = null,
 ) {
     Surface(
@@ -392,7 +471,7 @@ private fun AdaNotice(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
-                imageVector = Icons.Outlined.ErrorOutline,
+                imageVector = icon,
                 contentDescription = null,
                 modifier = Modifier.size(18.dp),
             )
@@ -418,73 +497,114 @@ private fun AdaComposer(
     onSend: () -> Unit,
     onToggleVoice: () -> Unit,
 ) {
-    Row(
+    val interactionSource = remember { MutableInteractionSource() }
+    val focused by interactionSource.collectIsFocusedAsState()
+    val colors = MaterialTheme.colorScheme
+    // One bubble holds the field and its buttons; the outline shows focus and dictation.
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 12.dp, end = 8.dp, top = 6.dp, bottom = 10.dp),
-        verticalAlignment = Alignment.Bottom,
+            .padding(start = 12.dp, end = 12.dp, top = 6.dp, bottom = 10.dp),
+        shape = RoundedCornerShape(ComposerRadius),
+        color = adaBubbleFill(),
+        border = BorderStroke(
+            width = if (focused || listening) 1.5.dp else 1.dp,
+            color = if (focused || listening) colors.primary else colors.outline,
+        ),
     ) {
-        TextField(
-            value = draft,
-            onValueChange = onDraftChanged,
-            modifier = Modifier
-                .weight(1f)
-                .testTag("ada_draft"),
-            placeholder = {
-                Text(stringResource(if (listening) R.string.ada_listening else R.string.ada_prompt))
-            },
-            shape = RoundedCornerShape(24.dp),
-            colors = TextFieldDefaults.colors(
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent,
-                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-            ),
-            maxLines = 4,
-            keyboardOptions = KeyboardOptions(
-                capitalization = KeyboardCapitalization.Sentences,
-                imeAction = ImeAction.Send,
-            ),
-            keyboardActions = KeyboardActions(onSend = { if (canSend) onSend() }),
-        )
-        if (showMic) {
-            FilledTonalIconButton(
-                onClick = onToggleVoice,
+        Row(
+            modifier = Modifier.padding(start = 18.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
+            verticalAlignment = Alignment.Bottom,
+        ) {
+            BasicTextField(
+                value = draft,
+                onValueChange = onDraftChanged,
                 modifier = Modifier
-                    .padding(start = 8.dp, bottom = 4.dp)
-                    .size(48.dp)
-                    .testTag("ada_mic"),
-                colors = if (listening) {
-                    IconButtonDefaults.filledTonalIconButtonColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                    )
-                } else {
-                    IconButtonDefaults.filledTonalIconButtonColors()
+                    .weight(1f)
+                    .heightIn(min = ComposerButtonSize)
+                    .testTag("ada_draft"),
+                textStyle = MaterialTheme.typography.bodyLarge.copy(color = colors.onSurface),
+                cursorBrush = SolidColor(colors.primary),
+                maxLines = 4,
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Sentences,
+                    imeAction = ImeAction.Send,
+                ),
+                keyboardActions = KeyboardActions(onSend = { if (canSend) onSend() }),
+                interactionSource = interactionSource,
+                decorationBox = { field ->
+                    Box(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        contentAlignment = Alignment.CenterStart,
+                    ) {
+                        if (draft.isEmpty()) {
+                            Text(
+                                text = stringResource(if (listening) R.string.ada_listening else R.string.ada_prompt),
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = if (listening) colors.primary else colors.onSurfaceVariant.copy(alpha = 0.7f),
+                            )
+                        }
+                        field()
+                    }
                 },
+            )
+            if (showMic) {
+                IconButton(
+                    onClick = onToggleVoice,
+                    modifier = Modifier
+                        .padding(start = 4.dp)
+                        .size(ComposerButtonSize)
+                        .testTag("ada_mic"),
+                    colors = if (listening) {
+                        IconButtonDefaults.iconButtonColors(
+                            containerColor = colors.primary.copy(alpha = 0.14f),
+                            contentColor = colors.primary,
+                        )
+                    } else {
+                        IconButtonDefaults.iconButtonColors(contentColor = colors.onSurfaceVariant)
+                    },
+                ) {
+                    Icon(
+                        imageVector = if (listening) Icons.Filled.Stop else Icons.Filled.Mic,
+                        contentDescription = stringResource(if (listening) R.string.ada_mic_stop else R.string.ada_mic_start),
+                        modifier = Modifier.size(22.dp),
+                    )
+                }
+            }
+            FilledIconButton(
+                onClick = onSend,
+                enabled = canSend,
+                modifier = Modifier
+                    .padding(start = 4.dp)
+                    .size(ComposerButtonSize)
+                    .testTag("ada_send"),
+                colors = IconButtonDefaults.filledIconButtonColors(
+                    disabledContainerColor = colors.onSurface.copy(alpha = 0.08f),
+                    disabledContentColor = colors.onSurface.copy(alpha = 0.38f),
+                ),
             ) {
                 Icon(
-                    imageVector = if (listening) Icons.Filled.Stop else Icons.Filled.Mic,
-                    contentDescription = stringResource(if (listening) R.string.ada_mic_stop else R.string.ada_mic_start),
+                    imageVector = Icons.Filled.ArrowUpward,
+                    contentDescription = stringResource(R.string.ada_send),
+                    modifier = Modifier.size(20.dp),
                 )
             }
         }
-        FilledIconButton(
-            onClick = onSend,
-            enabled = canSend,
-            modifier = Modifier
-                .padding(start = 8.dp, bottom = 4.dp)
-                .size(48.dp)
-                .testTag("ada_send"),
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.Send,
-                contentDescription = stringResource(R.string.ada_send),
-            )
-        }
     }
 }
+
+/**
+ * Ada's bubbles, the composer and the suggestions. Light theme paints the
+ * background in surfaceVariant, so those use surface there to stand out.
+ */
+@Composable
+private fun adaBubbleFill(): Color {
+    val colors = MaterialTheme.colorScheme
+    return if (colors.surfaceVariant == colors.background) colors.surface else colors.surfaceVariant
+}
+
+private val ComposerRadius = 24.dp
+private val ComposerButtonSize = 36.dp
 
 @Composable
 private fun AdaAvatar(
@@ -512,26 +632,28 @@ private fun AdaMessageRow(
     onDrinkClick: (Drink) -> Unit,
     onToggleSaved: (Drink) -> Unit,
     onShowMore: (() -> Unit)? = null,
+    /** The message before came from the same sender, so this one sits closer. */
+    continuesRun: Boolean = false,
+    /** Last in a run from one sender: it gets the avatar and the tail. */
+    endsRun: Boolean = true,
 ) {
     val fromUser = message.role == "user"
+    val tail = if (endsRun) BubbleTail else BubbleRadius
     val shape = if (fromUser) {
-        RoundedCornerShape(20.dp, 20.dp, 6.dp, 20.dp)
+        RoundedCornerShape(BubbleRadius, BubbleRadius, tail, BubbleRadius)
     } else {
-        RoundedCornerShape(20.dp, 20.dp, 20.dp, 6.dp)
+        RoundedCornerShape(BubbleRadius, BubbleRadius, BubbleRadius, tail)
     }
-    val container = if (fromUser) {
-        MaterialTheme.colorScheme.primaryContainer
-    } else {
-        MaterialTheme.colorScheme.surfaceVariant
-    }
+    val container = if (fromUser) MaterialTheme.colorScheme.primary else adaBubbleFill()
     val contentColor = if (fromUser) {
-        MaterialTheme.colorScheme.onPrimaryContainer
+        MaterialTheme.colorScheme.onPrimary
     } else {
-        MaterialTheme.colorScheme.onSurfaceVariant
+        MaterialTheme.colorScheme.onSurface
     }
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(top = if (continuesRun) 2.dp else 12.dp)
             .testTag(if (fromUser) "ada_user_message" else "ada_assistant_message"),
     ) {
         if (message.content.isNotEmpty() || message.streaming) {
@@ -545,10 +667,19 @@ private fun AdaMessageRow(
                     Spacer(modifier = Modifier.width(BubbleGutter))
                     Spacer(modifier = Modifier.weight(1f))
                 } else {
-                    AdaAvatar(modifier = Modifier.padding(end = AvatarGap))
+                    // Keeps its space when hidden so a run's bubbles line up.
+                    AdaAvatar(
+                        modifier = Modifier
+                            .padding(end = AvatarGap)
+                            .alpha(if (endsRun) 1f else 0f),
+                    )
                 }
                 // Bubbles hug their text and only grow up to the gutter on the far side.
-                Box(modifier = Modifier.weight(1f, fill = false)) {
+                Box(
+                    modifier = Modifier
+                        .weight(1f, fill = false)
+                        .widthIn(max = BubbleMaxWidth),
+                ) {
                     if (message.streaming && message.content.isEmpty()) {
                         AdaThinkingBubble(shape = shape, container = container, contentColor = contentColor)
                     } else {
@@ -609,6 +740,9 @@ private fun AdaMessageRow(
 private val AvatarSize = 32.dp
 private val AvatarGap = 8.dp
 private val BubbleGutter = 48.dp
+private val BubbleRadius = 20.dp
+private val BubbleTail = 6.dp
+private val BubbleMaxWidth = 520.dp
 
 private const val THINKING_PHRASE_MILLIS = 2_400L
 

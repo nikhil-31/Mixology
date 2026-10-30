@@ -20,7 +20,7 @@ import java.util.concurrent.Executors
         RecentlyViewedEntity::class,
         BarIngredientEntity::class,
     ],
-    version = 7,
+    version = 8,
     exportSchema = true,
 )
 @TypeConverters(IngredientListConverter::class)
@@ -122,6 +122,10 @@ abstract class MixologyDatabase : RoomDatabase() {
             )
         }
 
+        internal val MIGRATION_7_8 = Migration(7, 8) { db ->
+            db.execSQL("ALTER TABLE shopping_items ADD COLUMN remoteId INTEGER")
+        }
+
         internal val ALL_MIGRATIONS = arrayOf(
             MIGRATION_1_2,
             MIGRATION_2_3,
@@ -129,6 +133,7 @@ abstract class MixologyDatabase : RoomDatabase() {
             MIGRATION_4_5,
             MIGRATION_5_6,
             MIGRATION_6_7,
+            MIGRATION_7_8,
         )
 
         @Volatile

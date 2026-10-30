@@ -122,6 +122,9 @@ class NetworkChatRepository @Inject constructor(
             if (error is ChatHttpException && error.code == 403) {
                 subscriptions.requireSubscription()
             }
+            if (error is ChatHttpException && error.code == 402) {
+                subscriptions.markChatCreditsSpent()
+            }
             throw error
         }
     }

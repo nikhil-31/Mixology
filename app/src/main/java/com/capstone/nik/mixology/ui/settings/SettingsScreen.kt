@@ -32,7 +32,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -50,16 +49,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.billing.Access
 import com.capstone.nik.mixology.billing.ChatCredits
+import com.capstone.nik.mixology.ui.components.rememberMonthDay
 import com.capstone.nik.mixology.ui.paywall.SubscriptionGateViewModel
 import com.capstone.nik.mixology.ui.auth.SessionViewModel
 import com.capstone.nik.mixology.ui.theme.MixologySectionTitle
 import com.capstone.nik.mixology.ui.theme.ThemeMode
 import com.capstone.nik.mixology.ui.theme.ThemePreferences
 import com.capstone.nik.mixology.ui.theme.rememberThemeMode
-import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
-import java.util.TimeZone
 
 const val PRIVACY_POLICY_URL = "https://nikhil-31.github.io/Mixology/privacy-policy"
 
@@ -369,13 +366,3 @@ private val ThemeMode.titleRes: Int
         ThemeMode.LIGHT -> R.string.settings_theme_light
         ThemeMode.DARK -> R.string.settings_theme_dark
     }
-
-/** "Nov 1" in the user's locale. Credits reset at midnight UTC, so the day is read in UTC. */
-@Composable
-private fun rememberMonthDay(date: Date): String {
-    val locale = Locale.getDefault()
-    return remember(date, locale) {
-        val pattern = android.text.format.DateFormat.getBestDateTimePattern(locale, "MMMd")
-        SimpleDateFormat(pattern, locale).apply { timeZone = TimeZone.getTimeZone("UTC") }.format(date)
-    }
-}

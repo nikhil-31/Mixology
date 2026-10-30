@@ -13,6 +13,7 @@ class ShoppingViewModel @Inject constructor(
 ) : MviViewModel<ShoppingIntent, ShoppingUiState, ShoppingEffect>(ShoppingUiState()) {
 
     init {
+        viewModelScope.launch { repository.syncShopping() }
         viewModelScope.launch {
             repository.observeShoppingSections().collect { sections ->
                 setState { copy(sections = sections) }

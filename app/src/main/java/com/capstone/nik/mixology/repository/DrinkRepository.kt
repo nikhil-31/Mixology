@@ -47,6 +47,8 @@ class DrinkRepository @Inject constructor(
     private val service: CocktailService,
     @ApplicationContext private val context: Context,
     private val playReviews: PlayReviewController = PlayReviewController.disabled(),
+    private val savedSync: SavedSync = SavedSync.None,
+    private val shoppingSync: ShoppingSync = ShoppingSync.None,
 ) {
 
     private val remoteLists = MutableStateFlow<Map<String, List<Drink>>>(emptyMap())
@@ -131,6 +133,7 @@ class DrinkRepository @Inject constructor(
         // The server refuses recipe ids; the user's recipes live under My recipes instead.
         if (drink.isUserRecipe) return
         dao.saveDrink(drink.toEntity().copy(saved = true))
+        savedSync.push(drink.id, saved = true)
         recordViewed(drink)
         notifyWidgets()
         playReviews.onDrinkSaved()
@@ -138,6 +141,13 @@ class DrinkRepository @Inject constructor(
 
     suspend fun unsave(id: String) {
         dao.setSaved(id, false)
+        savedSync.push(id, saved = false)
+        notifyWidgets()
+    }
+
+    /** Brings in drinks saved on the account from other devices. */
+    suspend fun syncSaved() {
+        savedSync.sync()
         notifyWidgets()
     }
 
@@ -197,22 +207,32 @@ class DrinkRepository @Inject constructor(
             if (name.isEmpty() || key in existing || !seen.add(key)) return@forEach
             shoppingDao.insert(ShoppingItemEntity(name = name, drinkId = drink.id))
         }
+        shoppingSync.push()
+    }
+
+    /** Brings in the account's shopping list, after sending any local edits. */
+    suspend fun syncShopping() {
+        shoppingSync.sync()
     }
 
     suspend fun removeFromShoppingList(drinkId: String) {
         shoppingDao.deleteForDrink(drinkId)
+        shoppingSync.push()
     }
 
     suspend fun setShoppingChecked(id: Long, checked: Boolean) {
         shoppingDao.setChecked(id, checked)
+        shoppingSync.push()
     }
 
     suspend fun removeShoppingItem(id: Long) {
         shoppingDao.delete(id)
+        shoppingSync.push()
     }
 
     suspend fun clearCheckedShoppingItems() {
         shoppingDao.deleteChecked()
+        shoppingSync.push()
     }
 
     fun getSavedSync(): List<Drink> = dao.getSavedSync().map { it.toDrink(savedOverride = true) }

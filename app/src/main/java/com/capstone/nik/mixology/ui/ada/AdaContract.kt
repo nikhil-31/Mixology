@@ -23,6 +23,8 @@ data class AdaUiState(
     val draft: String = "",
     val sending: Boolean = false,
     val error: String? = null,
+    /** The server refused the last message: this month's Ada credits are spent. */
+    val outOfCredits: Boolean = false,
     /** The mic is open and transcripts are replacing [draft]. */
     val listening: Boolean = false,
     val voiceProblem: AdaVoiceProblem? = null,

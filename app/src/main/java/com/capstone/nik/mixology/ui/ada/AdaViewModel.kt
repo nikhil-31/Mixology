@@ -87,6 +87,8 @@ class AdaViewModel @Inject constructor(
         }
         if (currentState.loadingHistory || currentState.sending) return
         setState { copy(signedIn = true) }
+        // Ada picks from the account's saved list; match the hearts to it.
+        viewModelScope.launch { drinkRepository.syncSaved() }
         loadHistory()
     }
 
@@ -162,7 +164,7 @@ class AdaViewModel @Inject constructor(
             content = "",
             streaming = true,
         )
-        setState { copy(draft = "", sending = true, error = null) }
+        setState { copy(draft = "", sending = true, error = null, outOfCredits = false) }
         publishMessages()
         sendJob?.cancel()
         sendJob = viewModelScope.launch {
@@ -274,6 +276,15 @@ class AdaViewModel @Inject constructor(
                     error = null,
                 )
             }
+            return
+        }
+        if (error.code == 402) {
+            // Ada never answered, so drop the empty reply bubble.
+            if (assistantId != null) {
+                transcript = transcript.filterNot { it.id == assistantId && it.content.isEmpty() }
+                publishMessages()
+            }
+            setState { copy(loadingHistory = false, sending = false, error = null, outOfCredits = true) }
             return
         }
         if (assistantId != null) {

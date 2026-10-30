@@ -219,6 +219,8 @@
         <item quantity="one">%d day left in your free trial</item>
         <item quantity="other">%d days left in your free trial</item>
     </plurals>
+    <string name="ada_out_of_credits">You\'ve used this month\'s Ada credits. They reset on %1$s.</string>
+    <string name="ada_out_of_credits_no_date">You\'ve used this month\'s Ada credits. They reset at the start of next month.</string>
     <string name="settings_chat_credits_left">%1$d of %2$d Ada credits left</string>
     <string name="settings_chat_credits_resets">Resets %1$s</string>
     <string name="detail_rating">Rating</string>

@@ -8,6 +8,7 @@ import com.capstone.nik.mixology.FakeCocktailService
 import com.capstone.nik.mixology.MainDispatcherRule
 import com.capstone.nik.mixology.Network.ChatHttpException
 import com.capstone.nik.mixology.Network.ChatStreamEvent
+import com.capstone.nik.mixology.Network.NetworkMonitor
 import com.capstone.nik.mixology.analytics.AnalyticsTracker
 import com.capstone.nik.mixology.analytics.EVENT_ADA_VOICE_INPUT
 import com.capstone.nik.mixology.analytics.PARAM_RESULT
@@ -49,6 +50,7 @@ class AdaViewModelTest {
     private lateinit var database: MixologyDatabase
     private val chat = FakeChatRepository()
     private val analytics = AnalyticsTracker.forTests()
+    private val network = NetworkMonitor.forTests()
     private lateinit var viewModel: AdaViewModel
 
     @Before
@@ -68,6 +70,8 @@ class AdaViewModelTest {
                 FakeCocktailService(),
                 context,
             ),
+            network,
+            context,
             analytics,
         )
     }

@@ -6,6 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.capstone.nik.mixology.FakeChatRepository
 import com.capstone.nik.mixology.FakeCocktailService
 import com.capstone.nik.mixology.MainDispatcherRule
+import com.capstone.nik.mixology.Network.NetworkMonitor
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.MixologyDatabase
 import com.capstone.nik.mixology.repository.DrinkRepository
@@ -30,6 +31,7 @@ class AdaMoreViewModelTest {
 
     private lateinit var database: MixologyDatabase
     private val chat = FakeChatRepository()
+    private val network = NetworkMonitor.forTests()
     private lateinit var viewModel: AdaMoreViewModel
 
     @Before
@@ -50,6 +52,7 @@ class AdaMoreViewModelTest {
                 FakeCocktailService(),
                 context,
             ),
+            network,
             context,
         )
     }

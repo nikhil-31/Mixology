@@ -28,4 +28,14 @@ class NetworkMonitorTest {
             awaitItem()
         }
     }
+
+    @Test
+    fun serverReachable_followsMarks() {
+        val monitor = NetworkMonitor.forTests(online = true)
+        assertTrue(monitor.serverReachable.value)
+        monitor.markUnreachable()
+        assertFalse(monitor.serverReachable.value)
+        monitor.markReachable()
+        assertTrue(monitor.serverReachable.value)
+    }
 }

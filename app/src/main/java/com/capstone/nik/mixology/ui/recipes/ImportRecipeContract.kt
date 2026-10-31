@@ -1,5 +1,7 @@
 package com.capstone.nik.mixology.ui.recipes
 
+import com.capstone.nik.mixology.Network.ConnectionError
+
 /** The most text the server reads from one import. */
 const val IMPORT_TEXT_LIMIT = 5000
 
@@ -7,8 +9,10 @@ const val IMPORT_TEXT_LIMIT = 5000
 sealed interface ImportRecipeError {
     /** The server's message, such as "No drink recipe was found there". */
     data class Server(val detail: String) : ImportRecipeError
-    /** The post couldn't be fetched; pasting its caption may still work. */
+    /** The server couldn't fetch the post (502/504); pasting its caption may still work. */
     data object Unreachable : ImportRecipeError
+    /** The app got no answer from the server: the device is offline or the server is down. */
+    data class NoConnection(val error: ConnectionError) : ImportRecipeError
     /** This month's Ada credits are spent. */
     data object OutOfCredits : ImportRecipeError
     data object Generic : ImportRecipeError

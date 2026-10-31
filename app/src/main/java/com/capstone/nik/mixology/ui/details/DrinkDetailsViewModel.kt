@@ -8,6 +8,7 @@ import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.recordCrash
 import com.capstone.nik.mixology.analytics.AnalyticsTracker
 import com.capstone.nik.mixology.Network.NetworkMonitor
+import com.capstone.nik.mixology.Network.errorMessageRes
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.isOnShoppingList
 import com.capstone.nik.mixology.repository.DrinkRating
@@ -158,12 +159,14 @@ class DrinkDetailsViewModel @Inject constructor(
                 } else {
                     setState { copy(loading = false) }
                 }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to load drink $id", e)
                 recordCrash(e)
                 setState { copy(loading = false) }
                 if (currentState.drink?.hasRecipe != true) {
-                    sendEffect(DrinkDetailsEffect.ShowMessageRes(R.string.network_error))
+                    sendEffect(DrinkDetailsEffect.ShowMessageRes(networkMonitor.errorMessageRes(e, R.string.network_error)))
                 }
             }
         }
@@ -181,7 +184,7 @@ class DrinkDetailsViewModel @Inject constructor(
                 Log.e(TAG, "Failed to load recipe $id", e)
                 setState { copy(loading = false) }
                 if (currentState.drink?.hasRecipe != true) {
-                    sendEffect(DrinkDetailsEffect.ShowMessageRes(R.string.network_error))
+                    sendEffect(DrinkDetailsEffect.ShowMessageRes(networkMonitor.errorMessageRes(e, R.string.network_error)))
                 }
             }
         }

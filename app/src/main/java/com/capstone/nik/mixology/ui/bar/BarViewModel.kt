@@ -3,6 +3,7 @@ package com.capstone.nik.mixology.ui.bar
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.capstone.nik.mixology.Network.NetworkMonitor
+import com.capstone.nik.mixology.Network.connectionError
 import com.capstone.nik.mixology.analytics.AnalyticsTracker
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.recordCrash
@@ -10,6 +11,7 @@ import com.capstone.nik.mixology.repository.DrinkRepository
 import com.capstone.nik.mixology.repository.FilterKind
 import com.capstone.nik.mixology.ui.mvi.MviViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -46,6 +48,10 @@ class BarViewModel @Inject constructor(
             is BarIntent.ToggleIngredient -> toggleIngredient(intent.name)
             is BarIntent.ToggleSaved -> toggleSaved(intent.drink)
             is BarIntent.OpenDrink -> sendEffect(BarEffect.OpenDrink(intent.drink))
+            BarIntent.Retry -> {
+                setState { copy(error = null) }
+                networkMonitor.retry()
+            }
         }
     }
 
@@ -79,9 +85,13 @@ class BarViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 repository.refreshCatalogs()
+                setState { copy(error = null) }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to refresh catalogs", e)
                 recordCrash(e)
+                setState { copy(error = networkMonitor.connectionError(e)) }
             }
         }
     }

@@ -179,6 +179,7 @@ fun ImportRecipeScreen(
 private fun ImportRecipeError.message(creditsResetAt: Date?): String = when (this) {
     is ImportRecipeError.Server -> detail
     ImportRecipeError.Unreachable -> stringResource(R.string.recipe_import_unreachable)
+    is ImportRecipeError.NoConnection -> stringResource(error.messageRes)
     ImportRecipeError.OutOfCredits -> creditsResetAt?.let {
         stringResource(R.string.ada_out_of_credits, rememberMonthDay(it))
     } ?: stringResource(R.string.ada_out_of_credits_no_date)

@@ -5,6 +5,7 @@ import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
 import com.capstone.nik.mixology.FakeRecipeService
 import com.capstone.nik.mixology.MainDispatcherRule
+import com.capstone.nik.mixology.Network.NetworkMonitor
 import com.capstone.nik.mixology.billing.FakeBillingService
 import com.capstone.nik.mixology.billing.FakeStoreBilling
 import com.capstone.nik.mixology.billing.SubscriptionRepository
@@ -30,6 +31,7 @@ class ImportRecipeViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private val service = FakeRecipeService()
+    private val network = NetworkMonitor.forTests()
     private lateinit var repository: NetworkRecipeRepository
     private lateinit var viewModel: ImportRecipeViewModel
 
@@ -40,7 +42,7 @@ class ImportRecipeViewModelTest {
         sessions.save("token", 3600, "ada@example.com", "Ada", uid = "uid-1", access = "trial")
         val subscriptions = SubscriptionRepository(FakeBillingService(), FakeStoreBilling(), sessions)
         repository = NetworkRecipeRepository(service, subscriptions, sessions)
-        viewModel = ImportRecipeViewModel(repository)
+        viewModel = ImportRecipeViewModel(repository, network)
     }
 
     @Test

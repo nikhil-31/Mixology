@@ -54,6 +54,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import com.capstone.nik.mixology.BuildConfig
 import com.capstone.nik.mixology.R
+import com.capstone.nik.mixology.Network.ConnectionError
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.repository.FilterKind
@@ -111,6 +112,7 @@ fun MixologyApp(
     val playReviews = remember { appEntry.playReviewController() }
     val adConsent = remember { appEntry.adConsentController() }
     val online by networkMonitor.online.collectAsStateWithLifecycle()
+    val serverReachable by networkMonitor.serverReachable.collectAsStateWithLifecycle()
     val canRequestAds by adConsent.canRequestAds.collectAsStateWithLifecycle()
     val privacyOptionsRequired by adConsent.privacyOptionsRequired.collectAsStateWithLifecycle()
     val activity = context.findActivity()
@@ -260,6 +262,9 @@ fun MixologyApp(
                             viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Settings))
                         },
                     )
+                }
+                connectionBannerError(online, serverReachable)?.let { error ->
+                    OfflineBanner(error = error, onRetry = networkMonitor::retry)
                 }
                 Row(modifier = Modifier.weight(1f).fillMaxWidth()) {
                     NavHost(
@@ -580,8 +585,15 @@ internal fun ScreenHeader(
     }
 }
 
+/** What the banner reports, or null while the server is answering. */
+internal fun connectionBannerError(online: Boolean, serverReachable: Boolean): ConnectionError? = when {
+    !online -> ConnectionError.NO_CONNECTION
+    !serverReachable -> ConnectionError.SERVER_UNREACHABLE
+    else -> null
+}
+
 @Composable
-internal fun OfflineBanner(onRetry: () -> Unit) {
+internal fun OfflineBanner(error: ConnectionError, onRetry: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -590,7 +602,12 @@ internal fun OfflineBanner(onRetry: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            text = stringResource(R.string.network_error_no_network_available),
+            text = stringResource(
+                when (error) {
+                    ConnectionError.NO_CONNECTION -> R.string.network_error_no_network_available
+                    ConnectionError.SERVER_UNREACHABLE -> R.string.error_server_unreachable_title
+                },
+            ),
             modifier = Modifier.weight(1f),
             color = MaterialTheme.colorScheme.error,
             style = MaterialTheme.typography.bodyMedium,

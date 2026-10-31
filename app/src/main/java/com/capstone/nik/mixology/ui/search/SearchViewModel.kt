@@ -3,6 +3,8 @@ package com.capstone.nik.mixology.ui.search
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.viewModelScope
+import com.capstone.nik.mixology.Network.NetworkMonitor
+import com.capstone.nik.mixology.Network.errorMessageRes
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.recordCrash
 import com.capstone.nik.mixology.analytics.AnalyticsTracker
@@ -30,6 +32,7 @@ class SearchViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val analytics: AnalyticsTracker = AnalyticsTracker.forTests(),
     private val recipes: RecipeRepository = RecipeRepository.None,
+    private val networkMonitor: NetworkMonitor = NetworkMonitor.forTests(),
 ) : MviViewModel<SearchIntent, SearchUiState, SearchEffect>(SearchUiState()) {
 
     private val drinks = MutableStateFlow<List<Drink>>(emptyList())
@@ -176,7 +179,7 @@ class SearchViewModel @Inject constructor(
                 Log.e(TAG, "Search failed", e)
                 recordCrash(e)
                 drinks.value = emptyList()
-                sendEffect(SearchEffect.ShowMessageRes(R.string.network_error))
+                sendEffect(SearchEffect.ShowMessageRes(networkMonitor.errorMessageRes(e, R.string.network_error)))
             } finally {
                 if (isActive) {
                     loading.value = false

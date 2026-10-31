@@ -20,6 +20,10 @@
     <string name="network_error_no_network_available">Sin conexión a internet</string>
     <string name="network_error_search_no_data_available">Lo sentimos. El cóctel no está en la base de datos. Prueba otra búsqueda.</string>
     <string name="network_error_check_internet_connection">Comprueba tu conexión a internet.</string>
+    <string name="error_no_connection_title">Sin conexión</string>
+    <string name="error_no_connection_body">Estás sin conexión. Comprueba tu red e inténtalo de nuevo.</string>
+    <string name="error_server_unreachable_title">No se puede conectar con Mixology</string>
+    <string name="error_server_unreachable_body">Ahora mismo no podemos conectar con Mixology. Inténtalo de nuevo en un momento.</string>
 
     <string name="navigation_drawer_open">Abrir menú de navegación</string>
     <string name="navigation_drawer_close">Cerrar menú de navegación</string>

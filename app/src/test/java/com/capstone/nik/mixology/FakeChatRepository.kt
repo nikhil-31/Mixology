@@ -9,7 +9,9 @@ import com.capstone.nik.mixology.repository.ChatRepository
 import com.capstone.nik.mixology.repository.ChatTurn
 import com.capstone.nik.mixology.repository.DrinkMatchPage
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import java.net.ConnectException
 
 class FakeChatRepository : ChatRepository {
     var session: Session? = null
@@ -28,6 +30,8 @@ class FakeChatRepository : ChatRepository {
     val googleTokens = mutableListOf<String>()
     val appleSignIns = mutableListOf<Pair<String, String?>>()
     var signedOut = false
+    /** History, matches and sends fail as if the server can't be reached while set. */
+    var failWithIo = false
 
     override fun currentSession(): Session? = session
 
@@ -63,6 +67,7 @@ class FakeChatRepository : ChatRepository {
 
     override suspend fun history(before: Long?): ChatPage {
         historyRequests += before
+        if (failWithIo) throw ioError()
         val older = if (before == null) history else history.filter { it.serverId in 1 until before }
         val page = older.takeLast(pageSize)
         return ChatPage(page, hasMore = older.size > page.size)
@@ -79,6 +84,7 @@ class FakeChatRepository : ChatRepository {
     override suspend fun matches(query: String, exclude: List<String>, offset: Int): DrinkMatchPage {
         matchRequests += Triple(query, exclude, offset)
         matchError?.let { throw it }
+        if (failWithIo) throw ioError()
         val rest = matchDrinks.filter { it.id !in exclude }.drop(offset)
         return DrinkMatchPage(
             query = matchQuery ?: query,
@@ -89,6 +95,9 @@ class FakeChatRepository : ChatRepository {
 
     override fun send(message: String): Flow<ChatStreamEvent> {
         sent += message
+        if (failWithIo) return flow { throw ioError() }
         return sendFlow
     }
+
+    private fun ioError() = ConnectException("Failed to connect to /10.0.2.2:8000")
 }

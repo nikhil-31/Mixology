@@ -54,6 +54,7 @@ import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.ui.ada.AdaPlushieFilled
+import com.capstone.nik.mixology.ui.components.ConnectionErrorState
 import com.capstone.nik.mixology.ui.components.DrinkCard
 import com.capstone.nik.mixology.ui.components.DrinkCardCompactHeight
 import com.capstone.nik.mixology.ui.components.DrinkCardCompactWidth
@@ -93,6 +94,7 @@ fun HotRoute(
         onSeeAll = { viewModel.onIntent(HotIntent.SeeAll(it)) },
         onOpenBar = onOpenBar,
         onOpenAda = onOpenAda,
+        onRetry = { viewModel.onIntent(HotIntent.Retry) },
     )
 }
 
@@ -104,6 +106,7 @@ fun HotScreen(
     onSeeAll: (DrinkFilter) -> Unit,
     onOpenBar: () -> Unit = {},
     onOpenAda: () -> Unit = {},
+    onRetry: () -> Unit = {},
 ) {
     val categories = state.visibleCategories
     val featured = featuredDrink(categories)
@@ -118,7 +121,13 @@ fun HotScreen(
         }
     }
     Box(modifier = Modifier.fillMaxSize()) {
-        if (state.loading && categories.isEmpty()) {
+        if (categories.isEmpty() && state.error != null) {
+            ConnectionErrorState(
+                error = state.error,
+                onRetry = onRetry,
+                modifier = Modifier.align(Alignment.Center),
+            )
+        } else if (state.loading && categories.isEmpty()) {
             HomeSkeleton()
         } else {
             LazyColumn(

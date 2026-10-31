@@ -1,5 +1,6 @@
 package com.capstone.nik.mixology.ui.bar
 
+import com.capstone.nik.mixology.Network.ConnectionError
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.repository.BarAlmostDrink
 
@@ -12,6 +13,8 @@ data class BarUiState(
     val visibleTerms: List<String> = emptyList(),
     val makeable: List<Drink> = emptyList(),
     val almost: List<BarAlmostDrink> = emptyList(),
+    /** The ingredient list couldn't be fetched; shown in full only while none is cached. */
+    val error: ConnectionError? = null,
 )
 
 internal fun filterBarTerms(terms: List<String>, query: String): List<String> {
@@ -31,6 +34,8 @@ sealed interface BarIntent {
     data class ToggleIngredient(val name: String) : BarIntent
     data class ToggleSaved(val drink: Drink) : BarIntent
     data class OpenDrink(val drink: Drink) : BarIntent
+    /** Retries every screen waiting on the server, this one included. */
+    data object Retry : BarIntent
 }
 
 sealed interface BarEffect {

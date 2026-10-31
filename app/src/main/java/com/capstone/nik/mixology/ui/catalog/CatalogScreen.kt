@@ -58,6 +58,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.repository.FilterKind
+import com.capstone.nik.mixology.ui.components.ConnectionErrorState
 import com.capstone.nik.mixology.ui.components.IngredientImage
 import com.capstone.nik.mixology.ui.model.ingredientImageUrl
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
@@ -87,6 +88,7 @@ fun CatalogRoute(
         onQueryChanged = { viewModel.onIntent(CatalogIntent.QueryChanged(it)) },
         onOpenTerm = { viewModel.onIntent(CatalogIntent.OpenTerm(it)) },
         onRefresh = { viewModel.onIntent(CatalogIntent.Refresh) },
+        onRetry = { viewModel.onIntent(CatalogIntent.Retry) },
     )
 }
 
@@ -98,6 +100,7 @@ fun CatalogScreen(
     onQueryChanged: (String) -> Unit,
     onOpenTerm: (String) -> Unit,
     onRefresh: () -> Unit = {},
+    onRetry: () -> Unit = {},
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         LazyRow(
@@ -143,6 +146,11 @@ fun CatalogScreen(
                 when {
                     state.loading && state.terms.isEmpty() ->
                         CircularProgressIndicator(Modifier.align(Alignment.Center))
+                    state.terms.isEmpty() && state.error != null -> ConnectionErrorState(
+                        error = state.error,
+                        onRetry = onRetry,
+                        modifier = Modifier.align(Alignment.Center),
+                    )
                     state.terms.isEmpty() ->
                         Text(
                             text = stringResource(R.string.network_error_search_no_data_available),

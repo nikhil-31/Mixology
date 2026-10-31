@@ -11,6 +11,8 @@ import com.capstone.nik.mixology.Network.ShoppingService
 import com.capstone.nik.mixology.Network.ChatService
 import com.capstone.nik.mixology.Network.CocktailService
 import com.capstone.nik.mixology.Network.CocktailURLs
+import com.capstone.nik.mixology.Network.NetworkMonitor
+import com.capstone.nik.mixology.Network.ReachabilityInterceptor
 import com.capstone.nik.mixology.data.SessionStore
 import dagger.Module
 import dagger.Provides
@@ -37,12 +39,16 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(@ApplicationContext context: Context): OkHttpClient {
+    fun provideOkHttpClient(
+        @ApplicationContext context: Context,
+        networkMonitor: NetworkMonitor,
+    ): OkHttpClient {
         val builder = OkHttpClient.Builder()
             .cache(Cache(File(context.cacheDir, "http_cache"), CACHE_SIZE_BYTES))
             .connectTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .readTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .writeTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .addInterceptor(ReachabilityInterceptor(networkMonitor))
         if (BuildConfig.DEBUG) {
             builder.addInterceptor(loggingInterceptor())
         }
@@ -52,11 +58,16 @@ object NetworkModule {
     @Provides
     @Singleton
     @AuthenticatedClient
-    fun provideAuthenticatedClient(sessionStore: SessionStore): OkHttpClient {
+    fun provideAuthenticatedClient(
+        sessionStore: SessionStore,
+        networkMonitor: NetworkMonitor,
+    ): OkHttpClient {
+        // ChatStreamer uses this client too, so the chat stream reports reachability.
         val builder = OkHttpClient.Builder()
             .connectTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .readTimeout(CHAT_READ_TIMEOUT_MINUTES, TimeUnit.MINUTES)
             .writeTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .addInterceptor(ReachabilityInterceptor(networkMonitor))
             .addInterceptor(bearerInterceptor(sessionStore))
         if (BuildConfig.DEBUG) {
             builder.addInterceptor(loggingInterceptor())

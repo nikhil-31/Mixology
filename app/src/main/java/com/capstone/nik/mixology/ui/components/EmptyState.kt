@@ -7,15 +7,23 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CloudOff
+import androidx.compose.material.icons.outlined.WifiOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.capstone.nik.mixology.Network.ConnectionError
+import com.capstone.nik.mixology.R
 
 @Composable
 fun EmptyState(
@@ -62,4 +70,25 @@ fun EmptyState(
             Box(modifier = Modifier.padding(top = 8.dp)) { action() }
         }
     }
+}
+
+/** Full-screen [error] with a Retry button, for screens with nothing cached to show. */
+@Composable
+fun ConnectionErrorState(
+    error: ConnectionError,
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    EmptyState(
+        icon = when (error) {
+            ConnectionError.NO_CONNECTION -> Icons.Outlined.WifiOff
+            ConnectionError.SERVER_UNREACHABLE -> Icons.Outlined.CloudOff
+        },
+        title = stringResource(error.titleRes),
+        body = stringResource(error.messageRes),
+        modifier = modifier.testTag("connection_error"),
+        action = {
+            TextButton(onClick = onRetry) { Text(stringResource(R.string.action_retry)) }
+        },
+    )
 }

@@ -26,6 +26,10 @@
     <string name="network_error_no_network_available">No Internet Connection</string>
     <string name="network_error_search_no_data_available">Sorry. Drink not available in the database. Try a new search.</string>
     <string name="network_error_check_internet_connection">Please, check your internet connection.</string>
+    <string name="error_no_connection_title">No connection</string>
+    <string name="error_no_connection_body">You’re offline. Check your connection and try again.</string>
+    <string name="error_server_unreachable_title">Can’t reach Mixology</string>
+    <string name="error_server_unreachable_body">Can’t reach Mixology right now. Try again in a moment.</string>
 
     <!-- Navigation Drawer -->
     <string name="navigation_drawer_open">Open navigation drawer</string>

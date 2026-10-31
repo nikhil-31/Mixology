@@ -1,11 +1,14 @@
 package com.capstone.nik.mixology.repository
 
+import android.content.Context
 import com.capstone.nik.mixology.Network.ApiErrors
 import com.capstone.nik.mixology.Network.AuthService
 import com.capstone.nik.mixology.Network.ChatHttpException
 import com.capstone.nik.mixology.Network.ChatService
 import com.capstone.nik.mixology.Network.ChatStreamEvent
 import com.capstone.nik.mixology.Network.ChatStreamer
+import com.capstone.nik.mixology.Network.NetworkMonitor
+import com.capstone.nik.mixology.Network.connectionMessage
 import com.capstone.nik.mixology.Network.remoteModel.AuthTokenResponse
 import com.capstone.nik.mixology.Network.remoteModel.ProviderLoginRequest
 import com.capstone.nik.mixology.Network.remoteModel.LoginRequest
@@ -14,6 +17,7 @@ import com.capstone.nik.mixology.billing.SubscriptionRepository
 import com.capstone.nik.mixology.data.GoogleAuth
 import com.capstone.nik.mixology.data.Session
 import com.capstone.nik.mixology.data.SessionStore
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -31,6 +35,8 @@ class NetworkChatRepository @Inject constructor(
     private val sessionStore: SessionStore,
     private val googleAuth: GoogleAuth,
     private val subscriptions: SubscriptionRepository,
+    private val networkMonitor: NetworkMonitor,
+    @ApplicationContext private val context: Context,
 ) : ChatRepository {
 
     override fun currentSession(): Session? = sessionStore.current()
@@ -151,13 +157,18 @@ class NetworkChatRepository @Inject constructor(
             }
         } catch (error: CancellationException) {
             throw error
-        } catch (error: HttpException) {
-            AuthResult.Failure(
-                ApiErrors.detail(error.response()?.errorBody()?.string(), error.message()),
-            )
         } catch (error: Exception) {
-            AuthResult.Failure(error.message.orEmpty())
+            AuthResult.Failure(authFailureDetail(error))
         }
+    }
+
+    /** No answer gets a localized message; otherwise the server's `detail` or the exception's. */
+    private fun authFailureDetail(error: Exception): String {
+        networkMonitor.connectionMessage(context, error)?.let { return it }
+        if (error is HttpException) {
+            return ApiErrors.detail(error.response()?.errorBody()?.string(), error.message())
+        }
+        return error.message.orEmpty()
     }
 
     private fun chatFailure(code: Int, body: String?, fallback: String): ChatHttpException {

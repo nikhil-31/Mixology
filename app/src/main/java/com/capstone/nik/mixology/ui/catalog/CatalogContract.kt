@@ -1,5 +1,6 @@
 package com.capstone.nik.mixology.ui.catalog
 
+import com.capstone.nik.mixology.Network.ConnectionError
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.repository.FilterKind
 
@@ -11,6 +12,8 @@ data class CatalogUiState(
     val visibleTerms: List<String> = emptyList(),
     val bar: Set<String> = emptySet(),
     val refreshing: Boolean = false,
+    /** The last refresh got no answer; shown in full only while there's nothing cached. */
+    val error: ConnectionError? = null,
 )
 
 data class CatalogLetterSection(
@@ -48,6 +51,8 @@ sealed interface CatalogIntent {
     data class QueryChanged(val query: String) : CatalogIntent
     data class OpenTerm(val term: String) : CatalogIntent
     data object Refresh : CatalogIntent
+    /** Retries every screen waiting on the server, this one included. */
+    data object Retry : CatalogIntent
 }
 
 sealed interface CatalogEffect {

@@ -10,10 +10,12 @@ import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.repository.DrinkRepository
 import com.capstone.nik.mixology.Network.NetworkMonitor
+import com.capstone.nik.mixology.Network.errorMessageRes
 import com.capstone.nik.mixology.ui.components.DrinkViewPreferences
 import com.capstone.nik.mixology.ui.mvi.MviViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -83,10 +85,12 @@ class DrinkGridViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 repository.fetchAndCache(filter)
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to refresh ${filter.name}", e)
                 recordCrash(e, "Failed to refresh ${filter.name}")
-                sendEffect(DrinkGridEffect.ShowMessageRes(R.string.network_error))
+                sendEffect(DrinkGridEffect.ShowMessageRes(networkMonitor.errorMessageRes(e, R.string.network_error)))
             }
         }
     }

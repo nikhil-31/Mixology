@@ -8,7 +8,7 @@ data class MyRecipesUiState(
     /** The list has come back from the server at least once. */
     val loaded: Boolean = false,
     val listView: Boolean = false,
-    /** The server's message, or empty for a generic one. */
+    /** The server's message or the connection problem, or empty for a generic one. */
     val error: String? = null,
 ) {
     val showEmpty: Boolean get() = loaded && !loading && recipes.isEmpty() && error == null

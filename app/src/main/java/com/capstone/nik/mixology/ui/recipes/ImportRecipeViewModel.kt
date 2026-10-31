@@ -1,6 +1,8 @@
 package com.capstone.nik.mixology.ui.recipes
 
 import androidx.lifecycle.viewModelScope
+import com.capstone.nik.mixology.Network.NetworkMonitor
+import com.capstone.nik.mixology.Network.connectionError
 import com.capstone.nik.mixology.repository.RecipeHttpException
 import com.capstone.nik.mixology.repository.RecipeRepository
 import com.capstone.nik.mixology.ui.mvi.MviViewModel
@@ -12,6 +14,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ImportRecipeViewModel @Inject constructor(
     private val recipes: RecipeRepository,
+    private val networkMonitor: NetworkMonitor,
 ) : MviViewModel<ImportRecipeIntent, ImportRecipeUiState, ImportRecipeEffect>(ImportRecipeUiState()) {
 
     override fun onIntent(intent: ImportRecipeIntent) {
@@ -34,12 +37,15 @@ class ImportRecipeViewModel @Inject constructor(
                 sendEffect(ImportRecipeEffect.Imported(imported.recipe.id, imported.duplicate))
             } catch (error: CancellationException) {
                 throw error
-            } catch (error: RecipeHttpException) {
-                setState { copy(importing = false, error = error.toImportError()) }
-            } catch (_: Exception) {
-                setState { copy(importing = false, error = ImportRecipeError.Generic) }
+            } catch (error: Exception) {
+                setState { copy(importing = false, error = importError(error)) }
             }
         }
+    }
+
+    private fun importError(error: Exception): ImportRecipeError {
+        networkMonitor.connectionError(error)?.let { return ImportRecipeError.NoConnection(it) }
+        return (error as? RecipeHttpException)?.toImportError() ?: ImportRecipeError.Generic
     }
 
     private fun RecipeHttpException.toImportError(): ImportRecipeError = when (code) {

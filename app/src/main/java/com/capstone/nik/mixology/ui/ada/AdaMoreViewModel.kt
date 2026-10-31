@@ -2,6 +2,8 @@ package com.capstone.nik.mixology.ui.ada
 
 import android.content.Context
 import androidx.lifecycle.viewModelScope
+import com.capstone.nik.mixology.Network.NetworkMonitor
+import com.capstone.nik.mixology.Network.connectionMessage
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.repository.ChatRepository
 import com.capstone.nik.mixology.repository.DrinkRepository
@@ -18,6 +20,7 @@ import javax.inject.Inject
 class AdaMoreViewModel @Inject constructor(
     private val chatRepository: ChatRepository,
     private val drinkRepository: DrinkRepository,
+    private val networkMonitor: NetworkMonitor,
     @ApplicationContext private val context: Context,
 ) : MviViewModel<AdaMoreIntent, AdaMoreUiState, AdaMoreEffect>(AdaMoreUiState()) {
 
@@ -83,7 +86,7 @@ class AdaMoreViewModel @Inject constructor(
             } catch (error: CancellationException) {
                 throw error
             } catch (error: Exception) {
-                setState { copy(loading = false, error = error.message.orEmpty()) }
+                setState { copy(loading = false, error = message(error)) }
             }
         }
     }
@@ -100,10 +103,13 @@ class AdaMoreViewModel @Inject constructor(
             } catch (error: CancellationException) {
                 throw error
             } catch (error: Exception) {
-                setState { copy(error = error.message.orEmpty()) }
+                setState { copy(error = message(error)) }
             }
         }
     }
+
+    private fun message(error: Exception): String =
+        networkMonitor.connectionMessage(context, error) ?: error.message.orEmpty()
 
     private fun toggleListView() {
         val listView = !currentState.listView

@@ -12,12 +12,15 @@ import okhttp3.ResponseBody.Companion.toResponseBody
 import okio.Buffer
 import retrofit2.HttpException
 import retrofit2.Response
+import java.net.ConnectException
 
 /** An in-memory `me/recipes`; set [failWith] to answer every call with that HTTP status. */
 class FakeRecipeService : RecipeService {
     val recipes = mutableListOf<ApiDrink>()
     /** Every call answers with this status and a `{"detail"}` body while set. */
     var failWith: Int? = null
+    /** Every call fails as if the server can't be reached while set. */
+    var failWithIo = false
     /** Only photo uploads fail, with this status, while set. */
     var failPhotoWith: Int? = null
     val uploads = mutableListOf<Pair<String, ByteArray>>()
@@ -96,6 +99,7 @@ class FakeRecipeService : RecipeService {
 
     private fun record(call: String) {
         calls += call
+        if (failWithIo) throw ConnectException("Failed to connect to /10.0.2.2:8000")
         failWith?.let { throw httpError(it) }
     }
 

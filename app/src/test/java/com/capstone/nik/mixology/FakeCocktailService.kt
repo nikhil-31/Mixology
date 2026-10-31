@@ -10,6 +10,7 @@ import com.capstone.nik.mixology.Network.remoteModel.CocktailDbDrink
 import com.capstone.nik.mixology.Network.remoteModel.CocktailDbResponse
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.repository.BarMatcher
+import java.net.ConnectException
 
 class FakeCocktailService : CocktailService {
     var alcohol = CocktailDbResponse()
@@ -31,12 +32,14 @@ class FakeCocktailService : CocktailService {
     var recommendationDrinks: List<Drink> = emptyList()
     var failRecommendations = false
     var failLookup = false
+    /** Catalog lists and filters fail as if the server can't be reached while set. */
+    var failWithIo = false
     val lookedUp = mutableListOf<String>()
 
-    override suspend fun getAlcoholFilter(filter: String) = alcoholByQuery[filter] ?: alcohol
-    override suspend fun getGlassFilter(filter: String) = glassByQuery[filter] ?: glass
-    override suspend fun getIngredientFilter(filter: String) = ingredientsByQuery[filter] ?: ingredient
-    override suspend fun getDrinkTypeFilter(filter: String) = drinkTypesByQuery[filter] ?: drinkType
+    override suspend fun getAlcoholFilter(filter: String) = io { alcoholByQuery[filter] ?: alcohol }
+    override suspend fun getGlassFilter(filter: String) = io { glassByQuery[filter] ?: glass }
+    override suspend fun getIngredientFilter(filter: String) = io { ingredientsByQuery[filter] ?: ingredient }
+    override suspend fun getDrinkTypeFilter(filter: String) = io { drinkTypesByQuery[filter] ?: drinkType }
     override suspend fun getSearchResults(search: String) = this.search
     override suspend fun getDrinkById(id: String): CocktailDbResponse {
         lookedUp += id
@@ -44,10 +47,10 @@ class FakeCocktailService : CocktailService {
         return lookupsById[id] ?: lookup
     }
     override suspend fun getSearchByLetter(letter: String) = this.letter
-    override suspend fun listCategories(list: String) = categories
-    override suspend fun listGlasses(list: String) = glasses
-    override suspend fun listIngredients(list: String) = ingredients
-    override suspend fun listAlcoholic(list: String) = alcoholic
+    override suspend fun listCategories(list: String) = io { categories }
+    override suspend fun listGlasses(list: String) = io { glasses }
+    override suspend fun listIngredients(list: String) = io { ingredients }
+    override suspend fun listAlcoholic(list: String) = io { alcoholic }
     override suspend fun getBarRecommendations(ingredients: List<String>): ApiBarRecommendations {
         if (failRecommendations) error("recommendations failed")
         val result = BarMatcher.recommend(recommendationDrinks, ingredients)
@@ -56,6 +59,11 @@ class FakeCocktailService : CocktailService {
             makeable = result.makeable.map { it.toApiDrink() },
             almost = result.almost.map { ApiBarAlmost(it.drink.toApiDrink(), it.missing) },
         )
+    }
+
+    private fun <T> io(value: () -> T): T {
+        if (failWithIo) throw ConnectException("Failed to connect to /10.0.2.2:8000")
+        return value()
     }
 }
 

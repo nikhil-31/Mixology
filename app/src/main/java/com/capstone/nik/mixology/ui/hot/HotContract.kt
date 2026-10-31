@@ -1,5 +1,6 @@
 package com.capstone.nik.mixology.ui.hot
 
+import com.capstone.nik.mixology.Network.ConnectionError
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
 
@@ -11,6 +12,8 @@ data class HotCategory(
 data class HotUiState(
     val loading: Boolean = true,
     val categories: List<HotCategory> = emptyList(),
+    /** The last refresh got no answer; shown in full only while there's nothing cached. */
+    val error: ConnectionError? = null,
 ) {
     val visibleCategories: List<HotCategory> get() = categories.filter { it.drinks.isNotEmpty() }
 }
@@ -25,6 +28,8 @@ sealed interface HotIntent {
     data class ToggleSaved(val item: Drink) : HotIntent
     data class OpenDrink(val drink: Drink) : HotIntent
     data class SeeAll(val filter: DrinkFilter) : HotIntent
+    /** Retries every screen waiting on the server, this one included. */
+    data object Retry : HotIntent
 }
 
 sealed interface HotEffect {

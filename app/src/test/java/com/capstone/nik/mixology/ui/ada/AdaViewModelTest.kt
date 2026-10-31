@@ -8,6 +8,7 @@ import com.capstone.nik.mixology.FakeCocktailService
 import com.capstone.nik.mixology.MainDispatcherRule
 import com.capstone.nik.mixology.Network.ChatHttpException
 import com.capstone.nik.mixology.Network.ChatStreamEvent
+import com.capstone.nik.mixology.Network.NetworkMonitor
 import com.capstone.nik.mixology.analytics.AnalyticsTracker
 import com.capstone.nik.mixology.analytics.EVENT_ADA_VOICE_INPUT
 import com.capstone.nik.mixology.analytics.PARAM_RESULT
@@ -49,6 +50,7 @@ class AdaViewModelTest {
     private lateinit var database: MixologyDatabase
     private val chat = FakeChatRepository()
     private val analytics = AnalyticsTracker.forTests()
+    private val network = NetworkMonitor.forTests()
     private lateinit var viewModel: AdaViewModel
 
     @Before
@@ -68,6 +70,8 @@ class AdaViewModelTest {
                 FakeCocktailService(),
                 context,
             ),
+            network,
+            context,
             analytics,
         )
     }
@@ -222,6 +226,42 @@ class AdaViewModelTest {
         assertFalse(state.sending)
         assertEquals("Alexander tonight", state.messages.first().content)
         assertFalse(state.messages.last().streaming)
+    }
+
+    @Test
+    fun load_unreachableServerShowsTheMessageNotTheException() = runTest {
+        chat.failWithIo = true
+
+        signIn()
+
+        val state = viewModel.state.value
+        assertEquals("Can’t reach Mixology right now. Try again in a moment.", state.error)
+        assertFalse(state.loadingHistory)
+    }
+
+    @Test
+    fun send_unreachableServerShowsTheMessageAndStops() = runTest {
+        signIn()
+        chat.failWithIo = true
+
+        viewModel.onIntent(AdaIntent.DraftChanged("Alexander tonight"))
+        viewModel.onIntent(AdaIntent.Send)
+
+        val state = viewModel.state.value
+        assertEquals("Can’t reach Mixology right now. Try again in a moment.", state.error)
+        assertFalse(state.sending)
+        assertFalse(state.messages.last().streaming)
+    }
+
+    @Test
+    fun send_status503ShowsTheUnreachableMessage() = runTest {
+        signIn()
+        chat.sendFlow = flow { throw ChatHttpException(503, "Service Unavailable") }
+
+        viewModel.onIntent(AdaIntent.DraftChanged("Alexander tonight"))
+        viewModel.onIntent(AdaIntent.Send)
+
+        assertEquals("Can’t reach Mixology right now. Try again in a moment.", viewModel.state.value.error)
     }
 
     @Test

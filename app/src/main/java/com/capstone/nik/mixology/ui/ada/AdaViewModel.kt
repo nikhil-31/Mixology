@@ -1,6 +1,9 @@
 package com.capstone.nik.mixology.ui.ada
 
+import android.content.Context
 import androidx.lifecycle.viewModelScope
+import com.capstone.nik.mixology.Network.NetworkMonitor
+import com.capstone.nik.mixology.Network.connectionMessage
 import com.capstone.nik.mixology.Network.ChatHttpException
 import com.capstone.nik.mixology.analytics.AnalyticsTracker
 import com.capstone.nik.mixology.analytics.VOICE_CANCELLED
@@ -15,6 +18,7 @@ import com.capstone.nik.mixology.repository.ChatTurn
 import com.capstone.nik.mixology.repository.DrinkRepository
 import com.capstone.nik.mixology.ui.mvi.MviViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -24,6 +28,8 @@ import javax.inject.Inject
 class AdaViewModel @Inject constructor(
     private val chatRepository: ChatRepository,
     private val drinkRepository: DrinkRepository,
+    private val networkMonitor: NetworkMonitor,
+    @ApplicationContext private val context: Context,
     private val analytics: AnalyticsTracker = AnalyticsTracker.forTests(),
 ) : MviViewModel<AdaIntent, AdaUiState, AdaEffect>(AdaUiState()) {
 
@@ -118,7 +124,7 @@ class AdaViewModel @Inject constructor(
             } catch (error: ChatHttpException) {
                 onHttpFailure(error, assistantId = null)
             } catch (error: Exception) {
-                setState { copy(loadingHistory = false, error = error.message.orEmpty()) }
+                setState { copy(loadingHistory = false, error = message(error)) }
             }
         }
     }
@@ -141,7 +147,7 @@ class AdaViewModel @Inject constructor(
                 setState { copy(loadingOlder = false) }
                 onHttpFailure(error, assistantId = null)
             } catch (error: Exception) {
-                setState { copy(loadingOlder = false, error = error.message.orEmpty()) }
+                setState { copy(loadingOlder = false, error = message(error)) }
             }
         }
     }
@@ -194,7 +200,7 @@ class AdaViewModel @Inject constructor(
                 onHttpFailure(error, assistantId)
             } catch (error: Exception) {
                 updateAssistant(assistantId) { it.copy(streaming = false) }
-                setState { copy(sending = false, error = error.message.orEmpty()) }
+                setState { copy(sending = false, error = message(error)) }
             }
         }
     }
@@ -252,7 +258,7 @@ class AdaViewModel @Inject constructor(
             } catch (error: CancellationException) {
                 throw error
             } catch (error: Exception) {
-                setState { copy(error = error.message.orEmpty()) }
+                setState { copy(error = message(error)) }
             }
         }
     }
@@ -290,8 +296,14 @@ class AdaViewModel @Inject constructor(
         if (assistantId != null) {
             updateAssistant(assistantId) { it.copy(streaming = false) }
         }
-        setState { copy(loadingHistory = false, sending = false, error = error.detail) }
+        setState { copy(loadingHistory = false, sending = false, error = message(error)) }
     }
+
+    /** A connection problem's message, or what the server or exception said. */
+    private fun message(error: Exception): String =
+        networkMonitor.connectionMessage(context, error)
+            ?: (error as? ChatHttpException)?.detail
+            ?: error.message.orEmpty()
 
     private fun updateAssistant(id: Long, block: (AdaMessage) -> AdaMessage) {
         transcript = transcript.map { message ->

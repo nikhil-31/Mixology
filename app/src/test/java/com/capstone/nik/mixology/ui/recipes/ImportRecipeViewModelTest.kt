@@ -5,6 +5,8 @@ import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
 import com.capstone.nik.mixology.FakeRecipeService
 import com.capstone.nik.mixology.MainDispatcherRule
+import com.capstone.nik.mixology.Network.ConnectionError
+import com.capstone.nik.mixology.Network.NetworkMonitor
 import com.capstone.nik.mixology.billing.FakeBillingService
 import com.capstone.nik.mixology.billing.FakeStoreBilling
 import com.capstone.nik.mixology.billing.SubscriptionRepository
@@ -30,6 +32,7 @@ class ImportRecipeViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private val service = FakeRecipeService()
+    private val network = NetworkMonitor.forTests()
     private lateinit var repository: NetworkRecipeRepository
     private lateinit var viewModel: ImportRecipeViewModel
 
@@ -40,7 +43,7 @@ class ImportRecipeViewModelTest {
         sessions.save("token", 3600, "ada@example.com", "Ada", uid = "uid-1", access = "trial")
         val subscriptions = SubscriptionRepository(FakeBillingService(), FakeStoreBilling(), sessions)
         repository = NetworkRecipeRepository(service, subscriptions, sessions)
-        viewModel = ImportRecipeViewModel(repository)
+        viewModel = ImportRecipeViewModel(repository, network)
     }
 
     @Test
@@ -92,6 +95,32 @@ class ImportRecipeViewModelTest {
         viewModel.onIntent(ImportRecipeIntent.TextChanged("2 oz gin"))
         assertNull(viewModel.state.value.error)
         assertTrue(repository.recipes.value.isEmpty())
+    }
+
+    @Test
+    fun noAnswerFromTheServerIsAConnectionErrorNotGeneric() = runTest {
+        viewModel.onIntent(ImportRecipeIntent.TextChanged("2 oz gin"))
+
+        service.failImportWith = 503 to "Service Unavailable"
+        viewModel.onIntent(ImportRecipeIntent.Import)
+        assertEquals(
+            ImportRecipeError.NoConnection(ConnectionError.SERVER_UNREACHABLE),
+            viewModel.state.value.error,
+        )
+
+        service.failImportWith = null
+        service.failWithIo = true
+        viewModel.onIntent(ImportRecipeIntent.Import)
+        assertEquals(
+            ImportRecipeError.NoConnection(ConnectionError.SERVER_UNREACHABLE),
+            viewModel.state.value.error,
+        )
+
+        viewModel = ImportRecipeViewModel(repository, NetworkMonitor.forTests(online = false))
+        viewModel.onIntent(ImportRecipeIntent.TextChanged("2 oz gin"))
+        viewModel.onIntent(ImportRecipeIntent.Import)
+        assertEquals(ImportRecipeError.NoConnection(ConnectionError.NO_CONNECTION), viewModel.state.value.error)
+        assertFalse(viewModel.state.value.importing)
     }
 
     @Test

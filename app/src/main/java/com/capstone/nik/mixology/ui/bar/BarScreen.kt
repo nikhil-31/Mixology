@@ -49,6 +49,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.ui.components.DrinkListItem
+import com.capstone.nik.mixology.ui.components.ConnectionErrorState
 import com.capstone.nik.mixology.ui.components.EmptyState
 import com.capstone.nik.mixology.ui.components.IngredientImage
 import com.capstone.nik.mixology.ui.components.SearchField
@@ -75,6 +76,7 @@ fun BarRoute(
         onToggleIngredient = { viewModel.onIntent(BarIntent.ToggleIngredient(it)) },
         onDrinkClick = { viewModel.onIntent(BarIntent.OpenDrink(it)) },
         onToggleSaved = { viewModel.onIntent(BarIntent.ToggleSaved(it)) },
+        onRetry = { viewModel.onIntent(BarIntent.Retry) },
     )
 }
 
@@ -87,6 +89,7 @@ fun BarScreen(
     onToggleIngredient: (String) -> Unit,
     onDrinkClick: (Drink) -> Unit,
     onToggleSaved: (Drink) -> Unit,
+    onRetry: () -> Unit = {},
 ) {
     if (state.picking) {
         BarPicker(
@@ -94,6 +97,7 @@ fun BarScreen(
             onClosePicker = onClosePicker,
             onQueryChanged = onQueryChanged,
             onToggleIngredient = onToggleIngredient,
+            onRetry = onRetry,
         )
     } else {
         BarHome(
@@ -240,6 +244,7 @@ private fun BarPicker(
     onClosePicker: () -> Unit,
     onQueryChanged: (String) -> Unit,
     onToggleIngredient: (String) -> Unit,
+    onRetry: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
@@ -281,7 +286,13 @@ private fun BarPicker(
                 .padding(horizontal = 16.dp, vertical = 8.dp),
         )
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-            if (state.catalogTerms.isEmpty() || state.visibleTerms.isEmpty()) {
+            if (state.catalogTerms.isEmpty() && state.error != null) {
+                ConnectionErrorState(
+                    error = state.error,
+                    onRetry = onRetry,
+                    modifier = Modifier.align(Alignment.Center),
+                )
+            } else if (state.catalogTerms.isEmpty() || state.visibleTerms.isEmpty()) {
                 EmptyState(
                     icon = Icons.Outlined.SearchOff,
                     title = stringResource(R.string.network_error_search_no_data_available),

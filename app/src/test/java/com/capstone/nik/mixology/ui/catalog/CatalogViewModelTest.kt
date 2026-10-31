@@ -6,6 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
 import com.capstone.nik.mixology.FakeCocktailService
 import com.capstone.nik.mixology.MainDispatcherRule
+import com.capstone.nik.mixology.Network.ConnectionError
 import com.capstone.nik.mixology.Network.NetworkMonitor
 import com.capstone.nik.mixology.catalog
 import com.capstone.nik.mixology.data.MixologyDatabase
@@ -18,6 +19,8 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -133,6 +136,51 @@ class CatalogViewModelTest {
         job.cancel()
         assertEquals(FilterKind.INGREDIENT, filter.kind)
         assertEquals("Tequila", filter.query)
+    }
+
+    @Test
+    fun refreshFailure_withNothingCached_showsOfflineErrorThenRetryRecovers() = runTest {
+        val monitor = NetworkMonitor.forTests(online = false)
+        service.failWithIo = true
+        viewModel = catalogViewModel(monitor)
+
+        viewModel.state.test {
+            val failed = awaitItemUntil { it.error != null }
+            assertEquals(ConnectionError.NO_CONNECTION, failed.error)
+            assertTrue(failed.terms.isEmpty())
+            assertFalse(failed.loading)
+
+            service.failWithIo = false
+            viewModel.onIntent(CatalogIntent.Retry)
+            val loaded = awaitItemUntil { it.terms.contains("Tequila") && it.error == null }
+            assertFalse(loaded.loading)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun refreshFailure_whileOnline_isServerUnreachable() = runTest {
+        service.failWithIo = true
+        viewModel = catalogViewModel(NetworkMonitor.forTests(online = true))
+
+        viewModel.state.test {
+            assertEquals(ConnectionError.SERVER_UNREACHABLE, awaitItemUntil { it.error != null }.error)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    private fun catalogViewModel(monitor: NetworkMonitor): CatalogViewModel {
+        val context = ApplicationProvider.getApplicationContext<Application>()
+        return CatalogViewModel(
+            DrinkRepository(
+                database.drinkDao(),
+                database.shoppingDao(),
+                database.barDao(),
+                service,
+                context,
+            ),
+            monitor,
+        )
     }
 }
 

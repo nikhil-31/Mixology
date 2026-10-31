@@ -1,14 +1,21 @@
 package com.capstone.nik.mixology.ui.main
 
 import android.app.Application
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import app.cash.turbine.test
+import com.capstone.nik.mixology.Network.ConnectionError
+import com.capstone.nik.mixology.Network.NetworkMonitor
 import com.capstone.nik.mixology.ui.theme.MixologyTheme
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -78,7 +85,7 @@ class MixologyAppChromeTest {
         var retries = 0
         composeRule.setContent {
             MixologyTheme {
-                OfflineBanner(onRetry = { retries += 1 })
+                OfflineBanner(error = ConnectionError.NO_CONNECTION, onRetry = { retries += 1 })
             }
         }
 
@@ -86,5 +93,37 @@ class MixologyAppChromeTest {
         composeRule.onNodeWithText("No Internet Connection").assertIsDisplayed()
         composeRule.onNodeWithText("Retry").performClick()
         assertEquals(1, retries)
+    }
+
+    @Test
+    fun offlineBanner_serverUnreachable_retryEmitsRetries() = runTest {
+        val monitor = NetworkMonitor.forTests(online = true)
+        monitor.markUnreachable()
+        composeRule.setContent {
+            MixologyTheme {
+                val online by monitor.online.collectAsState()
+                val reachable by monitor.serverReachable.collectAsState()
+                connectionBannerError(online, reachable)?.let { error ->
+                    OfflineBanner(error = error, onRetry = monitor::retry)
+                }
+            }
+        }
+
+        composeRule.onNodeWithTag("offline_banner").assertIsDisplayed()
+        composeRule.onNodeWithText("Can’t reach Mixology").assertIsDisplayed()
+        monitor.retries.test {
+            composeRule.onNodeWithText("Retry").performClick()
+            awaitItem()
+        }
+
+        monitor.markReachable()
+        composeRule.onNodeWithTag("offline_banner").assertDoesNotExist()
+    }
+
+    @Test
+    fun connectionBannerError_prefersOfflineOverUnreachable() {
+        assertEquals(ConnectionError.NO_CONNECTION, connectionBannerError(online = false, serverReachable = false))
+        assertEquals(ConnectionError.SERVER_UNREACHABLE, connectionBannerError(online = true, serverReachable = false))
+        assertNull(connectionBannerError(online = true, serverReachable = true))
     }
 }

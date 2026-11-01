@@ -32,6 +32,7 @@ class MyRecipesViewModel @Inject constructor(
     override fun onIntent(intent: MyRecipesIntent) {
         when (intent) {
             MyRecipesIntent.Retry -> load()
+            is MyRecipesIntent.QueryChanged -> setState { copy(query = intent.query) }
             is MyRecipesIntent.OpenRecipe -> sendEffect(MyRecipesEffect.OpenRecipe(intent.recipe))
             MyRecipesIntent.AddRecipe -> sendEffect(MyRecipesEffect.OpenEditor)
             MyRecipesIntent.ToggleListView -> toggleListView()

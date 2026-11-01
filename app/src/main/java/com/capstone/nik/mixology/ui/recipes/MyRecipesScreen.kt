@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.CloudOff
 import androidx.compose.material.icons.outlined.EditNote
+import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -23,7 +24,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -39,6 +44,7 @@ import com.capstone.nik.mixology.ui.components.DrinkListItem
 import com.capstone.nik.mixology.ui.components.DrinkViewToggle
 import com.capstone.nik.mixology.ui.components.EmptyState
 import com.capstone.nik.mixology.ui.components.SavedDrinkCardAspectRatio
+import com.capstone.nik.mixology.ui.components.SearchField
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 
 @Composable
@@ -60,6 +66,7 @@ fun MyRecipesRoute(
         onAddRecipe = { viewModel.onIntent(MyRecipesIntent.AddRecipe) },
         onRetry = { viewModel.onIntent(MyRecipesIntent.Retry) },
         onToggleListView = { viewModel.onIntent(MyRecipesIntent.ToggleListView) },
+        onQueryChanged = { viewModel.onIntent(MyRecipesIntent.QueryChanged(it)) },
     )
 }
 
@@ -70,9 +77,28 @@ fun MyRecipesScreen(
     onAddRecipe: () -> Unit,
     onRetry: () -> Unit,
     onToggleListView: () -> Unit,
+    onQueryChanged: (String) -> Unit = {},
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
+            if (state.recipes.isNotEmpty()) {
+                // Typing updates the field at once; the list follows the view model's query.
+                var queryText by remember { mutableStateOf(state.query) }
+                LaunchedEffect(state.query) {
+                    if (queryText != state.query) queryText = state.query
+                }
+                SearchField(
+                    value = queryText,
+                    onValueChange = { value ->
+                        queryText = value
+                        onQueryChanged(value)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .testTag("my_recipes_search"),
+                )
+            }
             DrinkViewToggle(
                 listView = state.listView,
                 onToggleListView = onToggleListView,
@@ -109,11 +135,18 @@ fun MyRecipesScreen(
                             Button(onClick = onAddRecipe) { Text(stringResource(R.string.my_recipes_add)) }
                         },
                     )
+                    state.noMatches -> EmptyState(
+                        icon = Icons.Outlined.SearchOff,
+                        title = stringResource(R.string.search_empty_title),
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .testTag("my_recipes_no_matches"),
+                    )
                     state.listView -> LazyColumn(
                         modifier = Modifier.fillMaxSize().testTag("my_recipes_list"),
                         contentPadding = PaddingValues(bottom = FabClearance),
                     ) {
-                        lazyListItems(state.recipes, key = { it.id }) { recipe ->
+                        lazyListItems(state.visible, key = { it.id }) { recipe ->
                             DrinkListItem(drink = recipe, onDrinkClick = onRecipeClick, onToggleSaved = {})
                         }
                     }
@@ -124,7 +157,7 @@ fun MyRecipesScreen(
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
                         verticalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
-                        items(state.recipes, key = { it.id }) { recipe ->
+                        items(state.visible, key = { it.id }) { recipe ->
                             DrinkCard(
                                 item = recipe,
                                 onClick = { onRecipeClick(recipe) },

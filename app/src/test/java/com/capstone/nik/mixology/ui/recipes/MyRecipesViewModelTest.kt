@@ -64,4 +64,15 @@ class MyRecipesViewModelTest {
 
         assertEquals("Error 500", viewModel.state.value.error)
     }
+
+    @Test
+    fun queryChanged_updatesTheSearch() = runTest {
+        val viewModel = MyRecipesViewModel(repository, NetworkMonitor.forTests(online = true), context)
+
+        viewModel.onIntent(MyRecipesIntent.QueryChanged("lime"))
+        assertEquals("lime", viewModel.state.value.query)
+
+        viewModel.onIntent(MyRecipesIntent.QueryChanged(""))
+        assertEquals("", viewModel.state.value.query)
+    }
 }

@@ -56,6 +56,9 @@ import com.capstone.nik.mixology.ui.components.DrinkImage
 import com.capstone.nik.mixology.ui.components.EmptyState
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 import java.util.Locale
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.semantics.clearAndSetSemantics
 
 @Composable
 fun RecipesHomeRoute(
@@ -200,25 +203,30 @@ private fun RecipeHeroCarousel(slides: List<HeroSlide>, onOpen: (Drink) -> Unit)
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        HorizontalPager(
-            state = pagerState,
-            pageSpacing = 12.dp,
-            verticalAlignment = Alignment.Top,
-            modifier = Modifier.fillMaxWidth().testTag("recipes_home_hero_pager"),
-        ) { page ->
-            val slide = slides[page]
-            when (slide) {
-                is HeroSlide.CanMake -> RecipeHeroCard(
-                    drink = slide.drink,
-                    onClick = { onOpen(slide.drink) },
-                    badge = stringResource(R.string.recipes_home_hero_can_make),
+        // The pager sizes each page on its own, so slides with a missing line would make the
+        // carousel jump. Invisible copies of every slide, with a 4:3 photo space and one line
+        // each of name, missing and ingredients, set the box to the tallest one; each real
+        // card fills its page, and its photo takes whatever the text doesn't use.
+        Box(modifier = Modifier.fillMaxWidth()) {
+            slides.forEach { slide ->
+                HeroSlideCard(
+                    slide = slide,
+                    onOpen = {},
+                    showImage = false,
+                    modifier = Modifier.alpha(0f).clearAndSetSemantics {},
                 )
-                is HeroSlide.Almost -> RecipeHeroCard(
-                    drink = slide.drink,
-                    onClick = { onOpen(slide.drink) },
-                    badge = stringResource(R.string.recipes_home_hero_almost),
-                    missing = missingSummary(slide.missing).takeIf { it.isNotEmpty() }
-                        ?.let { stringResource(R.string.recipes_home_hero_missing, it) },
+            }
+            HorizontalPager(
+                state = pagerState,
+                pageSpacing = 12.dp,
+                verticalAlignment = Alignment.Top,
+                modifier = Modifier.matchParentSize().testTag("recipes_home_hero_pager"),
+            ) { page ->
+                HeroSlideCard(
+                    slide = slides[page],
+                    onOpen = onOpen,
+                    modifier = Modifier.fillMaxHeight().testTag("recipes_home_hero"),
+                    fillHeight = true,
                 )
             }
         }
@@ -245,11 +253,46 @@ private fun RecipeHeroCarousel(slides: List<HeroSlide>, onOpen: (Drink) -> Unit)
 }
 
 @Composable
+private fun HeroSlideCard(
+    slide: HeroSlide,
+    onOpen: (Drink) -> Unit,
+    modifier: Modifier = Modifier,
+    showImage: Boolean = true,
+    fillHeight: Boolean = false,
+) {
+    when (slide) {
+        is HeroSlide.CanMake -> RecipeHeroCard(
+            drink = slide.drink,
+            onClick = { onOpen(slide.drink) },
+            badge = stringResource(R.string.recipes_home_hero_can_make),
+            modifier = modifier,
+            showImage = showImage,
+            fillHeight = fillHeight,
+        )
+        is HeroSlide.Almost -> RecipeHeroCard(
+            drink = slide.drink,
+            onClick = { onOpen(slide.drink) },
+            badge = stringResource(R.string.recipes_home_hero_almost),
+            missing = missingSummary(slide.missing).takeIf { it.isNotEmpty() }
+                ?.let { stringResource(R.string.recipes_home_hero_missing, it) },
+            modifier = modifier,
+            showImage = showImage,
+            fillHeight = fillHeight,
+        )
+    }
+}
+
+@Composable
 private fun RecipeHeroCard(
     drink: Drink,
     onClick: () -> Unit,
     badge: String? = null,
     missing: String? = null,
+    modifier: Modifier = Modifier.testTag("recipes_home_hero"),
+    /** Off for the invisible copies that only size the carousel. */
+    showImage: Boolean = true,
+    /** In the carousel: fill the page's height, giving the photo whatever the text doesn't use. */
+    fillHeight: Boolean = false,
 ) {
     val meta = drinkMeta(drink)
     val tag = if (badge != null) {
@@ -264,11 +307,17 @@ private fun RecipeHeroCard(
         onClick = onClick,
         shape = RoundedCornerShape(24.dp),
         color = MaterialTheme.colorScheme.surfaceContainer,
-        modifier = Modifier.fillMaxWidth().testTag("recipes_home_hero"),
+        modifier = modifier.fillMaxWidth(),
     ) {
-        Column {
-            Box(modifier = Modifier.fillMaxWidth().aspectRatio(4f / 3f)) {
-                DrinkImage(url = drink.thumbUrl, modifier = Modifier.fillMaxSize())
+        Column(modifier = if (fillHeight) Modifier.fillMaxHeight() else Modifier) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .then(if (fillHeight) Modifier.weight(1f) else Modifier.aspectRatio(4f / 3f)),
+            ) {
+                if (showImage) {
+                    DrinkImage(url = drink.thumbUrl, modifier = Modifier.fillMaxSize())
+                }
                 if (meta.isNotEmpty()) {
                     Text(
                         text = meta,
@@ -299,10 +348,13 @@ private fun RecipeHeroCard(
                             .padding(horizontal = 10.dp, vertical = 5.dp),
                     )
                 }
+                // One line each for the name, what's missing and the ingredients.
                 Text(
                     text = drink.name,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 if (missing != null) {
                     Text(
@@ -319,7 +371,7 @@ private fun RecipeHeroCard(
                         text = "$summary.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 2,
+                        maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
                 }

@@ -18,6 +18,7 @@ import com.capstone.nik.mixology.data.ShoppingItemEntity
 import com.capstone.nik.mixology.data.ShoppingSection
 import com.capstone.nik.mixology.ui.model.IngredientMeasure
 import com.capstone.nik.mixology.ui.theme.MixologyTheme
+import androidx.compose.ui.layout.positionInRoot
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -84,8 +85,9 @@ class ShoppingScreenTest {
     }
 
     @Test
-    fun checkedItem_showsClearChecked() {
+    fun checkedItem_showsDoneShopping_andClearCheckedInOverflow() {
         var cleared = 0
+        var reviewed = 0
         composeRule.setContent {
             MixologyTheme {
                 ShoppingScreen(
@@ -101,9 +103,13 @@ class ShoppingScreenTest {
                     onToggle = {},
                     onRemove = {},
                     onClearChecked = { cleared += 1 },
+                    onOpenReview = { reviewed += 1 },
                 )
             }
         }
+        composeRule.onNodeWithText("Done shopping").performClick()
+        assertEquals(1, reviewed)
+        composeRule.onNodeWithTag("shopping_overflow").performClick()
         composeRule.onNodeWithText("Clear checked").performClick()
         assertEquals(1, cleared)
     }
@@ -179,7 +185,8 @@ class ShoppingScreenTest {
             }
         }
         composeRule.onNodeWithText("1 of 3 checked").assertIsDisplayed()
-        composeRule.onNodeWithText("Margarita").performClick()
+        // "Margarita" also captions its checked item further down, so tap the header itself.
+        composeRule.onNodeWithTag("shopping_section_1").performClick()
         assertEquals(listOf("1"), opened)
     }
 
@@ -216,5 +223,119 @@ class ShoppingScreenTest {
         composeRule.onNodeWithText("Your list is empty").assertIsDisplayed()
         composeRule.onNodeWithTag("shopping_find_recipe").performClick()
         assertTrue(found == 1)
+    }
+
+    @Test
+    fun nothingChecked_hasNoDoneShopping() {
+        composeRule.setContent {
+            MixologyTheme {
+                ShoppingScreen(state = margaritaAndDaiquiri(), onToggle = {}, onRemove = {}, onClearChecked = {})
+            }
+        }
+        composeRule.onNodeWithTag("shopping_done").assertDoesNotExist()
+    }
+
+    @Test
+    fun reviewSheet_listsRows_marksBarItems_andConfirms() {
+        var confirmed = 0
+        val toggled = mutableListOf<String>()
+        val lime = ReviewRow("lime juice", "Lime juice", listOf("Margarita"), emptyList(), inBar = false)
+        val ice = ReviewRow("ice", "Ice", emptyList(), emptyList(), inBar = true)
+        composeRule.setContent {
+            MixologyTheme {
+                ShoppingScreen(
+                    state = margaritaAndDaiquiri(limeChecked = true).copy(
+                        review = ReviewUi(listOf(lime, ice), selected = setOf("lime juice")),
+                    ),
+                    onToggle = {},
+                    onRemove = {},
+                    onClearChecked = {},
+                    onToggleReviewRow = { toggled.add(it) },
+                    onConfirmReview = { confirmed += 1 },
+                )
+            }
+        }
+        composeRule.onNodeWithText("Add to My Bar?").assertIsDisplayed()
+        composeRule.onNodeWithText("Already in your bar").assertIsDisplayed()
+        composeRule.onNodeWithTag("review_row_ice").performClick()
+        composeRule.onNodeWithTag("review_row_lime juice").performClick()
+        assertEquals(listOf("lime juice"), toggled)
+        composeRule.onNodeWithText("Add 1 to My Bar").performClick()
+        assertEquals(1, confirmed)
+    }
+
+    @Test
+    fun checkedItems_moveToABottomSection_withTheirDrink() {
+        composeRule.setContent {
+            MixologyTheme {
+                ShoppingScreen(
+                    state = margaritaAndDaiquiri(limeChecked = true),
+                    onToggle = {},
+                    onRemove = {},
+                    onClearChecked = {},
+                )
+            }
+        }
+        composeRule.onNodeWithTag("shopping_checked_header").performScrollTo().assertIsDisplayed()
+        val header = composeRule.onNodeWithTag("shopping_checked_header").fetchSemanticsNode().positionInRoot.y
+        val checkedLime = composeRule.onNodeWithText("Lime juice").fetchSemanticsNode().positionInRoot.y
+        val tequila = composeRule.onNodeWithText("Tequila").fetchSemanticsNode().positionInRoot.y
+        assertTrue(tequila < header)
+        assertTrue(checkedLime > header)
+    }
+
+    @Test
+    fun overflowOffersHistory_andNotNowSkips() {
+        var history = 0
+        var skipped = 0
+        var dismissed = 0
+        val lime = ReviewRow("lime juice", "Lime juice", listOf("Margarita"), emptyList(), inBar = false)
+        composeRule.setContent {
+            MixologyTheme {
+                ShoppingScreen(
+                    state = margaritaAndDaiquiri(limeChecked = true).copy(
+                        review = ReviewUi(listOf(lime), selected = setOf("lime juice")),
+                    ),
+                    onToggle = {},
+                    onRemove = {},
+                    onClearChecked = {},
+                    onOpenHistory = { history += 1 },
+                    onSkipReview = { skipped += 1 },
+                    onDismissReview = { dismissed += 1 },
+                )
+            }
+        }
+        composeRule.onNodeWithTag("review_not_now").performClick()
+        assertEquals(1, skipped)
+        assertEquals(0, dismissed)
+    }
+
+    @Test
+    fun nothingChecked_hasNoOverflowMenu_historyLivesInTheHeader() {
+        composeRule.setContent {
+            MixologyTheme {
+                ShoppingScreen(state = margaritaAndDaiquiri(), onToggle = {}, onRemove = {}, onClearChecked = {})
+            }
+        }
+        composeRule.onNodeWithTag("shopping_overflow").assertDoesNotExist()
+        composeRule.onNodeWithText("Shopping history").assertDoesNotExist()
+    }
+
+    @Test
+    fun emptyList_stillOffersShoppingHistory() {
+        var history = 0
+        composeRule.setContent {
+            MixologyTheme {
+                ShoppingScreen(
+                    state = ShoppingUiState(),
+                    onToggle = {},
+                    onRemove = {},
+                    onClearChecked = {},
+                    onOpenHistory = { history += 1 },
+                )
+            }
+        }
+        composeRule.onNodeWithTag("shopping_empty_history").performClick()
+        assertEquals(1, history)
     }
 }

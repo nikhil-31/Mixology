@@ -109,6 +109,41 @@
     <string name="shopping_empty">Todavía no hay artículos. Añade ingredientes desde un cóctel.</string>
     <string name="shopping_clear_checked">Borrar marcados</string>
     <string name="shopping_remove_item">Eliminar artículo</string>
+    <string name="shopping_done">Compra terminada</string>
+    <string name="shopping_history">Historial de compras</string>
+    <string name="history_empty_title">Aún no hay compras</string>
+    <string name="history_empty">Toca Compra terminada después de comprar para guardar una.</string>
+    <string name="history_today">Hoy</string>
+    <string name="history_yesterday">Ayer</string>
+    <plurals name="history_trip_items">
+        <item quantity="one">%d artículo</item>
+        <item quantity="other">%d artículos</item>
+    </plurals>
+    <plurals name="history_trip_added">
+        <item quantity="one">%d añadido a Mi bar</item>
+        <item quantity="other">%d añadidos a Mi bar</item>
+    </plurals>
+    <string name="history_added_to_bar">Añadido a Mi bar</string>
+    <string name="history_bought">Comprado</string>
+    <string name="history_delete">Eliminar compra</string>
+    <string name="history_trip_missing">Esta compra ya no está en tu historial.</string>
+    <string name="history_saved">Guardado en el historial de compras</string>
+    <string name="shopping_checked_section">Marcados</string>
+    <string name="review_title">¿Añadir a Mi bar?</string>
+    <plurals name="review_subtitle">
+        <item quantity="one">Has marcado %d artículo</item>
+        <item quantity="other">Has marcado %d artículos</item>
+    </plurals>
+    <string name="review_already_in_bar">Ya está en tu bar</string>
+    <plurals name="review_add">
+        <item quantity="one">Añadir %d a Mi bar</item>
+        <item quantity="other">Añadir %d a Mi bar</item>
+    </plurals>
+    <string name="review_not_now">Ahora no</string>
+    <plurals name="shopping_added_to_bar">
+        <item quantity="one">%d añadido a Mi bar</item>
+        <item quantity="other">%d añadidos a Mi bar</item>
+    </plurals>
     <string name="shopping_empty_title">Tu lista está vacía</string>
     <string name="shopping_find_recipe">Buscar una receta</string>
     <string name="shopping_by_drink">Por bebida</string>

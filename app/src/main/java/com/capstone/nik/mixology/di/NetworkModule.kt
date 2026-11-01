@@ -9,6 +9,7 @@ import com.capstone.nik.mixology.Network.RecipeService
 import com.capstone.nik.mixology.Network.BarService
 import com.capstone.nik.mixology.Network.SavedService
 import com.capstone.nik.mixology.Network.ShoppingService
+import com.capstone.nik.mixology.Network.ShoppingTripService
 import com.capstone.nik.mixology.Network.ChatService
 import com.capstone.nik.mixology.Network.CocktailService
 import com.capstone.nik.mixology.Network.CocktailURLs
@@ -122,6 +123,12 @@ object NetworkModule {
     @Singleton
     fun provideShoppingService(@AuthenticatedClient client: OkHttpClient): ShoppingService {
         return retrofit(client).create(ShoppingService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideShoppingTripService(@AuthenticatedClient client: OkHttpClient): ShoppingTripService {
+        return retrofit(client).create(ShoppingTripService::class.java)
     }
 
     @Provides

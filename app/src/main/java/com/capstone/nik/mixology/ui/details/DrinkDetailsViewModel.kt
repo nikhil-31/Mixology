@@ -10,6 +10,7 @@ import com.capstone.nik.mixology.analytics.AnalyticsTracker
 import com.capstone.nik.mixology.Network.NetworkMonitor
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.isOnShoppingList
+import com.capstone.nik.mixology.repository.BarMatcher
 import com.capstone.nik.mixology.repository.DrinkRating
 import com.capstone.nik.mixology.repository.DrinkRepository
 import com.capstone.nik.mixology.repository.RatingRepository
@@ -54,7 +55,9 @@ class DrinkDetailsViewModel @Inject constructor(
         }
         viewModelScope.launch {
             repository.observeBar().collect { names ->
-                setState { copy(inBar = names.mapTo(mutableSetOf()) { it.trim().lowercase() }) }
+                setState {
+                    copy(inBar = names.map { BarMatcher.normalize(it) }.filterTo(mutableSetOf()) { it.isNotEmpty() })
+                }
             }
         }
         viewModelScope.launch {

@@ -12,12 +12,15 @@ import com.capstone.nik.mixology.repository.DrinkRepository
 import com.capstone.nik.mixology.repository.ImportedRecipe
 import com.capstone.nik.mixology.repository.RecipeDraft
 import com.capstone.nik.mixology.repository.RecipeRepository
+import kotlinx.coroutines.flow.first
+import com.capstone.nik.mixology.repository.ShoppingTripRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import com.capstone.nik.mixology.ui.model.IngredientMeasure
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -90,6 +93,11 @@ class ShoppingViewModelTest {
         }
     }
 
+    @Test
+    fun byIngredient_isTheDefaultView() {
+        assertTrue(viewModel.state.value.byIngredient)
+    }
+
     private val margarita = Drink(
         id = "1",
         name = "Margarita",
@@ -116,7 +124,7 @@ class ShoppingViewModelTest {
         val vm = ShoppingViewModel(repository, fake)
         vm.state.test {
             repository.addToShoppingList(mySour)
-            val shown = awaitItemUntil { s -> s.sections.any { it.drink?.name == "My Sour" } }
+            val shown = awaitItemUntil { s -> s.sections.any { it.drink?.name == "My Sour" && it.items.size == 2 } }
             assertEquals(listOf("Lemon", "Honey"), shown.sections.single().items.map { it.name })
             cancelAndIgnoreRemainingEvents()
         }
@@ -133,6 +141,89 @@ class ShoppingViewModelTest {
             cancelAndIgnoreRemainingEvents()
         }
         assertEquals(1, fake.loads)
+    }
+
+    /** Two drinks, Tequila already in the bar, Lime juice and Tequila checked; Rum still to buy. */
+    private suspend fun app.cash.turbine.ReceiveTurbine<ShoppingUiState>.checkSomeAndOpenReview(vm: ShoppingViewModel) {
+        repository.addToBar("Tequila")
+        repository.addToShoppingList(daiquiri)
+        repository.addToShoppingList(margarita)
+        val all = awaitItemUntil { it.items.size == 4 && it.bar.isNotEmpty() }
+        all.items.filter { it.name == "Lime juice" || it.name == "Tequila" }
+            .forEach { vm.onIntent(ShoppingIntent.Toggle(it)) }
+        awaitItemUntil { it.checkedCount == 3 }
+        vm.onIntent(ShoppingIntent.OpenReview)
+        val review = awaitItemUntil { it.review != null }.review!!
+        // Tequila is already in the bar, so only Lime juice is pre-selected.
+        assertEquals(setOf("lime juice"), review.selected)
+    }
+
+    @Test
+    fun addToBar_recordsTheTrip_addsToBar_andClearsCheckedItems() = runTest {
+        val trips = ShoppingTripRepository.inMemory()
+        val vm = ShoppingViewModel(repository, RecipeRepository.None, ShoppingPreferences.inMemory(), trips)
+        vm.state.test {
+            checkSomeAndOpenReview(vm)
+            vm.onIntent(ShoppingIntent.ConfirmReview)
+            val after = awaitItemUntil { it.review == null && it.items.size == 1 && "lime juice" in it.bar }
+            assertEquals(listOf("Rum"), after.items.map { it.name })
+            cancelAndIgnoreRemainingEvents()
+        }
+        val trip = trips.trips.first().single()
+        // One item per ingredient, as iOS records it: Lime juice (both drinks) and Tequila.
+        assertEquals(listOf("Lime juice", "Tequila"), trip.items.map { it.name })
+        assertEquals(listOf(true, false), trip.items.map { it.addedToBar })
+        // Needed by two drinks, so no single drink id; Tequila only by the Margarita.
+        assertEquals(listOf(null, "1"), trip.items.map { it.drinkId })
+    }
+
+    @Test
+    fun notNow_recordsTheTripWithNothingAdded_andClearsCheckedItems() = runTest {
+        val trips = ShoppingTripRepository.inMemory()
+        val vm = ShoppingViewModel(repository, RecipeRepository.None, ShoppingPreferences.inMemory(), trips)
+        vm.state.test {
+            checkSomeAndOpenReview(vm)
+            vm.onIntent(ShoppingIntent.SkipReview)
+            val after = awaitItemUntil { it.review == null && it.items.size == 1 }
+            assertEquals(listOf("Rum"), after.items.map { it.name })
+            assertTrue("lime juice" !in after.bar)
+            cancelAndIgnoreRemainingEvents()
+        }
+        val trip = trips.trips.first().single()
+        assertEquals(2, trip.items.size)
+        assertTrue(trip.items.none { it.addedToBar })
+    }
+
+    @Test
+    fun dismissingTheSheet_changesNothing() = runTest {
+        val trips = ShoppingTripRepository.inMemory()
+        val vm = ShoppingViewModel(repository, RecipeRepository.None, ShoppingPreferences.inMemory(), trips)
+        vm.state.test {
+            checkSomeAndOpenReview(vm)
+            vm.onIntent(ShoppingIntent.DismissReview)
+            val after = awaitItemUntil { it.review == null }
+            assertEquals(4, after.items.size)
+            assertEquals(3, after.checkedCount)
+            cancelAndIgnoreRemainingEvents()
+        }
+        assertTrue(trips.trips.first().isEmpty())
+    }
+
+    @Test
+    fun undo_restoresItems_takesBackTheBar_andDeletesTheTrip() = runTest {
+        val trips = ShoppingTripRepository.inMemory()
+        val vm = ShoppingViewModel(repository, RecipeRepository.None, ShoppingPreferences.inMemory(), trips)
+        vm.state.test {
+            checkSomeAndOpenReview(vm)
+            vm.onIntent(ShoppingIntent.ConfirmReview)
+            awaitItemUntil { it.items.size == 1 && "lime juice" in it.bar }
+            vm.onIntent(ShoppingIntent.Undo)
+            val undone = awaitItemUntil { it.items.size == 4 && "lime juice" !in it.bar }
+            assertTrue("tequila" in undone.bar)
+            assertEquals(3, undone.checkedCount)
+            cancelAndIgnoreRemainingEvents()
+        }
+        assertTrue(trips.trips.first().isEmpty())
     }
 
     @Test
@@ -184,8 +275,8 @@ class ShoppingViewModelTest {
             val done = awaitItemUntil { s -> s.items.filter { it.name == "Lime juice" }.all { it.checked } }
             assertEquals(2, done.checkedCount)
 
-            viewModel.onIntent(ShoppingIntent.SetByIngredient(true))
-            assertTrue(awaitItemUntil { it.byIngredient }.byIngredient)
+            viewModel.onIntent(ShoppingIntent.SetByIngredient(false))
+            assertFalse(awaitItemUntil { !it.byIngredient }.byIngredient)
             cancelAndIgnoreRemainingEvents()
         }
     }

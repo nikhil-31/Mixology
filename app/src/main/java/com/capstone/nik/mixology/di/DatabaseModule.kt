@@ -5,6 +5,7 @@ import com.capstone.nik.mixology.data.BarDao
 import com.capstone.nik.mixology.data.DrinkDao
 import com.capstone.nik.mixology.data.MixologyDatabase
 import com.capstone.nik.mixology.data.ShoppingDao
+import com.capstone.nik.mixology.data.ShoppingTripDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,4 +31,7 @@ object DatabaseModule {
 
     @Provides
     fun provideBarDao(database: MixologyDatabase): BarDao = database.barDao()
+
+    @Provides
+    fun provideShoppingTripDao(database: MixologyDatabase): ShoppingTripDao = database.shoppingTripDao()
 }

@@ -14,6 +14,7 @@ import com.capstone.nik.mixology.Network.ConnectionError
 import com.capstone.nik.mixology.Network.NetworkMonitor
 import com.capstone.nik.mixology.ui.theme.MixologyTheme
 import kotlinx.coroutines.test.runTest
+import androidx.compose.ui.layout.positionInRoot
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -52,6 +53,7 @@ class MixologyAppChromeTest {
         composeRule.onNodeWithText("Home").assertIsDisplayed()
         composeRule.onNodeWithContentDescription("Up navigation").assertDoesNotExist()
         composeRule.onNodeWithTag("header_settings").assertIsDisplayed()
+        composeRule.onNodeWithTag("header_history").assertDoesNotExist()
         composeRule.onNodeWithContentDescription("Search").performClick()
         composeRule.onNodeWithContentDescription("Settings").performClick()
         assertEquals(listOf("search", "settings"), events)
@@ -78,6 +80,32 @@ class MixologyAppChromeTest {
         composeRule.onNodeWithTag("header_settings").assertIsDisplayed()
         composeRule.onNodeWithContentDescription("Up navigation").performClick()
         assertTrue(up)
+    }
+
+    @Test
+    fun screenHeader_showsHistoryNextToSettings_onlyWhenGiven() {
+        val events = mutableListOf<String>()
+        composeRule.setContent {
+            MixologyTheme {
+                ScreenHeader(
+                    title = "Shopping list",
+                    showUp = false,
+                    showSearch = false,
+                    onUp = {},
+                    onSearch = {},
+                    onSettings = { events.add("settings") },
+                    onHistory = { events.add("history") },
+                )
+            }
+        }
+
+        val history = composeRule.onNodeWithTag("header_history").fetchSemanticsNode().positionInRoot
+        val settings = composeRule.onNodeWithTag("header_settings").fetchSemanticsNode().positionInRoot
+        // Right beside Settings, on the same row.
+        assertTrue(history.x < settings.x)
+        assertEquals(history.y, settings.y)
+        composeRule.onNodeWithContentDescription("Shopping history").performClick()
+        assertEquals(listOf("history"), events)
     }
 
     @Test

@@ -23,6 +23,11 @@ import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.ShoppingCart
+import androidx.compose.material3.Button
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -78,6 +83,7 @@ fun ShoppingRoute(
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onDrinkClick: (Drink) -> Unit = {},
     onFindRecipe: () -> Unit = {},
+    onOpenHistory: () -> Unit = {},
     viewModel: ShoppingViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -89,7 +95,12 @@ fun ShoppingRoute(
     CollectMviEffects(viewModel.effects) { effect ->
         when (effect) {
             is ShoppingEffect.ShowUndo -> {
-                val message = context.resources.getQuantityString(effect.messageRes, effect.count, effect.count)
+                val count = effect.count
+                val message = if (count == null) {
+                    context.getString(effect.messageRes)
+                } else {
+                    context.resources.getQuantityString(effect.messageRes, count, count)
+                }
                 // A newer removal replaces the older prompt, so Undo always means the latest one.
                 snackbarHostState.currentSnackbarData?.dismiss()
                 val result = snackbarHostState.showSnackbar(
@@ -114,6 +125,12 @@ fun ShoppingRoute(
         onDrinkClick = onDrinkClick,
         onRefresh = { viewModel.onIntent(ShoppingIntent.Refresh) },
         onFindRecipe = onFindRecipe,
+        onOpenReview = { viewModel.onIntent(ShoppingIntent.OpenReview) },
+        onDismissReview = { viewModel.onIntent(ShoppingIntent.DismissReview) },
+        onSkipReview = { viewModel.onIntent(ShoppingIntent.SkipReview) },
+        onOpenHistory = onOpenHistory,
+        onToggleReviewRow = { viewModel.onIntent(ShoppingIntent.ToggleReviewRow(it)) },
+        onConfirmReview = { viewModel.onIntent(ShoppingIntent.ConfirmReview) },
         onShare = {
             shoppingShareText(state.sections, state.byIngredient, otherLabel)?.let { text ->
                 val send = Intent(Intent.ACTION_SEND).apply {
@@ -141,14 +158,29 @@ fun ShoppingScreen(
     onRefresh: () -> Unit = {},
     onFindRecipe: () -> Unit = {},
     onShare: () -> Unit = {},
+    onOpenReview: () -> Unit = {},
+    onDismissReview: () -> Unit = {},
+    onSkipReview: () -> Unit = {},
+    onOpenHistory: () -> Unit = {},
+    onToggleReviewRow: (String) -> Unit = {},
+    onConfirmReview: () -> Unit = {},
 ) {
+    state.review?.let { review ->
+        ShoppingReviewSheet(
+            review = review,
+            onToggle = onToggleReviewRow,
+            onConfirm = onConfirmReview,
+            onDismiss = onDismissReview,
+            onSkip = onSkipReview,
+        )
+    }
     PullToRefreshBox(
         isRefreshing = state.refreshing,
         onRefresh = onRefresh,
         modifier = Modifier.fillMaxSize(),
     ) {
         if (state.sections.isEmpty()) {
-            ShoppingEmpty(onFindRecipe = onFindRecipe)
+            ShoppingEmpty(onFindRecipe = onFindRecipe, onOpenHistory = onOpenHistory)
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -160,12 +192,20 @@ fun ShoppingScreen(
                         onByIngredientChange = onByIngredientChange,
                         onClearChecked = onClearChecked,
                         onShare = onShare,
+                        onDoneShopping = onOpenReview,
+                        onOpenHistory = onOpenHistory,
                     )
                 }
                 if (state.byIngredient) {
-                    combinedRows(state.combined, onToggleCombined, onRemoveCombined)
+                    val (open, done) = state.combined.partition { !it.checked }
+                    combinedRows(open, onToggleCombined, onRemoveCombined)
+                    if (done.isNotEmpty()) {
+                        item(key = "checked-header") { CheckedHeader() }
+                        combinedRows(done.sortedBy { it.key }, onToggleCombined, onRemoveCombined)
+                    }
                 } else {
-                    state.sections.forEach { section ->
+                    val (open, done) = splitChecked(state.sections)
+                    open.forEach { section ->
                         item(key = "section-${section.drinkId}") {
                             ShoppingSectionHeader(
                                 section = section,
@@ -173,7 +213,7 @@ fun ShoppingScreen(
                                 onRemoveDrink = onRemoveDrink,
                             )
                         }
-                        items(sortCheckedLast(section.items), key = { it.id }) { item ->
+                        items(section.items, key = { it.id }) { item ->
                             SwipeToRemove(onRemove = { onRemove(item) }) {
                                 ShoppingRow(
                                     name = item.name,
@@ -181,6 +221,20 @@ fun ShoppingScreen(
                                     measure = section.measure(item),
                                     checked = item.checked,
                                     onToggle = { onToggle(item) },
+                                )
+                            }
+                        }
+                    }
+                    if (done.isNotEmpty()) {
+                        item(key = "checked-header") { CheckedHeader() }
+                        items(done, key = { it.item.id }) { row ->
+                            SwipeToRemove(onRemove = { onRemove(row.item) }) {
+                                ShoppingRow(
+                                    name = row.item.name,
+                                    detail = row.drinkName,
+                                    measure = row.measure,
+                                    checked = true,
+                                    onToggle = { onToggle(row.item) },
                                 )
                             }
                         }
@@ -215,9 +269,12 @@ private fun ShoppingControls(
     onByIngredientChange: (Boolean) -> Unit,
     onClearChecked: () -> Unit,
     onShare: () -> Unit,
+    onDoneShopping: () -> Unit,
+    onOpenHistory: () -> Unit,
 ) {
     val colors = MaterialTheme.colorScheme
     val allDone = state.total > 0 && state.checkedCount == state.total
+    var overflow by remember { mutableStateOf(false) }
     Column(modifier = Modifier.padding(horizontal = 16.dp).padding(top = 4.dp, bottom = 8.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             SingleChoiceSegmentedButtonRow(modifier = Modifier.weight(1f)) {
@@ -241,6 +298,25 @@ private fun ShoppingControls(
             ) {
                 Icon(Icons.Outlined.Share, contentDescription = stringResource(R.string.shopping_share))
             }
+            // Shopping history sits in the screen header, next to Settings.
+            if (state.checkedCount > 0) {
+                Box {
+                    IconButton(onClick = { overflow = true }, modifier = Modifier.testTag("shopping_overflow")) {
+                        Icon(Icons.Outlined.MoreVert, contentDescription = stringResource(R.string.shopping_more_options))
+                    }
+                    DropdownMenu(expanded = overflow, onDismissRequest = { overflow = false }) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.shopping_clear_checked)) },
+                            leadingIcon = { Icon(Icons.Outlined.Delete, contentDescription = null) },
+                            onClick = {
+                                overflow = false
+                                onClearChecked()
+                            },
+                            modifier = Modifier.testTag("shopping_clear_checked"),
+                        )
+                    }
+                }
+            }
         }
         Row(
             modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
@@ -257,8 +333,9 @@ private fun ShoppingControls(
                 color = if (allDone) colors.primary else colors.onSurface,
             )
             if (state.checkedCount > 0) {
-                TextButton(onClick = onClearChecked, modifier = Modifier.testTag("shopping_clear_checked")) {
-                    Text(stringResource(R.string.shopping_clear_checked))
+                // Done shopping reviews what was bought and offers to move it into My Bar.
+                FilledTonalButton(onClick = onDoneShopping, modifier = Modifier.testTag("shopping_done")) {
+                    Text(stringResource(R.string.shopping_done))
                 }
             }
         }
@@ -268,6 +345,20 @@ private fun ShoppingControls(
             drawStopIndicator = {},
         )
     }
+}
+
+/** Heads the bottom of the list, where checked items wait until they're cleared. */
+@Composable
+private fun CheckedHeader() {
+    Text(
+        text = stringResource(R.string.shopping_checked_section),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 4.dp)
+            .testTag("shopping_checked_header"),
+        style = MaterialTheme.typography.titleSmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
 }
 
 @Composable
@@ -424,7 +515,7 @@ private fun ShoppingRow(
 }
 
 @Composable
-private fun ShoppingEmpty(onFindRecipe: () -> Unit) {
+private fun ShoppingEmpty(onFindRecipe: () -> Unit, onOpenHistory: () -> Unit) {
     // Scrollable so pull-to-refresh still works on an empty list.
     Column(
         modifier = Modifier
@@ -457,6 +548,109 @@ private fun ShoppingEmpty(onFindRecipe: () -> Unit) {
         )
         FilledTonalButton(onClick = onFindRecipe, modifier = Modifier.testTag("shopping_find_recipe")) {
             Text(stringResource(R.string.shopping_find_recipe))
+        }
+        // With nothing listed there's no menu, so history is offered here too.
+        TextButton(onClick = onOpenHistory, modifier = Modifier.padding(top = 8.dp).testTag("shopping_empty_history")) {
+            Text(stringResource(R.string.shopping_history))
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ShoppingReviewSheet(
+    review: ReviewUi,
+    onToggle: (String) -> Unit,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+    onSkip: () -> Unit,
+) {
+    val colors = MaterialTheme.colorScheme
+    val checkedItems = review.rows.sumOf { it.items.size }
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        modifier = Modifier.testTag("shopping_review"),
+    ) {
+        Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)) {
+            Text(
+                text = stringResource(R.string.review_title),
+                style = MaterialTheme.typography.headlineSmall,
+                color = colors.onSurface,
+            )
+            Text(
+                text = pluralStringResource(R.plurals.review_subtitle, checkedItems, checkedItems),
+                modifier = Modifier.padding(top = 4.dp, bottom = 8.dp),
+                style = MaterialTheme.typography.bodyMedium,
+                color = colors.onSurfaceVariant,
+            )
+        }
+        LazyColumn(modifier = Modifier.fillMaxWidth().weight(1f, fill = false)) {
+            items(review.rows, key = { it.key }) { row ->
+                ReviewRowItem(row = row, selected = row.key in review.selected, onToggle = { onToggle(row.key) })
+            }
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(horizontal = 24.dp, vertical = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.End),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            TextButton(onClick = onSkip, modifier = Modifier.testTag("review_not_now")) {
+                Text(stringResource(R.string.review_not_now))
+            }
+            Button(
+                onClick = onConfirm,
+                enabled = review.canConfirm,
+                modifier = Modifier.testTag("review_confirm"),
+            ) {
+                val adding = review.toAdd.size
+                Text(pluralStringResource(R.plurals.review_add, adding, adding))
+            }
+        }
+    }
+}
+
+@Composable
+private fun ReviewRowItem(row: ReviewRow, selected: Boolean, onToggle: () -> Unit) {
+    val colors = MaterialTheme.colorScheme
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(enabled = !row.inBar, onClick = onToggle)
+            .padding(horizontal = 12.dp, vertical = 4.dp)
+            .testTag("review_row_${row.key}"),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        if (row.inBar) {
+            Box(modifier = Modifier.size(48.dp), contentAlignment = Alignment.Center) {
+                Icon(Icons.Filled.CheckCircle, contentDescription = null, tint = colors.primary)
+            }
+        } else {
+            Checkbox(checked = selected, onCheckedChange = { onToggle() })
+        }
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = row.name,
+                style = MaterialTheme.typography.bodyLarge,
+                color = if (row.inBar) colors.onSurfaceVariant else colors.onSurface,
+            )
+            val caption = if (row.inBar) {
+                stringResource(R.string.review_already_in_bar)
+            } else {
+                row.drinkNames.joinToString(" · ")
+            }
+            if (caption.isNotEmpty()) {
+                Text(
+                    text = caption,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colors.onSurfaceVariant,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
         }
     }
 }

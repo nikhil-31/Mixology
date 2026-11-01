@@ -123,6 +123,41 @@
     <string name="shopping_empty">No items yet. Add ingredients from a cocktail.</string>
     <string name="shopping_clear_checked">Clear checked</string>
     <string name="shopping_remove_item">Remove item</string>
+    <string name="shopping_done">Done shopping</string>
+    <string name="shopping_history">Shopping history</string>
+    <string name="history_empty_title">No shopping trips yet</string>
+    <string name="history_empty">Tap Done shopping after a shop to record one.</string>
+    <string name="history_today">Today</string>
+    <string name="history_yesterday">Yesterday</string>
+    <plurals name="history_trip_items">
+        <item quantity="one">%d item</item>
+        <item quantity="other">%d items</item>
+    </plurals>
+    <plurals name="history_trip_added">
+        <item quantity="one">%d added to My Bar</item>
+        <item quantity="other">%d added to My Bar</item>
+    </plurals>
+    <string name="history_added_to_bar">Added to My Bar</string>
+    <string name="history_bought">Bought</string>
+    <string name="history_delete">Delete trip</string>
+    <string name="history_trip_missing">This trip is no longer in your history.</string>
+    <string name="history_saved">Saved to Shopping history</string>
+    <string name="shopping_checked_section">Checked</string>
+    <string name="review_title">Add to My Bar?</string>
+    <plurals name="review_subtitle">
+        <item quantity="one">You checked %d item</item>
+        <item quantity="other">You checked %d items</item>
+    </plurals>
+    <string name="review_already_in_bar">Already in your bar</string>
+    <plurals name="review_add">
+        <item quantity="one">Add %d to My Bar</item>
+        <item quantity="other">Add %d to My Bar</item>
+    </plurals>
+    <string name="review_not_now">Not now</string>
+    <plurals name="shopping_added_to_bar">
+        <item quantity="one">Added %d to My Bar</item>
+        <item quantity="other">Added %d to My Bar</item>
+    </plurals>
     <string name="shopping_empty_title">Your list is empty</string>
     <string name="shopping_find_recipe">Find a recipe</string>
     <string name="shopping_by_drink">By drink</string>

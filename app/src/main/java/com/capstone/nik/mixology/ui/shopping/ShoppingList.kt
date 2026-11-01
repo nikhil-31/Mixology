@@ -4,12 +4,32 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.capstone.nik.mixology.data.ShoppingItemEntity
 import com.capstone.nik.mixology.data.ShoppingSection
+import com.capstone.nik.mixology.repository.BarMatcher
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
-/** Unchecked items first, then checked ones; each group keeps its incoming (recipe) order. */
-fun sortCheckedLast(items: List<ShoppingItemEntity>): List<ShoppingItemEntity> =
-    items.filterNot { it.checked } + items.filter { it.checked }
+/** A checked item, shown in the list's bottom "Checked" section with the drink it came from. */
+data class CheckedShoppingRow(
+    val item: ShoppingItemEntity,
+    val drinkName: String?,
+    val measure: String,
+)
+
+/**
+ * Splits the list into drink sections holding only what's still to buy (drinks with nothing left
+ * drop out) and the checked items, alphabetical, for the bottom of the list.
+ */
+fun splitChecked(sections: List<ShoppingSection>): Pair<List<ShoppingSection>, List<CheckedShoppingRow>> {
+    val open = sections
+        .map { section -> section.copy(items = section.items.filterNot { it.checked }) }
+        .filter { it.items.isNotEmpty() }
+    val checked = sections
+        .flatMap { section ->
+            section.items.filter { it.checked }.map { CheckedShoppingRow(it, section.drink?.name, section.measure(it)) }
+        }
+        .sortedWith(compareBy<CheckedShoppingRow> { normalizeIngredient(it.item.name) }.thenBy { it.drinkName.orEmpty() })
+    return open to checked
+}
 
 /** One ingredient to buy, merged across every drink on the list that needs it. */
 data class CombinedShoppingItem(
@@ -48,6 +68,29 @@ fun combineByIngredient(sections: List<ShoppingSection>): List<CombinedShoppingI
         .sortedWith(compareBy<CombinedShoppingItem> { it.checked }.thenBy { it.key })
 }
 
+/** A checked ingredient on the Done shopping review. */
+data class ReviewRow(
+    val key: String,
+    val name: String,
+    val drinkNames: List<String>,
+    val items: List<ShoppingItemEntity>,
+    /** Already in My Bar, so there's nothing to add; it only leaves the list. */
+    val inBar: Boolean,
+)
+
+/** The checked items merged by ingredient: ones to add first, then ones already in the bar. */
+fun reviewRows(sections: List<ShoppingSection>, bar: Collection<String>): List<ReviewRow> {
+    // Same matching as My Bar's recommendations and iOS, so "Lemon" also covers "Lemon vodka".
+    val owned = bar.map { BarMatcher.normalize(it) }.filterTo(HashSet()) { it.isNotEmpty() }
+    val checkedOnly = sections.map { section -> section.copy(items = section.items.filter { it.checked }) }
+        .filter { it.items.isNotEmpty() }
+    return combineByIngredient(checkedOnly)
+        .map { row ->
+            ReviewRow(row.key, row.name, row.drinkNames, row.items, inBar = BarMatcher.inBar(row.name, owned))
+        }
+        .sortedWith(compareBy<ReviewRow> { it.inBar }.thenBy { it.key })
+}
+
 /**
  * The items still to buy as a plain-text checklist, grouped under drink names (or flat when
  * combined). Null when everything is checked.
@@ -83,10 +126,10 @@ class ShoppingPreferences private constructor(private val prefs: SharedPreferenc
     constructor(@ApplicationContext context: Context) :
         this(context.getSharedPreferences(PREFS, Context.MODE_PRIVATE))
 
-    private var memory = false
+    private var memory = DEFAULT_BY_INGREDIENT
 
     var byIngredient: Boolean
-        get() = prefs?.getBoolean(KEY_BY_INGREDIENT, false) ?: memory
+        get() = prefs?.getBoolean(KEY_BY_INGREDIENT, DEFAULT_BY_INGREDIENT) ?: memory
         set(value) {
             if (prefs != null) prefs.edit().putBoolean(KEY_BY_INGREDIENT, value).apply() else memory = value
         }
@@ -94,6 +137,9 @@ class ShoppingPreferences private constructor(private val prefs: SharedPreferenc
     companion object {
         private const val PREFS = "mixology"
         private const val KEY_BY_INGREDIENT = "shopping_by_ingredient"
+
+        /** By ingredient is what you shop from; a choice made on the switch is kept. */
+        const val DEFAULT_BY_INGREDIENT = true
 
         /** For tests and previews: nothing is written to disk. */
         fun inMemory() = ShoppingPreferences(null)

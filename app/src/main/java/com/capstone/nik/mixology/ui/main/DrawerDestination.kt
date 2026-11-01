@@ -32,6 +32,10 @@ const val DETAILS_ROUTE = "details/{id}?name={name}&thumb={thumb}"
 const val ADA_MORE_ROUTE = "ada_more?q={q}&exclude={exclude}"
 const val RECIPE_EDITOR_ROUTE = "recipe_editor?id={id}"
 const val IMPORT_RECIPE_ROUTE = "recipe_import"
+const val SHOPPING_HISTORY_ROUTE = "shopping_history"
+const val SHOPPING_TRIP_ROUTE = "shopping_history/{id}"
+
+fun shoppingTripRoute(id: Long) = "shopping_history/$id"
 
 fun gridRoute(filter: DrinkFilter) = "grid/${encodeRouteArg(filter.name)}"
 
@@ -65,8 +69,11 @@ fun recipeEditorRoute(id: String? = null): String = "recipe_editor?id=${encodeRo
 fun isOverlayRoute(route: String?): Boolean {
     if (route == null) return false
     return isSearchRoute(route) || isDetailsRoute(route) || isAdaMoreRoute(route) ||
-        isRecipeEditorRoute(route) || isImportRecipeRoute(route)
+        isRecipeEditorRoute(route) || isImportRecipeRoute(route) || isShoppingHistoryRoute(route)
 }
+
+/** Shopping history and a trip in it: full-screen pages with their own back button. */
+fun isShoppingHistoryRoute(route: String?): Boolean = route?.startsWith(SHOPPING_HISTORY_ROUTE) == true
 
 fun isImportRecipeRoute(route: String?): Boolean = route?.startsWith(IMPORT_RECIPE_ROUTE) == true
 

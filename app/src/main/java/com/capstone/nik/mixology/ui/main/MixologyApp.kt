@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -68,6 +69,8 @@ import com.capstone.nik.mixology.ui.grid.DrinkGridRoute
 import com.capstone.nik.mixology.ui.hot.HotRoute
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 import com.capstone.nik.mixology.ui.recipes.ImportRecipeRoute
+import com.capstone.nik.mixology.ui.shopping.history.ShoppingHistoryRoute
+import com.capstone.nik.mixology.ui.shopping.history.ShoppingTripRoute
 import com.capstone.nik.mixology.ui.recipes.MyRecipesRoute
 import com.capstone.nik.mixology.ui.recipes.RecipesHomeRoute
 import com.capstone.nik.mixology.ui.recipes.recipesGreeting
@@ -268,6 +271,11 @@ fun MixologyApp(
                         onSettings = {
                             viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Settings))
                         },
+                        onHistory = if (state.destination is DrawerDestination.Shopping) {
+                            { navController.navigate(SHOPPING_HISTORY_ROUTE) { launchSingleTop = true } }
+                        } else {
+                            null
+                        },
                     )
                 }
                 connectionBannerError(online, serverReachable)?.let { error ->
@@ -428,6 +436,24 @@ fun MixologyApp(
                                 onFindRecipe = {
                                     viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.RecipesHome))
                                 },
+                                onOpenHistory = {
+                                    navController.navigate(SHOPPING_HISTORY_ROUTE) { launchSingleTop = true }
+                                },
+                            )
+                        }
+                        composable(SHOPPING_HISTORY_ROUTE) {
+                            ShoppingHistoryRoute(
+                                onBack = { navController.navigateUp() },
+                                onOpenTrip = { id -> navController.navigate(shoppingTripRoute(id)) },
+                            )
+                        }
+                        composable(
+                            route = SHOPPING_TRIP_ROUTE,
+                            arguments = listOf(navArgument("id") { type = NavType.LongType }),
+                        ) { entry ->
+                            ShoppingTripRoute(
+                                id = entry.arguments?.getLong("id") ?: 0L,
+                                onBack = { navController.navigateUp() },
                             )
                         }
                         composable(RECIPES_HOME_ROUTE) {
@@ -572,6 +598,8 @@ internal fun ScreenHeader(
     onSearch: () -> Unit,
     onSettings: () -> Unit,
     settingsSelected: Boolean = false,
+    /** Shown next to Settings on the Shopping tab. */
+    onHistory: (() -> Unit)? = null,
 ) {
     Row(
         modifier = Modifier
@@ -603,6 +631,15 @@ internal fun ScreenHeader(
                 Icon(
                     imageVector = Icons.Default.Search,
                     contentDescription = stringResource(R.string.action_search),
+                    tint = MaterialTheme.colorScheme.onBackground,
+                )
+            }
+        }
+        if (onHistory != null) {
+            IconButton(onClick = onHistory, modifier = Modifier.testTag("header_history")) {
+                Icon(
+                    imageVector = Icons.Outlined.History,
+                    contentDescription = stringResource(R.string.shopping_history),
                     tint = MaterialTheme.colorScheme.onBackground,
                 )
             }

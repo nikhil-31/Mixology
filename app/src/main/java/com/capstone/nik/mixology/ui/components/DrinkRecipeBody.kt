@@ -40,6 +40,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.capstone.nik.mixology.R
+import com.capstone.nik.mixology.repository.BarMatcher
 import com.capstone.nik.mixology.ui.model.IngredientMeasure
 import com.capstone.nik.mixology.ui.theme.MixologyDetailsTitle
 import com.capstone.nik.mixology.ui.theme.MixologySectionTitle
@@ -63,7 +64,7 @@ fun DrinkRecipeBody(
     extraBottomContent: @Composable () -> Unit = {},
     /** False for the user's own recipes, which can't be saved. */
     showSave: Boolean = true,
-    /** Lower-cased names of the ingredients in My Bar. */
+    /** Names in My Bar, normalised with [BarMatcher.normalize]. */
     inBar: Set<String> = emptySet(),
     /** Primary actions, shown right under the title and chips. */
     actions: @Composable () -> Unit = {},
@@ -116,7 +117,7 @@ fun DrinkRecipeBody(
         // Ingredients first: you gather before you mix.
         if (ingredients.isNotEmpty()) {
             RecipeSectionTitle(stringResource(R.string.detail_screen_ingredients))
-            val haveCount = ingredients.count { it.ingredient.trim().lowercase() in inBar }
+            val haveCount = if (inBar.isEmpty()) 0 else ingredients.count { BarMatcher.inBar(it.ingredient, inBar) }
             if (haveCount > 0) {
                 Text(
                     text = pluralStringResource(
@@ -144,7 +145,7 @@ fun DrinkRecipeBody(
                             color = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f),
                         )
                     }
-                    IngredientRow(item, inBar = item.ingredient.trim().lowercase() in inBar)
+                    IngredientRow(item, inBar = inBar.isNotEmpty() && BarMatcher.inBar(item.ingredient, inBar))
                 }
             }
         }

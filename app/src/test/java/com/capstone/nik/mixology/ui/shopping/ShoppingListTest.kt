@@ -30,14 +30,15 @@ class ShoppingListTest {
     )
 
     @Test
-    fun sortCheckedLast_keepsOrderWithinEachGroup() {
-        val items = listOf(
-            ShoppingItemEntity(id = 1, name = "a", checked = true),
-            ShoppingItemEntity(id = 2, name = "b"),
-            ShoppingItemEntity(id = 3, name = "c", checked = true),
-            ShoppingItemEntity(id = 4, name = "d"),
-        )
-        assertEquals(listOf(2L, 4L, 1L, 3L), sortCheckedLast(items).map { it.id })
+    fun splitChecked_movesCheckedToTheBottom_andDropsFinishedDrinks() {
+        // Margarita: Tequila open, Lime juice checked. Daiquiri: its only item checked.
+        val (open, checked) = splitChecked(sections(limeChecked = true, daiquiriChecked = true))
+        assertEquals(listOf("1"), open.map { it.drinkId })
+        assertEquals(listOf("Tequila"), open.single().items.map { it.name })
+        // Alphabetical (same name: by drink), each with the drink it came from and its measure.
+        assertEquals(listOf(3L, 2L), checked.map { it.item.id })
+        assertEquals(listOf("Daiquiri", "Margarita"), checked.map { it.drinkName })
+        assertEquals(listOf("3/4 oz", "1 oz"), checked.map { it.measure })
     }
 
     @Test
@@ -116,5 +117,40 @@ class ShoppingListTest {
 
         val plain = sections()
         assertTrue(plain === com.capstone.nik.mixology.data.withRecipes(plain, listOf(mySour)))
+    }
+
+    @Test
+    fun reviewRows_onlyChecked_mergedAcrossDrinks_barMarked_toAddFirst() {
+        val checked = sections(limeChecked = true, daiquiriChecked = true).map { section ->
+            if (section.drinkId == "1") {
+                section.copy(items = section.items.map { if (it.name == "Tequila") it.copy(checked = true) else it })
+            } else {
+                section
+            }
+        }
+        val rows = reviewRows(checked, bar = listOf("  TEQUILA "))
+        assertEquals(listOf("Lime juice", "Tequila"), rows.map { it.name })
+        assertEquals(listOf(false, true), rows.map { it.inBar })
+        assertEquals(listOf(2L, 3L), rows.first().items.map { it.id })
+        assertEquals(listOf("Margarita", "Daiquiri"), rows.first().drinkNames)
+
+        // Unchecked items never reach the review.
+        assertTrue(reviewRows(sections(), bar = emptyList()).isEmpty())
+    }
+
+    @Test
+    fun reviewRows_matchBarLikeIos_partialNamesCountAsOwned() {
+        val vodka = listOf(
+            ShoppingSection(
+                "", null,
+                listOf(
+                    ShoppingItemEntity(id = 1, name = "Lemon vodka", checked = true),
+                    ShoppingItemEntity(id = 2, name = "Honey", checked = true),
+                ),
+            ),
+        )
+        val rows = reviewRows(vodka, bar = listOf("Lemon"))
+        assertTrue(rows.first { it.name == "Lemon vodka" }.inBar)
+        assertFalse(rows.first { it.name == "Honey" }.inBar)
     }
 }

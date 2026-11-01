@@ -26,6 +26,8 @@ fun analyticsScreenName(route: String?): String? {
         path.startsWith("ada") -> SCREEN_ADA
         path.startsWith("catalog") -> SCREEN_CATALOG
         path.startsWith("bar") -> SCREEN_MY_BAR
+        path.startsWith("shopping_history/") -> SCREEN_SHOPPING_TRIP
+        path.startsWith("shopping_history") -> SCREEN_SHOPPING_HISTORY
         path.startsWith("shopping") -> SCREEN_SHOPPING_LIST
         path.startsWith("recipe_editor") -> SCREEN_RECIPE_EDITOR
         path.startsWith("recipe_import") -> SCREEN_RECIPE_IMPORT
@@ -45,6 +47,8 @@ const val SCREEN_ADA_MORE = "ada_more"
 const val SCREEN_CATALOG = "catalog"
 const val SCREEN_MY_BAR = "my_bar"
 const val SCREEN_SHOPPING_LIST = "shopping_list"
+const val SCREEN_SHOPPING_HISTORY = "shopping_history"
+const val SCREEN_SHOPPING_TRIP = "shopping_trip"
 const val SCREEN_MY_RECIPES = "my_recipes"
 const val SCREEN_RECIPES_HOME = "recipes_home"
 const val SCREEN_RECIPE_EDITOR = "recipe_editor"

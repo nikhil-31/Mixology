@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.outlined.EditNote
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material.icons.outlined.Policy
 import androidx.compose.material.icons.outlined.PrivacyTip
@@ -69,6 +70,7 @@ fun playSubscriptionsUrl(productId: String?, packageName: String): String {
 
 @Composable
 fun SettingsRoute(
+    onSaved: () -> Unit = {},
     onCatalog: () -> Unit = {},
     onShoppingList: () -> Unit = {},
     onMyRecipes: () -> Unit = {},
@@ -102,6 +104,7 @@ fun SettingsRoute(
             }
         },
         onThemeModeSelected = { ThemePreferences.set(context, it) },
+        onSaved = onSaved,
         onCatalog = onCatalog,
         onShoppingList = onShoppingList,
         onMyRecipes = onMyRecipes,
@@ -124,6 +127,7 @@ fun SettingsScreen(
     access: Access = Access.Unknown,
     chatCredits: ChatCredits? = null,
     onSubscriptionAction: () -> Unit = {},
+    onSaved: () -> Unit = {},
     onCatalog: () -> Unit = {},
     onShoppingList: () -> Unit = {},
     onMyRecipes: () -> Unit = {},
@@ -254,6 +258,12 @@ fun SettingsScreen(
         }
 
         SettingsSectionTitle(stringResource(R.string.settings_library))
+        SettingsRow(
+            icon = Icons.Outlined.FavoriteBorder,
+            title = stringResource(R.string.nav_item_saved_cocktails),
+            onClick = onSaved,
+            tag = "settings_saved",
+        )
         SettingsRow(
             icon = Icons.AutoMirrored.Outlined.MenuBook,
             title = stringResource(R.string.nav_item_browse_catalog),

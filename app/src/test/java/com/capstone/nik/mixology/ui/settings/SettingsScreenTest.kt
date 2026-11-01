@@ -94,6 +94,24 @@ class SettingsScreenTest {
     }
 
     @Test
+    fun saved_reportsClicks() {
+        var saved = 0
+        composeRule.setContent {
+            MixologyTheme {
+                SettingsScreen(
+                    themeMode = ThemeMode.SYSTEM,
+                    onThemeModeSelected = {},
+                    onSaved = { saved += 1 },
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("Saved Cocktails").assertIsDisplayed()
+        composeRule.onNodeWithTag("settings_saved").performClick()
+        assertEquals(1, saved)
+    }
+
+    @Test
     fun shoppingList_reportsClicks() {
         var shopping = 0
         composeRule.setContent {

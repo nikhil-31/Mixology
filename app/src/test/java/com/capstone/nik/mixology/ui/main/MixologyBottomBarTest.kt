@@ -6,7 +6,6 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.ui.theme.MixologyTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -26,7 +25,7 @@ class MixologyBottomBarTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun showsHomeMyBarSavedRecipesAndAda_andReportsSelection() {
+    fun showsHomeMyBarRecipesAndAda_andReportsSelection() {
         val selected = mutableListOf<DrawerDestination>()
         composeRule.setContent {
             MixologyTheme {
@@ -39,19 +38,19 @@ class MixologyBottomBarTest {
 
         composeRule.onNodeWithText("Home").assertIsDisplayed()
         composeRule.onNodeWithText("My Bar").assertIsDisplayed()
-        composeRule.onNodeWithText("Saved").assertIsDisplayed()
         composeRule.onNodeWithText("Recipes").assertIsDisplayed()
         composeRule.onNodeWithText("Ada").assertIsDisplayed()
         composeRule.onNodeWithTag("bottom_Catalog").assertDoesNotExist()
+        // Saved moved to Settings.
+        composeRule.onNodeWithTag("bottom_Saved").assertDoesNotExist()
         composeRule.onNodeWithTag("bottom_My Bar").performClick()
-        composeRule.onNodeWithTag("bottom_Saved").performClick()
         composeRule.onNodeWithTag("bottom_Recipes").performClick()
         composeRule.onNodeWithTag("bottom_Ada").performClick()
 
+        assertEquals(3, selected.size)
         assertTrue(selected[0] is DrawerDestination.Bar)
-        assertEquals(DrinkFilter.SAVED, (selected[1] as DrawerDestination.Filter).filter)
-        assertTrue(selected[2] is DrawerDestination.RecipesHome)
-        assertTrue(selected[3] is DrawerDestination.Ada)
+        assertTrue(selected[1] is DrawerDestination.RecipesHome)
+        assertTrue(selected[2] is DrawerDestination.Ada)
     }
 
     @Test

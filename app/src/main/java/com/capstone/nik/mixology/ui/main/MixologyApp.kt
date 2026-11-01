@@ -203,7 +203,8 @@ fun MixologyApp(
     val settingsSelected = state.destination is DrawerDestination.Settings ||
         state.destination is DrawerDestination.Shopping ||
         state.destination is DrawerDestination.Catalog ||
-        state.destination is DrawerDestination.Recipes
+        state.destination is DrawerDestination.Recipes ||
+        state.destination == DrawerDestination.Filter(DrinkFilter.SAVED)
     val title = when (val destination = state.destination) {
         DrawerDestination.Hot -> stringResource(R.string.nav_item_home)
         DrawerDestination.Settings -> stringResource(R.string.nav_bottom_settings)
@@ -255,6 +256,8 @@ fun MixologyApp(
                                 DrawerDestination.Catalog,
                                 DrawerDestination.Recipes,
                                 -> DrawerDestination.Settings
+                                // Saved lives in Settings now, not the bottom bar.
+                                DrawerDestination.Filter(DrinkFilter.SAVED) -> DrawerDestination.Settings
                                 is DrawerDestination.Filter -> DrawerDestination.Catalog
                                 else -> DrawerDestination.Hot
                             }
@@ -378,6 +381,11 @@ fun MixologyApp(
                         }
                         composable(SETTINGS_ROUTE) {
                             SettingsRoute(
+                                onSaved = {
+                                    viewModel.onIntent(
+                                        MainIntent.SelectDestination(DrawerDestination.Filter(DrinkFilter.SAVED)),
+                                    )
+                                },
                                 onCatalog = {
                                     viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Catalog))
                                 },

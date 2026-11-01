@@ -1,11 +1,9 @@
 package com.capstone.nik.mixology.ui.main
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocalBar
 import androidx.compose.material.icons.filled.MenuBook
-import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.LocalBar
 import androidx.compose.material.icons.outlined.MenuBook
@@ -21,7 +19,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import com.capstone.nik.mixology.R
-import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.ui.ada.AdaPlushieFilled
 import com.capstone.nik.mixology.ui.ada.AdaPlushieOutlined
 
@@ -44,12 +41,6 @@ val bottomNavItems = listOf(
         destination = DrawerDestination.Bar,
         selectedIcon = Icons.Filled.LocalBar,
         unselectedIcon = Icons.Outlined.LocalBar,
-    ),
-    BottomNavItem(
-        titleRes = R.string.nav_bottom_saved,
-        destination = DrawerDestination.Filter(DrinkFilter.SAVED),
-        selectedIcon = Icons.Filled.Favorite,
-        unselectedIcon = Icons.Outlined.FavoriteBorder,
     ),
     BottomNavItem(
         titleRes = R.string.nav_bottom_recipes,

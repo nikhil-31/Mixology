@@ -82,7 +82,12 @@ class DrinkDetailsViewModel @Inject constructor(
     }
 
     private fun load(drink: Drink) {
-        if (loadedId != drink.id) flushNotes()
+        if (loadedId != drink.id) {
+            flushNotes()
+            // Brings in a note (or save) made on another device since the last pull;
+            // the notes collector shows it when it lands.
+            viewModelScope.launch { repository.syncSaved() }
+        }
         if (drink.isUserRecipe) {
             loadRecipe(drink)
             return

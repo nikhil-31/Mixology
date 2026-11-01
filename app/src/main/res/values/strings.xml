@@ -123,6 +123,28 @@
     <string name="shopping_empty">No items yet. Add ingredients from a cocktail.</string>
     <string name="shopping_clear_checked">Clear checked</string>
     <string name="shopping_remove_item">Remove item</string>
+    <string name="shopping_empty_title">Your list is empty</string>
+    <string name="shopping_find_recipe">Find a recipe</string>
+    <string name="shopping_by_drink">By drink</string>
+    <string name="shopping_by_ingredient">By ingredient</string>
+    <plurals name="shopping_progress">
+        <item quantity="one">%1$d of %2$d checked</item>
+        <item quantity="other">%1$d of %2$d checked</item>
+    </plurals>
+    <string name="shopping_all_done">All done</string>
+    <string name="shopping_remove_drink">Remove drink</string>
+    <string name="shopping_more_options">More options</string>
+    <string name="shopping_other">Other</string>
+    <string name="shopping_share">Share list</string>
+    <string name="shopping_undo">Undo</string>
+    <plurals name="shopping_removed_items">
+        <item quantity="one">Removed %d item</item>
+        <item quantity="other">Removed %d items</item>
+    </plurals>
+    <plurals name="shopping_cleared">
+        <item quantity="one">Cleared %d checked item</item>
+        <item quantity="other">Cleared %d checked items</item>
+    </plurals>
 
     <string name="bar_add">Add</string>
     <string name="bar_done">Done</string>

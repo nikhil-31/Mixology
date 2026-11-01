@@ -420,7 +420,15 @@ fun MixologyApp(
                             )
                         }
                         composable(SHOPPING_ROUTE) {
-                            ShoppingRoute()
+                            ShoppingRoute(
+                                snackbarHostState = snackbarHostState,
+                                onDrinkClick = { drink ->
+                                    viewModel.onIntent(MainIntent.DrinkSelected(drink, selectDrinkTwoPane.value))
+                                },
+                                onFindRecipe = {
+                                    viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.RecipesHome))
+                                },
+                            )
                         }
                         composable(RECIPES_HOME_ROUTE) {
                             RecipesHomeRoute(

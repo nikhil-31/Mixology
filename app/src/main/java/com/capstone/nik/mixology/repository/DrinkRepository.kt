@@ -275,6 +275,13 @@ class DrinkRepository @Inject constructor(
         shoppingSync.push()
     }
 
+    /** Puts back items taken off the list (Undo). They sync as new rows. */
+    suspend fun restoreShoppingItems(items: List<ShoppingItemEntity>) {
+        if (items.isEmpty()) return
+        shoppingDao.insertAll(items.map { it.copy(id = 0, remoteId = null) })
+        shoppingSync.push()
+    }
+
     /** For the widget, which may run before the app has pulled the account's list. */
     suspend fun getSavedSync(): List<Drink> {
         if (savedSync.savedIds.value.isEmpty()) savedSync.sync()

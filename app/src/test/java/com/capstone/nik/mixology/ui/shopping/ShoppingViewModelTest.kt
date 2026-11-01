@@ -84,6 +84,74 @@ class ShoppingViewModelTest {
             awaitItemUntil { it.items.isEmpty() }
         }
     }
+
+    private val margarita = Drink(
+        id = "1",
+        name = "Margarita",
+        thumb = "",
+        ingredients = listOf(IngredientMeasure("Lime juice", "1 oz"), IngredientMeasure("Tequila", "2 oz")),
+    )
+    private val daiquiri = Drink(
+        id = "2",
+        name = "Daiquiri",
+        thumb = "",
+        ingredients = listOf(IngredientMeasure("Lime juice", "3/4 oz"), IngredientMeasure("Rum", "2 oz")),
+    )
+
+    @Test
+    fun removeThenUndo_putsTheItemBack_withItsCheckedState() = runTest {
+        viewModel.effects.test {
+            viewModel.state.test {
+                repository.addToShoppingList(margarita)
+                val added = awaitItemUntil { it.items.size == 2 }
+                val lime = added.items.first { it.name == "Lime juice" }
+                viewModel.onIntent(ShoppingIntent.Toggle(lime))
+                val checked = awaitItemUntil { s -> s.items.any { it.name == "Lime juice" && it.checked } }
+
+                viewModel.onIntent(ShoppingIntent.Remove(checked.items.first { it.name == "Lime juice" }))
+                awaitItemUntil { it.items.size == 1 }
+                viewModel.onIntent(ShoppingIntent.Undo)
+                val restored = awaitItemUntil { it.items.size == 2 }
+                assertTrue(restored.items.first { it.name == "Lime juice" }.checked)
+                cancelAndIgnoreRemainingEvents()
+            }
+            val undo = awaitItem() as ShoppingEffect.ShowUndo
+            assertEquals(1, undo.count)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun removeDrink_onlyRemovesThatDrink() = runTest {
+        viewModel.state.test {
+            repository.addToShoppingList(margarita)
+            repository.addToShoppingList(daiquiri)
+            awaitItemUntil { it.items.size == 4 }
+            viewModel.onIntent(ShoppingIntent.RemoveDrink("1"))
+            val left = awaitItemUntil { it.items.size == 2 }
+            assertTrue(left.items.all { it.drinkId == "2" })
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun toggleCombined_checksEveryDrinksItem_andByIngredientIsRemembered() = runTest {
+        viewModel.state.test {
+            repository.addToShoppingList(margarita)
+            repository.addToShoppingList(daiquiri)
+            val both = awaitItemUntil { it.items.size == 4 }
+            val lime = both.combined.first { it.name == "Lime juice" }
+            assertEquals(2, lime.items.size)
+
+            viewModel.onIntent(ShoppingIntent.ToggleCombined(lime))
+            val done = awaitItemUntil { s -> s.items.filter { it.name == "Lime juice" }.all { it.checked } }
+            assertEquals(2, done.checkedCount)
+
+            viewModel.onIntent(ShoppingIntent.SetByIngredient(true))
+            assertTrue(awaitItemUntil { it.byIngredient }.byIngredient)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
 }
 
 private suspend fun <T> app.cash.turbine.ReceiveTurbine<T>.awaitItemUntil(predicate: (T) -> Boolean): T {

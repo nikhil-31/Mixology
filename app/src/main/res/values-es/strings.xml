@@ -109,6 +109,28 @@
     <string name="shopping_empty">Todavía no hay artículos. Añade ingredientes desde un cóctel.</string>
     <string name="shopping_clear_checked">Borrar marcados</string>
     <string name="shopping_remove_item">Eliminar artículo</string>
+    <string name="shopping_empty_title">Tu lista está vacía</string>
+    <string name="shopping_find_recipe">Buscar una receta</string>
+    <string name="shopping_by_drink">Por bebida</string>
+    <string name="shopping_by_ingredient">Por ingrediente</string>
+    <plurals name="shopping_progress">
+        <item quantity="one">%1$d de %2$d marcado</item>
+        <item quantity="other">%1$d de %2$d marcados</item>
+    </plurals>
+    <string name="shopping_all_done">Todo listo</string>
+    <string name="shopping_remove_drink">Quitar bebida</string>
+    <string name="shopping_more_options">Más opciones</string>
+    <string name="shopping_other">Otros</string>
+    <string name="shopping_share">Compartir lista</string>
+    <string name="shopping_undo">Deshacer</string>
+    <plurals name="shopping_removed_items">
+        <item quantity="one">%d artículo eliminado</item>
+        <item quantity="other">%d artículos eliminados</item>
+    </plurals>
+    <plurals name="shopping_cleared">
+        <item quantity="one">%d artículo marcado borrado</item>
+        <item quantity="other">%d artículos marcados borrados</item>
+    </plurals>
 
     <string name="bar_add">Añadir</string>
     <string name="bar_done">Listo</string>

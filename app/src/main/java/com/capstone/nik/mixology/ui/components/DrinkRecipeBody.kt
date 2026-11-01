@@ -1,6 +1,17 @@
 package com.capstone.nik.mixology.ui.components
 
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -52,6 +63,10 @@ fun DrinkRecipeBody(
     extraBottomContent: @Composable () -> Unit = {},
     /** False for the user's own recipes, which can't be saved. */
     showSave: Boolean = true,
+    /** Lower-cased names of the ingredients in My Bar. */
+    inBar: Set<String> = emptySet(),
+    /** Primary actions, shown right under the title and chips. */
+    actions: @Composable () -> Unit = {},
 ) {
     val chips = remember(alcoholic, glass, category, iba) {
         listOfNotNull(
@@ -97,12 +112,26 @@ fun DrinkRecipeBody(
                 }
             }
         }
-        if (steps.isNotEmpty()) {
-            RecipeSectionTitle(stringResource(R.string.detail_screen_instructions))
-            InstructionBlock(steps = steps)
-        }
+        actions()
+        // Ingredients first: you gather before you mix.
         if (ingredients.isNotEmpty()) {
             RecipeSectionTitle(stringResource(R.string.detail_screen_ingredients))
+            val haveCount = ingredients.count { it.ingredient.trim().lowercase() in inBar }
+            if (haveCount > 0) {
+                Text(
+                    text = pluralStringResource(
+                        R.plurals.detail_ingredients_have,
+                        ingredients.size,
+                        haveCount,
+                        ingredients.size,
+                    ),
+                    modifier = Modifier
+                        .padding(start = 20.dp, end = 20.dp, bottom = 8.dp)
+                        .testTag("detail_ingredients_have"),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
             Column(
                 modifier = Modifier
                     .padding(horizontal = 16.dp, vertical = 4.dp)
@@ -115,16 +144,75 @@ fun DrinkRecipeBody(
                             color = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f),
                         )
                     }
-                    IngredientRow(item)
+                    IngredientRow(item, inBar = item.ingredient.trim().lowercase() in inBar)
                 }
             }
+        }
+        if (steps.isNotEmpty()) {
+            RecipeSectionTitle(stringResource(R.string.detail_screen_instructions))
+            InstructionBlock(steps = steps)
         }
         extraBottomContent()
     }
 }
 
-val DrinkHeroImageHeight = 504.dp
+/** The tallest the hero viewport gets; the image runs [DrinkHeroOverlap] further, under the body. */
 val DrinkHeroViewportHeight = 480.dp
+val DrinkHeroOverlap = 24.dp
+val DrinkHeroImageHeight = DrinkHeroViewportHeight + DrinkHeroOverlap
+
+/** The hero viewport, capped so the title stays well up on short screens. */
+@Composable
+fun rememberDrinkHeroViewportHeight(): Dp {
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+    return remember(screenHeight) { minOf(DrinkHeroViewportHeight, screenHeight * 0.55f) }
+}
+
+/** Placeholder for the recipe while it loads: chips, ingredient rows and a few lines of text. */
+@Composable
+fun RecipeSkeleton(modifier: Modifier = Modifier) {
+    val pulse by rememberInfiniteTransition(label = "skeleton").animateFloat(
+        initialValue = 0.35f,
+        targetValue = 0.75f,
+        animationSpec = infiniteRepeatable(tween(800), RepeatMode.Reverse),
+        label = "skeletonAlpha",
+    )
+    val color = MaterialTheme.colorScheme.surfaceVariant
+    @Composable
+    fun Bar(width: Dp, height: Dp, shape: Dp = 8.dp) {
+        Box(
+            Modifier
+                .size(width, height)
+                .graphicsLayer { alpha = pulse }
+                .clip(RoundedCornerShape(shape))
+                .background(color),
+        )
+    }
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp)
+            .testTag("detail_skeleton"),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Bar(84.dp, 30.dp, 20.dp)
+            Bar(108.dp, 30.dp, 20.dp)
+            Bar(72.dp, 30.dp, 20.dp)
+        }
+        Box(Modifier.height(8.dp))
+        repeat(4) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                Bar(40.dp, 40.dp, 20.dp)
+                Bar(160.dp, 16.dp)
+            }
+        }
+        Box(Modifier.height(8.dp))
+        Bar(300.dp, 14.dp)
+        Bar(260.dp, 14.dp)
+        Bar(200.dp, 14.dp)
+    }
+}
 
 @Composable
 fun DrinkHeroImage(
@@ -246,5 +334,14 @@ internal fun instructionSteps(instructions: String?): List<String> {
         .filter { it.isNotEmpty() }
     if (numbered.size > 1) return numbered
     val lines = text.split(Regex("\\r?\\n+")).map { it.trim() }.filter { it.isNotEmpty() }
-    return if (lines.size > 1) lines else listOf(text)
+    if (lines.size > 1) return lines
+    // One paragraph: number its sentences when they read like real steps.
+    val sentences = Regex("(?<=[.!?])\\s+(?=[A-Z])")
+        .split(text)
+        .map { it.trim() }
+        .filter { it.isNotEmpty() }
+    val looksLikeSteps = sentences.size in 2..8 && sentences.all { it.length >= MIN_STEP_LENGTH }
+    return if (looksLikeSteps) sentences else listOf(text)
 }
+
+private const val MIN_STEP_LENGTH = 12

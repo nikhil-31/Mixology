@@ -8,7 +8,6 @@ import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.recordCrash
 import com.capstone.nik.mixology.analytics.AnalyticsTracker
 import com.capstone.nik.mixology.Network.NetworkMonitor
-import com.capstone.nik.mixology.Network.errorMessageRes
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.isOnShoppingList
 import com.capstone.nik.mixology.repository.DrinkRating
@@ -54,6 +53,11 @@ class DrinkDetailsViewModel @Inject constructor(
             }
         }
         viewModelScope.launch {
+            repository.observeBar().collect { names ->
+                setState { copy(inBar = names.mapTo(mutableSetOf()) { it.trim().lowercase() }) }
+            }
+        }
+        viewModelScope.launch {
             repository.observeShopping().collect { items ->
                 setState {
                     val current = drink
@@ -77,6 +81,10 @@ class DrinkDetailsViewModel @Inject constructor(
             is DrinkDetailsIntent.Rate -> rate(intent.stars)
             DrinkDetailsIntent.EditRecipe -> currentState.drink?.takeIf { it.isUserRecipe }?.let {
                 sendEffect(DrinkDetailsEffect.OpenRecipeEditor(it.id))
+            }
+            DrinkDetailsIntent.Retry -> loadedId?.let { id ->
+                setState { copy(loading = true, loadFailed = false) }
+                lookup(id)
             }
         }
     }
@@ -102,6 +110,7 @@ class DrinkDetailsViewModel @Inject constructor(
         setState {
             copy(
                 loading = !drink.hasRecipe,
+                loadFailed = false,
                 drink = drink,
                 rating = null,
             )
@@ -154,6 +163,7 @@ class DrinkDetailsViewModel @Inject constructor(
         setState {
             copy(
                 loading = cached == null && !drink.hasRecipe,
+                loadFailed = false,
                 drink = withNotes(cached ?: drink),
                 saved = false,
                 rating = null,
@@ -168,7 +178,7 @@ class DrinkDetailsViewModel @Inject constructor(
                     current != null -> {
                         // Follows edits made in the editor.
                         seen = true
-                        setState { copy(loading = false, drink = withNotes(current)) }
+                        setState { copy(loading = false, loadFailed = false, drink = withNotes(current)) }
                     }
                     // It was there and now isn't: the user deleted it.
                     seen -> sendEffect(DrinkDetailsEffect.NavigateBack)
@@ -188,24 +198,22 @@ class DrinkDetailsViewModel @Inject constructor(
         lookupJob = viewModelScope.launch {
             val cached = repository.cachedDrink(id)
             if (cached != null && cached.hasRecipe) {
-                setState { copy(loading = false, drink = withUnsentNote(cached)) }
+                setState { copy(loading = false, loadFailed = false, drink = withUnsentNote(cached)) }
             }
             try {
                 val fresh = repository.lookupDrink(id)
                 if (fresh != null) {
-                    setState { copy(loading = false, drink = withUnsentNote(fresh)) }
+                    setState { copy(loading = false, loadFailed = false, drink = withUnsentNote(fresh)) }
                 } else {
-                    setState { copy(loading = false) }
+                    setState { copy(loading = false, loadFailed = drink?.hasRecipe != true) }
                 }
             } catch (e: kotlinx.coroutines.CancellationException) {
                 throw e
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to load drink $id", e)
                 recordCrash(e)
-                setState { copy(loading = false) }
-                if (currentState.drink?.hasRecipe != true) {
-                    sendEffect(DrinkDetailsEffect.ShowMessageRes(networkMonitor.errorMessageRes(e, R.string.network_error)))
-                }
+                // With nothing to show, the screen offers Retry in place of the recipe.
+                setState { copy(loading = false, loadFailed = drink?.hasRecipe != true) }
             }
         }
     }
@@ -220,10 +228,7 @@ class DrinkDetailsViewModel @Inject constructor(
                 throw e
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to load recipe $id", e)
-                setState { copy(loading = false) }
-                if (currentState.drink?.hasRecipe != true) {
-                    sendEffect(DrinkDetailsEffect.ShowMessageRes(networkMonitor.errorMessageRes(e, R.string.network_error)))
-                }
+                setState { copy(loading = false, loadFailed = drink?.hasRecipe != true) }
             }
         }
     }

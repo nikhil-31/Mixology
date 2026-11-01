@@ -13,6 +13,10 @@ data class DrinkDetailsUiState(
     val rating: DrinkRating? = null,
     /** The note has text typed since it was last saved. */
     val unsavedNote: Boolean = false,
+    /** The full recipe couldn't be fetched and there's nothing cached to show. */
+    val loadFailed: Boolean = false,
+    /** Lower-cased names of the ingredients in My Bar. */
+    val inBar: Set<String> = emptySet(),
 ) {
     /** The user's own recipe: editable, but never saved or rated. */
     val isUserRecipe: Boolean get() = drink?.isUserRecipe == true
@@ -33,6 +37,8 @@ sealed interface DrinkDetailsIntent {
     data class Rate(val stars: Int) : DrinkDetailsIntent
     /** Opens the editor for the user's own recipe. */
     data object EditRecipe : DrinkDetailsIntent
+    /** Tries the recipe again after it failed to load. */
+    data object Retry : DrinkDetailsIntent
 }
 
 sealed interface DrinkDetailsEffect {

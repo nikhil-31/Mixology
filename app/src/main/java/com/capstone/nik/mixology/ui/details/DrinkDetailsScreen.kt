@@ -29,7 +29,6 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.PlayCircle
 import androidx.compose.material.icons.outlined.RemoveShoppingCart
 import androidx.compose.material.icons.outlined.ShoppingCart
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -62,8 +61,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.ui.components.DrinkHeroImage
-import com.capstone.nik.mixology.ui.components.DrinkHeroImageHeight
-import com.capstone.nik.mixology.ui.components.DrinkHeroViewportHeight
+import com.capstone.nik.mixology.ui.components.DrinkHeroOverlap
+import com.capstone.nik.mixology.ui.components.RecipeSkeleton
+import com.capstone.nik.mixology.ui.components.rememberDrinkHeroViewportHeight
+import androidx.compose.foundation.layout.offset
+import androidx.compose.material.icons.outlined.CloudOff
+import androidx.compose.ui.semantics.Role
 import com.capstone.nik.mixology.ui.components.DrinkImage
 import com.capstone.nik.mixology.ui.components.DrinkRecipeBody
 import com.capstone.nik.mixology.ui.components.RecipeSectionTitle
@@ -127,6 +130,7 @@ fun DrinkDetailsRoute(
             onRemoveFromShoppingList = { viewModel.onIntent(DrinkDetailsIntent.RemoveFromShoppingList) },
             onOpenVideo = { viewModel.onIntent(DrinkDetailsIntent.OpenVideo(it)) },
             onRate = { viewModel.onIntent(DrinkDetailsIntent.Rate(it)) },
+            onRetry = { viewModel.onIntent(DrinkDetailsIntent.Retry) },
         )
     }
 
@@ -219,9 +223,11 @@ fun DrinkDetailsContent(
     onRemoveFromShoppingList: () -> Unit = {},
     onOpenVideo: (String) -> Unit = {},
     onRate: (Int) -> Unit = {},
+    onRetry: () -> Unit = {},
 ) {
     val drink = state.drink
     var fullscreenImage by remember { mutableStateOf(false) }
+    val heroViewport = rememberDrinkHeroViewportHeight()
     Box(modifier = Modifier.fillMaxSize()) {
         if (drink != null) {
             // The app draws edge to edge, so the scroll area has to shrink above the keyboard itself.
@@ -229,13 +235,13 @@ fun DrinkDetailsContent(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(DrinkHeroViewportHeight),
+                        .height(heroViewport),
                 ) {
                     DrinkHeroImage(
                         url = drink.thumb,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(DrinkHeroImageHeight),
+                            .height(heroViewport + DrinkHeroOverlap),
                         onClick = { fullscreenImage = true },
                     )
                 }
@@ -251,7 +257,8 @@ fun DrinkDetailsContent(
                         saved = state.saved,
                         onToggleSaved = onToggleSaved,
                         showSave = !state.isUserRecipe,
-                        extraBottomContent = {
+                        inBar = state.inBar,
+                        actions = {
                             DrinkActions(
                                 onShoppingList = state.onShoppingList,
                                 video = drink.video,
@@ -259,6 +266,8 @@ fun DrinkDetailsContent(
                                 onRemoveFromShoppingList = onRemoveFromShoppingList,
                                 onOpenVideo = onOpenVideo,
                             )
+                        },
+                        extraBottomContent = {
                             state.rating?.let { rating ->
                                 DrinkRatingSection(rating = rating, onRate = onRate)
                             }
@@ -272,21 +281,26 @@ fun DrinkDetailsContent(
                         },
                     )
                 } else {
-                    Text(
-                        text = drink.name,
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
                             .background(MaterialTheme.colorScheme.surface)
-                            .padding(start = 20.dp, end = 16.dp, top = 24.dp, bottom = 24.dp),
-                        style = MixologyDetailsTitle,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
+                            .padding(bottom = 32.dp),
+                    ) {
+                        Text(
+                            text = drink.name,
+                            modifier = Modifier.padding(start = 20.dp, end = 16.dp, top = 24.dp, bottom = 20.dp),
+                            style = MixologyDetailsTitle,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                        when {
+                            state.loading -> RecipeSkeleton()
+                            state.loadFailed -> RecipeLoadFailed(onRetry = onRetry)
+                        }
+                    }
                 }
             }
-        }
-        if (state.loading) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         }
     }
     if (fullscreenImage && drink != null) {
@@ -309,7 +323,7 @@ private fun DrinkActions(
     FlowRow(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 20.dp, end = 20.dp, top = 24.dp),
+            .padding(start = 20.dp, end = 20.dp, top = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
@@ -411,6 +425,34 @@ private fun HeroActionButton(
     }
 }
 
+/** Shown in place of the recipe when it couldn't be fetched and nothing is cached. */
+@Composable
+private fun RecipeLoadFailed(onRetry: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 24.dp)
+            .testTag("detail_load_failed"),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Icon(
+            imageVector = Icons.Outlined.CloudOff,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(40.dp),
+        )
+        Text(
+            text = stringResource(R.string.detail_load_failed),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(top = 12.dp, bottom = 16.dp),
+        )
+        FilledTonalButton(onClick = onRetry) {
+            Text(stringResource(R.string.action_retry))
+        }
+    }
+}
+
 /** Everyone's average plus five stars for the user's own 1–5 rating. */
 @Composable
 private fun DrinkRatingSection(rating: DrinkRating, onRate: (Int) -> Unit) {
@@ -434,26 +476,32 @@ private fun DrinkRatingSection(rating: DrinkRating, onRate: (Int) -> Unit) {
             color = colors.onSurface,
             modifier = Modifier.testTag("detail_rating_average"),
         )
+        Text(
+            text = stringResource(R.string.detail_rating_yours),
+            style = MaterialTheme.typography.bodyMedium,
+            color = colors.onSurfaceVariant,
+            modifier = Modifier.padding(top = 12.dp),
+        )
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(top = 4.dp),
+            // Pull the first star's touch area flush with the text above.
+            modifier = Modifier.offset(x = (-10).dp),
         ) {
-            Text(
-                text = stringResource(R.string.detail_rating_yours),
-                style = MaterialTheme.typography.bodyMedium,
-                color = colors.onSurfaceVariant,
-                modifier = Modifier.padding(end = 4.dp),
-            )
             for (stars in 1..5) {
                 val filled = (rating.mine ?: 0) >= stars
-                IconButton(
-                    onClick = { onRate(stars) },
-                    modifier = Modifier.testTag("detail_rate_$stars"),
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clip(CircleShape)
+                        .clickable(role = Role.Button) { onRate(stars) }
+                        .testTag("detail_rate_$stars"),
+                    contentAlignment = Alignment.Center,
                 ) {
                     Icon(
                         imageVector = if (filled) Icons.Filled.Star else Icons.Outlined.StarBorder,
                         contentDescription = pluralStringResource(R.plurals.detail_rate_stars, stars, stars),
                         tint = if (filled) colors.primary else colors.onSurfaceVariant,
+                        modifier = Modifier.size(28.dp),
                     )
                 }
             }

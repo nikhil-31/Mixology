@@ -220,6 +220,12 @@
     <string name="detail_rating_none">Aún no tiene valoraciones. ¡Sé el primero!</string>
     <string name="detail_rating_yours">Tu valoración</string>
     <string name="detail_rating_failed">No se pudo guardar tu valoración. Inténtalo de nuevo.</string>
+    <string name="detail_in_your_bar">En tu bar</string>
+    <plurals name="detail_ingredients_have">
+        <item quantity="one">Tienes %1$d de %2$d</item>
+        <item quantity="other">Tienes %1$d de %2$d</item>
+    </plurals>
+    <string name="detail_load_failed">No se pudo cargar esta receta.</string>
     <plurals name="detail_rating_count">
         <item quantity="one">%d valoración</item>
         <item quantity="many">%d valoraciones</item>

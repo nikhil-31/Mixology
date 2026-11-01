@@ -14,6 +14,7 @@ import com.capstone.nik.mixology.analytics.AnalyticsTracker
 import com.capstone.nik.mixology.analytics.EVENT_REMOVE_FROM_WISHLIST
 import com.capstone.nik.mixology.analytics.PARAM_SAVED
 import com.capstone.nik.mixology.cocktailDrink
+import com.capstone.nik.mixology.data.BarIngredientEntity
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.MixologyDatabase
 import com.capstone.nik.mixology.repository.DrinkRepository
@@ -259,6 +260,43 @@ class DrinkDetailsViewModelTest {
         sync.notesFlow.value = mapOf("11007" to "Older pull")
         runCurrent()
         assertEquals("Typing", vm.state.value.drink?.notes)
+    }
+
+    @Test
+    fun lookupFails_withNothingCached_offersRetry_andRetryLoads() = runTest {
+        service.failLookup = true
+        viewModel.onIntent(DrinkDetailsIntent.Load(Drink("11007", "Margarita", "")))
+        viewModel.state.test {
+            val failed = awaitItemUntil { it.loadFailed }
+            assertFalse(failed.loading)
+
+            service.failLookup = false
+            seedMargarita()
+            viewModel.onIntent(DrinkDetailsIntent.Retry)
+            val loaded = awaitItemUntil { it.drink?.hasRecipe == true }
+            assertFalse(loaded.loadFailed)
+            assertFalse(loaded.loading)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun lookupFails_withRecipeShown_doesNotFlagFailure() = runTest {
+        service.failLookup = true
+        val full = Drink("11007", "Margarita", "", instructions = "Shake.")
+        viewModel.onIntent(DrinkDetailsIntent.Load(full))
+        runCurrent()
+        assertFalse(viewModel.state.value.loadFailed)
+    }
+
+    @Test
+    fun inBar_followsMyBar() = runTest {
+        database.barDao().insert(BarIngredientEntity("Gin"))
+        viewModel.state.test {
+            val withBar = awaitItemUntil { it.inBar.isNotEmpty() }
+            assertEquals(setOf("gin"), withBar.inBar)
+            cancelAndIgnoreRemainingEvents()
+        }
     }
 
     private fun seedMargarita() {

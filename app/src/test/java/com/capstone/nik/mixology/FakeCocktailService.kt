@@ -31,6 +31,7 @@ class FakeCocktailService : CocktailService {
     var alcoholic = CatalogListResponse()
     var recommendationDrinks: List<Drink> = emptyList()
     var failRecommendations = false
+    var recommendationCalls = 0
     var failLookup = false
     /** Catalog lists and filters fail as if the server can't be reached while set. */
     var failWithIo = false
@@ -52,6 +53,7 @@ class FakeCocktailService : CocktailService {
     override suspend fun listIngredients(list: String) = io { ingredients }
     override suspend fun listAlcoholic(list: String) = io { alcoholic }
     override suspend fun getBarRecommendations(ingredients: List<String>): ApiBarRecommendations {
+        recommendationCalls++
         if (failRecommendations) error("recommendations failed")
         val result = BarMatcher.recommend(recommendationDrinks, ingredients)
         return ApiBarRecommendations(

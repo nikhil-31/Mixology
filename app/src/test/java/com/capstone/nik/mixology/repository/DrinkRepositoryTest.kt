@@ -313,6 +313,74 @@ class DrinkRepositoryTest {
         }
     }
 
+    private class SignedInBarSync(recs: BarRecommendations?) : BarSync {
+        override val recommendations = MutableStateFlow(recs)
+        override fun push(name: String, owned: Boolean) = Unit
+        override suspend fun pull() = Unit
+    }
+
+    private fun savedSyncOf(vararg ids: String) = object : SavedSync {
+        override val savedIds: StateFlow<Set<String>> = MutableStateFlow(ids.toSet())
+        override val notes: StateFlow<Map<String, String>> = MutableStateFlow(emptyMap())
+        override fun push(id: String, saved: Boolean) = Unit
+        override fun pushNotes(id: String, notes: String) = Unit
+        override suspend fun sync() = Unit
+    }
+
+    @Test
+    fun barRecommendations_signedInComeFromTheAccountWithSavedFlags() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Application>()
+        val own = Drink(id = "u-sour", name = "My Sour", thumb = "")
+        val negroni = Drink(id = "11003", name = "Negroni", thumb = "")
+        val mojito = Drink(id = "11000", name = "Mojito", thumb = "")
+        val sync = SignedInBarSync(
+            BarRecommendations(
+                makeable = listOf(own, negroni),
+                almost = listOf(BarAlmostDrink(mojito, listOf("Mint"))),
+            ),
+        )
+        val repo = DrinkRepository(
+            database.drinkDao(),
+            database.shoppingDao(),
+            database.barDao(),
+            service,
+            context,
+            savedSync = savedSyncOf("11003", "11000"),
+            barSync = sync,
+        )
+        repo.addToBar("Gin")
+
+        val recs = repo.observeBarRecommendations().first()
+        assertEquals(listOf("u-sour", "11003"), recs.makeable.map { it.id })
+        assertEquals(listOf(false, true), recs.makeable.map { it.saved })
+        assertTrue(recs.almost.single().drink.saved)
+        assertEquals(0, service.recommendationCalls)
+    }
+
+    @Test
+    fun barRecommendations_signedOutUseThePublicPreview() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Application>()
+        val negroni = cocktailDrink("11003", "Negroni").toDrink()!!.copy(
+            ingredients = listOf(IngredientMeasure("Gin", "1 oz")),
+        )
+        service.recommendationDrinks = listOf(negroni)
+        val repo = DrinkRepository(
+            database.drinkDao(),
+            database.shoppingDao(),
+            database.barDao(),
+            service,
+            context,
+            savedSync = savedSyncOf("11003"),
+            barSync = SignedInBarSync(null),
+        )
+        repo.addToBar("Gin")
+
+        val recs = repo.observeBarRecommendations().first()
+        assertEquals(listOf("11003"), recs.makeable.map { it.id })
+        assertTrue(recs.makeable.single().saved)
+        assertEquals(1, service.recommendationCalls)
+    }
+
     @Test
     fun barRecommendations_networkFailureReturnsEmpty() = runTest {
         service.failRecommendations = true

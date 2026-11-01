@@ -1,5 +1,7 @@
 package com.capstone.nik.mixology.Network
 
+import com.capstone.nik.mixology.Network.remoteModel.ApiBarAlmost
+import com.capstone.nik.mixology.Network.remoteModel.ApiDrink
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -7,9 +9,14 @@ import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 
-/** The account's bar; the server also sends recommendations, which are not read here. */
+/**
+ * The account's bar and what it can make: the user's own recipes first, then catalog
+ * drinks ranked by taste. Drinks have the same shape as the public recommendations.
+ */
 data class BarStateDto(
     val ingredients: List<String> = emptyList(),
+    val makeable: List<ApiDrink> = emptyList(),
+    val almost: List<ApiBarAlmost> = emptyList(),
 )
 
 data class BarIngredientsBody(

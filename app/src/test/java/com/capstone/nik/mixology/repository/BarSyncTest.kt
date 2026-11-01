@@ -8,6 +8,8 @@ import com.capstone.nik.mixology.Network.BarIngredientBody
 import com.capstone.nik.mixology.Network.BarIngredientsBody
 import com.capstone.nik.mixology.Network.BarService
 import com.capstone.nik.mixology.Network.BarStateDto
+import com.capstone.nik.mixology.Network.remoteModel.ApiBarAlmost
+import com.capstone.nik.mixology.Network.remoteModel.ApiDrink
 import com.capstone.nik.mixology.data.BarIngredientEntity
 import com.capstone.nik.mixology.data.MixologyDatabase
 import com.capstone.nik.mixology.data.SessionStore
@@ -23,6 +25,8 @@ import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,18 +41,33 @@ import retrofit2.converter.gson.GsonConverterFactory
 @Config(application = Application::class, sdk = [34])
 class BarSyncTest {
 
-    /** Behaves like the server: names dedupe ignoring case; removing a missing name is a 404. */
+    /**
+     * Behaves like the server: names dedupe ignoring case; removing a missing name is a 404.
+     * With anything in the bar it can make the user's own "My Sour" first, then one catalog
+     * drink per ingredient, and is one away from a Negroni.
+     */
     private class FakeBarService : BarService {
         val ingredients = mutableListOf<String>()
         var failing = false
         var puts = 0
+        var gets = 0
+        var onAdd: (BarIngredientBody) -> Unit = {}
 
         private fun state(): BarStateDto {
             if (failing) throw java.io.IOException("offline")
-            return BarStateDto(ingredients.toList())
+            if (ingredients.isEmpty()) return BarStateDto()
+            return BarStateDto(
+                ingredients = ingredients.toList(),
+                makeable = listOf(ApiDrink(id = "u-sour", name = "My Sour")) +
+                    ingredients.map { ApiDrink(id = "c-$it", name = "$it Highball") },
+                almost = listOf(ApiBarAlmost(ApiDrink(id = "11003", name = "Negroni"), listOf("Campari"))),
+            )
         }
 
-        override suspend fun bar() = state()
+        override suspend fun bar(): BarStateDto {
+            gets++
+            return state()
+        }
 
         override suspend fun replace(body: BarIngredientsBody): BarStateDto {
             state()
@@ -60,6 +79,7 @@ class BarSyncTest {
 
         override suspend fun add(body: BarIngredientBody): BarStateDto {
             state()
+            onAdd(body)
             if (ingredients.none { it.equals(body.name, true) }) ingredients += body.name
             return state()
         }
@@ -205,6 +225,85 @@ class BarSyncTest {
         runCurrent()
         assertEquals(listOf("Gin"), service.ingredients)
         assertEquals(setOf("Gin"), localBar())
+    }
+
+    @Test
+    fun recommendationsComeFromBarResponsesWithOwnRecipesFirst() = runTest {
+        prefs.edit().putString("account", "uid-1").commit()
+        service.ingredients += "Gin"
+        val sync = newSync()
+        runCurrent()
+
+        val pulled = sync.recommendations.value!!
+        assertEquals(listOf("u-sour", "c-Gin"), pulled.makeable.map { it.id })
+        assertTrue(pulled.makeable.first().isUserRecipe)
+        assertEquals(listOf("Campari"), pulled.almost.single().missing)
+
+        sync.push("Rum", owned = true)
+        runCurrent()
+        assertEquals(listOf("u-sour", "c-Gin", "c-Rum"), sync.recommendations.value!!.makeable.map { it.id })
+    }
+
+    @Test
+    fun uploadResponseSetsRecommendations() = runTest {
+        stock("Gin")
+        val sync = newSync()
+        runCurrent()
+        assertEquals(1, service.puts)
+        assertEquals(listOf("u-sour", "c-Gin"), sync.recommendations.value!!.makeable.map { it.id })
+    }
+
+    @Test
+    fun recommendationsWaitUntilNoEditsArePending() = runTest {
+        prefs.edit().putString("account", "uid-1").commit()
+        val sync = newSync()
+        runCurrent()
+        assertEquals(BarRecommendations(), sync.recommendations.value)
+
+        val seenDuringBurst = mutableListOf<BarRecommendations?>()
+        service.onAdd = { seenDuringBurst += sync.recommendations.value }
+        sync.push("Gin", owned = true)
+        sync.push("Rum", owned = true)
+        sync.push("Mint", owned = true)
+        runCurrent()
+
+        // The responses to Gin and Rum came back while later edits were still queued.
+        assertEquals(List(3) { BarRecommendations() }, seenDuringBurst)
+        assertEquals(
+            listOf("u-sour", "c-Gin", "c-Rum", "c-Mint"),
+            sync.recommendations.value!!.makeable.map { it.id },
+        )
+    }
+
+    @Test
+    fun deleteThat404sCountsAsDoneAndRefreshesWithAGet() = runTest {
+        prefs.edit().putString("account", "uid-1").commit()
+        service.ingredients += "Gin"
+        val sync = newSync()
+        runCurrent()
+        assertEquals(1, service.gets)
+        service.ingredients += "Rum" // added on another device since the pull
+
+        sync.push("Never Had It", owned = false)
+        runCurrent()
+
+        assertEquals(2, service.gets)
+        assertEquals(listOf("u-sour", "c-Gin", "c-Rum"), sync.recommendations.value!!.makeable.map { it.id })
+        sync.pull()
+        runCurrent()
+        assertEquals(listOf("Gin", "Rum"), service.ingredients) // nothing left pending to resend
+    }
+
+    @Test
+    fun signingOutClearsRecommendations() = runTest {
+        service.ingredients += "Gin"
+        val sync = newSync()
+        runCurrent()
+        assertEquals(2, sync.recommendations.value!!.makeable.size)
+
+        sessions.clear()
+        runCurrent()
+        assertNull(sync.recommendations.value)
     }
 
     @Test

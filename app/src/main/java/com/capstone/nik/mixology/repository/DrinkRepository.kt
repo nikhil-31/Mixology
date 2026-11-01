@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.capstone.nik.mixology.Network.CocktailService
-import com.capstone.nik.mixology.Network.remoteModel.ApiBarRecommendations
 import com.capstone.nik.mixology.Network.remoteModel.CatalogListResponse
 import com.capstone.nik.mixology.Network.remoteModel.CocktailDbDrink
 import com.capstone.nik.mixology.Network.remoteModel.CocktailDbResponse
@@ -26,6 +25,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -197,13 +198,35 @@ class DrinkRepository @Inject constructor(
         barSync.pull()
     }
 
+    /**
+     * What My Bar can make. Signed in, this is the account's /bar response (the user's own
+     * recipes first, then drinks ranked by taste); signed out, or until that first response
+     * arrives, it is the public catalog preview for the local bar.
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun observeBarRecommendations(): Flow<BarRecommendations> {
+        return barSync.recommendations
+            .map { it != null }
+            .distinctUntilChanged()
+            .flatMapLatest { signedIn ->
+                if (signedIn) {
+                    combine(barSync.recommendations.filterNotNull(), observeSavedIds()) { recs, saved ->
+                        recs.withSaved(saved)
+                    }
+                } else {
+                    publicBarRecommendations()
+                }
+            }
+    }
+
+    private fun publicBarRecommendations(): Flow<BarRecommendations> {
         return combine(observeBar(), observeSavedIds()) { names, saved ->
             if (names.isEmpty()) {
                 BarRecommendations()
             } else {
                 try {
-                    service.getBarRecommendations(names).toRecommendations(saved)
+                    val response = service.getBarRecommendations(names)
+                    barRecommendationsOf(response.makeable, response.almost, saved)
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
@@ -279,16 +302,6 @@ class DrinkRepository @Inject constructor(
     }
 
     private fun withSaved(drink: Drink): Drink = withSaved(listOf(drink)).single()
-
-    private fun ApiBarRecommendations.toRecommendations(saved: Set<String>): BarRecommendations {
-        return BarRecommendations(
-            makeable = makeable.mapNotNull { drink -> drink.toDrink(saved = drink.id in saved) },
-            almost = almost.mapNotNull { item ->
-                val drink = item.drink.toDrink(saved = item.drink.id in saved) ?: return@mapNotNull null
-                BarAlmostDrink(drink, item.missing)
-            },
-        )
-    }
 
     private suspend fun nextViewedAt(): Long {
         val now = System.currentTimeMillis()

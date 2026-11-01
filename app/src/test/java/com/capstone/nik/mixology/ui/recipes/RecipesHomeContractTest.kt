@@ -89,6 +89,34 @@ class RecipesHomeContractTest {
     }
 
     @Test
+    fun heroSlides_ownRecipesStayFirstWhileOthersRotate() {
+        val own = drinks("u-", 2)
+        val recs = BarRecommendations(
+            makeable = own + drinks("m", 5),
+            almost = drinks("u-a", 1).plus(drinks("a", 3)).map { BarAlmostDrink(it, listOf("Lime")) },
+        )
+        val start = LocalDate.of(2026, 11, 1)
+        val firstOthers = mutableSetOf<String>()
+        (0L until 5L).forEach { offset ->
+            val slides = heroSlides(recs, start.plusDays(offset))
+            val makeable = slides.filterIsInstance<HeroSlide.CanMake>()
+            val almost = slides.filterIsInstance<HeroSlide.Almost>()
+            assertEquals(listOf("u-1", "u-2"), makeable.take(2).map { it.drink.id })
+            assertEquals("u-a1", almost.first().drink.id)
+            assertEquals(7, makeable.size)
+            firstOthers += makeable[2].drink.id
+        }
+        assertEquals(setOf("m1", "m2", "m3", "m4", "m5"), firstOthers)
+    }
+
+    @Test
+    fun heroSlides_ownRecipesCountTowardTheCaps() {
+        val recs = BarRecommendations(makeable = drinks("u-", 10) + drinks("m", 3))
+        val slides = heroSlides(recs, LocalDate.of(2026, 11, 1))
+        assertEquals((1..HERO_MAKEABLE_LIMIT).map { "u-$it" }, slides.map { it.drink.id })
+    }
+
+    @Test
     fun heroSlides_emptyWithoutRecommendations() {
         assertTrue(heroSlides(BarRecommendations()).isEmpty())
     }

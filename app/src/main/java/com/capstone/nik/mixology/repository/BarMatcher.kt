@@ -1,5 +1,7 @@
 package com.capstone.nik.mixology.repository
 
+import com.capstone.nik.mixology.Network.remoteModel.ApiBarAlmost
+import com.capstone.nik.mixology.Network.remoteModel.ApiDrink
 import com.capstone.nik.mixology.data.Drink
 
 data class BarAlmostDrink(
@@ -10,6 +12,25 @@ data class BarAlmostDrink(
 data class BarRecommendations(
     val makeable: List<Drink> = emptyList(),
     val almost: List<BarAlmostDrink> = emptyList(),
+)
+
+/** Maps a server recommendations payload (public or signed-in), keeping its order and dropping unusable drinks. */
+internal fun barRecommendationsOf(
+    makeable: List<ApiDrink>,
+    almost: List<ApiBarAlmost>,
+    saved: Set<String> = emptySet(),
+): BarRecommendations = BarRecommendations(
+    makeable = makeable.mapNotNull { drink -> drink.toDrink(saved = drink.id in saved) },
+    almost = almost.mapNotNull { item ->
+        val drink = item.drink.toDrink(saved = item.drink.id in saved) ?: return@mapNotNull null
+        BarAlmostDrink(drink, item.missing)
+    },
+)
+
+/** The same recommendations with each drink's saved flag taken from [saved]. */
+internal fun BarRecommendations.withSaved(saved: Set<String>): BarRecommendations = BarRecommendations(
+    makeable = makeable.map { it.copy(saved = it.id in saved) },
+    almost = almost.map { it.copy(drink = it.drink.copy(saved = it.drink.id in saved)) },
 )
 
 object BarMatcher {

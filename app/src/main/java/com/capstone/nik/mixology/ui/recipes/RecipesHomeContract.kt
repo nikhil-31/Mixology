@@ -68,12 +68,22 @@ sealed interface HeroSlide {
 
 /**
  * The hero carousel from My Bar: makeable drinks first, then a couple that are one or two
- * ingredients away. Each list starts at a different drink every day, steady within the day.
+ * ingredients away. The user's own recipes lead each list; the rest start at a different
+ * drink every day, steady within the day.
  */
 internal fun heroSlides(recs: BarRecommendations, date: LocalDate = LocalDate.now()): List<HeroSlide> {
-    val makeable = rotatedForDay(recs.makeable, date).take(HERO_MAKEABLE_LIMIT).map { HeroSlide.CanMake(it) }
-    val almost = rotatedForDay(recs.almost, date).take(HERO_ALMOST_LIMIT).map { HeroSlide.Almost(it.drink, it.missing) }
+    val makeable = ownFirstRotated(recs.makeable, date) { it }
+        .take(HERO_MAKEABLE_LIMIT)
+        .map { HeroSlide.CanMake(it) }
+    val almost = ownFirstRotated(recs.almost, date) { it.drink }
+        .take(HERO_ALMOST_LIMIT)
+        .map { HeroSlide.Almost(it.drink, it.missing) }
     return makeable + almost
+}
+
+private fun <T> ownFirstRotated(items: List<T>, date: LocalDate, drink: (T) -> Drink): List<T> {
+    val (own, others) = items.partition { drink(it).isUserRecipe }
+    return own + rotatedForDay(others, date)
 }
 
 private fun <T> rotatedForDay(items: List<T>, date: LocalDate): List<T> {

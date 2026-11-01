@@ -295,12 +295,13 @@ private fun RecipeHeroCard(
     fillHeight: Boolean = false,
 ) {
     val meta = drinkMeta(drink)
-    val tag = if (badge != null) {
-        badge
-    } else if (drink.isUserRecipe) {
-        stringResource(R.string.recipes_home_tag_yours)
-    } else {
-        drink.category?.trim().orEmpty()
+    // A bar slide shows CAN MAKE or ALMOST, plus YOUR RECIPE when it's one of the user's own;
+    // otherwise YOUR RECIPE or the drink's category.
+    val yours = if (drink.isUserRecipe) stringResource(R.string.recipes_home_tag_yours) else null
+    val tags = when {
+        badge != null -> listOfNotNull(badge, yours)
+        yours != null -> listOf(yours)
+        else -> listOfNotNull(drink.category?.trim()?.takeIf { it.isNotEmpty() })
     }
     val summary = ingredientSummary(drink)
     Surface(
@@ -335,18 +336,23 @@ private fun RecipeHeroCard(
                 modifier = Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                if (tag.isNotEmpty()) {
-                    Text(
-                        text = tag.uppercase(Locale.getDefault()),
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 0.8.sp,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(50))
-                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.14f))
-                            .padding(horizontal = 10.dp, vertical = 5.dp),
-                    )
+                if (tags.isNotEmpty()) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        tags.forEach { tag ->
+                            Text(
+                                text = tag.uppercase(Locale.getDefault()),
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 0.8.sp,
+                                color = MaterialTheme.colorScheme.primary,
+                                maxLines = 1,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(50))
+                                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.14f))
+                                    .padding(horizontal = 10.dp, vertical = 5.dp),
+                            )
+                        }
+                    }
                 }
                 // One line each for the name, what's missing and the ingredients.
                 Text(

@@ -6,6 +6,7 @@ import android.util.Log
 import com.capstone.nik.mixology.Network.BarIngredientBody
 import com.capstone.nik.mixology.Network.BarIngredientsBody
 import com.capstone.nik.mixology.Network.BarService
+import com.capstone.nik.mixology.Network.BarStateDto
 import com.capstone.nik.mixology.data.BarDao
 import com.capstone.nik.mixology.data.BarIngredientEntity
 import com.capstone.nik.mixology.data.Session
@@ -15,6 +16,9 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -27,6 +31,14 @@ import javax.inject.Singleton
  * other devices see the same ingredients as this one.
  */
 interface BarSync {
+    /**
+     * What the account's bar can make, from the server's last /bar response: the user's own
+     * recipes first, then catalog drinks ranked by taste. Saved flags are not applied.
+     * Null when signed out or before the first response.
+     */
+    val recommendations: StateFlow<BarRecommendations?>
+        get() = NO_RECOMMENDATIONS
+
     /** Sends one add or remove to the server; failures are retried by the next [pull]. */
     fun push(name: String, owned: Boolean)
 
@@ -34,6 +46,8 @@ interface BarSync {
     suspend fun pull()
 
     companion object {
+        private val NO_RECOMMENDATIONS: StateFlow<BarRecommendations?> = MutableStateFlow(null)
+
         /** For tests and previews: the bar stays on the device. */
         val None = object : BarSync {
             override fun push(name: String, owned: Boolean) = Unit
@@ -71,11 +85,15 @@ class NetworkBarSync internal constructor(
 
     private data class Change(val name: String, val owned: Boolean)
 
+    private val latest = MutableStateFlow<BarRecommendations?>(null)
+    override val recommendations: StateFlow<BarRecommendations?> = latest.asStateFlow()
+
     init {
         scope.launch {
-            // Signing in (or starting signed in) brings the account's bar down.
+            // Signing in (or starting signed in) brings the account's bar down;
+            // signing out forgets the account's recommendations.
             sessionStore.session.collect { session ->
-                if (session != null) pull()
+                if (session != null) pull() else latest.value = null
             }
         }
     }
@@ -99,7 +117,8 @@ class NetworkBarSync internal constructor(
 
     private suspend fun pull(session: Session) {
         pendingChanges().forEach { send(it) }
-        var remote = service.bar().ingredients
+        var state = service.bar()
+        var remote = state.ingredients
         val local = dao.getAll().map { it.name }
         val account = session.uid.ifEmpty { session.email }
         val claimed = prefs.getString(KEY_ACCOUNT, null)
@@ -109,9 +128,11 @@ class NetworkBarSync internal constructor(
             val remoteKeys = remote.map { it.lowercase() }.toSet()
             val deviceOnly = local.distinctBy { it.lowercase() }.filter { it.lowercase() !in remoteKeys }
             if (deviceOnly.isNotEmpty()) {
-                remote = service.replace(BarIngredientsBody(remote + deviceOnly)).ingredients
+                state = service.replace(BarIngredientsBody(remote + deviceOnly))
+                remote = state.ingredients
             }
         }
+        publish(state)
         dao.replaceAll(merge(local, remote, pendingChanges()).map { BarIngredientEntity(it) })
         prefs.edit().putString(KEY_ACCOUNT, account).apply()
     }
@@ -137,7 +158,7 @@ class NetworkBarSync internal constructor(
     private fun pendingChanges(): List<Change> = synchronized(pending) { pending.values.toList() }
 
     private suspend fun send(change: Change) {
-        if (change.owned) {
+        val state = if (change.owned) {
             service.add(BarIngredientBody(change.name))
         } else {
             try {
@@ -145,12 +166,24 @@ class NetworkBarSync internal constructor(
             } catch (error: HttpException) {
                 // Already gone from the server, which is what we wanted.
                 if (error.code() != 404) throw error
+                null
             }
         }
         synchronized(pending) {
             val key = change.name.lowercase()
             if (pending[key] == change) pending.remove(key)
         }
+        // A 404 carries no bar, so ask for it to keep recommendations current.
+        publish(state ?: if (pendingChanges().isEmpty()) service.bar() else return)
+    }
+
+    /**
+     * Takes the server's recommendations, unless more edits are still on their way
+     * (their responses will be newer) or the account signed out meanwhile.
+     */
+    private fun publish(state: BarStateDto) {
+        if (pendingChanges().isNotEmpty() || sessionStore.current() == null) return
+        latest.value = barRecommendationsOf(state.makeable, state.almost)
     }
 
     private suspend fun runCatchingNetwork(block: suspend () -> Unit) {

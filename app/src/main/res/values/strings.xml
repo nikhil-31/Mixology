@@ -252,7 +252,6 @@
     <string name="recipes_home_greeting_afternoon">%1$s afternoon</string>
     <string name="recipes_home_greeting_evening">%1$s evening</string>
     <string name="recipes_home_greeting_night">%1$s night</string>
-    <string name="recipes_home_summary">%1$d saved · %2$d yours</string>
     <string name="recipes_home_tag_yours">Your recipe</string>
     <string name="recipes_home_create">Create a recipe</string>
     <string name="recipes_home_empty_title">No recipes yet</string>

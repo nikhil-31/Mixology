@@ -52,8 +52,6 @@ import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.ui.components.DrinkImage
 import com.capstone.nik.mixology.ui.components.EmptyState
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
-import java.time.LocalDate
-import java.time.format.TextStyle
 import java.util.Locale
 
 @Composable
@@ -124,9 +122,6 @@ private fun RecipesHomeContent(
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        item(key = "header") {
-            RecipesHeader(savedCount = state.saved.size, mineCount = state.mine.size)
-        }
         if (state.error != null) {
             item(key = "error") {
                 Row(
@@ -185,38 +180,6 @@ private fun RecipesHomeContent(
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun RecipesHeader(savedCount: Int, mineCount: Int) {
-    val locale = Locale.getDefault()
-    val weekday = LocalDate.now().dayOfWeek.getDisplayName(TextStyle.FULL, locale)
-    val greeting = when (dayPart()) {
-        DayPart.MORNING -> R.string.recipes_home_greeting_morning
-        DayPart.AFTERNOON -> R.string.recipes_home_greeting_afternoon
-        DayPart.EVENING -> R.string.recipes_home_greeting_evening
-        DayPart.NIGHT -> R.string.recipes_home_greeting_night
-    }
-    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        Text(
-            text = weekday.uppercase(locale),
-            style = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.Bold,
-            letterSpacing = 1.2.sp,
-            color = MaterialTheme.colorScheme.primary,
-        )
-        Text(
-            text = stringResource(greeting, weekday.replaceFirstChar { it.titlecase(locale) }),
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.semantics { heading() },
-        )
-        Text(
-            text = stringResource(R.string.recipes_home_summary, savedCount, mineCount),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
     }
 }
 

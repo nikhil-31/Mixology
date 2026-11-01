@@ -1,8 +1,13 @@
 package com.capstone.nik.mixology.ui.recipes
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.Drink
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.format.TextStyle
+import java.util.Locale
 
 data class RecipesHomeUiState(
     val mine: List<Drink> = emptyList(),
@@ -48,6 +53,20 @@ internal fun dayPart(time: LocalTime = LocalTime.now()): DayPart = when (time.ho
     in 12..16 -> DayPart.AFTERNOON
     in 17..21 -> DayPart.EVENING
     else -> DayPart.NIGHT
+}
+
+/** The Recipes tab's top bar title, e.g. "Sunday morning". */
+@Composable
+internal fun recipesGreeting(): String {
+    val locale = Locale.getDefault()
+    val weekday = LocalDate.now().dayOfWeek.getDisplayName(TextStyle.FULL, locale)
+    val greeting = when (dayPart()) {
+        DayPart.MORNING -> R.string.recipes_home_greeting_morning
+        DayPart.AFTERNOON -> R.string.recipes_home_greeting_afternoon
+        DayPart.EVENING -> R.string.recipes_home_greeting_evening
+        DayPart.NIGHT -> R.string.recipes_home_greeting_night
+    }
+    return stringResource(greeting, weekday.replaceFirstChar { it.titlecase(locale) })
 }
 
 /** Ingredient names for the featured card, e.g. "Tequila, Lime juice, Triple sec". */

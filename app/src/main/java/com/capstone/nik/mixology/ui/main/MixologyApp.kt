@@ -70,6 +70,7 @@ import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 import com.capstone.nik.mixology.ui.recipes.ImportRecipeRoute
 import com.capstone.nik.mixology.ui.recipes.MyRecipesRoute
 import com.capstone.nik.mixology.ui.recipes.RecipesHomeRoute
+import com.capstone.nik.mixology.ui.recipes.recipesGreeting
 import com.capstone.nik.mixology.ui.recipes.RecipeEditorRoute
 import com.capstone.nik.mixology.ui.search.SearchMode
 import com.capstone.nik.mixology.ui.search.SearchRoute
@@ -211,7 +212,7 @@ fun MixologyApp(
         DrawerDestination.Bar -> stringResource(R.string.nav_item_my_bar)
         DrawerDestination.Shopping -> stringResource(R.string.nav_item_shopping_list)
         DrawerDestination.Recipes -> stringResource(R.string.my_recipes_title)
-        DrawerDestination.RecipesHome -> stringResource(R.string.nav_bottom_recipes)
+        DrawerDestination.RecipesHome -> recipesGreeting()
         is DrawerDestination.Filter -> destination.filter.titleRes?.let { stringResource(it) }
             ?: destination.filter.displayName()
     }

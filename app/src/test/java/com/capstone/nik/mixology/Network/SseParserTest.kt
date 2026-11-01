@@ -62,4 +62,24 @@ class SseParserTest {
         assertTrue(parser.push("event: error\ndata: {\"detail\":\"cut off\"}").isEmpty())
         assertEquals(ChatStreamEvent.Error("cut off"), parser.finish().single().toChatStreamEvent())
     }
+
+    @Test
+    fun recipe_readsTheDraftAndItsState() {
+        val event = parseSseBlock(
+            "event: recipe\ndata: {\"recipe\":{\"name\":\"Paloma\",\"instructions\":\"Build over ice.\"," +
+                "\"ingredients\":[{\"ingredient\":\"Tequila\",\"measure\":\"2 oz\"}]," +
+                "\"source_url\":\"https://www.instagram.com/p/abc/\"},\"photo_url\":\"https://cdn.example.com/p.jpg\"," +
+                "\"method\":\"model\",\"source\":\"instagram\",\"state\":\"saved\",\"recipe_id\":\"u-9\"," +
+                "\"duplicate\":true}",
+        )?.toChatStreamEvent() as ChatStreamEvent.Recipe
+
+        assertEquals("Paloma", event.recipe.recipe.name)
+        assertEquals("2 oz", event.recipe.recipe.ingredients.single().measure)
+        assertEquals("https://www.instagram.com/p/abc/", event.recipe.recipe.sourceUrl)
+        assertEquals("https://cdn.example.com/p.jpg", event.recipe.photoUrl)
+        assertEquals("instagram", event.recipe.source)
+        assertEquals("saved", event.recipe.state)
+        assertEquals("u-9", event.recipe.recipeId)
+        assertTrue(event.recipe.duplicate)
+    }
 }

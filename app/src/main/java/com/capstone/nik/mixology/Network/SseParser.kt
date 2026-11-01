@@ -1,5 +1,6 @@
 package com.capstone.nik.mixology.Network
 
+import com.capstone.nik.mixology.Network.remoteModel.ChatRecipeDto
 import com.capstone.nik.mixology.Network.remoteModel.ApiDetail
 import com.capstone.nik.mixology.Network.remoteModel.DeltaPayload
 import com.capstone.nik.mixology.Network.remoteModel.DonePayload
@@ -86,6 +87,9 @@ fun SseEvent.toChatStreamEvent(): ChatStreamEvent? {
                 val drinks = payload?.drinks.orEmpty().mapNotNull { it.toDrink() }
                 ChatStreamEvent.Recommendations(drinks, hasMore = payload?.hasMore ?: false)
             }
+            "recipe" -> chatGson.fromJson(data, ChatRecipeDto::class.java)
+                ?.takeIf { it.recipe.name.isNotBlank() || it.recipeId != null }
+                ?.let(ChatStreamEvent::Recipe)
             "done" -> {
                 val payload = chatGson.fromJson(data, DonePayload::class.java)
                 ChatStreamEvent.Done(payload?.content.orEmpty(), payload?.credits)

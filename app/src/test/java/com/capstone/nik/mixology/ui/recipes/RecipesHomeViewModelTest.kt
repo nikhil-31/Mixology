@@ -70,6 +70,16 @@ class RecipesHomeViewModelTest {
     )
 
     @Test
+    fun importRecipe_opensImport() = runTest {
+        val viewModel = RecipesHomeViewModel(recipes, drinkRepository(), NetworkMonitor.forTests(online = true), context)
+
+        viewModel.effects.test {
+            viewModel.onIntent(RecipesHomeIntent.ImportRecipe)
+            assertEquals(RecipesHomeEffect.OpenImport, awaitItem())
+        }
+    }
+
+    @Test
     fun barRecommendations_reachTheState() = runTest {
         cocktails.recommendationDrinks = listOf(negroni(), martini())
         val drinks = drinkRepository()

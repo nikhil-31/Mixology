@@ -13,6 +13,10 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items as lazyListItems
 import androidx.compose.material.icons.Icons
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.SmallFloatingActionButton
+import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.CloudOff
 import androidx.compose.material.icons.outlined.EditNote
@@ -51,6 +55,7 @@ import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 fun MyRecipesRoute(
     onRecipeClick: (Drink) -> Unit,
     onAddRecipe: () -> Unit,
+    onImportRecipe: () -> Unit = {},
     viewModel: MyRecipesViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -64,6 +69,7 @@ fun MyRecipesRoute(
         state = state,
         onRecipeClick = { viewModel.onIntent(MyRecipesIntent.OpenRecipe(it)) },
         onAddRecipe = { viewModel.onIntent(MyRecipesIntent.AddRecipe) },
+        onImportRecipe = onImportRecipe,
         onRetry = { viewModel.onIntent(MyRecipesIntent.Retry) },
         onToggleListView = { viewModel.onIntent(MyRecipesIntent.ToggleListView) },
         onQueryChanged = { viewModel.onIntent(MyRecipesIntent.QueryChanged(it)) },
@@ -78,6 +84,7 @@ fun MyRecipesScreen(
     onRetry: () -> Unit,
     onToggleListView: () -> Unit,
     onQueryChanged: (String) -> Unit = {},
+    onImportRecipe: () -> Unit = {},
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -132,7 +139,22 @@ fun MyRecipesScreen(
                             .align(Alignment.Center)
                             .testTag("my_recipes_empty"),
                         action = {
-                            Button(onClick = onAddRecipe) { Text(stringResource(R.string.my_recipes_add)) }
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                Button(onClick = onAddRecipe) { Text(stringResource(R.string.my_recipes_add)) }
+                                OutlinedButton(
+                                    onClick = onImportRecipe,
+                                    modifier = Modifier.testTag("my_recipes_empty_import"),
+                                ) {
+                                    Icon(Icons.Outlined.Link, contentDescription = null, modifier = Modifier.size(18.dp))
+                                    Text(
+                                        stringResource(R.string.recipe_import_from_link),
+                                        modifier = Modifier.padding(start = 8.dp),
+                                    )
+                                }
+                            }
                         },
                     )
                     state.noMatches -> EmptyState(
@@ -171,18 +193,29 @@ fun MyRecipesScreen(
         }
         // The empty state has its own Add button.
         if (!state.showEmpty) {
-            ExtendedFloatingActionButton(
-                onClick = onAddRecipe,
-                icon = { Icon(Icons.Filled.Add, contentDescription = null) },
-                text = { Text(stringResource(R.string.my_recipes_add)) },
+            Column(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(16.dp)
-                    .testTag("my_recipes_add"),
-            )
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                SmallFloatingActionButton(
+                    onClick = onImportRecipe,
+                    modifier = Modifier.testTag("my_recipes_import"),
+                ) {
+                    Icon(Icons.Outlined.Link, contentDescription = stringResource(R.string.recipe_import_from_link))
+                }
+                ExtendedFloatingActionButton(
+                    onClick = onAddRecipe,
+                    icon = { Icon(Icons.Filled.Add, contentDescription = null) },
+                    text = { Text(stringResource(R.string.my_recipes_add)) },
+                    modifier = Modifier.testTag("my_recipes_add"),
+                )
+            }
         }
     }
 }
 
 /** Room under the last row so the FAB doesn't cover it. */
-private val FabClearance = 88.dp
+private val FabClearance = 148.dp

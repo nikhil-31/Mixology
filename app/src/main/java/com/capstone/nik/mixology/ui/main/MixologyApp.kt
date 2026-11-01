@@ -93,6 +93,9 @@ fun MixologyApp(
     windowSizeClass: WindowSizeClass,
     pendingDrink: Drink? = null,
     onPendingDrinkConsumed: () -> Unit = {},
+    /** Text shared from another app, to open in Import and import. */
+    pendingImport: String? = null,
+    onPendingImportConsumed: () -> Unit = {},
     viewModel: MainViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -194,6 +197,16 @@ fun MixologyApp(
             launchSingleTop = true
         }
         onPendingDrinkConsumed()
+    }
+
+    LaunchedEffect(pendingImport) {
+        val text = pendingImport ?: return@LaunchedEffect
+        navController.currentBackStackEntryFlow.first()
+        // A new Import for each share, in place of one that's already open.
+        navController.navigate(importRecipeRoute(text)) {
+            popUpTo(IMPORT_RECIPE_ROUTE) { inclusive = true }
+        }
+        onPendingImportConsumed()
     }
 
     val showSearch = !overlay &&
@@ -405,7 +418,7 @@ fun MixologyApp(
                                     viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Recipes))
                                 },
                                 onImportRecipe = {
-                                    navController.navigate(IMPORT_RECIPE_ROUTE) { launchSingleTop = true }
+                                    navController.navigate(importRecipeRoute()) { launchSingleTop = true }
                                 },
                                 onCheckForUpdates = {
                                     activity?.let { host ->
@@ -472,6 +485,9 @@ fun MixologyApp(
                                         MainIntent.SelectDestination(DrawerDestination.Filter(DrinkFilter.SAVED)),
                                     )
                                 },
+                                onImportRecipe = {
+                                    navController.navigate(importRecipeRoute()) { launchSingleTop = true }
+                                },
                             )
                         }
                         composable(MY_RECIPES_ROUTE) {
@@ -481,6 +497,9 @@ fun MixologyApp(
                                 },
                                 onAddRecipe = {
                                     navController.navigate(recipeEditorRoute()) { launchSingleTop = true }
+                                },
+                                onImportRecipe = {
+                                    navController.navigate(importRecipeRoute()) { launchSingleTop = true }
                                 },
                             )
                         }
@@ -500,8 +519,21 @@ fun MixologyApp(
                                 onDeleted = { navController.navigateUp() },
                             )
                         }
-                        composable(IMPORT_RECIPE_ROUTE) {
+                        composable(
+                            route = IMPORT_RECIPE_ROUTE,
+                            arguments = listOf(
+                                navArgument("text") {
+                                    type = NavType.StringType
+                                    defaultValue = ""
+                                },
+                            ),
+                        ) { entry ->
                             ImportRecipeRoute(
+                                sharedText = entry.arguments?.getString("text")?.takeIf { it.isNotBlank() },
+                                onAskAda = {
+                                    navController.popBackStack(IMPORT_RECIPE_ROUTE, inclusive = true)
+                                    viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Ada))
+                                },
                                 onBack = { navController.navigateUp() },
                                 // The editor takes the import's place, so Back returns to Settings.
                                 onImported = { id ->

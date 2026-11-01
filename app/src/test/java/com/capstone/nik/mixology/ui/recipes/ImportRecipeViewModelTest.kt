@@ -35,6 +35,7 @@ class ImportRecipeViewModelTest {
     private val network = NetworkMonitor.forTests()
     private lateinit var repository: NetworkRecipeRepository
     private lateinit var viewModel: ImportRecipeViewModel
+    private val adaInbox = com.capstone.nik.mixology.ui.ada.AdaInbox()
 
     @Before
     fun setUp() {
@@ -43,7 +44,72 @@ class ImportRecipeViewModelTest {
         sessions.save("token", 3600, "ada@example.com", "Ada", uid = "uid-1", access = "trial")
         val subscriptions = SubscriptionRepository(FakeBillingService(), FakeStoreBilling(), sessions)
         repository = NetworkRecipeRepository(service, subscriptions, sessions)
-        viewModel = ImportRecipeViewModel(repository, network)
+        viewModel = ImportRecipeViewModel(repository, network, adaInbox)
+    }
+
+    @Test
+    fun sharedTextIsFilledInAndImported() = runTest {
+        viewModel.effects.test {
+            viewModel.onIntent(ImportRecipeIntent.Shared("Try this https://www.tiktok.com/@bar/video/1"))
+            assertEquals(ImportRecipeEffect.Imported("u-import", duplicate = false), awaitItem())
+        }
+
+        assertEquals("Try this https://www.tiktok.com/@bar/video/1", viewModel.state.value.text)
+        assertEquals("Try this https://www.tiktok.com/@bar/video/1", service.imports.single().text)
+    }
+
+    @Test
+    fun blankSharedTextDoesNothing() = runTest {
+        viewModel.onIntent(ImportRecipeIntent.Shared("   "))
+
+        assertEquals("", viewModel.state.value.text)
+        assertTrue(service.imports.isEmpty())
+    }
+
+    @Test
+    fun cancelStopsWaitingAndKeepsTheText() = runTest {
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        service.importGate = gate
+        viewModel.onIntent(ImportRecipeIntent.TextChanged("https://www.instagram.com/reel/abc/"))
+
+        viewModel.effects.test {
+            viewModel.onIntent(ImportRecipeIntent.Import)
+            assertTrue(viewModel.state.value.importing)
+
+            viewModel.onIntent(ImportRecipeIntent.Cancel)
+            gate.complete(Unit)
+
+            assertFalse(viewModel.state.value.importing)
+            assertEquals("https://www.instagram.com/reel/abc/", viewModel.state.value.text)
+            expectNoEvents()
+        }
+        assertTrue(repository.recipes.value.isEmpty())
+    }
+
+    @Test
+    fun askAdaHandsTheTextToAdaAndOpensHerTab() = runTest {
+        service.failImportWith = 502 to "The page answered 403"
+        viewModel.onIntent(ImportRecipeIntent.TextChanged("https://www.liquor.com/recipes/paper-plane/"))
+        viewModel.onIntent(ImportRecipeIntent.Import)
+
+        viewModel.effects.test {
+            viewModel.onIntent(ImportRecipeIntent.AskAda)
+            assertEquals(ImportRecipeEffect.OpenAda, awaitItem())
+        }
+        assertEquals("https://www.liquor.com/recipes/paper-plane/", adaInbox.pending.value)
+        assertNull(viewModel.state.value.error)
+    }
+
+    @Test
+    fun dismissErrorClearsIt() = runTest {
+        service.failImportWith = 502 to "The page answered 403"
+        viewModel.onIntent(ImportRecipeIntent.TextChanged("https://www.liquor.com/recipes/paper-plane/"))
+        viewModel.onIntent(ImportRecipeIntent.Import)
+        assertEquals(ImportRecipeError.Unreachable, viewModel.state.value.error)
+
+        viewModel.onIntent(ImportRecipeIntent.DismissError)
+
+        assertNull(viewModel.state.value.error)
     }
 
     @Test
@@ -116,7 +182,7 @@ class ImportRecipeViewModelTest {
             viewModel.state.value.error,
         )
 
-        viewModel = ImportRecipeViewModel(repository, NetworkMonitor.forTests(online = false))
+        viewModel = ImportRecipeViewModel(repository, NetworkMonitor.forTests(online = false), adaInbox)
         viewModel.onIntent(ImportRecipeIntent.TextChanged("2 oz gin"))
         viewModel.onIntent(ImportRecipeIntent.Import)
         assertEquals(ImportRecipeError.NoConnection(ConnectionError.NO_CONNECTION), viewModel.state.value.error)

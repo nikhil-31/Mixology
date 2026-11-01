@@ -1,6 +1,7 @@
 package com.capstone.nik.mixology.repository
 
 import com.capstone.nik.mixology.Network.ChatStreamEvent
+import com.capstone.nik.mixology.Network.remoteModel.ChatRecipeDto
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.Session
 import kotlinx.coroutines.flow.Flow
@@ -13,6 +14,8 @@ data class ChatTurn(
     val serverId: Long = 0,
     /** More drinks match than this assistant reply shows. */
     val hasMore: Boolean = false,
+    /** A recipe Ada read from a link or photo in this reply. */
+    val recipe: ChatRecipeDto? = null,
 )
 
 /** One page of chat, oldest first. [hasMore] means older messages remain. */
@@ -56,4 +59,7 @@ interface ChatRepository {
     suspend fun matches(query: String, exclude: List<String>, offset: Int): DrinkMatchPage
 
     fun send(message: String): Flow<ChatStreamEvent>
+
+    /** A photo of recipe notes for Ada to read; [message] is what was typed with it. */
+    fun sendPhoto(jpeg: ByteArray, message: String): Flow<ChatStreamEvent>
 }

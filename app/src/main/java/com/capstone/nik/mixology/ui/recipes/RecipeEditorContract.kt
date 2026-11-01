@@ -114,6 +114,9 @@ data class RecipeEditorUiState(
     val form: RecipeForm = RecipeForm(),
     /** The saved photo's thumb (relative to the API), if any. */
     val savedPhoto: String? = null,
+    /** The post or page the recipe was imported from, kept by the server on edits. */
+    val sourceUrl: String? = null,
+    val source: String? = null,
     /** Shown once the user has tried to save. */
     val errors: RecipeErrors = RecipeErrors(),
     val saving: Boolean = false,

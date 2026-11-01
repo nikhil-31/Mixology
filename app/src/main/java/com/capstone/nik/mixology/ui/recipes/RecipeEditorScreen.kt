@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -47,6 +48,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -65,6 +69,8 @@ import coil.request.ImageRequest
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.repository.RecipeRepository
+import com.capstone.nik.mixology.ui.components.FullscreenImage
+import com.capstone.nik.mixology.ui.components.SourceLink
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 
 @Composable
@@ -178,6 +184,9 @@ fun RecipeEditorScreen(
                     onPick = launchPicker,
                     onRemove = { onIntent(RecipeEditorIntent.RemovePhoto) },
                 )
+                state.sourceUrl?.let { url ->
+                    SourceLink(sourceUrl = url, source = state.source)
+                }
 
                 OutlinedTextField(
                     value = form.name,
@@ -351,13 +360,16 @@ private fun PhotoSection(
     onRemove: () -> Unit,
 ) {
     val model = if (preview is String) Drink.resolveThumbUrl(preview) else preview
+    var fullscreen by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(200.dp)
+            // Portrait, like most posts' photos; the empty placeholder stays short.
+            .then(if (model != null) Modifier.aspectRatio(4f / 5f) else Modifier.height(200.dp))
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
-            .clickable(onClick = onPick)
+            // A photo opens full screen; Change photo picks another.
+            .clickable(onClick = if (model != null) ({ fullscreen = true }) else onPick)
             .testTag("recipe_photo"),
         contentAlignment = Alignment.Center,
     ) {
@@ -388,6 +400,13 @@ private fun PhotoSection(
                 )
             }
         }
+    }
+    if (fullscreen && model != null) {
+        FullscreenImage(
+            model = model,
+            contentDescription = stringResource(R.string.recipe_photo),
+            onDismiss = { fullscreen = false },
+        )
     }
     if (model != null) {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

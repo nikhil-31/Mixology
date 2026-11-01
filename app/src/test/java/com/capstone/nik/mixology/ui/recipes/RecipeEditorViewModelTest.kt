@@ -157,6 +157,27 @@ class RecipeEditorViewModelTest {
     }
 
     @Test
+    fun anImportedRecipeShowsAndKeepsItsSourceLink() = runTest {
+        service.recipes += ApiDrink(
+            id = "u-7",
+            name = "Paper Plane",
+            ingredients = listOf(IngredientMeasure("Bourbon", "3/4 oz")),
+            sourceUrl = "https://www.instagram.com/reel/abc/",
+            source = "instagram",
+        )
+        repository.load()
+        viewModel.onIntent(RecipeEditorIntent.Bind("u-7"))
+        assertEquals("https://www.instagram.com/reel/abc/", viewModel.state.value.sourceUrl)
+        assertEquals("instagram", viewModel.state.value.source)
+
+        viewModel.onIntent(RecipeEditorIntent.NameChanged("Paper Plane No. 2"))
+        viewModel.onIntent(RecipeEditorIntent.Save)
+
+        assertEquals("https://www.instagram.com/reel/abc/", viewModel.state.value.sourceUrl)
+        assertEquals("https://www.instagram.com/reel/abc/", repository.recipes.value.single().sourceUrl)
+    }
+
+    @Test
     fun editingUpdatesAndRemovingThePhotoDeletesIt() = runTest {
         service.recipes += ApiDrink(
             id = "u-5",

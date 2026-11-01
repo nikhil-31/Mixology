@@ -98,6 +98,8 @@ class RecipeEditorViewModel @Inject constructor(
                 loading = false,
                 form = savedForm,
                 savedPhoto = recipe.thumb.takeIf { recipe.hasUsableThumb() },
+                sourceUrl = recipe.sourceUrl,
+                source = recipe.source,
                 dirty = false,
                 error = null,
             )
@@ -186,6 +188,8 @@ class RecipeEditorViewModel @Inject constructor(
                 copy(
                     recipeId = saved.id,
                     savedPhoto = saved.thumb.takeIf { saved.hasUsableThumb() },
+                    sourceUrl = saved.sourceUrl ?: sourceUrl,
+                    source = saved.source ?: source,
                     dirty = false,
                 )
             }

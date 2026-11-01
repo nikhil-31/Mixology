@@ -1,5 +1,6 @@
 package com.capstone.nik.mixology.ui.recipes
 
+import androidx.compose.material.icons.outlined.Link
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -66,6 +67,7 @@ fun RecipesHomeRoute(
     onAddRecipe: () -> Unit,
     onSeeAllRecipes: () -> Unit,
     onSeeAllSaved: () -> Unit,
+    onImportRecipe: () -> Unit = {},
     viewModel: RecipesHomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -73,6 +75,7 @@ fun RecipesHomeRoute(
         when (effect) {
             is RecipesHomeEffect.OpenDrink -> onDrinkClick(effect.drink)
             RecipesHomeEffect.OpenEditor -> onAddRecipe()
+            RecipesHomeEffect.OpenImport -> onImportRecipe()
             RecipesHomeEffect.OpenMyRecipes -> onSeeAllRecipes()
             RecipesHomeEffect.OpenSaved -> onSeeAllSaved()
         }
@@ -107,8 +110,14 @@ fun RecipesHomeScreen(
                 body = stringResource(R.string.recipes_home_empty_body),
                 modifier = Modifier.align(Alignment.Center).testTag("recipes_home_empty"),
                 action = {
-                    Button(onClick = { onIntent(RecipesHomeIntent.AddRecipe) }) {
-                        Text(stringResource(R.string.recipes_home_create))
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Button(onClick = { onIntent(RecipesHomeIntent.AddRecipe) }) {
+                            Text(stringResource(R.string.recipes_home_create))
+                        }
+                        ImportFromLinkButton(onClick = { onIntent(RecipesHomeIntent.ImportRecipe) })
                     }
                 },
             )
@@ -179,6 +188,10 @@ private fun RecipesHomeContent(
                         Spacer(Modifier.width(8.dp))
                         Text(stringResource(R.string.recipes_home_create))
                     }
+                    ImportFromLinkButton(
+                        onClick = { onIntent(RecipesHomeIntent.ImportRecipe) },
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    )
                 }
             }
         }
@@ -472,4 +485,13 @@ private fun drinkMeta(drink: Drink): String {
         drink.glass?.trim()?.takeIf { it.isNotEmpty() }?.let(::add)
     }
     return parts.joinToString(" · ")
+}
+
+@Composable
+private fun ImportFromLinkButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    OutlinedButton(onClick = onClick, modifier = modifier.testTag("recipes_home_import")) {
+        Icon(Icons.Outlined.Link, contentDescription = null, modifier = Modifier.size(18.dp))
+        Spacer(Modifier.width(8.dp))
+        Text(stringResource(R.string.recipe_import_from_link))
+    }
 }

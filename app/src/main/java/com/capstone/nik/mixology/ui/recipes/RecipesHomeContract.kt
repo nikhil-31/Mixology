@@ -29,6 +29,7 @@ sealed interface RecipesHomeIntent {
     data object Retry : RecipesHomeIntent
     data class OpenDrink(val drink: Drink) : RecipesHomeIntent
     data object AddRecipe : RecipesHomeIntent
+    data object ImportRecipe : RecipesHomeIntent
     data object SeeAllRecipes : RecipesHomeIntent
     data object SeeAllSaved : RecipesHomeIntent
 }
@@ -36,6 +37,7 @@ sealed interface RecipesHomeIntent {
 sealed interface RecipesHomeEffect {
     data class OpenDrink(val drink: Drink) : RecipesHomeEffect
     data object OpenEditor : RecipesHomeEffect
+    data object OpenImport : RecipesHomeEffect
     data object OpenMyRecipes : RecipesHomeEffect
     data object OpenSaved : RecipesHomeEffect
 }

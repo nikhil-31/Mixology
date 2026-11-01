@@ -1,5 +1,25 @@
 package com.capstone.nik.mixology.ui.ada
 
+import android.content.Context
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.compose.material.icons.outlined.AddAPhoto
+import androidx.compose.material.icons.outlined.Link
+import androidx.compose.material.icons.outlined.PhotoCamera
+import androidx.compose.material.icons.outlined.PhotoLibrary
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.core.content.FileProvider
+import coil.compose.AsyncImage
+import com.capstone.nik.mixology.ui.recipes.firstLink
+import com.capstone.nik.mixology.ui.recipes.linkSite
+import java.io.File
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -126,6 +146,17 @@ fun AdaRoute(
     val askMicrophone = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         viewModel.onIntent(AdaIntent.VoicePermission(granted))
     }
+    val composerFocus = remember { FocusRequester() }
+    val choosePhoto = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        uri?.let { viewModel.onIntent(AdaIntent.SendPhoto(it)) }
+    }
+    // The camera writes into a cache file this app shares with it.
+    var cameraUri by rememberSaveable { mutableStateOf<Uri?>(null) }
+    val takePhoto = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { taken ->
+        val uri = cameraUri
+        if (taken && uri != null) viewModel.onIntent(AdaIntent.SendPhoto(uri))
+    }
+    val clipboard = LocalClipboardManager.current
     LaunchedEffect(Unit) {
         viewModel.onIntent(AdaIntent.Load)
     }
@@ -133,6 +164,7 @@ fun AdaRoute(
         when (effect) {
             is AdaEffect.OpenDrink -> onDrinkClick(effect.drink)
             is AdaEffect.OpenMore -> onOpenMore(effect.query, effect.exclude)
+            AdaEffect.FocusComposer -> runCatching { composerFocus.requestFocus() }
             AdaEffect.RequestMicrophone -> {
                 val permission = Manifest.permission.RECORD_AUDIO
                 if (ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED) {
@@ -178,6 +210,22 @@ fun AdaRoute(
         voiceAvailable = voiceAvailable,
         creditsResetAt = chatCredits?.resetsAt,
         onToggleVoice = { viewModel.onIntent(AdaIntent.ToggleVoice) },
+        onSaveRecipe = { viewModel.onIntent(AdaIntent.SaveRecipe(it)) },
+        onDropRecipe = { viewModel.onIntent(AdaIntent.DropRecipe(it)) },
+        onOpenRecipe = { viewModel.onIntent(AdaIntent.OpenRecipe(it)) },
+        onChoosePhoto = {
+            choosePhoto.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+        },
+        onTakePhoto = {
+            val uri = adaCameraUri(context)
+            cameraUri = uri
+            takePhoto.launch(uri)
+        },
+        onImportSuggestion = {
+            val text = clipboard.getText()?.text
+            viewModel.onIntent(AdaIntent.UseImportSuggestion(text?.takeIf { firstLink(it) != null }))
+        },
+        composerFocus = composerFocus,
         onOpenSettings = {
             context.startActivity(
                 Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null)),
@@ -201,6 +249,13 @@ fun AdaScreen(
     creditsResetAt: Date? = null,
     onToggleVoice: () -> Unit = {},
     onOpenSettings: () -> Unit = {},
+    onSaveRecipe: (messageId: Long) -> Unit = {},
+    onDropRecipe: (messageId: Long) -> Unit = {},
+    onOpenRecipe: (messageId: Long) -> Unit = {},
+    onChoosePhoto: () -> Unit = {},
+    onTakePhoto: () -> Unit = {},
+    onImportSuggestion: () -> Unit = {},
+    composerFocus: FocusRequester = remember { FocusRequester() },
 ) {
     Column(
         modifier = Modifier
@@ -223,6 +278,13 @@ fun AdaScreen(
                 creditsResetAt = creditsResetAt,
                 onToggleVoice = onToggleVoice,
                 onOpenSettings = onOpenSettings,
+                onSaveRecipe = onSaveRecipe,
+                onDropRecipe = onDropRecipe,
+                onOpenRecipe = onOpenRecipe,
+                onChoosePhoto = onChoosePhoto,
+                onTakePhoto = onTakePhoto,
+                onImportSuggestion = onImportSuggestion,
+                composerFocus = composerFocus,
                 modifier = Modifier.weight(1f),
             )
         }
@@ -243,6 +305,13 @@ private fun AdaTranscript(
     creditsResetAt: Date?,
     onToggleVoice: () -> Unit,
     onOpenSettings: () -> Unit,
+    onSaveRecipe: (messageId: Long) -> Unit,
+    onDropRecipe: (messageId: Long) -> Unit,
+    onOpenRecipe: (messageId: Long) -> Unit,
+    onChoosePhoto: () -> Unit,
+    onTakePhoto: () -> Unit,
+    onImportSuggestion: () -> Unit,
+    composerFocus: FocusRequester,
     modifier: Modifier = Modifier,
 ) {
     val suggestions = listOf(
@@ -325,6 +394,12 @@ private fun AdaTranscript(
                                 modifier = Modifier.testTag("ada_suggestion_$index"),
                             )
                         }
+                        AdaSuggestion(
+                            label = stringResource(R.string.ada_suggestion_import),
+                            icon = Icons.Outlined.Link,
+                            onClick = onImportSuggestion,
+                            modifier = Modifier.testTag("ada_suggestion_import"),
+                        )
                     }
                 }
             }
@@ -351,6 +426,10 @@ private fun AdaTranscript(
                             onToggleSaved = onToggleSaved,
                             // Only the newest reply pages; older ones would page the wrong search.
                             onShowMore = { onShowMore(message.id) }.takeIf { message.id == newestId && !state.sending },
+                            canAnswerRecipe = !state.sending,
+                            onSaveRecipe = { onSaveRecipe(message.id) },
+                            onDropRecipe = { onDropRecipe(message.id) },
+                            onOpenRecipe = { onOpenRecipe(message.id) },
                         )
                     }
                     if (state.loadingOlder) {
@@ -404,7 +483,34 @@ private fun AdaTranscript(
             )
             null -> Unit
         }
+        val linkSite = remember(state.draft) { linkSite(state.draft) }
+        if (linkSite != null && !state.sending) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 28.dp, end = 20.dp, top = 4.dp)
+                    .testTag("ada_link_hint"),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Link,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(16.dp),
+                )
+                Text(
+                    text = stringResource(R.string.ada_link_hint, linkSite),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = 6.dp),
+                )
+            }
+        }
         AdaComposer(
+            focusRequester = composerFocus,
+            canAttach = !state.sending && !state.loadingHistory && !state.listening,
+            onChoosePhoto = onChoosePhoto,
+            onTakePhoto = onTakePhoto,
             draft = state.draft,
             canSend = state.draft.isNotBlank() && !state.sending && !state.loadingHistory,
             listening = state.listening,
@@ -489,6 +595,10 @@ private fun AdaNotice(
 
 @Composable
 private fun AdaComposer(
+    focusRequester: FocusRequester,
+    canAttach: Boolean,
+    onChoosePhoto: () -> Unit,
+    onTakePhoto: () -> Unit,
     draft: String,
     canSend: Boolean,
     listening: Boolean,
@@ -513,14 +623,20 @@ private fun AdaComposer(
         ),
     ) {
         Row(
-            modifier = Modifier.padding(start = 18.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
+            modifier = Modifier.padding(start = 4.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
             verticalAlignment = Alignment.Bottom,
         ) {
+            AttachPhotoButton(
+                enabled = canAttach,
+                onChoosePhoto = onChoosePhoto,
+                onTakePhoto = onTakePhoto,
+            )
             BasicTextField(
                 value = draft,
                 onValueChange = onDraftChanged,
                 modifier = Modifier
                     .weight(1f)
+                    .focusRequester(focusRequester)
                     .heightIn(min = ComposerButtonSize)
                     .testTag("ada_draft"),
                 textStyle = MaterialTheme.typography.bodyLarge.copy(color = colors.onSurface),
@@ -636,6 +752,10 @@ private fun AdaMessageRow(
     continuesRun: Boolean = false,
     /** Last in a run from one sender: it gets the avatar and the tail. */
     endsRun: Boolean = true,
+    canAnswerRecipe: Boolean = true,
+    onSaveRecipe: () -> Unit = {},
+    onDropRecipe: () -> Unit = {},
+    onOpenRecipe: () -> Unit = {},
 ) {
     val fromUser = message.role == "user"
     val tail = if (endsRun) BubbleTail else BubbleRadius
@@ -656,6 +776,19 @@ private fun AdaMessageRow(
             .padding(top = if (continuesRun) 2.dp else 12.dp)
             .testTag(if (fromUser) "ada_user_message" else "ada_assistant_message"),
     ) {
+        if (fromUser && message.photo != null) {
+            AsyncImage(
+                model = message.photo,
+                contentDescription = stringResource(R.string.ada_photo_sent),
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .padding(end = 12.dp, bottom = 4.dp)
+                    .size(width = 160.dp, height = 200.dp)
+                    .clip(RoundedCornerShape(BubbleRadius))
+                    .testTag("ada_user_photo"),
+            )
+        }
         if (message.content.isNotEmpty() || message.streaming) {
             Row(
                 modifier = Modifier
@@ -724,6 +857,16 @@ private fun AdaMessageRow(
                     )
                 }
             }
+        }
+        if (!fromUser && message.recipe != null) {
+            AdaRecipeCard(
+                recipe = message.recipe,
+                canAnswer = canAnswerRecipe,
+                onSave = onSaveRecipe,
+                onDrop = onDropRecipe,
+                onOpen = onOpenRecipe,
+                modifier = Modifier.padding(start = 12.dp + AvatarSize + AvatarGap, end = 12.dp, top = 8.dp),
+            )
         }
         if (!fromUser && message.hasMore && onShowMore != null) {
             SuggestionChip(
@@ -823,3 +966,55 @@ private fun TypingDots(modifier: Modifier = Modifier) {
 
 /** Start loading older messages when this many items from the oldest loaded one. */
 private const val OLDER_PREFETCH = 3
+
+@Composable
+private fun AttachPhotoButton(
+    enabled: Boolean,
+    onChoosePhoto: () -> Unit,
+    onTakePhoto: () -> Unit,
+) {
+    var open by remember { mutableStateOf(false) }
+    Box {
+        IconButton(
+            onClick = { open = true },
+            enabled = enabled,
+            modifier = Modifier
+                .size(ComposerButtonSize)
+                .testTag("ada_attach_photo"),
+            colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.onSurfaceVariant),
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.AddAPhoto,
+                contentDescription = stringResource(R.string.ada_photo_attach),
+                modifier = Modifier.size(22.dp),
+            )
+        }
+        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.ada_photo_take)) },
+                leadingIcon = { Icon(Icons.Outlined.PhotoCamera, contentDescription = null) },
+                onClick = {
+                    open = false
+                    onTakePhoto()
+                },
+                modifier = Modifier.testTag("ada_photo_take"),
+            )
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.ada_photo_choose)) },
+                leadingIcon = { Icon(Icons.Outlined.PhotoLibrary, contentDescription = null) },
+                onClick = {
+                    open = false
+                    onChoosePhoto()
+                },
+                modifier = Modifier.testTag("ada_photo_choose"),
+            )
+        }
+    }
+}
+
+/** A fresh cache file the camera can write a photo for Ada into. */
+private fun adaCameraUri(context: Context): Uri {
+    val dir = File(context.cacheDir, "ada_photos").apply { mkdirs() }
+    val file = File(dir, "photo-${System.currentTimeMillis()}.jpg")
+    return FileProvider.getUriForFile(context, "${context.packageName}.photos", file)
+}

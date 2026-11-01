@@ -82,6 +82,7 @@ class NetworkChatRepository @Inject constructor(
                         drinks = message.drinks.orEmpty().mapNotNull { it.toDrink() },
                         serverId = message.id,
                         hasMore = message.hasMore,
+                        recipe = message.recipe,
                     )
                 },
                 hasMore = page.hasMore,
@@ -112,13 +113,19 @@ class NetworkChatRepository @Inject constructor(
         }
     }
 
-    override fun send(message: String): Flow<ChatStreamEvent> {
+    override fun send(message: String): Flow<ChatStreamEvent> = guarded { streamer.stream(message) }
+
+    override fun sendPhoto(jpeg: ByteArray, message: String): Flow<ChatStreamEvent> =
+        guarded { streamer.streamPhoto(jpeg, message) }
+
+    /** Ada's reply stream, keeping the session, subscription and credits in step with it. */
+    private fun guarded(stream: () -> Flow<ChatStreamEvent>): Flow<ChatStreamEvent> {
         if (sessionStore.current() == null) {
             return flow {
                 throw ChatHttpException(401, "Not authenticated")
             }
         }
-        return streamer.stream(message).onEach { event ->
+        return stream().onEach { event ->
             if (event is ChatStreamEvent.Done) subscriptions.updateChatCredits(event.credits)
         }.catch { error ->
             if (error is CancellationException) throw error

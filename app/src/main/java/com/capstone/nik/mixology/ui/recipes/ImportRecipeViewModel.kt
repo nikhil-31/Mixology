@@ -5,9 +5,11 @@ import com.capstone.nik.mixology.Network.NetworkMonitor
 import com.capstone.nik.mixology.Network.connectionError
 import com.capstone.nik.mixology.repository.RecipeHttpException
 import com.capstone.nik.mixology.repository.RecipeRepository
+import com.capstone.nik.mixology.ui.ada.AdaInbox
 import com.capstone.nik.mixology.ui.mvi.MviViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -15,7 +17,10 @@ import javax.inject.Inject
 class ImportRecipeViewModel @Inject constructor(
     private val recipes: RecipeRepository,
     private val networkMonitor: NetworkMonitor,
+    private val adaInbox: AdaInbox,
 ) : MviViewModel<ImportRecipeIntent, ImportRecipeUiState, ImportRecipeEffect>(ImportRecipeUiState()) {
+
+    private var importJob: Job? = null
 
     override fun onIntent(intent: ImportRecipeIntent) {
         when (intent) {
@@ -23,6 +28,24 @@ class ImportRecipeViewModel @Inject constructor(
                 copy(text = intent.value.take(IMPORT_TEXT_LIMIT), error = null)
             }
             ImportRecipeIntent.Import -> import()
+            is ImportRecipeIntent.Shared -> {
+                if (intent.value.isBlank() || currentState.importing) return
+                setState { copy(text = intent.value.take(IMPORT_TEXT_LIMIT), error = null) }
+                import()
+            }
+            ImportRecipeIntent.Cancel -> {
+                importJob?.cancel()
+                importJob = null
+                setState { copy(importing = false) }
+            }
+            ImportRecipeIntent.DismissError -> setState { copy(error = null) }
+            ImportRecipeIntent.AskAda -> {
+                val text = currentState.text.trim()
+                if (text.isEmpty() || currentState.importing) return
+                adaInbox.post(text)
+                setState { copy(error = null) }
+                sendEffect(ImportRecipeEffect.OpenAda)
+            }
         }
     }
 
@@ -30,7 +53,7 @@ class ImportRecipeViewModel @Inject constructor(
         val state = currentState
         if (!state.canImport) return
         setState { copy(importing = true, error = null) }
-        viewModelScope.launch {
+        importJob = viewModelScope.launch {
             try {
                 val imported = recipes.importRecipe(state.text.trim())
                 setState { copy(importing = false) }

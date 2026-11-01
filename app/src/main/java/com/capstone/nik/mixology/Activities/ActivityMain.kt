@@ -18,6 +18,7 @@ import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.ui.auth.AuthRoute
 import com.capstone.nik.mixology.ui.auth.SessionViewModel
 import com.capstone.nik.mixology.ui.drinkExtra
+import com.capstone.nik.mixology.ui.sharedImportText
 import com.capstone.nik.mixology.ui.main.MixologyApp
 import com.capstone.nik.mixology.ui.paywall.PaywallRoute
 import com.capstone.nik.mixology.ui.paywall.SubscriptionGateViewModel
@@ -27,6 +28,8 @@ import com.capstone.nik.mixology.ui.theme.MixologyTheme
 class ActivityMain : AppCompatActivity() {
 
     private var pendingDrink by mutableStateOf<Drink?>(null)
+    /** Text shared from another app, waiting to be imported as a recipe. */
+    private var pendingImport by mutableStateOf<String?>(null)
     private val sessionViewModel: SessionViewModel by viewModels()
     private val subscriptionGate: SubscriptionGateViewModel by viewModels()
 
@@ -34,6 +37,8 @@ class ActivityMain : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         pendingDrink = intent.drinkExtra()
+        // Not again when the activity is recreated, such as on rotation.
+        if (savedInstanceState == null) pendingImport = intent.sharedImportText()
         enableEdgeToEdge()
         setContent {
             MixologyTheme {
@@ -54,6 +59,8 @@ class ActivityMain : AppCompatActivity() {
                         windowSizeClass = calculateWindowSizeClass(this),
                         pendingDrink = pendingDrink,
                         onPendingDrinkConsumed = { pendingDrink = null },
+                        pendingImport = pendingImport,
+                        onPendingImportConsumed = { pendingImport = null },
                     )
                 }
             }
@@ -70,5 +77,6 @@ class ActivityMain : AppCompatActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         pendingDrink = intent.drinkExtra()
+        intent.sharedImportText()?.let { pendingImport = it }
     }
 }

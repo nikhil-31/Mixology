@@ -31,9 +31,18 @@ sealed interface ImportRecipeIntent {
     /** Typed or pasted text; cut to [IMPORT_TEXT_LIMIT]. */
     data class TextChanged(val value: String) : ImportRecipeIntent
     data object Import : ImportRecipeIntent
+    /** Text another app shared: filled in and imported right away. */
+    data class Shared(val value: String) : ImportRecipeIntent
+    /** Stop waiting on the server; the text stays for another try. */
+    data object Cancel : ImportRecipeIntent
+    data object DismissError : ImportRecipeIntent
+    /** Hand the text to Ada, who can talk it through when the import can't read it. */
+    data object AskAda : ImportRecipeIntent
 }
 
 sealed interface ImportRecipeEffect {
     /** Recipe [id] is saved; [duplicate] when it was imported before. */
     data class Imported(val id: String, val duplicate: Boolean) : ImportRecipeEffect
+    /** The text is waiting for Ada; open her tab. */
+    data object OpenAda : ImportRecipeEffect
 }

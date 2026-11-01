@@ -44,6 +44,7 @@ class RecipesHomeViewModel @Inject constructor(
             RecipesHomeIntent.Retry -> load()
             is RecipesHomeIntent.OpenDrink -> sendEffect(RecipesHomeEffect.OpenDrink(intent.drink))
             RecipesHomeIntent.AddRecipe -> sendEffect(RecipesHomeEffect.OpenEditor)
+            RecipesHomeIntent.ImportRecipe -> sendEffect(RecipesHomeEffect.OpenImport)
             RecipesHomeIntent.SeeAllRecipes -> sendEffect(RecipesHomeEffect.OpenMyRecipes)
             RecipesHomeIntent.SeeAllSaved -> sendEffect(RecipesHomeEffect.OpenSaved)
         }

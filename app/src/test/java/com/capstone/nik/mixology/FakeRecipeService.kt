@@ -37,6 +37,8 @@ class FakeRecipeService : RecipeService {
     var importCredits: ChatCreditsDto? = null
     /** Only imports fail, with this status and detail, while set. */
     var failImportWith: Pair<Int, String>? = null
+    /** Imports wait on this while set, like a slow post. */
+    var importGate: kotlinx.coroutines.CompletableDeferred<Unit>? = null
     private var nextId = 1
 
     override suspend fun list(): List<ApiDrink> {
@@ -60,7 +62,10 @@ class FakeRecipeService : RecipeService {
     override suspend fun update(id: String, body: RecipeWrite): ApiDrink {
         record("update $id")
         writes += body
-        val updated = body.toApi(id, thumb = find(id).thumb)
+        val existing = find(id)
+        // Like the server, an edit keeps the link the recipe was imported from.
+        val updated = body.toApi(id, thumb = existing.thumb)
+            .copy(sourceUrl = existing.sourceUrl, source = existing.source)
         replace(updated)
         return updated
     }
@@ -90,6 +95,7 @@ class FakeRecipeService : RecipeService {
 
     override suspend fun importRecipe(body: RecipeImportRequest): RecipeImportResponse {
         record("import")
+        importGate?.await()
         failImportWith?.let { (code, detail) -> throw httpError(code, detail) }
         imports += body
         val duplicate = recipes.any { it.id == importReply.id }

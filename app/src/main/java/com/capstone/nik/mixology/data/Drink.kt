@@ -16,6 +16,10 @@ data class Drink(
     val video: String? = null,
     val ingredients: List<IngredientMeasure> = emptyList(),
     val notes: String = "",
+    /** The page or post a user's recipe was imported from. */
+    val sourceUrl: String? = null,
+    /** [sourceUrl]'s site, such as `instagram`, or the page's host. */
+    val source: String? = null,
 ) {
     val hasRecipe: Boolean
         get() = !instructions.isNullOrBlank() || ingredients.isNotEmpty()

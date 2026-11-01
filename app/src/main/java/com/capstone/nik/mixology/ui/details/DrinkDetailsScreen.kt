@@ -61,6 +61,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.ui.components.DrinkHeroImage
+import com.capstone.nik.mixology.ui.components.FullscreenImage
+import com.capstone.nik.mixology.ui.components.HeroActionButton
+import com.capstone.nik.mixology.ui.components.SourceLink
 import com.capstone.nik.mixology.ui.components.DrinkHeroOverlap
 import com.capstone.nik.mixology.ui.components.RecipeSkeleton
 import com.capstone.nik.mixology.ui.components.rememberDrinkHeroViewportHeight
@@ -268,6 +271,13 @@ fun DrinkDetailsContent(
                             )
                         },
                         extraBottomContent = {
+                            drink.sourceUrl?.takeIf { state.isUserRecipe }?.let { url ->
+                                SourceLink(
+                                    sourceUrl = url,
+                                    source = drink.source,
+                                    modifier = Modifier.padding(horizontal = 12.dp),
+                                )
+                            }
                             state.rating?.let { rating ->
                                 DrinkRatingSection(rating = rating, onRate = onRate)
                             }
@@ -304,8 +314,9 @@ fun DrinkDetailsContent(
         }
     }
     if (fullscreenImage && drink != null) {
-        FullscreenDrinkImage(
-            url = drink.thumb,
+        FullscreenImage(
+            model = drink.thumb,
+            contentDescription = stringResource(R.string.content_desc_fullscreen_drink_image),
             onDismiss = { fullscreenImage = false },
         )
     }
@@ -358,69 +369,6 @@ private fun DrinkActions(
                 )
                 Text(stringResource(R.string.detail_watch_video))
             }
-        }
-    }
-}
-
-@Composable
-private fun FullscreenDrinkImage(
-    url: String?,
-    onDismiss: () -> Unit,
-) {
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(
-            usePlatformDefaultWidth = false,
-            decorFitsSystemWindows = false,
-        ),
-    ) {
-        Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
-            DrinkImage(
-                url = url,
-                contentScale = ContentScale.Fit,
-                contentDescription = stringResource(R.string.content_desc_fullscreen_drink_image),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clickable(onClick = onDismiss),
-            )
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .statusBarsPadding()
-                    .padding(horizontal = 4.dp, vertical = 4.dp)
-                    .align(Alignment.TopStart),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                HeroActionButton(
-                    onClick = onDismiss,
-                    contentDescription = stringResource(R.string.content_desc_up_navigation),
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun HeroActionButton(
-    onClick: () -> Unit,
-    contentDescription: String,
-    imageVector: ImageVector,
-) {
-    IconButton(onClick = onClick) {
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .clip(CircleShape)
-                .background(PosterBadge),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                imageVector = imageVector,
-                contentDescription = contentDescription,
-                modifier = Modifier.size(20.dp),
-                tint = Color.White,
-            )
         }
     }
 }

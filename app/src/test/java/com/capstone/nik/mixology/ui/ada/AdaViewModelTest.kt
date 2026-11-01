@@ -5,6 +5,18 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.capstone.nik.mixology.FakeChatRepository
 import com.capstone.nik.mixology.FakeCocktailService
+import com.capstone.nik.mixology.FakeRecipeService
+import com.capstone.nik.mixology.Network.remoteModel.ApiDrink
+import com.capstone.nik.mixology.Network.remoteModel.ChatRecipeDraftDto
+import com.capstone.nik.mixology.Network.remoteModel.ChatRecipeDto
+import com.capstone.nik.mixology.Network.remoteModel.ChatRecipeIngredientDto
+import com.capstone.nik.mixology.billing.FakeBillingService
+import com.capstone.nik.mixology.billing.FakeStoreBilling
+import com.capstone.nik.mixology.billing.SubscriptionRepository
+import com.capstone.nik.mixology.data.SessionStore
+import com.capstone.nik.mixology.repository.NetworkRecipeRepository
+import com.capstone.nik.mixology.ui.recipes.RecipePhotoLoader
+import android.net.Uri
 import com.capstone.nik.mixology.MainDispatcherRule
 import com.capstone.nik.mixology.Network.ChatHttpException
 import com.capstone.nik.mixology.Network.ChatStreamEvent
@@ -52,6 +64,16 @@ class AdaViewModelTest {
     private val analytics = AnalyticsTracker.forTests()
     private val network = NetworkMonitor.forTests()
     private lateinit var viewModel: AdaViewModel
+    private val recipeService = FakeRecipeService()
+    private lateinit var recipes: NetworkRecipeRepository
+    private val photos = object : RecipePhotoLoader {
+        val loaded = mutableListOf<Uri>()
+        override suspend fun load(uri: Uri): ByteArray {
+            loaded += uri
+            return byteArrayOf(1, 2, 3)
+        }
+    }
+    private val inbox = AdaInbox()
 
     @Before
     fun setUp() {
@@ -61,6 +83,14 @@ class AdaViewModelTest {
             .setQueryExecutor { it.run() }
             .setTransactionExecutor { it.run() }
             .build()
+        val sessions = SessionStore(context)
+        sessions.clear()
+        sessions.save("token", 3600, "ada@example.com", "Ada", uid = "uid-1", access = "trial")
+        recipes = NetworkRecipeRepository(
+            recipeService,
+            SubscriptionRepository(FakeBillingService(), FakeStoreBilling(), sessions),
+            sessions,
+        )
         viewModel = AdaViewModel(
             chat,
             DrinkRepository(
@@ -72,6 +102,9 @@ class AdaViewModelTest {
             ),
             network,
             context,
+            recipes,
+            photos,
+            inbox,
             analytics,
         )
     }
@@ -388,6 +421,133 @@ class AdaViewModelTest {
 
     private fun voiceResults(): List<Any?> =
         analytics.recorded.filter { it.name == EVENT_ADA_VOICE_INPUT }.map { it.params[PARAM_RESULT] }
+
+    private fun draft(state: String = ChatRecipeDto.STATE_DRAFT, recipeId: String? = null) = ChatRecipeDto(
+        recipe = ChatRecipeDraftDto(
+            name = "Paloma",
+            ingredients = listOf(ChatRecipeIngredientDto("Tequila", "2 oz")),
+            sourceUrl = "https://www.instagram.com/p/abc/",
+        ),
+        photoUrl = "https://cdn.example.com/p.jpg",
+        source = "instagram",
+        state = state,
+        recipeId = recipeId,
+    )
+
+    @Test
+    fun recipeEvent_putsADraftCardOnTheReply() = runTest {
+        signIn()
+        chat.sendFlow = flowOf(
+            ChatStreamEvent.Delta("I read a Paloma. Save it?"),
+            ChatStreamEvent.Recipe(draft()),
+            ChatStreamEvent.Done("I read a Paloma. Save it?"),
+        )
+        viewModel.onIntent(AdaIntent.DraftChanged("https://www.instagram.com/p/abc/"))
+        viewModel.onIntent(AdaIntent.Send)
+
+        val reply = viewModel.state.value.messages.last()
+        assertEquals("Paloma", reply.recipe?.name)
+        assertEquals(AdaRecipe.State.Draft, reply.recipe?.state)
+        assertEquals("instagram", reply.recipe?.source)
+    }
+
+    @Test
+    fun saveRecipe_sendsTheAnswer_andTheDraftCardTakesTheResult() = runTest {
+        signIn()
+        chat.sendFlow = flowOf(ChatStreamEvent.Recipe(draft()), ChatStreamEvent.Done("Save it?"))
+        viewModel.onIntent(AdaIntent.DraftChanged("https://www.instagram.com/p/abc/"))
+        viewModel.onIntent(AdaIntent.Send)
+        val draftId = viewModel.state.value.messages.last().id
+        recipeService.recipes += ApiDrink(id = "u-9", name = "Paloma")
+
+        chat.sendFlow = flowOf(
+            ChatStreamEvent.Recipe(draft(ChatRecipeDto.STATE_SAVED, recipeId = "u-9")),
+            ChatStreamEvent.Done("Saved Paloma to your recipes."),
+        )
+        viewModel.onIntent(AdaIntent.SaveRecipe(draftId))
+
+        assertEquals("Save it", chat.sent.last())
+        val messages = viewModel.state.value.messages
+        val card = messages.first { it.id == draftId }.recipe
+        assertEquals(AdaRecipe.State.Saved, card?.state)
+        assertEquals("u-9", card?.recipeId)
+        // The answer's reply doesn't repeat the card.
+        assertNull(messages.last().recipe)
+        assertEquals(listOf("u-9"), recipes.recipes.value.map { it.id })
+    }
+
+    @Test
+    fun dropRecipe_sendsNotNow() = runTest {
+        signIn()
+        chat.sendFlow = flowOf(ChatStreamEvent.Recipe(draft()), ChatStreamEvent.Done("Save it?"))
+        viewModel.onIntent(AdaIntent.DraftChanged("https://www.instagram.com/p/abc/"))
+        viewModel.onIntent(AdaIntent.Send)
+        val draftId = viewModel.state.value.messages.last().id
+
+        chat.sendFlow = flowOf(ChatStreamEvent.Recipe(draft(ChatRecipeDto.STATE_DROPPED)), ChatStreamEvent.Done("Okay."))
+        viewModel.onIntent(AdaIntent.DropRecipe(draftId))
+
+        assertEquals("Not now", chat.sent.last())
+        assertEquals(AdaRecipe.State.Dropped, viewModel.state.value.messages.first { it.id == draftId }.recipe?.state)
+    }
+
+    @Test
+    fun history_foldsTheAnswerOntoTheDraft() = runTest {
+        chat.history = listOf(
+            ChatTurn("user", "https://www.instagram.com/p/abc/"),
+            ChatTurn("assistant", "Save it?", recipe = draft()),
+            ChatTurn("user", "yes"),
+            ChatTurn("assistant", "Saved.", recipe = draft(ChatRecipeDto.STATE_SAVED, recipeId = "u-9")),
+        )
+        signIn()
+
+        val messages = viewModel.state.value.messages
+        assertEquals(AdaRecipe.State.Saved, messages[1].recipe?.state)
+        assertEquals("u-9", messages[1].recipe?.recipeId)
+        assertNull(messages[3].recipe)
+    }
+
+    @Test
+    fun openRecipe_opensTheSavedRecipe() = runTest {
+        chat.history = listOf(
+            ChatTurn("assistant", "Saved.", recipe = draft(ChatRecipeDto.STATE_SAVED, recipeId = "u-9")),
+        )
+        signIn()
+        val effects = mutableListOf<AdaEffect>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.effects.collect { effects += it }
+        }
+
+        viewModel.onIntent(AdaIntent.OpenRecipe(viewModel.state.value.messages.single().id))
+
+        assertEquals("u-9", (effects.single() as AdaEffect.OpenDrink).drink.id)
+    }
+
+    @Test
+    fun sendPhoto_sendsTheJpegWithTheDraft() = runTest {
+        signIn()
+        chat.sendFlow = flowOf(ChatStreamEvent.Recipe(draft()), ChatStreamEvent.Done("From your photo. Save it?"))
+        val uri = Uri.parse("content://photos/1")
+        viewModel.onIntent(AdaIntent.DraftChanged("my gran's recipe"))
+        viewModel.onIntent(AdaIntent.SendPhoto(uri))
+
+        assertEquals(listOf(uri), photos.loaded)
+        assertEquals("my gran's recipe", chat.sentPhotos.single().second)
+        val messages = viewModel.state.value.messages
+        assertEquals(uri, messages[messages.size - 2].photo)
+        assertEquals("Paloma", messages.last().recipe?.name)
+    }
+
+    @Test
+    fun inbox_sendsAMessageLeftByImport() = runTest {
+        signIn()
+        chat.sendFlow = flowOf(ChatStreamEvent.Done("Let me look."))
+
+        inbox.post("https://www.liquor.com/recipes/paper-plane/")
+
+        assertEquals("https://www.liquor.com/recipes/paper-plane/", chat.sent.single())
+        assertNull(inbox.pending.value)
+    }
 
     private fun signIn() {
         chat.session = Session(

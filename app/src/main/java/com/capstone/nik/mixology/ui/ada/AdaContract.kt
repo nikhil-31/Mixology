@@ -1,6 +1,51 @@
 package com.capstone.nik.mixology.ui.ada
 
+import android.net.Uri
+import com.capstone.nik.mixology.Network.remoteModel.ChatRecipeDto
 import com.capstone.nik.mixology.data.Drink
+import com.capstone.nik.mixology.ui.model.IngredientMeasure
+
+/** A recipe Ada read from a link or photo, shown as a card under her reply. */
+data class AdaRecipe(
+    val name: String,
+    /** The post's photo (absolute), or none for a photo of notes. */
+    val photoUrl: String?,
+    /** The site's name or host; null when it came from a photo. */
+    val source: String?,
+    val sourceUrl: String?,
+    val ingredients: List<IngredientMeasure>,
+    val instructions: String?,
+    val state: State,
+    /** The saved recipe, once there is one. */
+    val recipeId: String? = null,
+    /** [recipeId] was already in My recipes from this link. */
+    val duplicate: Boolean = false,
+) {
+    enum class State { Draft, Saved, Dropped }
+
+    /** The recipe as the details screen opens it. */
+    fun toDrink(): Drink? = recipeId?.let { id -> Drink(id = id, name = name, thumb = "") }
+
+    companion object {
+        fun from(dto: ChatRecipeDto): AdaRecipe = AdaRecipe(
+            name = dto.recipe.name,
+            photoUrl = dto.photoUrl?.takeIf { it.isNotBlank() },
+            source = dto.source?.takeIf { it.isNotBlank() },
+            sourceUrl = dto.recipe.sourceUrl?.takeIf { it.isNotBlank() },
+            ingredients = dto.recipe.ingredients
+                .filter { it.ingredient.isNotBlank() }
+                .map { IngredientMeasure(it.ingredient, it.measure.orEmpty()) },
+            instructions = dto.recipe.instructions?.takeIf { it.isNotBlank() },
+            state = when (dto.state) {
+                ChatRecipeDto.STATE_SAVED -> State.Saved
+                ChatRecipeDto.STATE_DROPPED -> State.Dropped
+                else -> State.Draft
+            },
+            recipeId = dto.recipeId,
+            duplicate = dto.duplicate,
+        )
+    }
+}
 
 data class AdaMessage(
     val id: Long,
@@ -10,6 +55,10 @@ data class AdaMessage(
     val streaming: Boolean = false,
     /** More drinks match than this reply shows. */
     val hasMore: Boolean = false,
+    /** A recipe Ada read in this reply; its state follows the yes or no to it. */
+    val recipe: AdaRecipe? = null,
+    /** The photo the user sent with this message, shown from the device. */
+    val photo: Uri? = null,
 )
 
 data class AdaUiState(
@@ -56,6 +105,15 @@ sealed interface AdaIntent {
     data class VoiceEnded(val failed: Boolean) : AdaIntent
     /** The screen went away mid-dictation. */
     data object StopVoice : AdaIntent
+    /** Save the recipe drafted in reply [messageId]. */
+    data class SaveRecipe(val messageId: Long) : AdaIntent
+    /** Don't save the recipe drafted in reply [messageId]. */
+    data class DropRecipe(val messageId: Long) : AdaIntent
+    data class OpenRecipe(val messageId: Long) : AdaIntent
+    /** A photo of recipe notes to send with whatever is in the draft. */
+    data class SendPhoto(val uri: Uri) : AdaIntent
+    /** The "Import a recipe" starter: [clipboard] is a link on the clipboard, if any. */
+    data class UseImportSuggestion(val clipboard: String?) : AdaIntent
 }
 
 sealed interface AdaEffect {
@@ -64,4 +122,6 @@ sealed interface AdaEffect {
     data class OpenMore(val query: String, val exclude: List<String>) : AdaEffect
     /** Start listening once RECORD_AUDIO is granted; answer with [AdaIntent.VoicePermission]. */
     data object RequestMicrophone : AdaEffect
+    /** Put the cursor in the composer. */
+    data object FocusComposer : AdaEffect
 }

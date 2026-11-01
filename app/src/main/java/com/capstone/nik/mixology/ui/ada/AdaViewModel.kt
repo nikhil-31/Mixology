@@ -1,6 +1,12 @@
 package com.capstone.nik.mixology.ui.ada
 
 import android.content.Context
+import android.net.Uri
+import com.capstone.nik.mixology.R
+import com.capstone.nik.mixology.Network.remoteModel.ChatRecipeDto
+import com.capstone.nik.mixology.repository.RecipeRepository
+import com.capstone.nik.mixology.ui.recipes.RecipePhotoLoader
+import kotlinx.coroutines.flow.Flow
 import androidx.lifecycle.viewModelScope
 import com.capstone.nik.mixology.Network.NetworkMonitor
 import com.capstone.nik.mixology.Network.connectionMessage
@@ -30,6 +36,9 @@ class AdaViewModel @Inject constructor(
     private val drinkRepository: DrinkRepository,
     private val networkMonitor: NetworkMonitor,
     @ApplicationContext private val context: Context,
+    private val recipeRepository: RecipeRepository,
+    private val photos: RecipePhotoLoader,
+    private val inbox: AdaInbox,
     private val analytics: AnalyticsTracker = AnalyticsTracker.forTests(),
 ) : MviViewModel<AdaIntent, AdaUiState, AdaEffect>(AdaUiState()) {
 
@@ -50,6 +59,10 @@ class AdaViewModel @Inject constructor(
             }
         }
         onIntent(AdaIntent.Load)
+        // A link sent from Import ("Ask Ada"): sent once Ada is ready for it.
+        viewModelScope.launch {
+            inbox.pending.collect { if (it != null) deliverInbox() }
+        }
     }
 
     override fun onIntent(intent: AdaIntent) {
@@ -57,7 +70,7 @@ class AdaViewModel @Inject constructor(
             AdaIntent.Load -> load()
             AdaIntent.LoadOlder -> loadOlder()
             is AdaIntent.DraftChanged -> setState { copy(draft = intent.value) }
-            AdaIntent.Send -> send()
+            AdaIntent.Send -> send(currentState.draft)
             is AdaIntent.UseSuggestion -> setState { copy(draft = intent.text) }
             is AdaIntent.OpenMore -> openMore(intent.messageId)
             is AdaIntent.OpenDrink -> sendEffect(AdaEffect.OpenDrink(intent.drink))
@@ -67,6 +80,15 @@ class AdaViewModel @Inject constructor(
             is AdaIntent.VoiceTranscript -> onVoiceTranscript(intent.text, intent.final)
             is AdaIntent.VoiceEnded -> onVoiceEnded(intent.failed)
             AdaIntent.StopVoice -> stopVoice()
+            is AdaIntent.SaveRecipe -> answerDraft(intent.messageId, R.string.ada_recipe_save_answer)
+            is AdaIntent.DropRecipe -> answerDraft(intent.messageId, R.string.ada_recipe_drop_answer)
+            is AdaIntent.OpenRecipe -> transcript.firstOrNull { it.id == intent.messageId }
+                ?.recipe?.toDrink()?.let { sendEffect(AdaEffect.OpenDrink(it)) }
+            is AdaIntent.SendPhoto -> sendPhoto(intent.uri)
+            is AdaIntent.UseImportSuggestion -> {
+                setState { copy(draft = intent.clipboard?.trim().orEmpty()) }
+                sendEffect(AdaEffect.FocusComposer)
+            }
         }
     }
 
@@ -109,7 +131,7 @@ class AdaViewModel @Inject constructor(
                     setState { copy(loadingHistory = false) }
                     return@launch
                 }
-                transcript = page.turns.map { it.toAdaMessage() }
+                transcript = foldRecipes(page.turns.map { it.toAdaMessage() })
                 oldestServerId = page.turns.firstOrNull()?.serverId?.takeIf { it > 0 }
                 publishMessages()
                 setState {
@@ -119,6 +141,7 @@ class AdaViewModel @Inject constructor(
                         hasOlder = page.hasMore && oldestServerId != null,
                     )
                 }
+                deliverInbox()
             } catch (error: CancellationException) {
                 throw error
             } catch (error: ChatHttpException) {
@@ -137,7 +160,7 @@ class AdaViewModel @Inject constructor(
         olderJob = viewModelScope.launch {
             try {
                 val page = chatRepository.history(before = before)
-                transcript = page.turns.map { it.toAdaMessage() } + transcript
+                transcript = foldRecipes(page.turns.map { it.toAdaMessage() } + transcript)
                 oldestServerId = page.turns.firstOrNull()?.serverId?.takeIf { it > 0 } ?: oldestServerId
                 publishMessages()
                 setState { copy(loadingOlder = false, hasOlder = page.hasMore && page.turns.isNotEmpty()) }
@@ -152,11 +175,45 @@ class AdaViewModel @Inject constructor(
         }
     }
 
-    private fun send() {
+    private fun send(draft: String) {
+        val text = draft.trim()
+        if (text.isEmpty() || !canSend()) return
+        startReply(text, photo = null) { chatRepository.send(text) }
+    }
+
+    private fun canSend(): Boolean =
+        !currentState.sending && !currentState.loadingHistory && currentState.signedIn
+
+    /** Sends a photo of recipe notes, with whatever is typed as what the user said. */
+    private fun sendPhoto(uri: Uri) {
+        if (!canSend()) return
         val text = currentState.draft.trim()
-        if (text.isEmpty() || currentState.sending || currentState.loadingHistory || !currentState.signedIn) {
-            return
+        stopVoice()
+        setState { copy(sending = true, error = null, outOfCredits = false) }
+        sendJob?.cancel()
+        sendJob = viewModelScope.launch {
+            val jpeg = try {
+                photos.load(uri)
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                setState { copy(sending = false, error = context.getString(R.string.ada_photo_unreadable)) }
+                return@launch
+            }
+            setState { copy(sending = false) }
+            startReply(text, photo = uri) { chatRepository.sendPhoto(jpeg, text) }
         }
+    }
+
+    /** The yes or no to the recipe drafted in [messageId], as a message Ada understands. */
+    private fun answerDraft(messageId: Long, answer: Int) {
+        val message = transcript.firstOrNull { it.id == messageId } ?: return
+        if (message.recipe?.state != AdaRecipe.State.Draft) return
+        send(context.getString(answer))
+    }
+
+    /** Adds the user's message and Ada's empty reply, then fills the reply from [stream]. */
+    private fun startReply(text: String, photo: Uri?, stream: () -> Flow<ChatStreamEvent>) {
         stopVoice()
         val userId = freshId()
         val assistantId = freshId()
@@ -164,6 +221,7 @@ class AdaViewModel @Inject constructor(
             id = userId,
             role = "user",
             content = text,
+            photo = photo,
         ) + AdaMessage(
             id = assistantId,
             role = "assistant",
@@ -175,7 +233,7 @@ class AdaViewModel @Inject constructor(
         sendJob?.cancel()
         sendJob = viewModelScope.launch {
             try {
-                chatRepository.send(text).collect { event ->
+                stream().collect { event ->
                     when (event) {
                         is ChatStreamEvent.Delta -> updateAssistant(assistantId) {
                             it.copy(content = it.content + event.text)
@@ -183,6 +241,7 @@ class AdaViewModel @Inject constructor(
                         is ChatStreamEvent.Recommendations -> updateAssistant(assistantId) {
                             it.copy(drinks = event.drinks, hasMore = event.hasMore)
                         }
+                        is ChatStreamEvent.Recipe -> onRecipe(assistantId, event.recipe)
                         is ChatStreamEvent.Done -> updateAssistant(assistantId) {
                             it.copy(content = event.content, streaming = false)
                         }
@@ -194,6 +253,7 @@ class AdaViewModel @Inject constructor(
                 }
                 updateAssistant(assistantId) { it.copy(streaming = false) }
                 setState { copy(sending = false) }
+                deliverInbox()
             } catch (error: CancellationException) {
                 throw error
             } catch (error: ChatHttpException) {
@@ -203,6 +263,36 @@ class AdaViewModel @Inject constructor(
                 setState { copy(sending = false, error = message(error)) }
             }
         }
+    }
+
+    /**
+     * A draft goes on Ada's reply. A save or drop answers the draft before it,
+     * so that card takes the result instead of a second card appearing.
+     */
+    private fun onRecipe(assistantId: Long, dto: ChatRecipeDto) {
+        val recipe = AdaRecipe.from(dto)
+        transcript = foldRecipes(
+            transcript.map { if (it.id == assistantId) it.copy(recipe = recipe) else it },
+        )
+        publishMessages()
+        if (recipe.state == AdaRecipe.State.Saved) {
+            // So My recipes and Recipes show it without a pull.
+            viewModelScope.launch {
+                try {
+                    recipeRepository.load()
+                } catch (error: CancellationException) {
+                    throw error
+                } catch (_: Exception) {
+                    // The recipe is saved either way; the list catches up next time.
+                }
+            }
+        }
+    }
+
+    /** Sends a message another screen left for Ada, once nothing else is going on. */
+    private fun deliverInbox() {
+        if (inbox.pending.value == null || !canSend()) return
+        inbox.take()?.let { send(it) }
     }
 
     private fun toggleVoice() {
@@ -326,8 +416,34 @@ class AdaViewModel @Inject constructor(
             content = content,
             drinks = drinks,
             hasMore = hasMore,
+            recipe = recipe?.let(AdaRecipe::from),
         )
     }
+}
+
+/**
+ * Moves each saved or dropped result onto the draft card it answers (the
+ * latest draft before it), so a recipe shows once, with what became of it.
+ */
+internal fun foldRecipes(messages: List<AdaMessage>): List<AdaMessage> {
+    val result = messages.toMutableList()
+    for (index in result.indices) {
+        val answer = result[index].recipe ?: continue
+        if (answer.state == AdaRecipe.State.Draft) continue
+        val draftIndex = (index - 1 downTo 0).firstOrNull { result[it].recipe?.state == AdaRecipe.State.Draft }
+            ?: continue
+        val draft = result[draftIndex].recipe!!
+        result[draftIndex] = result[draftIndex].copy(
+            recipe = draft.copy(
+                state = answer.state,
+                recipeId = answer.recipeId ?: draft.recipeId,
+                duplicate = answer.duplicate,
+                photoUrl = draft.photoUrl ?: answer.photoUrl,
+            ),
+        )
+        result[index] = result[index].copy(recipe = null)
+    }
+    return result
 }
 
 private fun AdaMessage.withSaved(ids: Set<String>): AdaMessage {

@@ -99,5 +99,14 @@ class FakeChatRepository : ChatRepository {
         return sendFlow
     }
 
+    /** Photos sent to Ada, with the message typed alongside. */
+    val sentPhotos = mutableListOf<Pair<ByteArray, String>>()
+
+    override fun sendPhoto(jpeg: ByteArray, message: String): Flow<ChatStreamEvent> {
+        sentPhotos += jpeg to message
+        if (failWithIo) return flow { throw ioError() }
+        return sendFlow
+    }
+
     private fun ioError() = ConnectException("Failed to connect to /10.0.2.2:8000")
 }

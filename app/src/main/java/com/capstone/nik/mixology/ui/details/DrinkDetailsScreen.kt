@@ -76,6 +76,16 @@ import com.capstone.nik.mixology.repository.DrinkRating
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.material3.Button
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import kotlinx.coroutines.delay
 
 @Composable
 fun DrinkDetailsRoute(
@@ -112,6 +122,7 @@ fun DrinkDetailsRoute(
             state = state,
             onToggleSaved = { viewModel.onIntent(DrinkDetailsIntent.ToggleSaved) },
             onNotesChanged = { viewModel.onIntent(DrinkDetailsIntent.UpdateNotes(it)) },
+            onSaveNotes = { viewModel.onIntent(DrinkDetailsIntent.SaveNotes) },
             onAddToShoppingList = { viewModel.onIntent(DrinkDetailsIntent.AddToShoppingList) },
             onRemoveFromShoppingList = { viewModel.onIntent(DrinkDetailsIntent.RemoveFromShoppingList) },
             onOpenVideo = { viewModel.onIntent(DrinkDetailsIntent.OpenVideo(it)) },
@@ -203,6 +214,7 @@ fun DrinkDetailsContent(
     state: DrinkDetailsUiState,
     onToggleSaved: () -> Unit,
     onNotesChanged: (String) -> Unit = {},
+    onSaveNotes: () -> Unit = {},
     onAddToShoppingList: () -> Unit = {},
     onRemoveFromShoppingList: () -> Unit = {},
     onOpenVideo: (String) -> Unit = {},
@@ -212,7 +224,8 @@ fun DrinkDetailsContent(
     var fullscreenImage by remember { mutableStateOf(false) }
     Box(modifier = Modifier.fillMaxSize()) {
         if (drink != null) {
-            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+            // The app draws edge to edge, so the scroll area has to shrink above the keyboard itself.
+            Column(modifier = Modifier.imePadding().verticalScroll(rememberScrollState())) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -249,19 +262,13 @@ fun DrinkDetailsContent(
                             state.rating?.let { rating ->
                                 DrinkRatingSection(rating = rating, onRate = onRate)
                             }
-                            if (state.saved) {
-                                RecipeSectionTitle(stringResource(R.string.detail_notes))
-                                OutlinedTextField(
-                                    value = drink.notes,
-                                    onValueChange = onNotesChanged,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 20.dp),
-                                    placeholder = { Text(stringResource(R.string.detail_notes_hint)) },
-                                    shape = RoundedCornerShape(12.dp),
-                                    minLines = 2,
-                                )
-                            }
+                            // Every drink and recipe has a note, saved or not.
+                            DrinkNotesSection(
+                                notes = drink.notes,
+                                unsaved = state.unsavedNote,
+                                onNotesChanged = onNotesChanged,
+                                onSave = onSaveNotes,
+                            )
                         },
                     )
                 } else {
@@ -449,6 +456,62 @@ private fun DrinkRatingSection(rating: DrinkRating, onRate: (Int) -> Unit) {
                         tint = if (filled) colors.primary else colors.onSurfaceVariant,
                     )
                 }
+            }
+        }
+    }
+}
+
+/**
+ * The note on this drink. While it's being edited the field scrolls above the
+ * keyboard and a Save button shows; Save sends the note and closes the keyboard.
+ */
+@OptIn(ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
+@Composable
+private fun DrinkNotesSection(
+    notes: String,
+    unsaved: Boolean,
+    onNotesChanged: (String) -> Unit,
+    onSave: () -> Unit,
+) {
+    val focusManager = LocalFocusManager.current
+    val keyboard = LocalSoftwareKeyboardController.current
+    val bringIntoView = remember { BringIntoViewRequester() }
+    var focused by remember { mutableStateOf(false) }
+    val keyboardOpen = WindowInsets.isImeVisible
+    LaunchedEffect(focused, keyboardOpen) {
+        // Once the keyboard has opened and the page has shrunk, lift the field and its Save button above it.
+        if (focused && keyboardOpen) {
+            delay(150)
+            bringIntoView.bringIntoView()
+        }
+    }
+    Column(modifier = Modifier.bringIntoViewRequester(bringIntoView)) {
+        RecipeSectionTitle(stringResource(R.string.detail_notes))
+        OutlinedTextField(
+            value = notes,
+            onValueChange = onNotesChanged,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .onFocusChanged { focused = it.isFocused }
+                .testTag("detail_notes"),
+            placeholder = { Text(stringResource(R.string.detail_notes_hint)) },
+            shape = RoundedCornerShape(12.dp),
+            minLines = 2,
+        )
+        if (focused || unsaved) {
+            Button(
+                onClick = {
+                    onSave()
+                    focusManager.clearFocus()
+                    keyboard?.hide()
+                },
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .padding(horizontal = 20.dp, vertical = 8.dp)
+                    .testTag("detail_notes_save"),
+            ) {
+                Text(stringResource(R.string.detail_notes_save))
             }
         }
     }

@@ -102,9 +102,11 @@ class DrinkRepositoryTest {
         val ids = MutableStateFlow(setOf("11007"))
         val savedSync = object : SavedSync {
             override val savedIds: StateFlow<Set<String>> = ids
+            override val notes: StateFlow<Map<String, String>> = MutableStateFlow(emptyMap())
             override fun push(id: String, saved: Boolean) {
                 ids.value = if (saved) ids.value + id else ids.value - id
             }
+            override fun pushNotes(id: String, notes: String) = Unit
             override suspend fun sync() = Unit
         }
         val repo = DrinkRepository(
@@ -169,6 +171,52 @@ class DrinkRepositoryTest {
         assertEquals("Shake.", drink?.instructions)
         assertNull(repository.cachedDrink("9"))
         assertNull(repository.lookupDrink("missing"))
+    }
+
+    @Test
+    fun notes_comeFromSavedSyncAndNeverReachRoom() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Application>()
+        val notes = MutableStateFlow(mapOf("11007" to "Salt the rim"))
+        val pushed = mutableListOf<Pair<String, String>>()
+        val ids = MutableStateFlow(setOf("11007"))
+        val savedSync = object : SavedSync {
+            override val savedIds: StateFlow<Set<String>> = ids
+            override val notes: StateFlow<Map<String, String>> = notes
+            override fun push(id: String, saved: Boolean) {
+                ids.value = if (saved) ids.value + id else ids.value - id
+            }
+            override fun pushNotes(id: String, notes: String) {
+                pushed += id to notes
+            }
+            override suspend fun sync() = Unit
+        }
+        val repo = DrinkRepository(
+            database.drinkDao(),
+            database.shoppingDao(),
+            database.barDao(),
+            service,
+            context,
+            savedSync = savedSync,
+        )
+        service.lookupsById = mapOf("11007" to CocktailDbResponse(listOf(cocktailDrink("11007", "Margarita"))))
+        // A note an older version left in Room is not shown.
+        database.drinkDao().insertDrinks(listOf(DrinkEntity("11007", "Margarita", "", notes = "Room copy")))
+
+        assertEquals("Salt the rim", repo.lookupDrink("11007")?.notes)
+        assertEquals("Salt the rim", repo.cachedDrink("11007")?.notes)
+        assertEquals("Salt the rim", repo.observeDrinks(DrinkFilter.SAVED).first().single().notes)
+        assertEquals("Salt the rim", repo.getSavedSync().single().notes)
+
+        notes.value = mapOf("11007" to "No salt")
+        assertEquals("No salt", repo.observeDrinks(DrinkFilter.SAVED).first().single().notes)
+
+        repo.updateNotes("11007", "Less salt")
+        assertEquals(listOf("11007" to "Less salt"), pushed)
+        assertEquals("Room copy", database.drinkDao().getById("11007")!!.notes)
+
+        // Saving or viewing a drink that carries notes doesn't write them to Room.
+        repo.save(cocktailDrink("11000", "Mojito").toDrink()!!.copy(notes = "Extra mint"))
+        assertEquals("", database.drinkDao().getById("11000")!!.notes)
     }
 
     @Test

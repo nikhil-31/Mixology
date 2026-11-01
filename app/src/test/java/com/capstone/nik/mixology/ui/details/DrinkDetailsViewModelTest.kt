@@ -18,10 +18,18 @@ import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.MixologyDatabase
 import com.capstone.nik.mixology.repository.DrinkRepository
 import com.google.firebase.analytics.FirebaseAnalytics
+import androidx.lifecycle.ViewModelStore
+import com.capstone.nik.mixology.repository.SavedSync
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -30,6 +38,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
 @Config(application = Application::class, sdk = [34])
 class DrinkDetailsViewModelTest {
@@ -159,6 +168,97 @@ class DrinkDetailsViewModelTest {
         val event = analytics.recorded.single { it.name == FirebaseAnalytics.Event.SHARE }
         assertEquals("11007", event.params[FirebaseAnalytics.Param.ITEM_ID])
         assertEquals("drink", event.params[FirebaseAnalytics.Param.CONTENT_TYPE])
+    }
+
+    private class RecordingNotesSync : SavedSync {
+        override val savedIds: StateFlow<Set<String>> = MutableStateFlow(setOf("11007"))
+        val notesFlow = MutableStateFlow<Map<String, String>>(emptyMap())
+        override val notes: StateFlow<Map<String, String>> = notesFlow
+        val pushed = mutableListOf<Pair<String, String>>()
+        override fun push(id: String, saved: Boolean) = Unit
+        override fun pushNotes(id: String, notes: String) {
+            pushed += id to notes
+            notesFlow.value = notesFlow.value + (id to notes)
+        }
+        override suspend fun sync() = Unit
+    }
+
+    private fun notesViewModel(sync: SavedSync): DrinkDetailsViewModel {
+        val context = ApplicationProvider.getApplicationContext<Application>()
+        val repo = DrinkRepository(
+            database.drinkDao(),
+            database.shoppingDao(),
+            database.barDao(),
+            service,
+            context,
+            savedSync = sync,
+        )
+        return DrinkDetailsViewModel(repo, NetworkMonitor.forTests(), context, analytics)
+    }
+
+    @Test
+    fun notes_typingSendsNothingUntilSave() = runTest {
+        seedMargarita()
+        val sync = RecordingNotesSync()
+        val vm = notesViewModel(sync)
+        vm.onIntent(DrinkDetailsIntent.Load(Drink("11007", "Margarita", "")))
+        runCurrent()
+
+        listOf("S", "Sa", "Sal", "Salt").forEach { text ->
+            vm.onIntent(DrinkDetailsIntent.UpdateNotes(text))
+            assertEquals(text, vm.state.value.drink?.notes)
+            advanceTimeBy(1_000)
+        }
+        assertTrue(sync.pushed.isEmpty())
+        assertTrue(vm.state.value.unsavedNote)
+
+        vm.onIntent(DrinkDetailsIntent.SaveNotes)
+        assertEquals(listOf("11007" to "Salt"), sync.pushed)
+        assertEquals("Salt", vm.state.value.drink?.notes)
+        assertFalse(vm.state.value.unsavedNote)
+
+        // Saving again with nothing new typed sends nothing.
+        vm.onIntent(DrinkDetailsIntent.SaveNotes)
+        assertEquals(1, sync.pushed.size)
+    }
+
+    @Test
+    fun notes_leavingTheDrinkSendsTheUnsentEdit() = runTest {
+        seedMargarita()
+        val sync = RecordingNotesSync()
+        val vm = notesViewModel(sync)
+        vm.onIntent(DrinkDetailsIntent.Load(Drink("11007", "Margarita", "")))
+        runCurrent()
+        vm.onIntent(DrinkDetailsIntent.UpdateNotes("Salt"))
+
+        vm.onIntent(DrinkDetailsIntent.Load(Drink("11728", "Martini", "")))
+        assertEquals(listOf("11007" to "Salt"), sync.pushed)
+
+        vm.onIntent(DrinkDetailsIntent.UpdateNotes("Dry"))
+        ViewModelStore().apply { put("details", vm) }.clear()
+        assertEquals(listOf("11007" to "Salt", "11728" to "Dry"), sync.pushed)
+
+        advanceTimeBy(5_000)
+        assertEquals(2, sync.pushed.size)
+    }
+
+    @Test
+    fun notes_fromALaterPullShowUnlessMidEdit() = runTest {
+        seedMargarita()
+        val sync = RecordingNotesSync()
+        val vm = notesViewModel(sync)
+        vm.onIntent(DrinkDetailsIntent.Load(Drink("11007", "Margarita", "")))
+        runCurrent()
+        assertEquals("", vm.state.value.drink?.notes)
+
+        sync.notesFlow.value = mapOf("11007" to "From the server")
+        runCurrent()
+        assertEquals("From the server", vm.state.value.drink?.notes)
+
+        vm.onIntent(DrinkDetailsIntent.UpdateNotes("Typing"))
+        sync.notesFlow.value = mapOf("11007" to "Older pull")
+        runCurrent()
+        assertEquals("Typing", vm.state.value.drink?.notes)
     }
 
     private fun seedMargarita() {

@@ -66,8 +66,8 @@ class DrinkRepository @Inject constructor(
         } else {
             remoteLists.map { lists -> lists[filter.name].orEmpty() }
         }
-        return combine(drinksFlow, savedSync.savedIds) { drinks, saved ->
-            drinks.map { drink -> drink.copy(saved = drink.id in saved) }
+        return combine(drinksFlow, savedSync.savedIds, savedSync.notes) { drinks, saved, notes ->
+            drinks.map { drink -> drink.copy(saved = drink.id in saved, notes = notes[drink.id].orEmpty()) }
         }
     }
 
@@ -88,8 +88,14 @@ class DrinkRepository @Inject constructor(
     fun observeSavedIds(): Flow<Set<String>> = savedSync.savedIds
 
     fun observeRecentlyViewed(): Flow<List<Drink>> {
-        return combine(dao.observeRecentlyViewed(MAX_RECENTLY_VIEWED), savedSync.savedIds) { drinks, saved ->
-            drinks.map { entity -> entity.toDrink(savedOverride = entity.id in saved) }
+        return combine(
+            dao.observeRecentlyViewed(MAX_RECENTLY_VIEWED),
+            savedSync.savedIds,
+            savedSync.notes,
+        ) { drinks, saved, notes ->
+            drinks.map { entity ->
+                entity.toDrink(savedOverride = entity.id in saved).copy(notes = notes[entity.id].orEmpty())
+            }
         }
     }
 
@@ -100,16 +106,15 @@ class DrinkRepository @Inject constructor(
     }
 
     suspend fun cachedDrink(id: String): Drink? =
-        dao.getById(id)?.let { it.toDrink(savedOverride = it.id in savedSync.savedIds.value) }
+        dao.getById(id)?.let { withSaved(it.toDrink()) }
 
     suspend fun lookupDrink(id: String): Drink? {
         val remote = service.getDrinkById(id).drinks.orEmpty().firstOrNull()?.toDrink() ?: return null
-        val stored = dao.getById(id)
-        return remote.copy(
-            saved = id in savedSync.savedIds.value,
-            notes = stored?.notes.orEmpty(),
-        )
+        return withSaved(remote)
     }
+
+    /** The account's notes by drink id, as SavedSync holds them. */
+    fun observeNotes(): Flow<Map<String, String>> = savedSync.notes
 
     fun observeCatalog(kind: FilterKind): Flow<List<String>> =
         catalogTerms.map { terms -> terms[kind].orEmpty() }
@@ -155,8 +160,9 @@ class DrinkRepository @Inject constructor(
         notifyWidgets()
     }
 
-    suspend fun updateNotes(id: String, notes: String) {
-        dao.updateNotes(id, notes)
+    /** Notes live only on the server; nothing is written to Room. */
+    fun updateNotes(id: String, notes: String) {
+        savedSync.pushNotes(id, notes)
     }
 
     fun observeShopping(): Flow<List<ShoppingItemEntity>> = shoppingDao.observeAll()
@@ -251,7 +257,8 @@ class DrinkRepository @Inject constructor(
         if (savedSync.savedIds.value.isEmpty()) savedSync.sync()
         val ids = savedSync.savedIds.value
         if (ids.isEmpty()) return emptyList()
-        return dao.getByIds(ids.toList()).map { it.toDrink(savedOverride = true) }
+        val notes = savedSync.notes.value
+        return dao.getByIds(ids.toList()).map { it.toDrink(savedOverride = true).copy(notes = notes[it.id].orEmpty()) }
     }
 
     private fun drinksFrom(response: CocktailDbResponse): List<Drink> {
@@ -264,10 +271,14 @@ class DrinkRepository @Inject constructor(
         return response.drinks.orEmpty().mapNotNull { it.term() }.distinct().sorted()
     }
 
+    /** Applies the account's saved set and notes, which Room doesn't keep. */
     private fun withSaved(drinks: List<Drink>): List<Drink> {
         val saved = savedSync.savedIds.value
-        return drinks.map { drink -> drink.copy(saved = drink.id in saved) }
+        val notes = savedSync.notes.value
+        return drinks.map { drink -> drink.copy(saved = drink.id in saved, notes = notes[drink.id].orEmpty()) }
     }
+
+    private fun withSaved(drink: Drink): Drink = withSaved(listOf(drink)).single()
 
     private fun ApiBarRecommendations.toRecommendations(saved: Set<String>): BarRecommendations {
         return BarRecommendations(

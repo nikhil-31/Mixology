@@ -177,6 +177,7 @@
     </plurals>
     <string name="bar_empty_title">Tu bar está vacío</string>
     <string name="detail_notes_hint">Ajustes, valoraciones, dónde la probaste…</string>
+    <string name="detail_notes_save">Guardar</string>
     <string name="settings_library">Biblioteca</string>
     <string name="settings_privacy_header">Privacidad</string>
     <string name="paywall_title">Tu prueba gratis ha terminado</string>

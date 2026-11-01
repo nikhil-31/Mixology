@@ -35,7 +35,7 @@ data class DrinkEntity(
         instructions = instructions,
         video = video,
         ingredients = ingredients.orEmpty(),
-        notes = notes,
+        // Notes live on the server (SavedSync); the column is only left over from older versions.
     )
 }
 
@@ -51,6 +51,7 @@ fun Drink.toEntity(): DrinkEntity = DrinkEntity(
     instructions = instructions,
     video = video,
     ingredients = ingredients,
-    notes = notes,
+    // Never written: notes are kept by SavedSync, not Room.
+    notes = "",
     recipeUpdatedAt = if (hasRecipe) System.currentTimeMillis() else 0L,
 )

@@ -40,6 +40,12 @@ class DrinkDetailsViewModel @Inject constructor(
     private var retryJob: Job? = null
     private var ratingJob: Job? = null
     private var recipeJob: Job? = null
+    private var notesJob: Job? = null
+    /** The account's notes as last seen, so a recipe reloaded from My recipes keeps its note. */
+    private var latestNotes: Map<String, String> = emptyMap()
+
+    /** The last note typed for a drink and not yet handed to the repository: (drink id, text). */
+    private var unsentNote: Pair<String, String>? = null
 
     init {
         retryJob = viewModelScope.launch {
@@ -64,6 +70,7 @@ class DrinkDetailsViewModel @Inject constructor(
             DrinkDetailsIntent.Share -> share()
             DrinkDetailsIntent.Back -> sendEffect(DrinkDetailsEffect.NavigateBack)
             is DrinkDetailsIntent.UpdateNotes -> updateNotes(intent.notes)
+            DrinkDetailsIntent.SaveNotes -> flushNotes()
             DrinkDetailsIntent.AddToShoppingList -> addToShoppingList()
             DrinkDetailsIntent.RemoveFromShoppingList -> removeFromShoppingList()
             is DrinkDetailsIntent.OpenVideo -> sendEffect(DrinkDetailsEffect.OpenUrl(intent.url))
@@ -75,6 +82,7 @@ class DrinkDetailsViewModel @Inject constructor(
     }
 
     private fun load(drink: Drink) {
+        if (loadedId != drink.id) flushNotes()
         if (drink.isUserRecipe) {
             loadRecipe(drink)
             return
@@ -100,12 +108,36 @@ class DrinkDetailsViewModel @Inject constructor(
                 setState { copy(saved = drink.id in ids) }
             }
         }
+        watchNotes(drink.id)
         lookup(drink.id)
     }
 
     /**
+     * Notes can arrive later from a pull (another device, or a sign-in).
+     * While the user has an unsent edit for this drink, the text field wins.
+     */
+    private fun watchNotes(id: String) {
+        notesJob?.cancel()
+        notesJob = viewModelScope.launch {
+            repository.observeNotes().collect { notes ->
+                latestNotes = notes
+                if (unsentNote?.first == id) return@collect
+                setState {
+                    val shown = this.drink
+                    if (shown?.id == id) copy(drink = shown.copy(notes = notes[id].orEmpty())) else this
+                }
+            }
+        }
+    }
+
+    /** The account's note on [drink], or the user's unsent text for it. */
+    private fun withNotes(drink: Drink): Drink =
+        withUnsentNote(drink.copy(notes = latestNotes[drink.id].orEmpty()))
+
+    /**
      * The user's own recipe comes from My recipes, not the catalog. The server
-     * refuses recipe ids for saving, ratings and recently viewed, so none of those run.
+     * refuses recipe ids for saving, ratings and recently viewed, so none of those
+     * run; notes work on recipes like on any drink.
      */
     private fun loadRecipe(drink: Drink) {
         if (loadedId == drink.id) return
@@ -117,7 +149,7 @@ class DrinkDetailsViewModel @Inject constructor(
         setState {
             copy(
                 loading = cached == null && !drink.hasRecipe,
-                drink = cached ?: drink,
+                drink = withNotes(cached ?: drink),
                 saved = false,
                 rating = null,
             )
@@ -131,13 +163,14 @@ class DrinkDetailsViewModel @Inject constructor(
                     current != null -> {
                         // Follows edits made in the editor.
                         seen = true
-                        setState { copy(loading = false, drink = current) }
+                        setState { copy(loading = false, drink = withNotes(current)) }
                     }
                     // It was there and now isn't: the user deleted it.
                     seen -> sendEffect(DrinkDetailsEffect.NavigateBack)
                 }
             }
         }
+        watchNotes(drink.id)
         lookup(drink.id)
     }
 
@@ -150,12 +183,12 @@ class DrinkDetailsViewModel @Inject constructor(
         lookupJob = viewModelScope.launch {
             val cached = repository.cachedDrink(id)
             if (cached != null && cached.hasRecipe) {
-                setState { copy(loading = false, drink = cached) }
+                setState { copy(loading = false, drink = withUnsentNote(cached)) }
             }
             try {
                 val fresh = repository.lookupDrink(id)
                 if (fresh != null) {
-                    setState { copy(loading = false, drink = fresh) }
+                    setState { copy(loading = false, drink = withUnsentNote(fresh)) }
                 } else {
                     setState { copy(loading = false) }
                 }
@@ -219,12 +252,34 @@ class DrinkDetailsViewModel @Inject constructor(
         }
     }
 
+    /**
+     * The field updates on every keystroke; the repository (and so the server)
+     * gets the text when Save is tapped. Leaving the drink sends any unsaved
+     * text too, so nothing typed is lost.
+     */
     private fun updateNotes(notes: String) {
         val drink = currentState.drink ?: return
-        setState { copy(drink = drink.copy(notes = notes)) }
-        viewModelScope.launch {
-            repository.updateNotes(drink.id, notes)
-        }
+        unsentNote = drink.id to notes
+        setState { copy(drink = drink.copy(notes = notes), unsavedNote = true) }
+    }
+
+    private fun flushNotes() {
+        val (id, notes) = unsentNote ?: return
+        unsentNote = null
+        // Not suspending: SavedSync sends it from its own scope, so this works from onCleared too.
+        repository.updateNotes(id, notes)
+        if (currentState.unsavedNote) setState { copy(unsavedNote = false) }
+    }
+
+    /** Keeps the user's unsent text when a lookup replaces the shown drink. */
+    private fun withUnsentNote(drink: Drink): Drink {
+        val (id, notes) = unsentNote ?: return drink
+        return if (id == drink.id) drink.copy(notes = notes) else drink
+    }
+
+    override fun onCleared() {
+        flushNotes()
+        super.onCleared()
     }
 
     private fun addToShoppingList() {

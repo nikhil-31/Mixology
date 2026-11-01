@@ -114,12 +114,12 @@ interface DrinkDao {
         }
     }
 
-    /** Caches a saved drink's details; which drinks are saved is kept by SavedSync. */
+    /** Caches a saved drink's details; which drinks are saved, and their notes, are kept by SavedSync. */
     @Transaction
     suspend fun saveDrink(drink: DrinkEntity) {
         val existing = getById(drink.id)
         if (existing == null) {
-            insertDrinks(listOf(drink.copy(saved = false)))
+            insertDrinks(listOf(drink.copy(saved = false, notes = "")))
         } else {
             updateIdentity(
                 drink.id,
@@ -145,8 +145,9 @@ interface DrinkDao {
         }
     }
 
-    @Query("UPDATE drinks SET notes = :notes WHERE id = :id")
-    suspend fun updateNotes(id: String, notes: String)
+    /** Drink notes live on the server now; drops what older versions kept here. */
+    @Query("UPDATE drinks SET notes = '' WHERE notes != ''")
+    suspend fun clearNotes()
 
     @Query(
         """

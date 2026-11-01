@@ -11,6 +11,8 @@ data class DrinkDetailsUiState(
     val onShoppingList: Boolean = false,
     /** Null until loaded, or when ratings couldn't be reached. */
     val rating: DrinkRating? = null,
+    /** The note has text typed since it was last saved. */
+    val unsavedNote: Boolean = false,
 ) {
     /** The user's own recipe: editable, but never saved or rated. */
     val isUserRecipe: Boolean get() = drink?.isUserRecipe == true
@@ -22,6 +24,8 @@ sealed interface DrinkDetailsIntent {
     data object Share : DrinkDetailsIntent
     data object Back : DrinkDetailsIntent
     data class UpdateNotes(val notes: String) : DrinkDetailsIntent
+    /** Sends the typed note to the account; leaving the drink does the same. */
+    data object SaveNotes : DrinkDetailsIntent
     data object AddToShoppingList : DrinkDetailsIntent
     data object RemoveFromShoppingList : DrinkDetailsIntent
     data class OpenVideo(val url: String) : DrinkDetailsIntent

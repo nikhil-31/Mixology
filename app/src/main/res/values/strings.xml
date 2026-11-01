@@ -191,6 +191,7 @@
     </plurals>
     <string name="bar_empty_title">Your bar is empty</string>
     <string name="detail_notes_hint">Tweaks, ratings, where you had it…</string>
+    <string name="detail_notes_save">Save</string>
     <string name="settings_library">Library</string>
     <string name="settings_privacy_header">Privacy</string>
     <string name="paywall_title">Your free trial has ended</string>

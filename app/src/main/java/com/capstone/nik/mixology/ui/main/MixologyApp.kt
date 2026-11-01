@@ -311,6 +311,7 @@ fun MixologyApp(
                         }
                         composable(BAR_ROUTE) {
                             BarRoute(
+                                snackbarHostState = snackbarHostState,
                                 onDrinkClick = { drink ->
                                     viewModel.onIntent(MainIntent.DrinkSelected(drink, selectDrinkTwoPane.value))
                                 },

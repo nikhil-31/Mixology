@@ -189,6 +189,29 @@
         <item quantity="one">%d ingredient</item>
         <item quantity="other">%d ingredients</item>
     </plurals>
+    <string name="bar_removed">Removed %1$s</string>
+    <string name="bar_undo">Undo</string>
+    <string name="bar_show_all">Show all (%1$d)</string>
+    <string name="bar_show_less">Show less</string>
+    <string name="bar_buy_next_title">Buy next</string>
+    <string name="bar_buy_next_info">Add one to unlock more drinks</string>
+    <string name="bar_add_named">Add %1$s to your bar</string>
+    <string name="bar_picker_in_bar">In your bar (%1$d)</string>
+    <string name="bar_picker_all">All ingredients</string>
+    <string name="bar_no_matches_title">Nothing to make yet</string>
+    <string name="bar_no_matches_message">Add a few more ingredients to unlock drinks.</string>
+    <plurals name="bar_unlocks">
+        <item quantity="one">unlocks %d drink</item>
+        <item quantity="other">unlocks %d drinks</item>
+    </plurals>
+    <plurals name="bar_ready_count">
+        <item quantity="one">%d ready</item>
+        <item quantity="other">%d ready</item>
+    </plurals>
+    <plurals name="bar_almost_count">
+        <item quantity="one">%d almost</item>
+        <item quantity="other">%d almost</item>
+    </plurals>
     <string name="bar_empty_title">Your bar is empty</string>
     <string name="detail_notes_hint">Tweaks, ratings, where you had it…</string>
     <string name="detail_notes_save">Save</string>

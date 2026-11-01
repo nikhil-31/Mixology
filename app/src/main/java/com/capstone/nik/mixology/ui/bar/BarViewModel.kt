@@ -46,6 +46,9 @@ class BarViewModel @Inject constructor(
                 copy(query = intent.query, visibleTerms = filterBarTerms(catalogTerms, intent.query))
             }
             is BarIntent.ToggleIngredient -> toggleIngredient(intent.name)
+            is BarIntent.RemoveIngredient -> removeIngredient(intent.name)
+            is BarIntent.AddIngredient -> viewModelScope.launch { repository.addToBar(intent.name) }
+            BarIntent.Refresh -> refresh()
             is BarIntent.ToggleSaved -> toggleSaved(intent.drink)
             is BarIntent.OpenDrink -> sendEffect(BarEffect.OpenDrink(intent.drink))
             BarIntent.Retry -> {
@@ -95,6 +98,31 @@ class BarViewModel @Inject constructor(
                 setState { copy(error = networkMonitor.connectionError(e)) }
             }
         }
+    }
+
+    private fun refresh() {
+        if (currentState.refreshing) return
+        setState { copy(refreshing = true) }
+        viewModelScope.launch {
+            try {
+                repository.syncBar()
+                repository.refreshCatalogs()
+                setState { copy(error = null) }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to refresh bar", e)
+                setState { copy(error = networkMonitor.connectionError(e)) }
+            } finally {
+                setState { copy(refreshing = false) }
+            }
+        }
+    }
+
+    private fun removeIngredient(name: String) {
+        val stored = currentState.bar.firstOrNull { it.equals(name, ignoreCase = true) } ?: return
+        viewModelScope.launch { repository.removeFromBar(stored) }
+        sendEffect(BarEffect.ShowRemoved(stored))
     }
 
     private fun toggleIngredient(name: String) {

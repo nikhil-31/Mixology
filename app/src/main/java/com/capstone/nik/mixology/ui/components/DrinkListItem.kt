@@ -37,6 +37,8 @@ fun DrinkListItem(
     onDrinkClick: (Drink) -> Unit,
     onToggleSaved: (Drink) -> Unit,
     subtitle: String? = null,
+    /** Shown under the row, lined up with the name, above the divider. */
+    footer: (@Composable () -> Unit)? = null,
 ) {
     var menuOpen by remember { mutableStateOf(false) }
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -103,6 +105,11 @@ fun DrinkListItem(
                         onToggleSaved(drink)
                     },
                 )
+            }
+        }
+        if (footer != null) {
+            Box(modifier = Modifier.padding(start = 96.dp, end = 16.dp, bottom = 10.dp)) {
+                footer()
             }
         }
         HorizontalDivider(

@@ -74,6 +74,27 @@ class BarMatcherTest {
         assertEquals(listOf("B Sour", "A Fizz"), result.almost.map { it.drink.name })
     }
 
+    @Test
+    fun topUnlocks_ranksSingleMissingIngredients() {
+        fun almost(id: String, vararg missing: String) =
+            BarAlmostDrink(recipe(id), missing.toList())
+        val recs = BarRecommendations(
+            almost = listOf(
+                almost("a", "Lime Juice"),
+                almost("b", "lime  juice"),
+                almost("c", "Campari"),
+                almost("d", "Ice"),
+                almost("e", "Bitters", "Sugar"),
+                almost("f", "Aperol"),
+            ),
+        )
+        assertEquals(
+            listOf(BarUnlock("Lime Juice", 2), BarUnlock("Aperol", 1)),
+            recs.topUnlocks(limit = 2),
+        )
+        assertTrue(BarRecommendations().topUnlocks().isEmpty())
+    }
+
     private fun recipe(name: String, vararg ingredients: String): Drink = Drink(
         id = name,
         name = name,

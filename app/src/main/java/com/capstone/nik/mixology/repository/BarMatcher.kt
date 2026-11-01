@@ -14,6 +14,32 @@ data class BarRecommendations(
     val almost: List<BarAlmostDrink> = emptyList(),
 )
 
+/** An ingredient that is the only thing missing from [count] of the "almost" drinks. */
+data class BarUnlock(
+    val ingredient: String,
+    val count: Int,
+)
+
+/**
+ * The ingredients that would turn the most "almost" drinks into ones you can make, best first.
+ * Names are matched loosely (case and spacing) and keep the first spelling seen.
+ */
+fun BarRecommendations.topUnlocks(limit: Int = 5): List<BarUnlock> {
+    val counts = linkedMapOf<String, Int>()
+    val names = mutableMapOf<String, String>()
+    almost.filter { it.missing.size == 1 }.forEach { item ->
+        val name = item.missing.first()
+        val key = BarMatcher.normalize(name)
+        if (key.isEmpty() || BarMatcher.isPantry(name)) return@forEach
+        counts[key] = (counts[key] ?: 0) + 1
+        names.getOrPut(key) { name.trim() }
+    }
+    return counts.entries
+        .sortedWith(compareByDescending<Map.Entry<String, Int>> { it.value }.thenBy { it.key })
+        .take(limit.coerceAtLeast(0))
+        .map { BarUnlock(names[it.key] ?: it.key, it.value) }
+}
+
 /** Maps a server recommendations payload (public or signed-in), keeping its order and dropping unusable drinks. */
 internal fun barRecommendationsOf(
     makeable: List<ApiDrink>,

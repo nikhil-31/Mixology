@@ -175,6 +175,29 @@
         <item quantity="one">%d ingrediente</item>
         <item quantity="other">%d ingredientes</item>
     </plurals>
+    <string name="bar_removed">Quitado: %1$s</string>
+    <string name="bar_undo">Deshacer</string>
+    <string name="bar_show_all">Ver todo (%1$d)</string>
+    <string name="bar_show_less">Ver menos</string>
+    <string name="bar_buy_next_title">Qué comprar</string>
+    <string name="bar_buy_next_info">Añade uno para desbloquear más cócteles</string>
+    <string name="bar_add_named">Añadir %1$s a tu bar</string>
+    <string name="bar_picker_in_bar">En tu bar (%1$d)</string>
+    <string name="bar_picker_all">Todos los ingredientes</string>
+    <string name="bar_no_matches_title">Todavía no hay nada que preparar</string>
+    <string name="bar_no_matches_message">Añade algunos ingredientes más para desbloquear bebidas.</string>
+    <plurals name="bar_unlocks">
+        <item quantity="one">desbloquea %d cóctel</item>
+        <item quantity="other">desbloquea %d cócteles</item>
+    </plurals>
+    <plurals name="bar_ready_count">
+        <item quantity="one">%d para hacer</item>
+        <item quantity="other">%d para hacer</item>
+    </plurals>
+    <plurals name="bar_almost_count">
+        <item quantity="one">%d casi</item>
+        <item quantity="other">%d casi</item>
+    </plurals>
     <string name="bar_empty_title">Tu bar está vacío</string>
     <string name="detail_notes_hint">Ajustes, valoraciones, dónde la probaste…</string>
     <string name="detail_notes_save">Guardar</string>

@@ -243,6 +243,9 @@
     <string name="recipes_home_greeting_evening">%1$s por la noche</string>
     <string name="recipes_home_greeting_night">%1$s de madrugada</string>
     <string name="recipes_home_tag_yours">Tu receta</string>
+    <string name="recipes_home_hero_can_make">PUEDES PREPARAR</string>
+    <string name="recipes_home_hero_almost">CASI</string>
+    <string name="recipes_home_hero_missing">Falta: %1$s</string>
     <string name="recipes_home_create">Crear una receta</string>
     <string name="recipes_home_empty_title">Aún no hay recetas</string>
     <string name="recipes_home_empty_body">Guarda las bebidas que te gusten o escribe las tuyas, y aparecerán aquí.</string>

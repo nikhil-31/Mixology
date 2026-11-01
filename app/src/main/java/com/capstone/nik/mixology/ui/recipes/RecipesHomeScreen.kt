@@ -15,6 +15,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -116,6 +119,7 @@ private fun RecipesHomeContent(
     state: RecipesHomeUiState,
     onIntent: (RecipesHomeIntent) -> Unit,
 ) {
+    val slides = remember(state.bar) { heroSlides(state.bar) }
     val featured = remember(state.mine, state.saved) { featuredDrink(state.mine + state.saved) }
     LazyColumn(
         modifier = Modifier.fillMaxSize().testTag("recipes_home_list"),
@@ -144,9 +148,15 @@ private fun RecipesHomeContent(
                 }
             }
         }
-        featured?.let { drink ->
+        if (slides.isNotEmpty()) {
             item(key = "hero") {
-                RecipeHeroCard(drink = drink, onClick = { onIntent(RecipesHomeIntent.OpenDrink(drink)) })
+                RecipeHeroCarousel(slides = slides, onOpen = { onIntent(RecipesHomeIntent.OpenDrink(it)) })
+            }
+        } else {
+            featured?.let { drink ->
+                item(key = "hero") {
+                    RecipeHeroCard(drink = drink, onClick = { onIntent(RecipesHomeIntent.OpenDrink(drink)) })
+                }
             }
         }
         item(key = "mine") {
@@ -184,9 +194,67 @@ private fun RecipesHomeContent(
 }
 
 @Composable
-private fun RecipeHeroCard(drink: Drink, onClick: () -> Unit) {
+private fun RecipeHeroCarousel(slides: List<HeroSlide>, onOpen: (Drink) -> Unit) {
+    val pagerState = rememberPagerState(pageCount = { slides.size })
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        HorizontalPager(
+            state = pagerState,
+            pageSpacing = 12.dp,
+            verticalAlignment = Alignment.Top,
+            modifier = Modifier.fillMaxWidth().testTag("recipes_home_hero_pager"),
+        ) { page ->
+            val slide = slides[page]
+            when (slide) {
+                is HeroSlide.CanMake -> RecipeHeroCard(
+                    drink = slide.drink,
+                    onClick = { onOpen(slide.drink) },
+                    badge = stringResource(R.string.recipes_home_hero_can_make),
+                )
+                is HeroSlide.Almost -> RecipeHeroCard(
+                    drink = slide.drink,
+                    onClick = { onOpen(slide.drink) },
+                    badge = stringResource(R.string.recipes_home_hero_almost),
+                    missing = missingSummary(slide.missing).takeIf { it.isNotEmpty() }
+                        ?.let { stringResource(R.string.recipes_home_hero_missing, it) },
+                )
+            }
+        }
+        if (slides.size >= 2) {
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                repeat(slides.size) { index ->
+                    val selected = index == pagerState.currentPage
+                    Box(
+                        modifier = Modifier
+                            .size(if (selected) 8.dp else 6.dp)
+                            .clip(CircleShape)
+                            .background(
+                                if (selected) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f)
+                                },
+                            ),
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RecipeHeroCard(
+    drink: Drink,
+    onClick: () -> Unit,
+    badge: String? = null,
+    missing: String? = null,
+) {
     val meta = drinkMeta(drink)
-    val tag = if (drink.isUserRecipe) {
+    val tag = if (badge != null) {
+        badge
+    } else if (drink.isUserRecipe) {
         stringResource(R.string.recipes_home_tag_yours)
     } else {
         drink.category?.trim().orEmpty()
@@ -236,6 +304,16 @@ private fun RecipeHeroCard(drink: Drink, onClick: () -> Unit) {
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                 )
+                if (missing != null) {
+                    Text(
+                        text = missing,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.error,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
                 if (summary.isNotEmpty()) {
                     Text(
                         text = "$summary.",

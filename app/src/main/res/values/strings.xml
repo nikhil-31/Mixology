@@ -254,6 +254,9 @@
     <string name="recipes_home_greeting_evening">%1$s evening</string>
     <string name="recipes_home_greeting_night">%1$s night</string>
     <string name="recipes_home_tag_yours">Your recipe</string>
+    <string name="recipes_home_hero_can_make">CAN MAKE</string>
+    <string name="recipes_home_hero_almost">ALMOST</string>
+    <string name="recipes_home_hero_missing">Missing: %1$s</string>
     <string name="recipes_home_create">Create a recipe</string>
     <string name="recipes_home_empty_title">No recipes yet</string>
     <string name="recipes_home_empty_body">Save drinks you like or write your own, and they\'ll show up here.</string>

@@ -15,6 +15,7 @@ sealed class DrawerDestination(val route: String) {
     data object Bar : DrawerDestination("bar")
     data object Shopping : DrawerDestination("shopping")
     data object Recipes : DrawerDestination("recipes")
+    data object RecipesHome : DrawerDestination("recipes_home")
 }
 
 const val GRID_ROUTE = "grid/{filter}"
@@ -25,6 +26,7 @@ const val CATALOG_ROUTE = "catalog"
 const val BAR_ROUTE = "bar"
 const val SHOPPING_ROUTE = "shopping"
 const val MY_RECIPES_ROUTE = "recipes"
+const val RECIPES_HOME_ROUTE = "recipes_home"
 const val SEARCH_ROUTE = "search?query={query}&mode={mode}&kind={kind}"
 const val DETAILS_ROUTE = "details/{id}?name={name}&thumb={thumb}"
 const val ADA_MORE_ROUTE = "ada_more?q={q}&exclude={exclude}"
@@ -94,6 +96,7 @@ fun showsTwoPaneDetails(
         -> false
         DrawerDestination.Hot,
         DrawerDestination.Bar,
+        DrawerDestination.RecipesHome,
         is DrawerDestination.Filter,
         -> true
     }

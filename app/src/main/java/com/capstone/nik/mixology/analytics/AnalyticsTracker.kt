@@ -29,6 +29,7 @@ fun analyticsScreenName(route: String?): String? {
         path.startsWith("shopping") -> SCREEN_SHOPPING_LIST
         path.startsWith("recipe_editor") -> SCREEN_RECIPE_EDITOR
         path.startsWith("recipe_import") -> SCREEN_RECIPE_IMPORT
+        path.startsWith("recipes_home") -> SCREEN_RECIPES_HOME
         path.startsWith("recipes") -> SCREEN_MY_RECIPES
         else -> path.substringBefore("/").takeIf { it.isNotBlank() }
     }
@@ -45,6 +46,7 @@ const val SCREEN_CATALOG = "catalog"
 const val SCREEN_MY_BAR = "my_bar"
 const val SCREEN_SHOPPING_LIST = "shopping_list"
 const val SCREEN_MY_RECIPES = "my_recipes"
+const val SCREEN_RECIPES_HOME = "recipes_home"
 const val SCREEN_RECIPE_EDITOR = "recipe_editor"
 const val SCREEN_RECIPE_IMPORT = "recipe_import"
 

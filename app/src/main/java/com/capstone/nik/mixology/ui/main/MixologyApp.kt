@@ -69,6 +69,7 @@ import com.capstone.nik.mixology.ui.hot.HotRoute
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 import com.capstone.nik.mixology.ui.recipes.ImportRecipeRoute
 import com.capstone.nik.mixology.ui.recipes.MyRecipesRoute
+import com.capstone.nik.mixology.ui.recipes.RecipesHomeRoute
 import com.capstone.nik.mixology.ui.recipes.RecipeEditorRoute
 import com.capstone.nik.mixology.ui.search.SearchMode
 import com.capstone.nik.mixology.ui.search.SearchRoute
@@ -210,6 +211,7 @@ fun MixologyApp(
         DrawerDestination.Bar -> stringResource(R.string.nav_item_my_bar)
         DrawerDestination.Shopping -> stringResource(R.string.nav_item_shopping_list)
         DrawerDestination.Recipes -> stringResource(R.string.my_recipes_title)
+        DrawerDestination.RecipesHome -> stringResource(R.string.nav_bottom_recipes)
         is DrawerDestination.Filter -> destination.filter.titleRes?.let { stringResource(it) }
             ?: destination.filter.displayName()
     }
@@ -408,6 +410,24 @@ fun MixologyApp(
                         }
                         composable(SHOPPING_ROUTE) {
                             ShoppingRoute()
+                        }
+                        composable(RECIPES_HOME_ROUTE) {
+                            RecipesHomeRoute(
+                                onDrinkClick = { drink ->
+                                    viewModel.onIntent(MainIntent.DrinkSelected(drink, selectDrinkTwoPane.value))
+                                },
+                                onAddRecipe = {
+                                    navController.navigate(recipeEditorRoute()) { launchSingleTop = true }
+                                },
+                                onSeeAllRecipes = {
+                                    viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Recipes))
+                                },
+                                onSeeAllSaved = {
+                                    viewModel.onIntent(
+                                        MainIntent.SelectDestination(DrawerDestination.Filter(DrinkFilter.SAVED)),
+                                    )
+                                },
+                            )
                         }
                         composable(MY_RECIPES_ROUTE) {
                             MyRecipesRoute(

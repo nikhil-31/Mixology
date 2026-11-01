@@ -4,9 +4,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocalBar
+import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.LocalBar
+import androidx.compose.material.icons.outlined.MenuBook
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -50,6 +52,12 @@ val bottomNavItems = listOf(
         unselectedIcon = Icons.Outlined.FavoriteBorder,
     ),
     BottomNavItem(
+        titleRes = R.string.nav_bottom_recipes,
+        destination = DrawerDestination.RecipesHome,
+        selectedIcon = Icons.Filled.MenuBook,
+        unselectedIcon = Icons.Outlined.MenuBook,
+    ),
+    BottomNavItem(
         titleRes = R.string.nav_bottom_ada,
         destination = DrawerDestination.Ada,
         selectedIcon = AdaPlushieFilled,
@@ -62,6 +70,7 @@ fun DrawerDestination.isSelectedBottomNav(item: BottomNavItem): Boolean {
         DrawerDestination.Hot -> this is DrawerDestination.Hot
         DrawerDestination.Bar -> this is DrawerDestination.Bar
         DrawerDestination.Ada -> this is DrawerDestination.Ada
+        DrawerDestination.RecipesHome -> this is DrawerDestination.RecipesHome
         DrawerDestination.Catalog,
         DrawerDestination.Settings,
         DrawerDestination.Shopping,

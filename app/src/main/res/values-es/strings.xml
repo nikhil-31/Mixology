@@ -236,6 +236,21 @@
     <string name="home_quick_bar_hint">Con lo que hay en tu bar</string>
     <string name="home_quick_ada_title">Pregunta a Ada</string>
     <string name="home_quick_ada_hint">Recibe una sugerencia</string>
+    <string name="nav_bottom_recipes">Recetas</string>
+    <string name="recipes_home_greeting_morning">%1$s por la mañana</string>
+    <string name="recipes_home_greeting_afternoon">%1$s por la tarde</string>
+    <string name="recipes_home_greeting_evening">%1$s por la noche</string>
+    <string name="recipes_home_greeting_night">%1$s de madrugada</string>
+    <string name="recipes_home_summary">%1$d guardadas · %2$d tuyas</string>
+    <string name="recipes_home_tag_yours">Tu receta</string>
+    <string name="recipes_home_create">Crear una receta</string>
+    <string name="recipes_home_empty_title">Aún no hay recetas</string>
+    <string name="recipes_home_empty_body">Guarda las bebidas que te gusten o escribe las tuyas, y aparecerán aquí.</string>
+    <string name="recipes_home_error">No se pudieron cargar tus recetas.</string>
+    <plurals name="recipes_home_ingredients">
+        <item quantity="one">%d ingrediente</item>
+        <item quantity="other">%d ingredientes</item>
+    </plurals>
     <string name="my_recipes_title">Mis recetas</string>
     <string name="my_recipes_empty_title">Aún no tienes recetas</string>
     <string name="my_recipes_empty_body">Apunta tus propias bebidas, con foto, y encuéntralas aquí.</string>

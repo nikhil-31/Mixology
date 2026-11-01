@@ -48,6 +48,10 @@ class DrinkDetailsViewModelTest {
         val context = ApplicationProvider.getApplicationContext<Application>()
         database = Room.inMemoryDatabaseBuilder(context, MixologyDatabase::class.java)
             .allowMainThreadQueries()
+            // Saves now flip in memory first, so a test can finish while Room is
+            // still writing; running Room inline keeps it from outliving the test.
+            .setQueryExecutor { it.run() }
+            .setTransactionExecutor { it.run() }
             .build()
         repository = DrinkRepository(
             database.drinkDao(),

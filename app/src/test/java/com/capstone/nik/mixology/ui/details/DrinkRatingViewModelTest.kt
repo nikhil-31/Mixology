@@ -67,6 +67,8 @@ class DrinkRatingViewModelTest {
         val context = ApplicationProvider.getApplicationContext<Application>()
         database = Room.inMemoryDatabaseBuilder(context, MixologyDatabase::class.java)
             .allowMainThreadQueries()
+            .setQueryExecutor { it.run() }
+            .setTransactionExecutor { it.run() }
             .build()
         val repository = DrinkRepository(
             database.drinkDao(),

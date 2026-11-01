@@ -21,14 +21,15 @@ interface DrinkDao {
     )
     fun observeByFilter(filterName: String): Flow<List<DrinkEntity>>
 
-    @Query("SELECT * FROM drinks WHERE saved = 1 ORDER BY name")
-    fun observeSaved(): Flow<List<DrinkEntity>>
+    @Query("SELECT * FROM drinks WHERE id IN (:ids) ORDER BY name")
+    fun observeByIds(ids: List<String>): Flow<List<DrinkEntity>>
 
-    @Query("SELECT id FROM drinks WHERE saved = 1")
-    fun observeSavedIds(): Flow<List<String>>
+    @Query("SELECT * FROM drinks WHERE id IN (:ids) ORDER BY name")
+    suspend fun getByIds(ids: List<String>): List<DrinkEntity>
 
-    @Query("SELECT * FROM drinks WHERE saved = 1 ORDER BY name")
-    fun getSavedSync(): List<DrinkEntity>
+    /** Saved drinks live on the server now; drops what older versions kept here. */
+    @Query("UPDATE drinks SET saved = 0 WHERE saved = 1")
+    suspend fun clearSavedFlags()
 
     @Query("SELECT * FROM drinks WHERE id = :id")
     suspend fun getById(id: String): DrinkEntity?
@@ -38,9 +39,6 @@ interface DrinkDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertMemberships(memberships: List<DrinkFilterCrossRef>)
-
-    @Query("UPDATE drinks SET saved = :saved WHERE id = :id")
-    suspend fun setSaved(id: String, saved: Boolean)
 
     @Query("UPDATE drinks SET name = :name, thumb = :thumb WHERE id = :id")
     suspend fun updateIdentity(id: String, name: String, thumb: String)
@@ -116,11 +114,12 @@ interface DrinkDao {
         }
     }
 
+    /** Caches a saved drink's details; which drinks are saved is kept by SavedSync. */
     @Transaction
     suspend fun saveDrink(drink: DrinkEntity) {
         val existing = getById(drink.id)
         if (existing == null) {
-            insertDrinks(listOf(drink.copy(saved = true)))
+            insertDrinks(listOf(drink.copy(saved = false)))
         } else {
             updateIdentity(
                 drink.id,
@@ -144,7 +143,6 @@ interface DrinkDao {
                 )
             }
         }
-        setSaved(drink.id, true)
     }
 
     @Query("UPDATE drinks SET notes = :notes WHERE id = :id")

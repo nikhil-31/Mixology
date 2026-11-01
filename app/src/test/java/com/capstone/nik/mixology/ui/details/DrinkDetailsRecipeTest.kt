@@ -69,6 +69,8 @@ class DrinkDetailsRecipeTest {
         val context = ApplicationProvider.getApplicationContext<Application>()
         database = Room.inMemoryDatabaseBuilder(context, MixologyDatabase::class.java)
             .allowMainThreadQueries()
+            .setQueryExecutor { it.run() }
+            .setTransactionExecutor { it.run() }
             .build()
         drinks = DrinkRepository(database.drinkDao(), database.shoppingDao(), database.barDao(), catalog, context)
         val sessions = SessionStore(context)

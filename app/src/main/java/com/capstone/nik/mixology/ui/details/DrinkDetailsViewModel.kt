@@ -247,12 +247,14 @@ class DrinkDetailsViewModel @Inject constructor(
     private fun toggleSaved() {
         val drink = currentState.drink?.takeUnless { it.isUserRecipe } ?: return
         viewModelScope.launch {
+            // Logged first: the saved set updates in memory at once, so the
+            // next toggle can arrive before save() returns.
             if (currentState.saved) {
-                repository.unsave(drink.id)
                 analytics.logSaveDrink(drink.id, drink.name, saved = false)
+                repository.unsave(drink.id)
             } else {
-                repository.save(drink)
                 analytics.logSaveDrink(drink.id, drink.name, saved = true)
+                repository.save(drink)
             }
         }
     }

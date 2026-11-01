@@ -25,8 +25,10 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
@@ -55,14 +57,16 @@ class DrinkRepository @Inject constructor(
     private val remoteLists = MutableStateFlow<Map<String, List<Drink>>>(emptyMap())
     private val catalogTerms = MutableStateFlow<Map<FilterKind, List<String>>>(emptyMap())
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun observeDrinks(filter: DrinkFilter): Flow<List<Drink>> {
         val drinksFlow = if (filter.showEmptySaved) {
-            dao.observeSaved().map { entities -> entities.map { it.toDrink() } }
+            savedSync.savedIds.flatMapLatest { ids ->
+                if (ids.isEmpty()) flowOf(emptyList()) else dao.observeByIds(ids.toList())
+            }.map { entities -> entities.map { it.toDrink(savedOverride = true) } }
         } else {
             remoteLists.map { lists -> lists[filter.name].orEmpty() }
         }
-        return combine(drinksFlow, dao.observeSavedIds()) { drinks, savedIds ->
-            val saved = savedIds.toSet()
+        return combine(drinksFlow, savedSync.savedIds) { drinks, saved ->
             drinks.map { drink -> drink.copy(saved = drink.id in saved) }
         }
     }
@@ -81,12 +85,11 @@ class DrinkRepository @Inject constructor(
         return withSaved(drinks)
     }
 
-    fun observeSavedIds(): Flow<Set<String>> = dao.observeSavedIds().map { it.toSet() }
+    fun observeSavedIds(): Flow<Set<String>> = savedSync.savedIds
 
     fun observeRecentlyViewed(): Flow<List<Drink>> {
-        return combine(dao.observeRecentlyViewed(MAX_RECENTLY_VIEWED), dao.observeSavedIds()) { drinks, savedIds ->
-            val saved = savedIds.toSet()
-            drinks.map { entity -> entity.toDrink(savedOverride = entity.id in saved || entity.saved) }
+        return combine(dao.observeRecentlyViewed(MAX_RECENTLY_VIEWED), savedSync.savedIds) { drinks, saved ->
+            drinks.map { entity -> entity.toDrink(savedOverride = entity.id in saved) }
         }
     }
 
@@ -96,13 +99,14 @@ class DrinkRepository @Inject constructor(
         dao.recordViewed(drink.toEntity(), viewedAt, MAX_RECENTLY_VIEWED)
     }
 
-    suspend fun cachedDrink(id: String): Drink? = dao.getById(id)?.toDrink()
+    suspend fun cachedDrink(id: String): Drink? =
+        dao.getById(id)?.let { it.toDrink(savedOverride = it.id in savedSync.savedIds.value) }
 
     suspend fun lookupDrink(id: String): Drink? {
         val remote = service.getDrinkById(id).drinks.orEmpty().firstOrNull()?.toDrink() ?: return null
         val stored = dao.getById(id)
         return remote.copy(
-            saved = stored?.saved == true,
+            saved = id in savedSync.savedIds.value,
             notes = stored?.notes.orEmpty(),
         )
     }
@@ -133,7 +137,7 @@ class DrinkRepository @Inject constructor(
     suspend fun save(drink: Drink) {
         // The server refuses recipe ids; the user's recipes live under My recipes instead.
         if (drink.isUserRecipe) return
-        dao.saveDrink(drink.toEntity().copy(saved = true))
+        dao.saveDrink(drink.toEntity())
         savedSync.push(drink.id, saved = true)
         recordViewed(drink)
         notifyWidgets()
@@ -141,7 +145,6 @@ class DrinkRepository @Inject constructor(
     }
 
     suspend fun unsave(id: String) {
-        dao.setSaved(id, false)
         savedSync.push(id, saved = false)
         notifyWidgets()
     }
@@ -243,7 +246,13 @@ class DrinkRepository @Inject constructor(
         shoppingSync.push()
     }
 
-    fun getSavedSync(): List<Drink> = dao.getSavedSync().map { it.toDrink(savedOverride = true) }
+    /** For the widget, which may run before the app has pulled the account's list. */
+    suspend fun getSavedSync(): List<Drink> {
+        if (savedSync.savedIds.value.isEmpty()) savedSync.sync()
+        val ids = savedSync.savedIds.value
+        if (ids.isEmpty()) return emptyList()
+        return dao.getByIds(ids.toList()).map { it.toDrink(savedOverride = true) }
+    }
 
     private fun drinksFrom(response: CocktailDbResponse): List<Drink> {
         return response.drinks.orEmpty()
@@ -255,8 +264,8 @@ class DrinkRepository @Inject constructor(
         return response.drinks.orEmpty().mapNotNull { it.term() }.distinct().sorted()
     }
 
-    private suspend fun withSaved(drinks: List<Drink>): List<Drink> {
-        val saved = dao.observeSavedIds().first().toSet()
+    private fun withSaved(drinks: List<Drink>): List<Drink> {
+        val saved = savedSync.savedIds.value
         return drinks.map { drink -> drink.copy(saved = drink.id in saved) }
     }
 

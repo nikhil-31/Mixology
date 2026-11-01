@@ -183,15 +183,12 @@ abstract class MixologyDatabase : RoomDatabase() {
                                         id = id,
                                         name = cursor.getString(nameIndex).orEmpty(),
                                         thumb = cursor.getString(thumbIndex).orEmpty(),
-                                        saved = true,
                                     ),
                                 )
                             }
                             if (drinks.isNotEmpty()) {
-                                runBlocking {
-                                    dao.insertDrinks(drinks)
-                                    drinks.forEach { dao.setSaved(it.id, true) }
-                                }
+                                // Only the details are kept: saved drinks come from the server.
+                                runBlocking { dao.insertDrinks(drinks) }
                             }
                         }
                     }

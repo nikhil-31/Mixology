@@ -16,6 +16,10 @@ import com.capstone.nik.mixology.play.NoOpPlayReviewClient
 import com.capstone.nik.mixology.play.PlayReviewController
 import com.capstone.nik.mixology.ui.model.IngredientMeasure
 import kotlinx.coroutines.flow.first
+import org.junit.Assert.assertFalse
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import com.capstone.nik.mixology.data.DrinkEntity
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -90,6 +94,47 @@ class DrinkRepositoryTest {
         assertEquals(setOf("11007"), repository.observeSavedIds().first())
         repository.unsave("11007")
         assertTrue(repository.observeSavedIds().first().isEmpty())
+    }
+
+    @Test
+    fun savedList_comesFromTheSavedSetNotRoomsFlag() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Application>()
+        val ids = MutableStateFlow(setOf("11007"))
+        val savedSync = object : SavedSync {
+            override val savedIds: StateFlow<Set<String>> = ids
+            override fun push(id: String, saved: Boolean) {
+                ids.value = if (saved) ids.value + id else ids.value - id
+            }
+            override suspend fun sync() = Unit
+        }
+        val repo = DrinkRepository(
+            database.drinkDao(),
+            database.shoppingDao(),
+            database.barDao(),
+            service,
+            context,
+            savedSync = savedSync,
+        )
+        database.drinkDao().insertDrinks(
+            listOf(
+                DrinkEntity("11007", "Margarita", ""),
+                DrinkEntity("legacy", "Old Fashioned", "", saved = true),
+            ),
+        )
+
+        val saved = repo.observeDrinks(DrinkFilter.SAVED).first()
+        assertEquals(listOf("11007"), saved.map { it.id })
+        assertTrue(saved.single().saved)
+        assertEquals(listOf("11007"), repo.getSavedSync().map { it.id })
+
+        repo.unsave("11007")
+        assertTrue(repo.observeDrinks(DrinkFilter.SAVED).first().isEmpty())
+        assertFalse(database.drinkDao().getById("11007")!!.saved)
+
+        repo.save(cocktailDrink("11000", "Mojito").toDrink()!!)
+        assertEquals(setOf("11000"), ids.value)
+        assertEquals(listOf("Mojito"), repo.observeDrinks(DrinkFilter.SAVED).first().map { it.name })
+        assertFalse(database.drinkDao().getById("11000")!!.saved)
     }
 
     @Test

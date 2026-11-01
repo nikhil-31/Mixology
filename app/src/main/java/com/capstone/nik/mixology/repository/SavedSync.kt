@@ -1,21 +1,19 @@
 package com.capstone.nik.mixology.repository
 
-import android.content.Context
-import android.content.SharedPreferences
 import android.util.Log
 import com.capstone.nik.mixology.Network.CocktailService
 import com.capstone.nik.mixology.Network.SavedService
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkDao
-import com.capstone.nik.mixology.data.Session
 import com.capstone.nik.mixology.data.SessionStore
 import com.capstone.nik.mixology.data.toEntity
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -23,23 +21,38 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Keeps saved drinks in step with the signed-in account, so Ada (which reads
- * the server's list) and other devices agree with this one.
+ * The account's saved drinks. The server owns the list; this keeps it in
+ * memory, and Room only caches the drinks' details.
  */
 interface SavedSync {
-    /** Sends one save or unsave to the server; failures are retried by the next [sync]. */
+    /** Saved drink ids: the server's list with this device's unsent changes applied. */
+    val savedIds: StateFlow<Set<String>>
+
+    /** Saves or unsaves one drink; the change shows at once and is undone if the server refuses it. */
     fun push(id: String, saved: Boolean)
 
-    /** Pulls the account's saved ids into the local database. */
+    /** Replaces [savedIds] with the account's list from the server. */
     suspend fun sync()
 
     companion object {
-        /** For tests and previews: saves stay on the device. */
-        val None = object : SavedSync {
-            override fun push(id: String, saved: Boolean) = Unit
-            override suspend fun sync() = Unit
-        }
+        /**
+         * For tests and previews: no server. Each access returns a new
+         * instance whose saves live only in its own in-memory set, so a
+         * repository built with it still sees its own saves and unsaves.
+         */
+        val None: SavedSync get() = InMemorySavedSync()
     }
+}
+
+private class InMemorySavedSync : SavedSync {
+    private val ids = MutableStateFlow<Set<String>>(emptySet())
+    override val savedIds: StateFlow<Set<String>> = ids.asStateFlow()
+
+    override fun push(id: String, saved: Boolean) {
+        ids.value = if (saved) ids.value + id else ids.value - id
+    }
+
+    override suspend fun sync() = Unit
 }
 
 @Singleton
@@ -48,7 +61,6 @@ class NetworkSavedSync internal constructor(
     private val cocktails: CocktailService,
     private val dao: DrinkDao,
     private val sessionStore: SessionStore,
-    private val prefs: SharedPreferences,
     private val scope: CoroutineScope,
 ) : SavedSync {
 
@@ -58,71 +70,92 @@ class NetworkSavedSync internal constructor(
         cocktails: CocktailService,
         dao: DrinkDao,
         sessionStore: SessionStore,
-        @ApplicationContext context: Context,
     ) : this(
         service,
         cocktails,
         dao,
         sessionStore,
-        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE),
         CoroutineScope(SupervisorJob() + Dispatchers.IO),
     )
 
     private val lock = Mutex()
-    /** Saves and unsaves the server has not acknowledged yet, by drink id. */
+
+    /** Saves and unsaves the server has not acknowledged yet, by drink id. Also guards [ids]. */
     private val pending = mutableMapOf<String, Boolean>()
+    private val ids = MutableStateFlow<Set<String>>(emptySet())
+    override val savedIds: StateFlow<Set<String>> = ids.asStateFlow()
 
     init {
         scope.launch {
-            // Signing in (or starting signed in) brings the account's list down.
+            // Saves used to live in Room; they are dropped, never uploaded.
+            runCatchingLogged("Clearing local saved flags failed") { dao.clearSavedFlags() }
+            // Signing in (or starting signed in) brings the account's list down;
+            // signing out forgets it.
             sessionStore.session.collect { session ->
-                if (session != null) sync()
+                if (session != null) {
+                    sync()
+                } else {
+                    synchronized(pending) {
+                        pending.clear()
+                        ids.value = emptySet()
+                    }
+                }
             }
         }
     }
 
     override fun push(id: String, saved: Boolean) {
-        if (id.startsWith(Drink.USER_RECIPE_PREFIX) || sessionStore.current() == null) return
-        synchronized(pending) { pending[id] = saved }
+        if (id.startsWith(Drink.USER_RECIPE_PREFIX)) return
+        val signedIn = sessionStore.current() != null
+        synchronized(pending) {
+            ids.value = ids.value.with(id, saved)
+            if (signedIn) pending[id] = saved
+        }
+        if (!signedIn) return
         scope.launch {
-            lock.withLock { runCatchingNetwork { send(id, saved) } }
+            lock.withLock {
+                // Already sent by a pull, or replaced by a newer change that sends itself.
+                if (synchronized(pending) { pending[id] } != saved) return@withLock
+                try {
+                    send(id, saved)
+                } catch (error: CancellationException) {
+                    throw error
+                } catch (error: Exception) {
+                    Log.w(TAG, "Saving $id failed", error)
+                    synchronized(pending) {
+                        if (pending[id] == saved) {
+                            pending.remove(id)
+                            ids.value = ids.value.with(id, !saved)
+                        }
+                    }
+                }
+            }
         }
     }
 
     override suspend fun sync() {
-        val session = sessionStore.current() ?: return
+        if (sessionStore.current() == null) return
         lock.withLock {
-            runCatchingNetwork { pull(session) }
+            runCatchingLogged("Saved drinks sync failed") { pull() }
         }
     }
 
-    private suspend fun pull(session: Session) {
+    private suspend fun pull() {
         synchronized(pending) { pending.toMap() }.forEach { (id, saved) -> send(id, saved) }
-        val remote = service.sync().saved.toMutableSet()
-        val local = dao.observeSavedIds().first().toSet()
-        val account = session.uid.ifEmpty { session.email }
-        val claimed = prefs.getString(KEY_ACCOUNT, null)
-        // The first account on this device keeps what was saved before signing
-        // in; a different account replaces it.
-        if (claimed == null || claimed == account) {
-            for (id in local - remote) {
-                if (id.startsWith(Drink.USER_RECIPE_PREFIX)) continue
-                service.save(id)
-                remote += id
+        val remote = service.sync().saved.toSet()
+        val merged = synchronized(pending) {
+            var merged = remote
+            pending.forEach { (id, saved) -> merged = merged.with(id, saved) }
+            ids.value = merged
+            merged
+        }
+        for (id in merged) {
+            if (id.startsWith(Drink.USER_RECIPE_PREFIX) || dao.getById(id) != null) continue
+            runCatchingLogged("Fetching saved drink $id failed") {
+                val drink = cocktails.getDrinkById(id).drinks.orEmpty().firstOrNull()?.toDrink()
+                if (drink != null) dao.saveDrink(drink.toEntity())
             }
         }
-        for (id in remote - local) {
-            if (dao.getById(id) != null) {
-                dao.setSaved(id, true)
-            } else {
-                val drink = cocktails.getDrinkById(id).drinks.orEmpty().firstOrNull()?.toDrink() ?: continue
-                dao.saveDrink(drink.toEntity().copy(saved = true))
-            }
-        }
-        for (id in local - remote) {
-            if (!id.startsWith(Drink.USER_RECIPE_PREFIX)) dao.setSaved(id, false)
-        }
-        prefs.edit().putString(KEY_ACCOUNT, account).apply()
     }
 
     private suspend fun send(id: String, saved: Boolean) {
@@ -132,20 +165,20 @@ class NetworkSavedSync internal constructor(
         }
     }
 
-    private suspend fun runCatchingNetwork(block: suspend () -> Unit) {
+    private suspend fun runCatchingLogged(message: String, block: suspend () -> Unit) {
         try {
             block()
         } catch (error: CancellationException) {
             throw error
         } catch (error: Exception) {
-            // Offline, signed out or past the trial: keep the local list and try again later.
-            Log.w(TAG, "Saved drinks sync failed", error)
+            // Offline, signed out or past the trial: keep what we have and try again later.
+            Log.w(TAG, message, error)
         }
     }
 
+    private fun Set<String>.with(id: String, saved: Boolean) = if (saved) this + id else this - id
+
     private companion object {
         const val TAG = "SavedSync"
-        const val PREFS = "saved_sync"
-        const val KEY_ACCOUNT = "account"
     }
 }

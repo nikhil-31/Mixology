@@ -189,6 +189,38 @@ class DrinkRepositoryTest {
     }
 
     @Test
+    fun bar_changesArePushedAndSyncPulls() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Application>()
+        val sync = RecordingBarSync()
+        val repo = DrinkRepository(
+            database.drinkDao(),
+            database.shoppingDao(),
+            database.barDao(),
+            service,
+            context,
+            barSync = sync,
+        )
+        repo.addToBar("  Gin ")
+        repo.addToBar("   ")
+        repo.removeFromBar("Gin")
+        repo.syncBar()
+        assertEquals(listOf("Gin" to true, "Gin" to false), sync.pushes)
+        assertEquals(1, sync.pulls)
+        assertTrue(repo.observeBar().first().isEmpty())
+    }
+
+    private class RecordingBarSync : BarSync {
+        val pushes = mutableListOf<Pair<String, Boolean>>()
+        var pulls = 0
+        override fun push(name: String, owned: Boolean) {
+            pushes += name to owned
+        }
+        override suspend fun pull() {
+            pulls++
+        }
+    }
+
+    @Test
     fun barRecommendations_networkFailureReturnsEmpty() = runTest {
         service.failRecommendations = true
         repository.addToBar("Gin")

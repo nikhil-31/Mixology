@@ -49,6 +49,7 @@ class DrinkRepository @Inject constructor(
     private val playReviews: PlayReviewController = PlayReviewController.disabled(),
     private val savedSync: SavedSync = SavedSync.None,
     private val shoppingSync: ShoppingSync = ShoppingSync.None,
+    private val barSync: BarSync = BarSync.None,
 ) {
 
     private val remoteLists = MutableStateFlow<Map<String, List<Drink>>>(emptyMap())
@@ -174,10 +175,17 @@ class DrinkRepository @Inject constructor(
         val trimmed = name.trim()
         if (trimmed.isEmpty()) return
         barDao.insert(BarIngredientEntity(trimmed))
+        barSync.push(trimmed, owned = true)
     }
 
     suspend fun removeFromBar(name: String) {
         barDao.delete(name)
+        barSync.push(name, owned = false)
+    }
+
+    /** Brings the account's bar down from the server; does nothing when signed out. */
+    suspend fun syncBar() {
+        barSync.pull()
     }
 
     fun observeBarRecommendations(): Flow<BarRecommendations> {

@@ -4,7 +4,9 @@ import com.capstone.nik.mixology.data.AppleAuth
 import com.capstone.nik.mixology.data.FirebaseAppleAuth
 import com.capstone.nik.mixology.data.FirebaseGoogleAuth
 import com.capstone.nik.mixology.data.GoogleAuth
+import com.capstone.nik.mixology.repository.BarSync
 import com.capstone.nik.mixology.repository.ChatRepository
+import com.capstone.nik.mixology.repository.NetworkBarSync
 import com.capstone.nik.mixology.repository.NetworkChatRepository
 import com.capstone.nik.mixology.repository.NetworkRatingRepository
 import com.capstone.nik.mixology.repository.RatingRepository
@@ -44,6 +46,10 @@ abstract class ChatModule {
     @Binds
     @Singleton
     abstract fun bindShoppingSync(impl: NetworkShoppingSync): ShoppingSync
+
+    @Binds
+    @Singleton
+    abstract fun bindBarSync(impl: NetworkBarSync): BarSync
 
     @Binds
     @Singleton

@@ -82,6 +82,7 @@ class BarViewModel @Inject constructor(
     }
 
     private fun refreshCatalog() {
+        viewModelScope.launch { repository.syncBar() }
         viewModelScope.launch {
             try {
                 repository.refreshCatalogs()

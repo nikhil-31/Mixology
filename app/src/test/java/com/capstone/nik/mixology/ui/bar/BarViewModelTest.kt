@@ -12,6 +12,7 @@ import com.capstone.nik.mixology.analytics.EVENT_REMOVE_FROM_WISHLIST
 import com.capstone.nik.mixology.catalog
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.MixologyDatabase
+import com.capstone.nik.mixology.repository.BarSync
 import com.capstone.nik.mixology.repository.DrinkRepository
 import com.capstone.nik.mixology.ui.model.IngredientMeasure
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -113,6 +114,38 @@ class BarViewModelTest {
             analytics.recorded.map { it.name },
         )
         assertEquals("11003", analytics.recorded[0].params[FirebaseAnalytics.Param.ITEM_ID])
+    }
+
+    @Test
+    fun syncsTheBarOnOpenAndOnRetry() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Application>()
+        var pulls = 0
+        val sync = object : BarSync {
+            override fun push(name: String, owned: Boolean) = Unit
+            override suspend fun pull() {
+                pulls++
+            }
+        }
+        val monitor = NetworkMonitor.forTests()
+        val synced = BarViewModel(
+            DrinkRepository(
+                database.drinkDao(),
+                database.shoppingDao(),
+                database.barDao(),
+                service,
+                context,
+                barSync = sync,
+            ),
+            monitor,
+            analytics,
+        )
+        synced.state.test {
+            awaitItemUntil { !it.loading }
+            assertEquals(1, pulls)
+            synced.onIntent(BarIntent.Retry)
+            cancelAndIgnoreRemainingEvents()
+        }
+        assertEquals(2, pulls)
     }
 
     @Test

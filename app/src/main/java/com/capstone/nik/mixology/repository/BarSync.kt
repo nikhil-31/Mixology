@@ -1,0 +1,172 @@
+package com.capstone.nik.mixology.repository
+
+import android.content.Context
+import android.content.SharedPreferences
+import android.util.Log
+import com.capstone.nik.mixology.Network.BarIngredientBody
+import com.capstone.nik.mixology.Network.BarIngredientsBody
+import com.capstone.nik.mixology.Network.BarService
+import com.capstone.nik.mixology.data.BarDao
+import com.capstone.nik.mixology.data.BarIngredientEntity
+import com.capstone.nik.mixology.data.Session
+import com.capstone.nik.mixology.data.SessionStore
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import retrofit2.HttpException
+import javax.inject.Inject
+import javax.inject.Singleton
+
+/**
+ * Keeps My Bar in step with the signed-in account, so recommendations, Ada and
+ * other devices see the same ingredients as this one.
+ */
+interface BarSync {
+    /** Sends one add or remove to the server; failures are retried by the next [pull]. */
+    fun push(name: String, owned: Boolean)
+
+    /** Replaces the local bar with the account's, keeping changes the server has not seen yet. */
+    suspend fun pull()
+
+    companion object {
+        /** For tests and previews: the bar stays on the device. */
+        val None = object : BarSync {
+            override fun push(name: String, owned: Boolean) = Unit
+            override suspend fun pull() = Unit
+        }
+    }
+}
+
+@Singleton
+class NetworkBarSync internal constructor(
+    private val service: BarService,
+    private val dao: BarDao,
+    private val sessionStore: SessionStore,
+    private val prefs: SharedPreferences,
+    private val scope: CoroutineScope,
+) : BarSync {
+
+    @Inject
+    constructor(
+        service: BarService,
+        dao: BarDao,
+        sessionStore: SessionStore,
+        @ApplicationContext context: Context,
+    ) : this(
+        service,
+        dao,
+        sessionStore,
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE),
+        CoroutineScope(SupervisorJob() + Dispatchers.IO),
+    )
+
+    private val lock = Mutex()
+    /** Adds and removes the server has not acknowledged yet, keyed by lowercase name. */
+    private val pending = mutableMapOf<String, Change>()
+
+    private data class Change(val name: String, val owned: Boolean)
+
+    init {
+        scope.launch {
+            // Signing in (or starting signed in) brings the account's bar down.
+            sessionStore.session.collect { session ->
+                if (session != null) pull()
+            }
+        }
+    }
+
+    override fun push(name: String, owned: Boolean) {
+        val trimmed = name.trim()
+        if (trimmed.isEmpty() || sessionStore.current() == null) return
+        val change = Change(trimmed, owned)
+        synchronized(pending) { pending[trimmed.lowercase()] = change }
+        scope.launch {
+            lock.withLock { runCatchingNetwork { send(change) } }
+        }
+    }
+
+    override suspend fun pull() {
+        val session = sessionStore.current() ?: return
+        lock.withLock {
+            runCatchingNetwork { pull(session) }
+        }
+    }
+
+    private suspend fun pull(session: Session) {
+        pendingChanges().forEach { send(it) }
+        var remote = service.bar().ingredients
+        val local = dao.getAll().map { it.name }
+        val account = session.uid.ifEmpty { session.email }
+        val claimed = prefs.getString(KEY_ACCOUNT, null)
+        // The first account on this device keeps the bar stocked before signing
+        // in; after that, and for any other account, the server's bar wins.
+        if (claimed == null) {
+            val remoteKeys = remote.map { it.lowercase() }.toSet()
+            val deviceOnly = local.distinctBy { it.lowercase() }.filter { it.lowercase() !in remoteKeys }
+            if (deviceOnly.isNotEmpty()) {
+                remote = service.replace(BarIngredientsBody(remote + deviceOnly)).ingredients
+            }
+        }
+        dao.replaceAll(merge(local, remote, pendingChanges()).map { BarIngredientEntity(it) })
+        prefs.edit().putString(KEY_ACCOUNT, account).apply()
+    }
+
+    /**
+     * The server's names, with changes made since the request applied on top.
+     * Keeps this device's spelling for names both sides have.
+     */
+    private fun merge(local: List<String>, remote: List<String>, changes: List<Change>): List<String> {
+        val localByKey = local.associateBy { it.lowercase() }
+        val result = LinkedHashMap<String, String>()
+        remote.forEach { name ->
+            val key = name.lowercase()
+            if (key !in result) result[key] = localByKey[key] ?: name
+        }
+        changes.forEach { change ->
+            val key = change.name.lowercase()
+            if (change.owned) result.getOrPut(key) { localByKey[key] ?: change.name } else result.remove(key)
+        }
+        return result.values.toList()
+    }
+
+    private fun pendingChanges(): List<Change> = synchronized(pending) { pending.values.toList() }
+
+    private suspend fun send(change: Change) {
+        if (change.owned) {
+            service.add(BarIngredientBody(change.name))
+        } else {
+            try {
+                service.remove(change.name)
+            } catch (error: HttpException) {
+                // Already gone from the server, which is what we wanted.
+                if (error.code() != 404) throw error
+            }
+        }
+        synchronized(pending) {
+            val key = change.name.lowercase()
+            if (pending[key] == change) pending.remove(key)
+        }
+    }
+
+    private suspend fun runCatchingNetwork(block: suspend () -> Unit) {
+        try {
+            block()
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: Exception) {
+            // Offline, signed out or past the trial: keep the local bar and try again later.
+            Log.w(TAG, "Bar sync failed", error)
+        }
+    }
+
+    private companion object {
+        const val TAG = "BarSync"
+        const val PREFS = "bar_sync"
+        const val KEY_ACCOUNT = "account"
+    }
+}

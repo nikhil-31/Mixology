@@ -3,10 +3,10 @@ package com.capstone.nik.mixology.ui.main
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocalBar
-import androidx.compose.material.icons.filled.MenuBook
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.LocalBar
-import androidx.compose.material.icons.outlined.MenuBook
+import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -32,7 +32,8 @@ data class BottomNavItem(
 val bottomNavItems = listOf(
     BottomNavItem(
         titleRes = R.string.nav_item_home,
-        destination = DrawerDestination.Hot,
+        // Recipes is the home screen; the old home lives in Settings as Discover.
+        destination = DrawerDestination.RecipesHome,
         selectedIcon = Icons.Filled.Home,
         unselectedIcon = Icons.Outlined.Home,
     ),
@@ -43,10 +44,10 @@ val bottomNavItems = listOf(
         unselectedIcon = Icons.Outlined.LocalBar,
     ),
     BottomNavItem(
-        titleRes = R.string.nav_bottom_recipes,
-        destination = DrawerDestination.RecipesHome,
-        selectedIcon = Icons.Filled.MenuBook,
-        unselectedIcon = Icons.Outlined.MenuBook,
+        titleRes = R.string.nav_bottom_shopping,
+        destination = DrawerDestination.Shopping,
+        selectedIcon = Icons.Filled.ShoppingCart,
+        unselectedIcon = Icons.Outlined.ShoppingCart,
     ),
     BottomNavItem(
         titleRes = R.string.nav_bottom_ada,
@@ -62,9 +63,9 @@ fun DrawerDestination.isSelectedBottomNav(item: BottomNavItem): Boolean {
         DrawerDestination.Bar -> this is DrawerDestination.Bar
         DrawerDestination.Ada -> this is DrawerDestination.Ada
         DrawerDestination.RecipesHome -> this is DrawerDestination.RecipesHome
+        DrawerDestination.Shopping -> this is DrawerDestination.Shopping
         DrawerDestination.Catalog,
         DrawerDestination.Settings,
-        DrawerDestination.Shopping,
         DrawerDestination.Recipes,
         -> false
         is DrawerDestination.Filter -> this is DrawerDestination.Filter && filter == tab.filter
@@ -73,7 +74,6 @@ fun DrawerDestination.isSelectedBottomNav(item: BottomNavItem): Boolean {
 
 fun DrawerDestination.isBottomNavTab(): Boolean = when (this) {
     DrawerDestination.Catalog,
-    DrawerDestination.Shopping,
     DrawerDestination.Recipes,
     DrawerDestination.Settings,
     -> false

@@ -50,6 +50,8 @@
     <string name="nav_item_my_bar">My Bar</string>
 
     <string name="nav_item_saved_cocktails">Saved Cocktails</string>
+    <string name="nav_item_discover">Discover</string>
+    <string name="nav_bottom_shopping">Shopping</string>
     <string name="saved_view_images">Images</string>
     <string name="saved_view_list">List</string>
     <string name="nav_item_home">Home</string>
@@ -277,7 +279,6 @@
     <string name="home_quick_bar_hint">From what\'s in your bar</string>
     <string name="home_quick_ada_title">Ask Ada</string>
     <string name="home_quick_ada_hint">Get a drink suggestion</string>
-    <string name="nav_bottom_recipes">Recipes</string>
     <string name="recipes_home_greeting_morning">%1$s morning</string>
     <string name="recipes_home_greeting_afternoon">%1$s afternoon</string>
     <string name="recipes_home_greeting_evening">%1$s evening</string>

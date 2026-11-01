@@ -7,7 +7,7 @@ import com.capstone.nik.mixology.ui.search.SearchMode
 data class MainUiState(
     val menuExpanded: Boolean = false,
     val selectedDrink: Drink? = null,
-    val destination: DrawerDestination = DrawerDestination.Hot,
+    val destination: DrawerDestination = DrawerDestination.RecipesHome,
 )
 
 sealed interface MainIntent {

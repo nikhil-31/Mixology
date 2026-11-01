@@ -48,7 +48,8 @@ class SettingsScreenTest {
         composeRule.onNodeWithText("Dark").assertIsDisplayed()
         composeRule.onNodeWithTag("settings_theme_dark").performClick()
         composeRule.onNodeWithTag("settings_theme_light").performClick()
-        composeRule.onNodeWithText("Shopping list").assertIsDisplayed()
+        // The shopping list is a bottom tab now, not a Settings row.
+        composeRule.onNodeWithText("Shopping list").assertDoesNotExist()
 
         assertEquals(listOf(ThemeMode.DARK, ThemeMode.LIGHT), selected)
     }
@@ -94,6 +95,24 @@ class SettingsScreenTest {
     }
 
     @Test
+    fun discover_reportsClicks() {
+        var discover = 0
+        composeRule.setContent {
+            MixologyTheme {
+                SettingsScreen(
+                    themeMode = ThemeMode.SYSTEM,
+                    onThemeModeSelected = {},
+                    onDiscover = { discover += 1 },
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("Discover").assertIsDisplayed()
+        composeRule.onNodeWithTag("settings_discover").performClick()
+        assertEquals(1, discover)
+    }
+
+    @Test
     fun saved_reportsClicks() {
         var saved = 0
         composeRule.setContent {
@@ -112,20 +131,14 @@ class SettingsScreenTest {
     }
 
     @Test
-    fun shoppingList_reportsClicks() {
-        var shopping = 0
+    fun shoppingList_isATabNotASettingsRow() {
         composeRule.setContent {
             MixologyTheme {
-                SettingsScreen(
-                    themeMode = ThemeMode.SYSTEM,
-                    onThemeModeSelected = {},
-                    onShoppingList = { shopping += 1 },
-                )
+                SettingsScreen(themeMode = ThemeMode.SYSTEM, onThemeModeSelected = {})
             }
         }
 
-        composeRule.onNodeWithTag("settings_shopping_list").performClick()
-        assertEquals(1, shopping)
+        composeRule.onNodeWithTag("settings_shopping_list").assertDoesNotExist()
     }
 
     @Test

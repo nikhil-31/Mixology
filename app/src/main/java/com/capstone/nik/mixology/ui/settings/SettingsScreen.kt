@@ -15,11 +15,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.outlined.EditNote
+import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material.icons.outlined.Policy
 import androidx.compose.material.icons.outlined.PrivacyTip
-import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material.icons.outlined.StarRate
 import androidx.compose.material.icons.outlined.SystemUpdate
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -70,9 +70,9 @@ fun playSubscriptionsUrl(productId: String?, packageName: String): String {
 
 @Composable
 fun SettingsRoute(
+    onDiscover: () -> Unit = {},
     onSaved: () -> Unit = {},
     onCatalog: () -> Unit = {},
-    onShoppingList: () -> Unit = {},
     onMyRecipes: () -> Unit = {},
     onImportRecipe: () -> Unit = {},
     onCheckForUpdates: () -> Unit = {},
@@ -104,9 +104,9 @@ fun SettingsRoute(
             }
         },
         onThemeModeSelected = { ThemePreferences.set(context, it) },
+        onDiscover = onDiscover,
         onSaved = onSaved,
         onCatalog = onCatalog,
-        onShoppingList = onShoppingList,
         onMyRecipes = onMyRecipes,
         onImportRecipe = onImportRecipe,
         onCheckForUpdates = onCheckForUpdates,
@@ -127,9 +127,9 @@ fun SettingsScreen(
     access: Access = Access.Unknown,
     chatCredits: ChatCredits? = null,
     onSubscriptionAction: () -> Unit = {},
+    onDiscover: () -> Unit = {},
     onSaved: () -> Unit = {},
     onCatalog: () -> Unit = {},
-    onShoppingList: () -> Unit = {},
     onMyRecipes: () -> Unit = {},
     onImportRecipe: () -> Unit = {},
     onCheckForUpdates: () -> Unit = {},
@@ -259,6 +259,12 @@ fun SettingsScreen(
 
         SettingsSectionTitle(stringResource(R.string.settings_library))
         SettingsRow(
+            icon = Icons.Outlined.Explore,
+            title = stringResource(R.string.nav_item_discover),
+            onClick = onDiscover,
+            tag = "settings_discover",
+        )
+        SettingsRow(
             icon = Icons.Outlined.FavoriteBorder,
             title = stringResource(R.string.nav_item_saved_cocktails),
             onClick = onSaved,
@@ -269,12 +275,6 @@ fun SettingsScreen(
             title = stringResource(R.string.nav_item_browse_catalog),
             onClick = onCatalog,
             tag = "settings_catalog",
-        )
-        SettingsRow(
-            icon = Icons.Outlined.ShoppingCart,
-            title = stringResource(R.string.nav_item_shopping_list),
-            onClick = onShoppingList,
-            tag = "settings_shopping_list",
         )
         SettingsRow(
             icon = Icons.Outlined.EditNote,

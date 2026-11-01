@@ -42,6 +42,8 @@
     <string name="nav_item_my_bar">Mi bar</string>
 
     <string name="nav_item_saved_cocktails">Cócteles guardados</string>
+    <string name="nav_item_discover">Descubrir</string>
+    <string name="nav_bottom_shopping">Compras</string>
     <string name="saved_view_images">Imágenes</string>
     <string name="saved_view_list">Lista</string>
     <string name="nav_item_home">Inicio</string>
@@ -266,7 +268,6 @@
     <string name="home_quick_bar_hint">Con lo que hay en tu bar</string>
     <string name="home_quick_ada_title">Pregunta a Ada</string>
     <string name="home_quick_ada_hint">Recibe una sugerencia</string>
-    <string name="nav_bottom_recipes">Recetas</string>
     <string name="recipes_home_greeting_morning">%1$s por la mañana</string>
     <string name="recipes_home_greeting_afternoon">%1$s por la tarde</string>
     <string name="recipes_home_greeting_evening">%1$s por la noche</string>

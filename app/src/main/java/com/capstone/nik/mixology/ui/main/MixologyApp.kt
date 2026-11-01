@@ -201,12 +201,12 @@ fun MixologyApp(
         !state.destination.isBottomNavTab() &&
         state.destination !is DrawerDestination.Settings
     val settingsSelected = state.destination is DrawerDestination.Settings ||
-        state.destination is DrawerDestination.Shopping ||
         state.destination is DrawerDestination.Catalog ||
         state.destination is DrawerDestination.Recipes ||
+        state.destination is DrawerDestination.Hot ||
         state.destination == DrawerDestination.Filter(DrinkFilter.SAVED)
     val title = when (val destination = state.destination) {
-        DrawerDestination.Hot -> stringResource(R.string.nav_item_home)
+        DrawerDestination.Hot -> stringResource(R.string.nav_item_discover)
         DrawerDestination.Settings -> stringResource(R.string.nav_bottom_settings)
         DrawerDestination.Ada -> stringResource(R.string.nav_bottom_ada)
         DrawerDestination.Catalog -> stringResource(R.string.nav_item_browse_catalog)
@@ -252,14 +252,15 @@ fun MixologyApp(
                         settingsSelected = settingsSelected,
                         onUp = {
                             val parent = when (state.destination) {
-                                DrawerDestination.Shopping,
                                 DrawerDestination.Catalog,
                                 DrawerDestination.Recipes,
+                                // Discover (the old home) opens from Settings now.
+                                DrawerDestination.Hot,
                                 -> DrawerDestination.Settings
                                 // Saved lives in Settings now, not the bottom bar.
                                 DrawerDestination.Filter(DrinkFilter.SAVED) -> DrawerDestination.Settings
                                 is DrawerDestination.Filter -> DrawerDestination.Catalog
-                                else -> DrawerDestination.Hot
+                                else -> DrawerDestination.RecipesHome
                             }
                             viewModel.onIntent(MainIntent.SelectDestination(parent))
                         },
@@ -275,7 +276,7 @@ fun MixologyApp(
                 Row(modifier = Modifier.weight(1f).fillMaxWidth()) {
                     NavHost(
                         navController = navController,
-                        startDestination = HOT_ROUTE,
+                        startDestination = RECIPES_HOME_ROUTE,
                         modifier = Modifier.weight(1f),
                     ) {
                         composable(
@@ -381,6 +382,9 @@ fun MixologyApp(
                         }
                         composable(SETTINGS_ROUTE) {
                             SettingsRoute(
+                                onDiscover = {
+                                    viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Hot))
+                                },
                                 onSaved = {
                                     viewModel.onIntent(
                                         MainIntent.SelectDestination(DrawerDestination.Filter(DrinkFilter.SAVED)),
@@ -388,9 +392,6 @@ fun MixologyApp(
                                 },
                                 onCatalog = {
                                     viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Catalog))
-                                },
-                                onShoppingList = {
-                                    viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Shopping))
                                 },
                                 onMyRecipes = {
                                     viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Recipes))

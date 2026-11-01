@@ -105,14 +105,14 @@ class DrawerDestinationTest {
 
     @Test
     fun bottomNavTab_excludesCatalogShoppingAndFilterGrids() {
-        assertTrue(DrawerDestination.Hot.isBottomNavTab())
         assertTrue(DrawerDestination.Bar.isBottomNavTab())
         assertTrue(DrawerDestination.RecipesHome.isBottomNavTab())
         assertTrue(DrawerDestination.Ada.isBottomNavTab())
-        // Saved opens from Settings now.
+        assertTrue(DrawerDestination.Shopping.isBottomNavTab())
+        // Saved and Discover (the old home) open from Settings now.
+        assertFalse(DrawerDestination.Hot.isBottomNavTab())
         assertFalse(DrawerDestination.Filter(DrinkFilter.SAVED).isBottomNavTab())
         assertFalse(DrawerDestination.Settings.isBottomNavTab())
-        assertFalse(DrawerDestination.Shopping.isBottomNavTab())
         assertFalse(DrawerDestination.Catalog.isBottomNavTab())
         assertFalse(DrawerDestination.Recipes.isBottomNavTab())
         assertFalse(DrawerDestination.Filter(DrinkFilter.GIN).isBottomNavTab())

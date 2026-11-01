@@ -9,6 +9,11 @@ import com.capstone.nik.mixology.MainDispatcherRule
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.MixologyDatabase
 import com.capstone.nik.mixology.repository.DrinkRepository
+import com.capstone.nik.mixology.repository.ImportedRecipe
+import com.capstone.nik.mixology.repository.RecipeDraft
+import com.capstone.nik.mixology.repository.RecipeRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import com.capstone.nik.mixology.ui.model.IngredientMeasure
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -98,6 +103,38 @@ class ShoppingViewModelTest {
         ingredients = listOf(IngredientMeasure("Lime juice", "3/4 oz"), IngredientMeasure("Rum", "2 oz")),
     )
 
+    private val mySour = Drink(
+        id = "u-1",
+        name = "My Sour",
+        thumb = "",
+        ingredients = listOf(IngredientMeasure("Lemon", "1 oz"), IngredientMeasure("Honey", "1/2 oz")),
+    )
+
+    @Test
+    fun myRecipe_showsUnderItsOwnName() = runTest {
+        val fake = FakeRecipes(listOf(mySour))
+        val vm = ShoppingViewModel(repository, fake)
+        vm.state.test {
+            repository.addToShoppingList(mySour)
+            val shown = awaitItemUntil { s -> s.sections.any { it.drink?.name == "My Sour" } }
+            assertEquals(listOf("Lemon", "Honey"), shown.sections.single().items.map { it.name })
+            cancelAndIgnoreRemainingEvents()
+        }
+        assertEquals(0, fake.loads)
+    }
+
+    @Test
+    fun myRecipe_notLoadedYet_isFetchedOnce() = runTest {
+        val fake = FakeRecipes(initial = emptyList(), onLoad = listOf(mySour))
+        val vm = ShoppingViewModel(repository, fake)
+        vm.state.test {
+            repository.addToShoppingList(mySour)
+            awaitItemUntil { s -> s.sections.any { it.drink?.name == "My Sour" } }
+            cancelAndIgnoreRemainingEvents()
+        }
+        assertEquals(1, fake.loads)
+    }
+
     @Test
     fun removeThenUndo_putsTheItemBack_withItsCheckedState() = runTest {
         viewModel.effects.test {
@@ -152,6 +189,25 @@ class ShoppingViewModelTest {
             cancelAndIgnoreRemainingEvents()
         }
     }
+}
+
+/** Only [recipes] and [load] matter to the shopping list. */
+private class FakeRecipes(initial: List<Drink>, private val onLoad: List<Drink> = initial) : RecipeRepository {
+    private val flow = MutableStateFlow(initial)
+    var loads = 0
+    override val recipes: StateFlow<List<Drink>> = flow
+    override suspend fun load(): List<Drink> {
+        loads += 1
+        flow.value = onLoad
+        return onLoad
+    }
+    override suspend fun get(id: String): Drink = error("unused")
+    override suspend fun create(draft: RecipeDraft): Drink = error("unused")
+    override suspend fun update(id: String, draft: RecipeDraft): Drink = error("unused")
+    override suspend fun delete(id: String) = error("unused")
+    override suspend fun uploadPhoto(id: String, jpeg: ByteArray): Drink = error("unused")
+    override suspend fun deletePhoto(id: String): Drink = error("unused")
+    override suspend fun importRecipe(text: String): ImportedRecipe = error("unused")
 }
 
 private suspend fun <T> app.cash.turbine.ReceiveTurbine<T>.awaitItemUntil(predicate: (T) -> Boolean): T {

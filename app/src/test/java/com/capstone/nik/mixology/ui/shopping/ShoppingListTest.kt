@@ -79,4 +79,42 @@ class ShoppingListTest {
         }
         assertNull(shoppingShareText(done, byIngredient = false, otherLabel = "Other"))
     }
+
+    // My recipes aren't in the catalog cache, so the repository leaves their sections without a drink.
+    private val mySour = Drink(
+        "u-1", "Aaa Sour", "",
+        ingredients = listOf(IngredientMeasure("Lemon", "1 oz"), IngredientMeasure("Honey", "1/2 oz")),
+    )
+    private fun withRecipeAndOther() = listOf(
+        ShoppingSection("1", margarita, listOf(ShoppingItemEntity(id = 1, name = "Tequila", drinkId = "1"))),
+        ShoppingSection(
+            "u-1", null,
+            listOf(
+                ShoppingItemEntity(id = 5, name = "Honey", drinkId = "u-1"),
+                ShoppingItemEntity(id = 4, name = "Lemon", drinkId = "u-1"),
+            ),
+        ),
+        ShoppingSection("", null, listOf(ShoppingItemEntity(id = 9, name = "Coffee"))),
+    )
+
+    @Test
+    fun withRecipes_fillsMyRecipe_sortsByItsName_andKeepsOtherLast() {
+        val sections = com.capstone.nik.mixology.data.withRecipes(withRecipeAndOther(), listOf(mySour))
+        assertEquals(listOf("u-1", "1", ""), sections.map { it.drinkId })
+        val recipe = sections.first()
+        assertEquals("Aaa Sour", recipe.drink?.name)
+        // Recipe order, with the recipe's measures.
+        assertEquals(listOf("Lemon", "Honey"), recipe.items.map { it.name })
+        assertEquals("1 oz", recipe.measure(recipe.items.first()))
+        assertNull(sections.last().drink)
+    }
+
+    @Test
+    fun withRecipes_deletedRecipeStaysDrinkless_andNothingToFillReturnsSameList() {
+        val deleted = com.capstone.nik.mixology.data.withRecipes(withRecipeAndOther(), listOf(daiquiri))
+        assertNull(deleted.first { it.drinkId == "u-1" }.drink)
+
+        val plain = sections()
+        assertTrue(plain === com.capstone.nik.mixology.data.withRecipes(plain, listOf(mySour)))
+    }
 }

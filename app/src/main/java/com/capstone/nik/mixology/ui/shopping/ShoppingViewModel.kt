@@ -2,16 +2,22 @@ package com.capstone.nik.mixology.ui.shopping
 
 import androidx.lifecycle.viewModelScope
 import com.capstone.nik.mixology.R
+import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.ShoppingItemEntity
+import com.capstone.nik.mixology.data.ShoppingSection
+import com.capstone.nik.mixology.data.withRecipes
+import com.capstone.nik.mixology.repository.RecipeRepository
 import com.capstone.nik.mixology.repository.DrinkRepository
 import com.capstone.nik.mixology.ui.mvi.MviViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ShoppingViewModel @Inject constructor(
     private val repository: DrinkRepository,
+    private val recipes: RecipeRepository = RecipeRepository.None,
     private val preferences: ShoppingPreferences = ShoppingPreferences.inMemory(),
 ) : MviViewModel<ShoppingIntent, ShoppingUiState, ShoppingEffect>(
     ShoppingUiState(byIngredient = preferences.byIngredient),
@@ -20,10 +26,16 @@ class ShoppingViewModel @Inject constructor(
     /** What the last remove or clear took off, for Undo. */
     private var lastRemoved: List<ShoppingItemEntity> = emptyList()
 
+    /** My recipes are fetched at most once here when the list needs one that isn't loaded yet. */
+    private var requestedRecipes = false
+
     init {
         viewModelScope.launch { repository.syncShopping() }
         viewModelScope.launch {
-            repository.observeShoppingSections().collect { sections ->
+            combine(repository.observeShoppingSections(), recipes.recipes) { sections, mine ->
+                loadRecipesIfMissing(sections, mine)
+                withRecipes(sections, mine)
+            }.collect { sections ->
                 setState { copy(sections = sections) }
             }
         }
@@ -65,11 +77,21 @@ class ShoppingViewModel @Inject constructor(
                 setState { copy(refreshing = true) }
                 try {
                     repository.syncShopping()
+                    runCatching { recipes.load() }
                 } finally {
                     setState { copy(refreshing = false) }
                 }
             }
         }
+    }
+
+    private fun loadRecipesIfMissing(sections: List<ShoppingSection>, mine: List<Drink>) {
+        if (requestedRecipes) return
+        val known = mine.mapTo(HashSet()) { it.id }
+        val needed = sections.any { it.drinkId.startsWith(Drink.USER_RECIPE_PREFIX) && it.drinkId !in known }
+        if (!needed) return
+        requestedRecipes = true
+        viewModelScope.launch { runCatching { recipes.load() } }
     }
 
     private fun removeItems(items: List<ShoppingItemEntity>, messageRes: Int) {

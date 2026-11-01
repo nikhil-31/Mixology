@@ -47,6 +47,17 @@ fun groupShoppingSections(
         )
 }
 
+/**
+ * Fills in the user's own recipes, which aren't in the catalog cache the sections were built
+ * from, so their items show under the recipe's name and photo instead of "Other".
+ */
+fun withRecipes(sections: List<ShoppingSection>, recipes: List<Drink>): List<ShoppingSection> {
+    val missing = sections.any { it.drink == null && it.drinkId.startsWith(Drink.USER_RECIPE_PREFIX) }
+    if (!missing || recipes.isEmpty()) return sections
+    val drinks = sections.mapNotNull { it.drink }.associateBy { it.id } + recipes.associateBy { it.id }
+    return groupShoppingSections(sections.flatMap { it.items }, drinks)
+}
+
 fun orderShoppingItems(
     items: List<ShoppingItemEntity>,
     drink: Drink?,

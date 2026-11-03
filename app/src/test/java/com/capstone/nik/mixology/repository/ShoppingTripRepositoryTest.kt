@@ -188,6 +188,46 @@ class ShoppingTripRepositoryTest {
     }
 
     @Test
+    fun aTripDeletedOffline_staysDeletedAfterTheNextSync() = runTest {
+        val repo = newRepo()
+        runCurrent()
+        repo.record(listOf(lime))
+        runCurrent()
+        assertEquals(1, service.stored.size)
+
+        service.offline = true
+        repo.delete(repo.trips.first().single().id)
+        runCurrent()
+        assertTrue(repo.trips.first().isEmpty())
+        assertEquals(1, service.stored.size)
+
+        service.offline = false
+        repo.sync()
+        assertTrue(repo.trips.first().isEmpty())
+        assertTrue(service.stored.isEmpty())
+    }
+
+    @Test
+    fun aDeleteLeftOverFromTheLastRun_isSentWhenTheAppComesBack() = runTest {
+        val repo = newRepo()
+        runCurrent()
+        repo.record(listOf(lime))
+        runCurrent()
+        service.offline = true
+        repo.delete(repo.trips.first().single().id)
+        runCurrent()
+        assertEquals(setOf("1"), prefs.getStringSet("deleted", null))
+
+        service.offline = false
+        val restarted = newRepo()
+        runCurrent()
+
+        assertTrue(service.stored.isEmpty())
+        assertTrue(restarted.trips.first().isEmpty())
+        assertEquals(emptySet<String>(), prefs.getStringSet("deleted", null))
+    }
+
+    @Test
     fun deletingATripTheServerNoLongerHas_isFine() = runTest {
         val repo = newRepo()
         val trip = repo.record(listOf(lime))

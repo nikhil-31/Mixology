@@ -27,6 +27,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import retrofit2.HttpException
+import java.util.Collections.synchronizedSet
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -94,6 +95,13 @@ class NetworkShoppingTripRepository internal constructor(
 
     private val lock = Mutex()
 
+    /**
+     * Server ids of trips deleted here that the server still has, until the
+     * delete goes through. Kept in [prefs] so an offline delete isn't undone by
+     * the next pull, even after a restart.
+     */
+    private val deleted: MutableSet<Long> = synchronizedSet(loadDeleted())
+
     init {
         scope.launch {
             sessionStore.session.collect { session ->
@@ -105,6 +113,7 @@ class NetworkShoppingTripRepository internal constructor(
                     lock.withLock {
                         dao.deleteAll()
                         prefs.edit().remove(KEY_ACCOUNT).apply()
+                        forgetDeletes()
                     }
                 }
             }
@@ -124,6 +133,7 @@ class NetworkShoppingTripRepository internal constructor(
         val row = dao.get(id) ?: return
         dao.delete(id)
         val remoteId = row.remoteId ?: return
+        markDeleted(remoteId)
         scope.launch { runCatchingNetwork { deleteRemote(remoteId) } }
     }
 
@@ -134,12 +144,17 @@ class NetworkShoppingTripRepository internal constructor(
                 val account = account(session)
                 val claimed = prefs.getString(KEY_ACCOUNT, null)
                 // Another account's history must not show, or be sent up as this one's.
-                if (claimed != null && claimed != account) dao.deleteAll()
+                if (claimed != null && claimed != account) {
+                    dao.deleteAll()
+                    forgetDeletes()
+                }
                 prefs.edit().putString(KEY_ACCOUNT, account).apply()
                 pushPending()
+                synchronized(deleted) { deleted.toList() }.forEach { deleteRemote(it) }
                 val response = service.trips()
                 if (!response.isSuccessful) throw HttpException(response)
-                dao.applyRemote(response.body().orEmpty().map { it.toEntity() })
+                val remote = response.body().orEmpty().filterNot { synchronized(deleted) { it.id in deleted } }
+                dao.applyRemote(remote.map { it.toEntity() })
             }
         }
     }
@@ -152,6 +167,7 @@ class NetworkShoppingTripRepository internal constructor(
             val stored = response.body() ?: return@forEach
             if (dao.get(row.id) == null) {
                 // Deleted (or undone) while it was on its way: take it back off the account.
+                markDeleted(stored.id)
                 deleteRemote(stored.id)
             } else {
                 dao.setRemoteId(row.id, stored.id)
@@ -159,9 +175,36 @@ class NetworkShoppingTripRepository internal constructor(
         }
     }
 
+    /** Deletes the trip on the server; one it no longer has counts as deleted. */
     private suspend fun deleteRemote(remoteId: Long) {
         val response = service.delete(remoteId)
         if (!response.isSuccessful && response.code() != HTTP_NOT_FOUND) throw HttpException(response)
+        synchronized(deleted) {
+            deleted.remove(remoteId)
+            persistDeletes()
+        }
+    }
+
+    private fun markDeleted(remoteId: Long) {
+        synchronized(deleted) {
+            deleted.add(remoteId)
+            persistDeletes()
+        }
+    }
+
+    private fun forgetDeletes() {
+        synchronized(deleted) {
+            deleted.clear()
+            persistDeletes()
+        }
+    }
+
+    private fun loadDeleted(): MutableSet<Long> =
+        prefs.getStringSet(KEY_DELETED, emptySet()).orEmpty().mapNotNullTo(mutableSetOf()) { it.toLongOrNull() }
+
+    /** Call while holding the [deleted] monitor. */
+    private fun persistDeletes() {
+        prefs.edit().putStringSet(KEY_DELETED, deleted.map { it.toString() }.toSet()).apply()
     }
 
     private fun RemoteShoppingTrip.toEntity() = ShoppingTripEntity(
@@ -186,6 +229,7 @@ class NetworkShoppingTripRepository internal constructor(
     private companion object {
         const val TAG = "ShoppingTrips"
         const val PREFS = "shopping_trips"
+        const val KEY_DELETED = "deleted"
         const val KEY_ACCOUNT = "account"
         const val HTTP_NOT_FOUND = 404
     }

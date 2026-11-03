@@ -80,8 +80,11 @@ class NetworkBarSync internal constructor(
     )
 
     private val lock = Mutex()
-    /** Adds and removes the server has not acknowledged yet, keyed by lowercase name. */
-    private val pending = mutableMapOf<String, Change>()
+    /**
+     * Adds and removes the server has not acknowledged yet, keyed by lowercase name.
+     * Mirrored in [prefs], so an edit made offline survives the process dying.
+     */
+    private val pending = mutableMapOf<String, Change>().apply { putAll(loadPending()) }
 
     private data class Change(val name: String, val owned: Boolean)
 
@@ -93,7 +96,14 @@ class NetworkBarSync internal constructor(
             // Signing in (or starting signed in) brings the account's bar down;
             // signing out forgets the account's recommendations.
             sessionStore.session.collect { session ->
-                if (session != null) pull() else latest.value = null
+                if (session != null) {
+                    pull()
+                } else {
+                    latest.value = null
+                    // Signed out: the account's unsent edits go with it. An expired
+                    // session keeps them for when the same account signs back in.
+                    if (sessionStore.signedOut()) synchronized(pending) { pending.clear(); persistPending() }
+                }
             }
         }
     }
@@ -102,7 +112,10 @@ class NetworkBarSync internal constructor(
         val trimmed = name.trim()
         if (trimmed.isEmpty() || sessionStore.current() == null) return
         val change = Change(trimmed, owned)
-        synchronized(pending) { pending[trimmed.lowercase()] = change }
+        synchronized(pending) {
+            pending[trimmed.lowercase()] = change
+            persistPending()
+        }
         scope.launch {
             lock.withLock { runCatchingNetwork { send(change) } }
         }
@@ -157,6 +170,24 @@ class NetworkBarSync internal constructor(
 
     private fun pendingChanges(): List<Change> = synchronized(pending) { pending.values.toList() }
 
+    /** Pending changes as saved by [persistPending]: "+Name" to add, "-Name" to remove. */
+    private fun loadPending(): Map<String, Change> =
+        prefs.getStringSet(KEY_PENDING, emptySet()).orEmpty().mapNotNull { encoded ->
+            val owned = when (encoded.firstOrNull()) {
+                '+' -> true
+                '-' -> false
+                else -> return@mapNotNull null
+            }
+            val name = encoded.drop(1)
+            if (name.isBlank()) null else name.lowercase() to Change(name, owned)
+        }.toMap()
+
+    /** Writes [pending] to [prefs]; call while holding the [pending] monitor. */
+    private fun persistPending() {
+        val encoded = pending.values.map { (if (it.owned) "+" else "-") + it.name }.toSet()
+        prefs.edit().putStringSet(KEY_PENDING, encoded).apply()
+    }
+
     private suspend fun send(change: Change) {
         val state = if (change.owned) {
             service.add(BarIngredientBody(change.name))
@@ -171,7 +202,10 @@ class NetworkBarSync internal constructor(
         }
         synchronized(pending) {
             val key = change.name.lowercase()
-            if (pending[key] == change) pending.remove(key)
+            if (pending[key] == change) {
+                pending.remove(key)
+                persistPending()
+            }
         }
         // A 404 carries no bar, so ask for it to keep recommendations current.
         publish(state ?: if (pendingChanges().isEmpty()) service.bar() else return)
@@ -201,5 +235,6 @@ class NetworkBarSync internal constructor(
         const val TAG = "BarSync"
         const val PREFS = "bar_sync"
         const val KEY_ACCOUNT = "account"
+        const val KEY_PENDING = "pending"
     }
 }

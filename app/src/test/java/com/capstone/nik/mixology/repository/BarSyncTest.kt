@@ -207,6 +207,48 @@ class BarSyncTest {
     }
 
     @Test
+    fun pendingChangesSurviveARestart() = runTest {
+        prefs.edit().putString("account", "uid-1").commit()
+        service.failing = true
+        val first = newSync()
+        runCurrent()
+        stock("Gin")
+        first.push("Gin", owned = true)
+        runCurrent()
+        assertEquals(emptyList<String>(), service.ingredients)
+
+        // The process dies and comes back, and the server answers again.
+        service.failing = false
+        newSync()
+        runCurrent()
+
+        assertEquals(listOf("Gin"), service.ingredients)
+        assertEquals(setOf("Gin"), localBar())
+        assertEquals(emptySet<String>(), prefs.getStringSet("pending", null))
+    }
+
+    @Test
+    fun signingOutDropsPendingChanges_butAnExpiredSessionKeepsThem() = runTest {
+        prefs.edit().putString("account", "uid-1").commit()
+        service.failing = true
+        val sync = newSync()
+        runCurrent()
+        sync.push("Gin", owned = true)
+        runCurrent()
+        assertEquals(setOf("+Gin"), prefs.getStringSet("pending", null))
+
+        sessions.expire()
+        runCurrent()
+        assertEquals(setOf("+Gin"), prefs.getStringSet("pending", null))
+
+        sessions.save("token-2", 3600, "ada@example.com", "Ada", uid = "uid-1", access = "trial")
+        runCurrent()
+        sessions.clear()
+        runCurrent()
+        assertEquals(emptySet<String>(), prefs.getStringSet("pending", null))
+    }
+
+    @Test
     fun serverErrorKeepsLocalBarAndRetriesLater() = runTest {
         prefs.edit().putString("account", "uid-1").commit()
         service.failing = true

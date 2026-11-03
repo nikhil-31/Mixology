@@ -1,7 +1,7 @@
 package com.capstone.nik.mixology.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -25,6 +25,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.ui.SaveConfetti
@@ -74,7 +75,7 @@ fun FavoriteButton(
                 .size(32.dp)
                 .clip(RoundedCornerShape(20.dp))
                 .background(PosterBadge)
-                .clickable(onClick = ::handleClick),
+                .toggleable(value = saved, role = Role.Checkbox, onValueChange = { handleClick() }),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
@@ -91,7 +92,7 @@ fun FavoriteButton(
             modifier = modifier
                 .then(positionModifier)
                 .size(size.dp)
-                .clickable(onClick = ::handleClick)
+                .toggleable(value = saved, role = Role.Checkbox, onValueChange = { handleClick() })
                 .padding(2.dp),
             tint = tint,
         )

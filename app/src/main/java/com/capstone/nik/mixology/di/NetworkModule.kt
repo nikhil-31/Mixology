@@ -59,6 +59,22 @@ object NetworkModule {
         return builder.build()
     }
 
+    /** For photos on other sites: no reachability reporting, since their faults say nothing about our server. */
+    @Provides
+    @Singleton
+    @ImageClient
+    fun provideImageClient(@ApplicationContext context: Context): OkHttpClient {
+        val builder = OkHttpClient.Builder()
+            .cache(Cache(File(context.cacheDir, "image_http_cache"), CACHE_SIZE_BYTES))
+            .connectTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .readTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .writeTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
+        if (BuildConfig.DEBUG) {
+            builder.addInterceptor(loggingInterceptor())
+        }
+        return builder.build()
+    }
+
     @Provides
     @Singleton
     @AuthenticatedClient

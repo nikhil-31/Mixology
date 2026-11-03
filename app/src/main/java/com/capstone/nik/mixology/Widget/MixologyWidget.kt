@@ -45,17 +45,18 @@ import dagger.hilt.android.EntryPointAccessors
 class MixologyWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        val repository = EntryPointAccessors.fromApplication(
+        val entryPoint = EntryPointAccessors.fromApplication(
             context.applicationContext,
             WidgetEntryPoint::class.java,
-        ).drinkRepository()
-        val drinks = repository.getSavedSync()
+        )
+        val signedIn = entryPoint.sessionStore().current() != null
+        val drinks = if (signedIn) entryPoint.drinkRepository().getSavedSync() else emptyList()
         val thumbs = drinks.associate { drink ->
             drink.id to loadThumb(context, drink.thumbUrl.orEmpty())
         }
         provideContent {
             GlanceTheme {
-                WidgetContent(drinks = drinks, thumbs = thumbs)
+                WidgetContent(drinks = drinks, thumbs = thumbs, signedIn = signedIn)
             }
         }
     }
@@ -81,6 +82,7 @@ class MixologyWidget : GlanceAppWidget() {
 private fun WidgetContent(
     drinks: List<Drink>,
     thumbs: Map<String, Bitmap?>,
+    signedIn: Boolean,
 ) {
     val context = LocalContext.current
     Column(
@@ -103,7 +105,9 @@ private fun WidgetContent(
         )
         if (drinks.isEmpty()) {
             Text(
-                text = context.getString(R.string.widget_empty_saved_cocktails),
+                text = context.getString(
+                    if (signedIn) R.string.widget_empty_saved_cocktails else R.string.widget_sign_in,
+                ),
                 modifier = GlanceModifier
                     .fillMaxSize()
                     .padding(16.dp),

@@ -37,9 +37,11 @@ class ActivityMain : AppCompatActivity() {
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        pendingDrink = intent.drinkExtra()
         // Not again when the activity is recreated, such as on rotation.
-        if (savedInstanceState == null) pendingImport = intent.sharedImportText()
+        if (savedInstanceState == null) {
+            pendingDrink = intent.drinkExtra()
+            pendingImport = intent.sharedImportText()
+        }
         enableEdgeToEdge()
         setContent {
             MixologyTheme {

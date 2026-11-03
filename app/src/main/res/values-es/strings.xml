@@ -34,6 +34,7 @@
     <string name="nav_title_glass">Vaso</string>
 
     <string name="widget_name">Mixology</string>
+    <string name="widget_sign_in">Entra para ver tus bebidas guardadas</string>
     <string name="widget_empty_saved_cocktails">Añade un cóctel</string>
 
     <string name="nav_bottom_saved">Guardados</string>

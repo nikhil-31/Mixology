@@ -25,6 +25,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.CloudOff
 import androidx.compose.material.icons.outlined.LocalBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
@@ -37,6 +38,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -64,6 +66,7 @@ import com.capstone.nik.mixology.repository.FilterKind
 import com.capstone.nik.mixology.ui.components.DrinkCard
 import com.capstone.nik.mixology.ui.components.DrinkListItem
 import com.capstone.nik.mixology.ui.components.DrinkViewToggle
+import com.capstone.nik.mixology.ui.components.EmptyState
 import com.capstone.nik.mixology.ui.components.IngredientImage
 import com.capstone.nik.mixology.ui.components.SectionHeader
 import com.capstone.nik.mixology.ui.model.ingredientImageUrl
@@ -225,6 +228,16 @@ fun SearchScreen(
             Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                 when {
                     state.loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
+                    state.errorRes != null -> EmptyState(
+                        icon = Icons.Outlined.CloudOff,
+                        title = stringResource(state.errorRes),
+                        modifier = Modifier.align(Alignment.Center).testTag("search_error"),
+                        action = {
+                            TextButton(onClick = { onSubmit(queryText) }) {
+                                Text(stringResource(R.string.action_retry))
+                            }
+                        },
+                    )
                     state.suggestions.isNotEmpty() -> SearchSuggestions(
                         suggestions = state.suggestions,
                         onSelectSuggestion = ::pickSuggestion,

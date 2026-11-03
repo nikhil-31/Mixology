@@ -158,9 +158,6 @@ fun AdaRoute(
         if (taken && uri != null) viewModel.onIntent(AdaIntent.SendPhoto(uri))
     }
     val clipboard = LocalClipboardManager.current
-    LaunchedEffect(Unit) {
-        viewModel.onIntent(AdaIntent.Load)
-    }
     CollectMviEffects(viewModel.effects) { effect ->
         when (effect) {
             is AdaEffect.OpenDrink -> onDrinkClick(effect.drink)
@@ -204,6 +201,7 @@ fun AdaRoute(
         state = state,
         onDraftChanged = { viewModel.onIntent(AdaIntent.DraftChanged(it)) },
         onSend = { viewModel.onIntent(AdaIntent.Send) },
+        onRetry = { viewModel.onIntent(AdaIntent.Retry) },
         onSuggestion = { viewModel.onIntent(AdaIntent.UseSuggestion(it)) },
         onDrinkClick = { viewModel.onIntent(AdaIntent.OpenDrink(it)) },
         onToggleSaved = { viewModel.onIntent(AdaIntent.ToggleSaved(it)) },
@@ -245,6 +243,7 @@ fun AdaScreen(
     onSuggestion: (String) -> Unit,
     onDrinkClick: (Drink) -> Unit,
     onToggleSaved: (Drink) -> Unit,
+    onRetry: () -> Unit = {},
     onLoadOlder: () -> Unit = {},
     onShowMore: (messageId: Long) -> Unit = {},
     voiceAvailable: Boolean = false,
@@ -273,6 +272,7 @@ fun AdaScreen(
                 state = state,
                 onDraftChanged = onDraftChanged,
                 onSend = onSend,
+                onRetry = onRetry,
                 onSuggestion = onSuggestion,
                 onDrinkClick = onDrinkClick,
                 onToggleSaved = onToggleSaved,
@@ -301,6 +301,7 @@ private fun AdaTranscript(
     state: AdaUiState,
     onDraftChanged: (String) -> Unit,
     onSend: () -> Unit,
+    onRetry: () -> Unit,
     onSuggestion: (String) -> Unit,
     onDrinkClick: (Drink) -> Unit,
     onToggleSaved: (Drink) -> Unit,
@@ -472,6 +473,15 @@ private fun AdaTranscript(
             AdaNotice(
                 text = detail.ifBlank { stringResource(R.string.ada_error_generic) },
                 modifier = Modifier.testTag("ada_error"),
+                action = if (state.retryAvailable) {
+                    {
+                        TextButton(onClick = onRetry, modifier = Modifier.testTag("ada_retry")) {
+                            Text(stringResource(R.string.action_retry))
+                        }
+                    }
+                } else {
+                    null
+                },
             )
         }
         when (state.voiceProblem) {
@@ -1021,9 +1031,16 @@ private fun AttachPhotoButton(
     }
 }
 
-/** A fresh cache file the camera can write a photo for Ada into. */
+/**
+ * A fresh cache file the camera can write a photo for Ada into. Photos from
+ * earlier days are deleted here; the ones from today may still show in the chat.
+ */
 private fun adaCameraUri(context: Context): Uri {
     val dir = File(context.cacheDir, "ada_photos").apply { mkdirs() }
+    val cutoff = System.currentTimeMillis() - CAMERA_PHOTO_KEEP_MS
+    dir.listFiles()?.filter { it.lastModified() < cutoff }?.forEach { it.delete() }
     val file = File(dir, "photo-${System.currentTimeMillis()}.jpg")
     return FileProvider.getUriForFile(context, "${context.packageName}.photos", file)
 }
+
+private const val CAMERA_PHOTO_KEEP_MS = 24L * 60 * 60 * 1000

@@ -118,6 +118,41 @@ class AdaViewModelTest {
     }
 
     @Test
+    fun history_keysMessagesByTheServersIds_soAReloadKeepsThemInPlace() = runTest {
+        chat.history = listOf(
+            ChatTurn("user", "Alexander tonight", serverId = 10),
+            ChatTurn("assistant", "A good fit.", listOf(alexander), serverId = 11),
+        )
+
+        signIn()
+
+        assertEquals(listOf(10L, 11L), viewModel.state.value.messages.map { it.id })
+    }
+
+    @Test
+    fun send_failureOffersRetry_andRetrySendsTheSameMessageAgain() = runTest {
+        signIn()
+        chat.sendFlow = flow { throw java.io.IOException("Network is unreachable") }
+
+        viewModel.onIntent(AdaIntent.DraftChanged("something bitter"))
+        viewModel.onIntent(AdaIntent.Send)
+
+        val failed = viewModel.state.value
+        assertTrue(failed.retryAvailable)
+        assertFalse(failed.error.isNullOrBlank())
+        assertEquals(listOf("something bitter", ""), failed.messages.map { it.content })
+
+        chat.sendFlow = flowOf(ChatStreamEvent.Done("Try a Negroni."))
+        viewModel.onIntent(AdaIntent.Retry)
+
+        val retried = viewModel.state.value
+        assertFalse(retried.retryAvailable)
+        assertNull(retried.error)
+        assertEquals(listOf("something bitter", "Try a Negroni."), retried.messages.map { it.content })
+        assertEquals(listOf("something bitter", "something bitter"), chat.sent)
+    }
+
+    @Test
     fun load_withSessionLoadsHistory() = runTest {
         chat.history = listOf(
             ChatTurn("user", "Alexander tonight"),
@@ -325,7 +360,9 @@ class AdaViewModelTest {
         assertTrue(state.outOfCredits)
         assertNull(state.error)
         assertFalse(state.sending)
-        assertEquals(listOf("one more"), state.messages.map { it.content })
+        // The server never took the message, so it goes back in the draft instead of staying as a bubble.
+        assertTrue(state.messages.isEmpty())
+        assertEquals("one more", state.draft)
 
         chat.sendFlow = flowOf(ChatStreamEvent.Done("Here's one."))
         viewModel.onIntent(AdaIntent.DraftChanged("show more"))

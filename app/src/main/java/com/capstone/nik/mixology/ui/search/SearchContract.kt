@@ -1,5 +1,6 @@
 package com.capstone.nik.mixology.ui.search
 
+import androidx.annotation.StringRes
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.repository.FilterKind
 
@@ -17,6 +18,8 @@ data class SearchUiState(
     val loading: Boolean = false,
     val results: List<Drink> = emptyList(),
     val empty: Boolean = false,
+    /** Why the last search got no answer, to show in place of "no results". */
+    @StringRes val errorRes: Int? = null,
     val listView: Boolean = false,
     val suggestions: List<String> = emptyList(),
     /** The user's own recipes that match, shown above the catalog's results. */

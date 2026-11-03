@@ -51,6 +51,16 @@ class AdaViewModel @Inject constructor(
     /** Server id of the oldest loaded message, the cursor for older pages. */
     private var oldestServerId: Long? = null
     private var sendJob: Job? = null
+    /** The message that last failed to send, so Retry can send the same thing. */
+    private var failedSend: FailedSend? = null
+
+    private class FailedSend(
+        val userId: Long,
+        val assistantId: Long,
+        val text: String,
+        val photo: Uri?,
+        val stream: () -> Flow<ChatStreamEvent>,
+    )
 
     init {
         viewModelScope.launch {
@@ -86,6 +96,7 @@ class AdaViewModel @Inject constructor(
             AdaIntent.LoadOlder -> loadOlder()
             is AdaIntent.DraftChanged -> setState { copy(draft = intent.value) }
             AdaIntent.Send -> send(currentState.draft)
+            AdaIntent.Retry -> retry()
             is AdaIntent.UseSuggestion -> setState { copy(draft = intent.text) }
             is AdaIntent.OpenMore -> openMore(intent.messageId)
             is AdaIntent.OpenDrink -> sendEffect(AdaEffect.OpenDrink(intent.drink))
@@ -206,6 +217,15 @@ class AdaViewModel @Inject constructor(
     private fun canSend(): Boolean =
         !currentState.sending && !currentState.loadingHistory && currentState.signedIn
 
+    /** Sends the failed message again, in place of its failed bubbles. */
+    private fun retry() {
+        val failed = failedSend ?: return
+        if (!canSend()) return
+        failedSend = null
+        transcript = transcript.filterNot { it.id == failed.userId || it.id == failed.assistantId }
+        startReply(failed.text, failed.photo, failed.stream)
+    }
+
     /** Sends a photo of recipe notes, with whatever is typed as what the user said. */
     private fun sendPhoto(uri: Uri) {
         if (!canSend()) return
@@ -250,10 +270,12 @@ class AdaViewModel @Inject constructor(
             content = "",
             streaming = true,
         )
-        setState { copy(draft = "", sending = true, error = null, outOfCredits = false) }
+        setState { copy(draft = "", sending = true, error = null, outOfCredits = false, retryAvailable = false) }
         publishMessages()
+        failedSend = null
         sendJob?.cancel()
         sendJob = viewModelScope.launch {
+            val failed = FailedSend(userId, assistantId, text, photo, stream)
             try {
                 stream().collect { event ->
                     when (event) {
@@ -269,7 +291,8 @@ class AdaViewModel @Inject constructor(
                         }
                         is ChatStreamEvent.Error -> {
                             updateAssistant(assistantId) { it.copy(streaming = false) }
-                            setState { copy(error = event.detail) }
+                            failedSend = failed
+                            setState { copy(error = event.detail, retryAvailable = true) }
                         }
                     }
                 }
@@ -279,10 +302,12 @@ class AdaViewModel @Inject constructor(
             } catch (error: CancellationException) {
                 throw error
             } catch (error: ChatHttpException) {
+                if (error.code != 401 && error.code != 402) failedSend = failed
                 onHttpFailure(error, assistantId)
             } catch (error: Exception) {
                 updateAssistant(assistantId) { it.copy(streaming = false) }
-                setState { copy(sending = false, error = message(error)) }
+                failedSend = failed
+                setState { copy(sending = false, error = message(error), retryAvailable = true) }
             }
         }
     }
@@ -415,18 +440,31 @@ class AdaViewModel @Inject constructor(
             return
         }
         if (error.code == 402) {
-            // Ada never answered, so drop the empty reply bubble.
-            if (assistantId != null) {
-                transcript = transcript.filterNot { it.id == assistantId && it.content.isEmpty() }
+            // The server never took the message, so it would be gone after a reload:
+            // drop both bubbles and put the text back in the draft to send later.
+            val sent = assistantId?.let { id -> transcript.indexOfFirst { it.id == id } } ?: -1
+            val user = transcript.getOrNull(sent - 1)?.takeIf { it.role == "user" }
+            if (sent >= 0) {
+                transcript = transcript.filterNot { it.id == assistantId || (user != null && it.id == user.id) }
                 publishMessages()
             }
-            setState { copy(loadingHistory = false, sending = false, error = null, outOfCredits = true) }
+            setState {
+                copy(
+                    loadingHistory = false,
+                    sending = false,
+                    error = null,
+                    outOfCredits = true,
+                    draft = if (draft.isBlank()) user?.content.orEmpty() else draft,
+                )
+            }
             return
         }
         if (assistantId != null) {
             updateAssistant(assistantId) { it.copy(streaming = false) }
         }
-        setState { copy(loadingHistory = false, sending = false, error = message(error)) }
+        setState {
+            copy(loadingHistory = false, sending = false, error = message(error), retryAvailable = failedSend != null)
+        }
     }
 
     /** A connection problem's message, or what the server or exception said. */
@@ -447,11 +485,13 @@ class AdaViewModel @Inject constructor(
         setState { copy(messages = transcript.map { it.withSaved(ids) }) }
     }
 
-    private fun freshId(): Long = nextId++
+    /** Ids for messages made here are negative, so they never collide with the server's. */
+    private fun freshId(): Long = -(nextId++)
 
+    /** Keyed by the server's id when it has one, so a reload keeps the same list items in place. */
     private fun ChatTurn.toAdaMessage(): AdaMessage {
         return AdaMessage(
-            id = freshId(),
+            id = if (serverId > 0) serverId else freshId(),
             role = role,
             content = content,
             drinks = drinks,

@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.net.Uri
 import androidx.exifinterface.media.ExifInterface
+import com.capstone.nik.mixology.di.ImageClient
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -14,6 +15,7 @@ import okhttp3.Request
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
+import java.io.InputStream
 import javax.inject.Inject
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -25,13 +27,13 @@ interface RecipePhotoLoader {
 
 class ContentRecipePhotoLoader @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val client: OkHttpClient,
+    @ImageClient private val client: OkHttpClient,
 ) : RecipePhotoLoader {
     override suspend fun load(uri: Uri): ByteArray = withContext(Dispatchers.IO) {
         val bytes = when (uri.scheme?.lowercase()) {
             // A photo Ada found with an imported recipe.
             "http", "https" -> download(uri.toString())
-            else -> context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+            else -> context.contentResolver.openInputStream(uri)?.use { it.readCapped() }
                 ?: throw IOException("Can't open $uri")
         }
         RecipePhotoEncoder.encode(bytes)
@@ -40,8 +42,30 @@ class ContentRecipePhotoLoader @Inject constructor(
     private fun download(url: String): ByteArray {
         client.newCall(Request.Builder().url(url).build()).execute().use { response ->
             if (!response.isSuccessful) throw IOException("HTTP ${response.code} for $url")
-            return response.body?.bytes() ?: throw IOException("Empty photo")
+            val body = response.body ?: throw IOException("Empty photo")
+            if (body.contentLength() > MAX_PHOTO_BYTES) throw IOException("Photo too large: ${body.contentLength()} bytes")
+            return body.byteStream().readCapped()
         }
+    }
+
+    /** Reads the whole stream, refusing anything over [MAX_PHOTO_BYTES] rather than filling memory. */
+    private fun InputStream.readCapped(): ByteArray {
+        val out = ByteArrayOutputStream()
+        val buffer = ByteArray(64 * 1024)
+        var total = 0L
+        while (true) {
+            val read = read(buffer)
+            if (read < 0) break
+            total += read
+            if (total > MAX_PHOTO_BYTES) throw IOException("Photo too large")
+            out.write(buffer, 0, read)
+        }
+        return out.toByteArray()
+    }
+
+    private companion object {
+        /** Well above any phone photo; a page that serves more is not a recipe picture. */
+        const val MAX_PHOTO_BYTES = 20L * 1024 * 1024
     }
 }
 

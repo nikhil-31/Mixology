@@ -1,8 +1,11 @@
 package com.capstone.nik.mixology.ui.shopping
 
+import android.content.ComponentName
 import android.content.Intent
+import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -60,6 +63,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.res.pluralStringResource
@@ -71,6 +75,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.capstone.nik.mixology.Activities.ActivityMain
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.ShoppingItemEntity
@@ -137,7 +142,15 @@ fun ShoppingRoute(
                     type = "text/plain"
                     putExtra(Intent.EXTRA_TEXT, text)
                 }
-                context.startActivity(Intent.createChooser(send, shareTitle))
+                val chooser = Intent.createChooser(send, shareTitle)
+                // Mixology takes shared text as a recipe to import, which makes no sense for its own list.
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    chooser.putExtra(
+                        Intent.EXTRA_EXCLUDE_COMPONENTS,
+                        arrayOf(ComponentName(context, ActivityMain::class.java)),
+                    )
+                }
+                context.startActivity(chooser)
             }
         },
     )
@@ -479,11 +492,12 @@ private fun ShoppingRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onToggle)
+            // One focusable row for TalkBack, announced as a checkbox, instead of a row plus a box.
+            .toggleable(value = checked, role = Role.Checkbox, onValueChange = { onToggle() })
             .padding(start = 8.dp, end = 16.dp, top = 4.dp, bottom = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Checkbox(checked = checked, onCheckedChange = { onToggle() })
+        Checkbox(checked = checked, onCheckedChange = null)
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = name,
@@ -619,7 +633,7 @@ private fun ReviewRowItem(row: ReviewRow, selected: Boolean, onToggle: () -> Uni
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(enabled = !row.inBar, onClick = onToggle)
+            .toggleable(value = selected, enabled = !row.inBar, role = Role.Checkbox, onValueChange = { onToggle() })
             .padding(horizontal = 12.dp, vertical = 4.dp)
             .testTag("review_row_${row.key}"),
         verticalAlignment = Alignment.CenterVertically,
@@ -629,7 +643,7 @@ private fun ReviewRowItem(row: ReviewRow, selected: Boolean, onToggle: () -> Uni
                 Icon(Icons.Filled.CheckCircle, contentDescription = null, tint = colors.primary)
             }
         } else {
-            Checkbox(checked = selected, onCheckedChange = { onToggle() })
+            Checkbox(checked = selected, onCheckedChange = null)
         }
         Column(modifier = Modifier.weight(1f)) {
             Text(

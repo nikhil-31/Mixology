@@ -14,6 +14,7 @@ import com.capstone.nik.mixology.repository.DrinkRepository
 import com.capstone.nik.mixology.ui.mvi.MviViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -37,6 +38,9 @@ class ShoppingViewModel @Inject constructor(
 
     /** The trip the last Done shopping recorded (still saving, perhaps), so Undo can delete it. */
     private var lastTrip: Deferred<ShoppingTrip>? = null
+
+    /** Done shopping's bar adds and removals, so a quick Undo waits for them instead of racing them. */
+    private var finishJob: Job? = null
 
     /** My recipes are fetched at most once here when the list needs one that isn't loaded yet. */
     private var requestedRecipes = false
@@ -89,6 +93,7 @@ class ShoppingViewModel @Inject constructor(
                 lastAddedToBar = emptyList()
                 lastTrip = null
                 viewModelScope.launch {
+                    finishJob?.join()
                     if (items.isNotEmpty()) repository.restoreShoppingItems(items)
                     added.forEach { repository.removeFromBar(it) }
                     trip?.let { trips.delete(it.await().id) }
@@ -162,7 +167,7 @@ class ShoppingViewModel @Inject constructor(
                 ShoppingEffect.ShowUndo(R.string.history_saved, count = null)
             },
         )
-        viewModelScope.launch {
+        finishJob = viewModelScope.launch {
             added.forEach { repository.addToBar(it) }
             removed.forEach { repository.removeShoppingItem(it.id) }
         }

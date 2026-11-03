@@ -114,6 +114,22 @@ class SearchViewModelTest {
     }
 
     @Test
+    fun aFailedSearch_showsAnError_notNoResults() = runTest(dispatcher) {
+        service.failWithIo = true
+        viewModel.onIntent(SearchIntent.Search("Vodka", SearchMode.INGREDIENT, commit = true))
+        advanceUntilIdle()
+        val state = viewModel.state.value
+        assertTrue(state.errorRes != null)
+        assertTrue(!state.empty)
+        assertTrue(!state.loading)
+
+        service.failWithIo = false
+        viewModel.onIntent(SearchIntent.Search("Vodka", SearchMode.INGREDIENT, commit = true))
+        advanceUntilIdle()
+        assertTrue(viewModel.state.value.errorRes == null)
+    }
+
+    @Test
     fun ingredientTyping_showsSuggestionsWithoutSearchingDrinks() = runTest(dispatcher) {
         seedRecipe("3", "Bloody Mary", ingredient = "Vodka")
         viewModel.onIntent(SearchIntent.Search("gin", SearchMode.INGREDIENT))

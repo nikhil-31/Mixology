@@ -78,6 +78,8 @@ data class AdaUiState(
     val draft: String = "",
     val sending: Boolean = false,
     val error: String? = null,
+    /** The last message didn't get through and can be sent again with [AdaIntent.Retry]. */
+    val retryAvailable: Boolean = false,
     /** The server refused the last message: this month's Ada credits are spent. */
     val outOfCredits: Boolean = false,
     /** The mic is open and transcripts are replacing [draft]. */
@@ -97,6 +99,8 @@ sealed interface AdaIntent {
     data object LoadOlder : AdaIntent
     data class DraftChanged(val value: String) : AdaIntent
     data object Send : AdaIntent
+    /** Send the message that just failed again. */
+    data object Retry : AdaIntent
     data class UseSuggestion(val text: String) : AdaIntent
     /** Opens the full list of drinks that fit the request behind reply [messageId]. */
     data class OpenMore(val messageId: Long) : AdaIntent

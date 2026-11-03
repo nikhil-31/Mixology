@@ -43,6 +43,7 @@
     <!-- Widget -->
     <string name="widget_name">Mixology</string>
     <string name="widget_empty_saved_cocktails">Add a cocktail</string>
+    <string name="widget_sign_in">Sign in to see your saved drinks</string>
 
     <string name="nav_bottom_saved">Saved</string>
     <string name="nav_bottom_settings">Settings</string>

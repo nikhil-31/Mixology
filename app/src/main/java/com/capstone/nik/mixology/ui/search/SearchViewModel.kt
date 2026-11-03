@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.capstone.nik.mixology.Network.NetworkMonitor
+import com.capstone.nik.mixology.Network.connectionError
 import com.capstone.nik.mixology.Network.errorMessageRes
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.recordCrash
@@ -37,6 +38,7 @@ class SearchViewModel @Inject constructor(
 
     private val drinks = MutableStateFlow<List<Drink>>(emptyList())
     private val loading = MutableStateFlow(false)
+    private val errorRes = MutableStateFlow<Int?>(null)
     private val queried = MutableStateFlow(false)
     private val query = MutableStateFlow("")
     private val mode = MutableStateFlow(SearchMode.NAME)
@@ -62,15 +64,16 @@ class SearchViewModel @Inject constructor(
                 combine(
                     drinks,
                     repository.observeSavedIds(),
-                    loading,
+                    combine(loading, errorRes) { isLoading, error -> isLoading to error },
                     queried,
                     query,
-                ) { drinkList, savedIds, isLoading, hasQueried, currentQuery ->
+                ) { drinkList, savedIds, (isLoading, error), hasQueried, currentQuery ->
                     SearchUiState(
                         query = currentQuery,
                         loading = isLoading,
                         results = drinkList.map { it.copy(saved = it.id in savedIds) },
-                        empty = hasQueried && !isLoading && drinkList.isEmpty(),
+                        empty = hasQueried && !isLoading && error == null && drinkList.isEmpty(),
+                        errorRes = error,
                     )
                 },
                 mode,
@@ -161,6 +164,7 @@ class SearchViewModel @Inject constructor(
         }
         queried.value = true
         loading.value = true
+        errorRes.value = null
         searchJob = viewModelScope.launch {
             if (!immediate) {
                 delay(SEARCH_DEBOUNCE_MS)
@@ -177,9 +181,9 @@ class SearchViewModel @Inject constructor(
                 throw e
             } catch (e: Exception) {
                 Log.e(TAG, "Search failed", e)
-                recordCrash(e)
+                if (networkMonitor.connectionError(e) == null) recordCrash(e)
                 drinks.value = emptyList()
-                sendEffect(SearchEffect.ShowMessageRes(networkMonitor.errorMessageRes(e, R.string.network_error)))
+                errorRes.value = networkMonitor.errorMessageRes(e, R.string.network_error)
             } finally {
                 if (isActive) {
                     loading.value = false

@@ -1,10 +1,12 @@
 package com.capstone.nik.mixology.ui.main
 
 import android.app.Application
+import android.os.Bundle
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -118,5 +120,38 @@ class DrawerDestinationTest {
         assertFalse(DrawerDestination.Recipes.isBottomNavTab())
         assertFalse(DrawerDestination.Filter(DrinkFilter.GIN).isBottomNavTab())
         assertFalse(DrawerDestination.Filter(DrinkFilter.ALCOHOLIC).isBottomNavTab())
+    }
+
+    @Test
+    fun tabDestinationForRoute_mapsTabsAndSettingsPages() {
+        assertEquals(DrawerDestination.RecipesHome, tabDestinationForRoute(RECIPES_HOME_ROUTE, null))
+        assertEquals(DrawerDestination.Bar, tabDestinationForRoute(BAR_ROUTE, null))
+        assertEquals(DrawerDestination.Shopping, tabDestinationForRoute(SHOPPING_ROUTE, null))
+        assertEquals(DrawerDestination.Ada, tabDestinationForRoute(ADA_ROUTE, null))
+        assertEquals(DrawerDestination.Settings, tabDestinationForRoute(SETTINGS_ROUTE, null))
+        assertEquals(DrawerDestination.Hot, tabDestinationForRoute(HOT_ROUTE, null))
+        assertEquals(DrawerDestination.Catalog, tabDestinationForRoute(CATALOG_ROUTE, null))
+        assertEquals(DrawerDestination.Recipes, tabDestinationForRoute(MY_RECIPES_ROUTE, null))
+    }
+
+    @Test
+    fun tabDestinationForRoute_readsGridFilterFromArguments() {
+        val arguments = Bundle().apply { putString("filter", "SAVED") }
+        assertEquals(
+            DrawerDestination.Filter(DrinkFilter.SAVED),
+            tabDestinationForRoute(GRID_ROUTE, arguments),
+        )
+    }
+
+    @Test
+    fun tabDestinationForRoute_isNullForOverlays() {
+        assertNull(tabDestinationForRoute(SEARCH_ROUTE, null))
+        assertNull(tabDestinationForRoute(DETAILS_ROUTE, null))
+        assertNull(tabDestinationForRoute(ADA_MORE_ROUTE, null))
+        assertNull(tabDestinationForRoute(RECIPE_EDITOR_ROUTE, null))
+        assertNull(tabDestinationForRoute(IMPORT_RECIPE_ROUTE, null))
+        assertNull(tabDestinationForRoute(SHOPPING_HISTORY_ROUTE, null))
+        assertNull(tabDestinationForRoute(SHOPPING_TRIP_ROUTE, null))
+        assertNull(tabDestinationForRoute(null, null))
     }
 }

@@ -1,6 +1,9 @@
 package com.capstone.nik.mixology.ui.main
 
 import android.net.Uri
+import android.os.Bundle
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.repository.FilterKind
@@ -72,6 +75,34 @@ fun recipeEditorRoute(id: String? = null, imported: Boolean = false): String =
 
 /** Import, starting on [text] (shared from another app) when given. */
 fun importRecipeRoute(text: String? = null): String = "recipe_import?text=${encodeRouteArg(text.orEmpty())}"
+
+/**
+ * The tab or Settings page that [route] (a NavDestination's route template)
+ * shows, or null for overlays such as search and details, which sit on top of one.
+ */
+fun tabDestinationForRoute(route: String?, arguments: Bundle?): DrawerDestination? = when (route) {
+    HOT_ROUTE -> DrawerDestination.Hot
+    SETTINGS_ROUTE -> DrawerDestination.Settings
+    ADA_ROUTE -> DrawerDestination.Ada
+    CATALOG_ROUTE -> DrawerDestination.Catalog
+    BAR_ROUTE -> DrawerDestination.Bar
+    SHOPPING_ROUTE -> DrawerDestination.Shopping
+    MY_RECIPES_ROUTE -> DrawerDestination.Recipes
+    RECIPES_HOME_ROUTE -> DrawerDestination.RecipesHome
+    GRID_ROUTE -> DrawerDestination.Filter(DrinkFilter.fromName(arguments?.getString("filter").orEmpty()))
+    else -> null
+}
+
+/**
+ * The tab or Settings page under the current screen. Overlays keep the one
+ * beneath them, so the title and bottom bar don't change while details are open.
+ */
+@Composable
+fun rememberTabDestination(route: String?, arguments: Bundle?): DrawerDestination {
+    val last = remember { arrayOf<DrawerDestination>(DrawerDestination.RecipesHome) }
+    tabDestinationForRoute(route, arguments)?.let { last[0] = it }
+    return last[0]
+}
 
 fun isOverlayRoute(route: String?): Boolean {
     if (route == null) return false

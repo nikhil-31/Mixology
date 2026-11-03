@@ -4,10 +4,12 @@ import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.repository.FilterKind
 import com.capstone.nik.mixology.ui.search.SearchMode
 
+/**
+ * The shell's own state. Which tab or page is showing is read from the
+ * navigation back stack, so it stays right after the system Back button.
+ */
 data class MainUiState(
-    val menuExpanded: Boolean = false,
     val selectedDrink: Drink? = null,
-    val destination: DrawerDestination = DrawerDestination.RecipesHome,
 )
 
 sealed interface MainIntent {
@@ -18,8 +20,6 @@ sealed interface MainIntent {
         val mode: SearchMode = SearchMode.NAME,
         val filterKind: FilterKind? = null,
     ) : MainIntent
-    data object OpenMenu : MainIntent
-    data object DismissMenu : MainIntent
     data class DrinkSelected(val drink: Drink, val twoPane: Boolean) : MainIntent
     /** The two-pane details went away, e.g. the user deleted their recipe. */
     data object CloseDetails : MainIntent

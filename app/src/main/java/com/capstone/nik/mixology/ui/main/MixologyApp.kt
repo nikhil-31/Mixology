@@ -96,6 +96,8 @@ fun MixologyApp(
     /** Text shared from another app, to open in Import and import. */
     pendingImport: String? = null,
     onPendingImportConsumed: () -> Unit = {},
+    /** Whether this account should see banner ads; see [showsBannerAds]. */
+    adsEligible: Boolean = false,
     viewModel: MainViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -104,8 +106,9 @@ fun MixologyApp(
     val twoPane = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val route = navBackStackEntry?.destination?.route
+    val destination = rememberTabDestination(route, navBackStackEntry?.arguments)
     val overlay = isOverlayRoute(route)
-    val showTwoPane = showsTwoPaneDetails(twoPane, route, state.destination)
+    val showTwoPane = showsTwoPaneDetails(twoPane, route, destination)
     val selectDrinkTwoPane = rememberUpdatedState(showTwoPane)
     val context = LocalContext.current
     val appEntry = remember {
@@ -210,18 +213,18 @@ fun MixologyApp(
     }
 
     val showSearch = !overlay &&
-        state.destination !is DrawerDestination.Settings &&
-        state.destination !is DrawerDestination.Shopping &&
-        state.destination !is DrawerDestination.Ada
+        destination !is DrawerDestination.Settings &&
+        destination !is DrawerDestination.Shopping &&
+        destination !is DrawerDestination.Ada
     val showUp = !overlay &&
-        !state.destination.isBottomNavTab() &&
-        state.destination !is DrawerDestination.Settings
-    val settingsSelected = state.destination is DrawerDestination.Settings ||
-        state.destination is DrawerDestination.Catalog ||
-        state.destination is DrawerDestination.Recipes ||
-        state.destination is DrawerDestination.Hot ||
-        state.destination == DrawerDestination.Filter(DrinkFilter.SAVED)
-    val title = when (val destination = state.destination) {
+        !destination.isBottomNavTab() &&
+        destination !is DrawerDestination.Settings
+    val settingsSelected = destination is DrawerDestination.Settings ||
+        destination is DrawerDestination.Catalog ||
+        destination is DrawerDestination.Recipes ||
+        destination is DrawerDestination.Hot ||
+        destination == DrawerDestination.Filter(DrinkFilter.SAVED)
+    val title = when (destination) {
         DrawerDestination.Hot -> stringResource(R.string.nav_item_discover)
         DrawerDestination.Settings -> stringResource(R.string.nav_bottom_settings)
         DrawerDestination.Ada -> stringResource(R.string.nav_bottom_ada)
@@ -238,7 +241,7 @@ fun MixologyApp(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             Column {
-                if (online && canRequestAds && !BuildConfig.DEBUG) {
+                if (online && canRequestAds && adsEligible && !BuildConfig.DEBUG) {
                     BannerAd(
                         details = navBackStackEntry?.destination?.route?.startsWith("details") == true,
                         enabled = true,
@@ -246,7 +249,7 @@ fun MixologyApp(
                 }
                 if (!overlay) {
                     MixologyBottomBar(
-                        currentDestination = state.destination,
+                        currentDestination = destination,
                         onDestinationSelected = { viewModel.onIntent(MainIntent.SelectDestination(it)) },
                     )
                 }
@@ -267,7 +270,7 @@ fun MixologyApp(
                         showSearch = showSearch,
                         settingsSelected = settingsSelected,
                         onUp = {
-                            val parent = when (state.destination) {
+                            val parent = when (destination) {
                                 DrawerDestination.Catalog,
                                 DrawerDestination.Recipes,
                                 // Discover (the old home) opens from Settings now.
@@ -284,7 +287,7 @@ fun MixologyApp(
                         onSettings = {
                             viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Settings))
                         },
-                        onHistory = if (state.destination is DrawerDestination.Shopping) {
+                        onHistory = if (destination is DrawerDestination.Shopping) {
                             { navController.navigate(SHOPPING_HISTORY_ROUTE) { launchSingleTop = true } }
                         } else {
                             null

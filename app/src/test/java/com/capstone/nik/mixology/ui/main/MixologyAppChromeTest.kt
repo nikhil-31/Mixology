@@ -3,6 +3,8 @@ package com.capstone.nik.mixology.ui.main
 import android.app.Application
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -32,6 +34,31 @@ class MixologyAppChromeTest {
 
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Test
+    fun rememberTabDestination_followsTheBackStackAndKeepsTabUnderOverlays() {
+        var route by mutableStateOf<String?>(RECIPES_HOME_ROUTE)
+        var destination: DrawerDestination? = null
+        composeRule.setContent {
+            destination = rememberTabDestination(route, null)
+        }
+        composeRule.waitForIdle()
+        assertEquals(DrawerDestination.RecipesHome, destination)
+
+        route = BAR_ROUTE
+        composeRule.waitForIdle()
+        assertEquals(DrawerDestination.Bar, destination)
+
+        // Details on top of My Bar: the bar stays the tab underneath.
+        route = DETAILS_ROUTE
+        composeRule.waitForIdle()
+        assertEquals(DrawerDestination.Bar, destination)
+
+        // System Back to the home tab: the title and tab follow.
+        route = RECIPES_HOME_ROUTE
+        composeRule.waitForIdle()
+        assertEquals(DrawerDestination.RecipesHome, destination)
+    }
 
     @Test
     fun screenHeader_showsTitleAndReportsSearch() {

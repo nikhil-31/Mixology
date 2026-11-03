@@ -181,6 +181,7 @@
     <string name="auth_welcome_back">Bienvenido de nuevo</string>
     <string name="auth_create_title">Crea tu cuenta</string>
     <string name="auth_subtitle">Entra para guardar bebidas, armar tu bar y chatear con Ada.</string>
+    <string name="auth_session_expired">Tu sesión caducó. Entra de nuevo para seguir donde lo dejaste.</string>
     <string name="auth_sign_up_subtitle">Las cuentas nuevas empiezan con 7 días de prueba de Ada.</string>
     <string name="auth_name">Nombre (opcional)</string>
     <string name="auth_email">Correo</string>

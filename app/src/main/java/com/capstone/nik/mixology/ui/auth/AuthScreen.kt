@@ -59,18 +59,29 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.capstone.nik.mixology.R
+import com.capstone.nik.mixology.data.SessionEnd
 import com.capstone.nik.mixology.play.findActivity
 
 @Composable
-fun AuthRoute(viewModel: AuthViewModel = hiltViewModel()) {
+fun AuthRoute(
+    viewModel: AuthViewModel = hiltViewModel(),
+    sessionViewModel: SessionViewModel = hiltViewModel(),
+) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    AuthScreen(state = state, onIntent = viewModel::onIntent)
+    val sessionEnd by sessionViewModel.sessionEnd.collectAsStateWithLifecycle()
+    AuthScreen(
+        state = state,
+        onIntent = viewModel::onIntent,
+        sessionExpired = sessionEnd == SessionEnd.EXPIRED,
+    )
 }
 
 @Composable
 fun AuthScreen(
     state: AuthUiState,
     onIntent: (AuthIntent) -> Unit,
+    /** The previous session timed out, so say so instead of greeting a newcomer. */
+    sessionExpired: Boolean = false,
 ) {
     val signUp = state.mode == AuthMode.SIGN_UP
     val focusManager = LocalFocusManager.current
@@ -114,11 +125,19 @@ fun AuthScreen(
                 )
             }
             Text(
-                text = stringResource(if (signUp) R.string.auth_sign_up_subtitle else R.string.auth_subtitle),
+                text = stringResource(
+                    when {
+                        signUp -> R.string.auth_sign_up_subtitle
+                        sessionExpired -> R.string.auth_session_expired
+                        else -> R.string.auth_subtitle
+                    },
+                ),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(bottom = 12.dp),
+                modifier = Modifier
+                    .padding(bottom = 12.dp)
+                    .testTag("auth_subtitle"),
             )
             AnimatedVisibility(visible = signUp) {
                 OutlinedTextField(

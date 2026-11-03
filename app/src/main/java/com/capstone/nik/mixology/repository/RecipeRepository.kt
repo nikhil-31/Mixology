@@ -171,8 +171,8 @@ class NetworkRecipeRepository @Inject constructor(
             return block()
         } catch (error: HttpException) {
             val code = error.code()
-            // 401: the session is gone, so sign out. 403: the trial has ended.
-            if (code == 401) sessionStore.clear()
+            // 401: the session is gone, so ask for a new sign-in. 403: the trial has ended.
+            if (code == 401) sessionStore.expire()
             if (code == 403) subscriptions.requireSubscription()
             throw RecipeHttpException(
                 code,

@@ -19,7 +19,6 @@ import com.capstone.nik.mixology.analytics.VOICE_ERROR
 import com.capstone.nik.mixology.analytics.VOICE_STARTED
 import com.capstone.nik.mixology.Network.ChatStreamEvent
 import com.capstone.nik.mixology.data.Drink
-import com.capstone.nik.mixology.repository.AuthRepository
 import com.capstone.nik.mixology.repository.ChatRepository
 import com.capstone.nik.mixology.repository.ChatTurn
 import com.capstone.nik.mixology.repository.DrinkRepository
@@ -34,7 +33,6 @@ import javax.inject.Inject
 @HiltViewModel
 class AdaViewModel @Inject constructor(
     private val chatRepository: ChatRepository,
-    private val auth: AuthRepository,
     private val drinkRepository: DrinkRepository,
     private val networkMonitor: NetworkMonitor,
     @ApplicationContext private val context: Context,
@@ -402,7 +400,6 @@ class AdaViewModel @Inject constructor(
             olderJob?.cancel()
             oldestServerId = null
             sendJob?.cancel()
-            viewModelScope.launch { auth.signOut() }
             transcript = emptyList()
             setState {
                 copy(

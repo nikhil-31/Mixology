@@ -169,6 +169,25 @@ class ShoppingTripRepositoryTest {
     }
 
     @Test
+    fun anExpiredSession_keepsUnsentTrips_andSendsThemAfterSigningBackIn() = runTest {
+        val repo = newRepo()
+        runCurrent()
+        service.offline = true
+        repo.record(listOf(lime))
+        runCurrent()
+
+        sessions.expire()
+        runCurrent()
+        assertEquals(1, repo.trips.first().size)
+
+        service.offline = false
+        sessions.save("token-2", 3600, "ada@example.com", "Ada", uid = "uid-1")
+        runCurrent()
+        assertEquals(1, service.stored.size)
+        assertEquals(1L, repo.trips.first().single().remoteId)
+    }
+
+    @Test
     fun deletingATripTheServerNoLongerHas_isFine() = runTest {
         val repo = newRepo()
         val trip = repo.record(listOf(lime))

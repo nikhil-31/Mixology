@@ -195,6 +195,7 @@
     <string name="auth_welcome_back">Welcome back</string>
     <string name="auth_create_title">Create your account</string>
     <string name="auth_subtitle">Sign in to save drinks, stock your bar and chat with Ada.</string>
+    <string name="auth_session_expired">Your session timed out. Sign in again to pick up where you left off.</string>
     <string name="auth_sign_up_subtitle">New accounts start with a 7-day Ada trial.</string>
     <string name="auth_name">Name (optional)</string>
     <string name="auth_email">Email</string>

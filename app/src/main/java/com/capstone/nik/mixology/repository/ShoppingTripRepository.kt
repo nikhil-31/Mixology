@@ -99,8 +99,9 @@ class NetworkShoppingTripRepository internal constructor(
             sessionStore.session.collect { session ->
                 if (session != null) {
                     sync()
-                } else {
+                } else if (sessionStore.signedOut()) {
                     // Signed out: this account's trips, sent or not, leave the device.
+                    // An expired session keeps them for when the same account signs back in.
                     lock.withLock {
                         dao.deleteAll()
                         prefs.edit().remove(KEY_ACCOUNT).apply()

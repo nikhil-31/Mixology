@@ -219,6 +219,20 @@ class SavedSyncTest {
     }
 
     @Test
+    fun anExpiredSession_keepsTheList() = runTest {
+        service.saved += "remote"
+        val sync = newSync()
+        runCurrent()
+        sync.push("negroni", saved = true)
+        runCurrent()
+
+        sessions.expire()
+        runCurrent()
+
+        assertEquals(setOf("remote", "negroni"), sync.savedIds.value)
+    }
+
+    @Test
     fun signedOutChangesStayInMemory() = runTest {
         sessions.clear()
         val sync = newSync()

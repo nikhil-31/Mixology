@@ -123,7 +123,7 @@ class NetworkChatRepository @Inject constructor(
         }.catch { error ->
             if (error is CancellationException) throw error
             if (error is ChatHttpException && error.code == 401) {
-                sessionStore.clear()
+                sessionStore.expire()
             }
             if (error is ChatHttpException && error.code == 403) {
                 subscriptions.requireSubscription()
@@ -172,7 +172,7 @@ class NetworkChatRepository @Inject constructor(
     }
 
     private fun chatFailure(code: Int, body: String?, fallback: String): ChatHttpException {
-        if (code == 401) sessionStore.clear()
+        if (code == 401) sessionStore.expire()
         // 403 means the trial is over and there is no subscription.
         if (code == 403) subscriptions.requireSubscription()
         return ChatHttpException(code, ApiErrors.detail(body, fallback))

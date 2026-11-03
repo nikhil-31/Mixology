@@ -20,12 +20,25 @@ data class Session(
     val access: String = "",
 )
 
+/** Why [SessionStore.session] is null. */
+enum class SessionEnd {
+    /** The user signed out (or deleted the account): forget the account's data on this device. */
+    SIGNED_OUT,
+    /** The token ran out or the server rejected it: the same account will sign in again, so keep its data. */
+    EXPIRED,
+}
+
 @Singleton
 class SessionStore @Inject constructor(
     @ApplicationContext context: Context,
 ) {
     private val prefs: SharedPreferences =
         context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+
+    private val _lastEnd = MutableStateFlow<SessionEnd?>(null)
+
+    /** How the last session ended, or null when none has ended since the app started. */
+    val lastEnd: StateFlow<SessionEnd?> = _lastEnd.asStateFlow()
 
     private val _session = MutableStateFlow(read())
 
@@ -45,6 +58,7 @@ class SessionStore @Inject constructor(
         val expiresAt = prefs.getLong(KEY_EXPIRES, 0L)
         if (expiresAt <= System.currentTimeMillis()) {
             prefs.edit().clear().apply()
+            _lastEnd.value = SessionEnd.EXPIRED
             return null
         }
         return Session(
@@ -83,6 +97,7 @@ class SessionStore @Inject constructor(
             .putString(KEY_UID, session.uid)
             .putString(KEY_ACCESS, session.access)
             .apply()
+        _lastEnd.value = null
         _session.value = session
         return session
     }
@@ -95,10 +110,20 @@ class SessionStore @Inject constructor(
         _session.value = session.copy(access = access)
     }
 
-    fun clear() {
+    /** The user signed out. */
+    fun clear() = end(SessionEnd.SIGNED_OUT)
+
+    /** The server no longer accepts the token; the user has to sign in again. */
+    fun expire() = end(SessionEnd.EXPIRED)
+
+    private fun end(reason: SessionEnd) {
         prefs.edit().clear().apply()
+        _lastEnd.value = reason
         _session.value = null
     }
+
+    /** Whether [session] went null because the user signed out, rather than the token expiring. */
+    fun signedOut(): Boolean = _lastEnd.value == SessionEnd.SIGNED_OUT
 
     private companion object {
         const val PREFS = "mixology_session"

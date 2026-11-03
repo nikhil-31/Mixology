@@ -7,6 +7,7 @@ import com.capstone.nik.mixology.Network.NetworkMonitor
 import com.capstone.nik.mixology.Network.errorMessageRes
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.Session
+import com.capstone.nik.mixology.data.SessionEnd
 import com.capstone.nik.mixology.data.SessionStore
 import com.capstone.nik.mixology.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -33,6 +34,9 @@ class SessionViewModel @Inject constructor(
     private val networkMonitor: NetworkMonitor,
 ) : ViewModel() {
     val session: StateFlow<Session?> = sessionStore.session
+
+    /** Why the user is looking at sign-in: null on a fresh start, [SessionEnd.EXPIRED] after a timeout. */
+    val sessionEnd: StateFlow<SessionEnd?> = sessionStore.lastEnd
 
     private val _account = MutableStateFlow(AccountUiState())
     val account: StateFlow<AccountUiState> = _account.asStateFlow()

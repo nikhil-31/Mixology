@@ -118,11 +118,12 @@ class NetworkSavedSync internal constructor(
             // So did notes; they are dropped the same way.
             runCatchingLogged("Clearing local notes failed") { dao.clearNotes() }
             // Signing in (or starting signed in) brings the account's list down;
-            // signing out forgets it.
+            // signing out forgets it. An expired session keeps unsent changes
+            // for when the same account signs back in.
             sessionStore.session.collect { session ->
                 if (session != null) {
                     sync()
-                } else {
+                } else if (sessionStore.signedOut()) {
                     synchronized(pending) {
                         pending.clear()
                         ids.value = emptySet()

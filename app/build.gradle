@@ -96,6 +96,8 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        // java.time on Android 6 and 7 (minSdk 23); without this the Recipes home crashes there.
+        coreLibraryDesugaringEnabled true
     }
     kotlinOptions {
         jvmTarget = "17"
@@ -133,7 +135,7 @@ kapt {
 }
 
 dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    coreLibraryDesugaring libs.desugar.jdk.libs
 
     implementation libs.appcompat
     implementation libs.material

@@ -46,9 +46,11 @@ turbine = "1.2.0"
 archCore = "2.2.0"
 room = "2.7.2"
 firebaseBom = "34.17.0"
+desugarJdkLibs = "2.1.5"
 firebaseCrashlyticsGradle = "3.0.7"
 
 [libraries]
+desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugarJdkLibs" }
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
 appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 appcompat-resources = { module = "androidx.appcompat:appcompat-resources", version.ref = "appcompat" }

@@ -66,7 +66,7 @@ fun orderShoppingItems(
     val order = LinkedHashMap<String, Int>()
     drink.ingredients.forEachIndexed { index, measure ->
         val key = measure.ingredient.trim().lowercase()
-        if (key.isNotEmpty()) order.putIfAbsent(key, index)
+        if (key.isNotEmpty()) order.getOrPut(key) { index }
     }
     return items.sortedWith(
         compareBy<ShoppingItemEntity> { order[it.name.trim().lowercase()] ?: Int.MAX_VALUE }

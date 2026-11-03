@@ -32,6 +32,8 @@ data class RecipeDraft(
     val category: String? = null,
     val instructions: String? = null,
     val ingredients: List<IngredientMeasure> = emptyList(),
+    /** Where an imported recipe came from; only sent when creating. */
+    val sourceUrl: String? = null,
 )
 
 /** A recipe read from a link or text and saved; [duplicate] when it was saved before. */
@@ -205,4 +207,5 @@ internal fun RecipeDraft.toWrite() = RecipeWrite(
     ingredients = ingredients.map {
         RecipeIngredientWrite(it.ingredient.trim(), it.measure.trim().takeIf { m -> m.isNotEmpty() })
     },
+    sourceUrl = sourceUrl?.trim()?.takeIf { it.isNotEmpty() },
 )

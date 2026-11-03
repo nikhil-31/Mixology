@@ -39,6 +39,7 @@ class AdaViewModel @Inject constructor(
     private val recipeRepository: RecipeRepository,
     private val photos: RecipePhotoLoader,
     private val inbox: AdaInbox,
+    private val handoff: RecipeDraftHandoff = RecipeDraftHandoff(),
     private val analytics: AnalyticsTracker = AnalyticsTracker.forTests(),
 ) : MviViewModel<AdaIntent, AdaUiState, AdaEffect>(AdaUiState()) {
 
@@ -63,6 +64,20 @@ class AdaViewModel @Inject constructor(
         viewModelScope.launch {
             inbox.pending.collect { if (it != null) deliverInbox() }
         }
+        // "Edit draft" saved from the editor: that card is saved now.
+        viewModelScope.launch {
+            handoff.saved.collect { saved -> markDraftSaved(saved.messageId, saved.recipeId) }
+        }
+        // Drafts saved earlier from the editor stay saved after a reload.
+        viewModelScope.launch {
+            recipeRepository.recipes.collect { recipes ->
+                val reconciled = reconcileDrafts(transcript, recipes)
+                if (reconciled != transcript) {
+                    transcript = reconciled
+                    publishMessages()
+                }
+            }
+        }
     }
 
     override fun onIntent(intent: AdaIntent) {
@@ -84,6 +99,7 @@ class AdaViewModel @Inject constructor(
             is AdaIntent.DropRecipe -> answerDraft(intent.messageId, R.string.ada_recipe_drop_answer)
             is AdaIntent.OpenRecipe -> transcript.firstOrNull { it.id == intent.messageId }
                 ?.recipe?.toDrink()?.let { sendEffect(AdaEffect.OpenDrink(it)) }
+            is AdaIntent.EditRecipe -> editDraft(intent.messageId)
             is AdaIntent.SendPhoto -> sendPhoto(intent.uri)
             is AdaIntent.UseImportSuggestion -> {
                 setState { copy(draft = intent.clipboard?.trim().orEmpty()) }
@@ -131,7 +147,10 @@ class AdaViewModel @Inject constructor(
                     setState { copy(loadingHistory = false) }
                     return@launch
                 }
-                transcript = foldRecipes(page.turns.map { it.toAdaMessage() })
+                transcript = reconcileDrafts(
+                    foldRecipes(page.turns.map { it.toAdaMessage() }),
+                    recipeRepository.recipes.value,
+                )
                 oldestServerId = page.turns.firstOrNull()?.serverId?.takeIf { it > 0 }
                 publishMessages()
                 setState {
@@ -160,7 +179,10 @@ class AdaViewModel @Inject constructor(
         olderJob = viewModelScope.launch {
             try {
                 val page = chatRepository.history(before = before)
-                transcript = foldRecipes(page.turns.map { it.toAdaMessage() } + transcript)
+                transcript = reconcileDrafts(
+                    foldRecipes(page.turns.map { it.toAdaMessage() } + transcript),
+                    recipeRepository.recipes.value,
+                )
                 oldestServerId = page.turns.firstOrNull()?.serverId?.takeIf { it > 0 } ?: oldestServerId
                 publishMessages()
                 setState { copy(loadingOlder = false, hasOlder = page.hasMore && page.turns.isNotEmpty()) }
@@ -287,6 +309,25 @@ class AdaViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun editDraft(messageId: Long) {
+        val recipe = transcript.firstOrNull { it.id == messageId }?.recipe ?: return
+        if (recipe.state != AdaRecipe.State.Draft) return
+        handoff.offer(RecipeDraftRequest(messageId, recipe))
+        sendEffect(AdaEffect.OpenDraftEditor)
+    }
+
+    private fun markDraftSaved(messageId: Long, recipeId: String) {
+        transcript = transcript.map { message ->
+            val recipe = message.recipe
+            if (message.id == messageId && recipe != null) {
+                message.copy(recipe = recipe.copy(state = AdaRecipe.State.Saved, recipeId = recipeId))
+            } else {
+                message
+            }
+        }
+        publishMessages()
     }
 
     /** Sends a message another screen left for Ada, once nothing else is going on. */
@@ -444,6 +485,25 @@ internal fun foldRecipes(messages: List<AdaMessage>): List<AdaMessage> {
         result[index] = result[index].copy(recipe = null)
     }
     return result
+}
+
+/**
+ * Drafts already in My recipes, saved from the editor ("Edit draft"), show as
+ * saved: matched by their link, or by name when they came from a photo.
+ */
+internal fun reconcileDrafts(messages: List<AdaMessage>, recipes: List<Drink>): List<AdaMessage> {
+    if (recipes.isEmpty()) return messages
+    return messages.map { message ->
+        val recipe = message.recipe?.takeIf { it.state == AdaRecipe.State.Draft } ?: return@map message
+        val match = recipe.sourceUrl
+            ?.let { link -> recipes.firstOrNull { it.sourceUrl == link } }
+            ?: recipes.firstOrNull { recipe.sourceUrl == null && it.name.trim().equals(recipe.name.trim(), ignoreCase = true) }
+        if (match == null) {
+            message
+        } else {
+            message.copy(recipe = recipe.copy(state = AdaRecipe.State.Saved, recipeId = match.id))
+        }
+    }
 }
 
 private fun AdaMessage.withSaved(ids: Set<String>): AdaMessage {

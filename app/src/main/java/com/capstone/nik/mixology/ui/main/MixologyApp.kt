@@ -375,6 +375,10 @@ fun MixologyApp(
                                         launchSingleTop = true
                                     }
                                 },
+                                // The editor fills itself from RecipeDraftHandoff.
+                                onEditDraft = {
+                                    navController.navigate(recipeEditorRoute(imported = true)) { launchSingleTop = true }
+                                },
                             )
                         }
                         composable(
@@ -510,10 +514,15 @@ fun MixologyApp(
                                     type = NavType.StringType
                                     defaultValue = ""
                                 },
+                                navArgument("imported") {
+                                    type = NavType.BoolType
+                                    defaultValue = false
+                                },
                             ),
                         ) { entry ->
                             RecipeEditorRoute(
                                 recipeId = entry.arguments?.getString("id")?.takeIf { it.isNotBlank() },
+                                imported = entry.arguments?.getBoolean("imported") == true,
                                 onClose = { navController.navigateUp() },
                                 // Details for the deleted recipe closes itself once it's gone.
                                 onDeleted = { navController.navigateUp() },
@@ -537,7 +546,7 @@ fun MixologyApp(
                                 onBack = { navController.navigateUp() },
                                 // The editor takes the import's place, so Back returns to Settings.
                                 onImported = { id ->
-                                    navController.navigate(recipeEditorRoute(id)) {
+                                    navController.navigate(recipeEditorRoute(id, imported = true)) {
                                         popUpTo(IMPORT_RECIPE_ROUTE) { inclusive = true }
                                     }
                                 },

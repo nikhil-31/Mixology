@@ -9,6 +9,8 @@ import androidx.exifinterface.media.ExifInterface
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -23,11 +25,23 @@ interface RecipePhotoLoader {
 
 class ContentRecipePhotoLoader @Inject constructor(
     @ApplicationContext private val context: Context,
+    private val client: OkHttpClient,
 ) : RecipePhotoLoader {
     override suspend fun load(uri: Uri): ByteArray = withContext(Dispatchers.IO) {
-        val bytes = context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
-            ?: throw IOException("Can't open $uri")
+        val bytes = when (uri.scheme?.lowercase()) {
+            // A photo Ada found with an imported recipe.
+            "http", "https" -> download(uri.toString())
+            else -> context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                ?: throw IOException("Can't open $uri")
+        }
         RecipePhotoEncoder.encode(bytes)
+    }
+
+    private fun download(url: String): ByteArray {
+        client.newCall(Request.Builder().url(url).build()).execute().use { response ->
+            if (!response.isSuccessful) throw IOException("HTTP ${response.code} for $url")
+            return response.body?.bytes() ?: throw IOException("Empty photo")
+        }
     }
 }
 

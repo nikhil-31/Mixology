@@ -426,6 +426,7 @@
     <string name="ada_recipe_drop_answer">No gracias</string>
     <string name="ada_recipe_save">Guardar</string>
     <string name="ada_recipe_not_now">Ahora no</string>
+    <string name="ada_recipe_edit">Editar borrador</string>
     <string name="ada_recipe_saved">Guardada en Mis recetas</string>
     <string name="ada_recipe_duplicate">Ya la tenías</string>
     <string name="ada_recipe_dropped">No guardada</string>
@@ -441,4 +442,9 @@
     <string name="ada_suggestion_import">Importar una receta desde un enlace</string>
     <string name="ada_link_hint">Ada leerá este enlace de %1$s como receta</string>
     <string name="recipe_import_ask_ada">Preguntar a Ada</string>
+    <string name="beta_badge">BETA</string>
+    <string name="beta_badge_description">Función beta</string>
+    <string name="recipe_import_beta_note">Beta: las recetas importadas pueden no ser exactas. Revisa los ingredientes y las medidas antes de guardar.</string>
+    <string name="ada_recipe_beta_note">Beta: revísala antes de guardar.</string>
+    <string name="recipe_editor_beta_note">Importada con una función beta: revísala antes de prepararla.</string>
 </resources>

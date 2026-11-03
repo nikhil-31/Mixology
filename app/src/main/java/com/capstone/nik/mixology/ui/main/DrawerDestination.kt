@@ -30,7 +30,7 @@ const val RECIPES_HOME_ROUTE = "recipes_home"
 const val SEARCH_ROUTE = "search?query={query}&mode={mode}&kind={kind}"
 const val DETAILS_ROUTE = "details/{id}?name={name}&thumb={thumb}"
 const val ADA_MORE_ROUTE = "ada_more?q={q}&exclude={exclude}"
-const val RECIPE_EDITOR_ROUTE = "recipe_editor?id={id}"
+const val RECIPE_EDITOR_ROUTE = "recipe_editor?id={id}&imported={imported}"
 const val IMPORT_RECIPE_ROUTE = "recipe_import?text={text}"
 const val SHOPPING_HISTORY_ROUTE = "shopping_history"
 const val SHOPPING_TRIP_ROUTE = "shopping_history/{id}"
@@ -63,8 +63,12 @@ fun adaMoreRoute(query: String, exclude: List<String>): String {
     return "ada_more?q=${encodeRouteArg(query)}&exclude=${encodeRouteArg(exclude.joinToString(","))}"
 }
 
-/** The recipe editor for recipe [id], or for a new recipe when null. */
-fun recipeEditorRoute(id: String? = null): String = "recipe_editor?id=${encodeRouteArg(id.orEmpty())}"
+/**
+ * The recipe editor for recipe [id], or for a new recipe when null. [imported]
+ * when it opens straight from an import, to remind that import is in beta.
+ */
+fun recipeEditorRoute(id: String? = null, imported: Boolean = false): String =
+    "recipe_editor?id=${encodeRouteArg(id.orEmpty())}&imported=$imported"
 
 /** Import, starting on [text] (shared from another app) when given. */
 fun importRecipeRoute(text: String? = null): String = "recipe_import?text=${encodeRouteArg(text.orEmpty())}"

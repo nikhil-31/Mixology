@@ -70,6 +70,7 @@ import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.repository.RecipeRepository
 import com.capstone.nik.mixology.ui.components.FullscreenImage
+import com.capstone.nik.mixology.ui.components.BetaNote
 import com.capstone.nik.mixology.ui.components.SourceLink
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 
@@ -78,6 +79,8 @@ fun RecipeEditorRoute(
     recipeId: String?,
     onClose: () -> Unit,
     onDeleted: () -> Unit,
+    /** Opened straight from an import: remind that import is in beta. */
+    imported: Boolean = false,
     viewModel: RecipeEditorViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -91,7 +94,7 @@ fun RecipeEditorRoute(
         }
     }
     BackHandler { viewModel.onIntent(RecipeEditorIntent.Close) }
-    RecipeEditorScreen(state = state, onIntent = viewModel::onIntent)
+    RecipeEditorScreen(state = state, onIntent = viewModel::onIntent, imported = imported)
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -99,6 +102,7 @@ fun RecipeEditorRoute(
 fun RecipeEditorScreen(
     state: RecipeEditorUiState,
     onIntent: (RecipeEditorIntent) -> Unit,
+    imported: Boolean = false,
 ) {
     val form = state.form
     val errors = state.errors
@@ -186,6 +190,12 @@ fun RecipeEditorScreen(
                 )
                 state.sourceUrl?.let { url ->
                     SourceLink(sourceUrl = url, source = state.source)
+                }
+                if (imported) {
+                    BetaNote(
+                        text = stringResource(R.string.recipe_editor_beta_note),
+                        modifier = Modifier.testTag("recipe_editor_beta"),
+                    )
                 }
 
                 OutlinedTextField(

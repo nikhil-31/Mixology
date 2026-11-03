@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.capstone.nik.mixology.analytics.AnalyticsTracker
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.repository.RecipeRepository
+import com.capstone.nik.mixology.ui.ada.RecipeDraftHandoff
+import com.capstone.nik.mixology.ui.ada.RecipeDraftRequest
 import com.capstone.nik.mixology.ui.mvi.MviViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
@@ -16,6 +18,7 @@ class RecipeEditorViewModel @Inject constructor(
     private val recipes: RecipeRepository,
     private val photos: RecipePhotoLoader,
     private val analytics: AnalyticsTracker = AnalyticsTracker.forTests(),
+    private val handoff: RecipeDraftHandoff = RecipeDraftHandoff(),
 ) : MviViewModel<RecipeEditorIntent, RecipeEditorUiState, RecipeEditorEffect>(RecipeEditorUiState()) {
 
     private var bound = false
@@ -27,6 +30,8 @@ class RecipeEditorViewModel @Inject constructor(
     private var encoded: Pair<Uri, ByteArray>? = null
     /** Validation errors show after the first save attempt. */
     private var submitted = false
+    /** Ada's card this editor was opened from ("Edit draft"), told once it's saved. */
+    private var draftMessageId: Long? = null
 
     override fun onIntent(intent: RecipeEditorIntent) {
         when (intent) {
@@ -61,7 +66,10 @@ class RecipeEditorViewModel @Inject constructor(
     private fun bind(id: String?) {
         if (bound) return
         bound = true
-        if (id.isNullOrBlank()) return
+        if (id.isNullOrBlank()) {
+            handoff.take()?.let(::fillDraft)
+            return
+        }
         val cached = recipes.recipes.value.firstOrNull { it.id == id }
         if (cached != null) {
             fill(cached)
@@ -102,6 +110,38 @@ class RecipeEditorViewModel @Inject constructor(
                 source = recipe.source,
                 dirty = false,
                 error = null,
+            )
+        }
+    }
+
+    /** A recipe Ada read, ready to change before it's saved: new and unsaved. */
+    private fun fillDraft(request: RecipeDraftRequest) {
+        val draft = request.recipe
+        draftMessageId = request.messageId
+        val rows = draft.ingredients.take(RecipeLimits.INGREDIENTS).mapIndexed { index, item ->
+            IngredientField(
+                index.toLong(),
+                item.ingredient.take(RecipeLimits.INGREDIENT),
+                item.measure.take(RecipeLimits.MEASURE),
+            )
+        }.ifEmpty { listOf(IngredientField(0)) }
+        nextKey = rows.size.toLong()
+        val form = RecipeForm(
+            name = draft.name.take(RecipeLimits.NAME),
+            type = RecipeType.fromApi(draft.alcoholic),
+            glass = draft.glass.orEmpty().take(RecipeLimits.GLASS),
+            category = draft.category.orEmpty().take(RecipeLimits.CATEGORY),
+            instructions = draft.instructions.orEmpty().take(RecipeLimits.INSTRUCTIONS),
+            ingredients = rows,
+            pickedPhoto = draft.photoUrl?.let(Uri::parse),
+        )
+        // savedForm stays empty, so the filled form is unsaved and Back asks first.
+        setState {
+            copy(
+                form = form,
+                sourceUrl = draft.sourceUrl,
+                source = draft.source,
+                dirty = true,
             )
         }
     }
@@ -170,7 +210,11 @@ class RecipeEditorViewModel @Inject constructor(
         setState { copy(saving = true, photoFailed = false) }
         viewModelScope.launch {
             val saved = try {
-                if (id == null) recipes.create(form.toDraft()) else recipes.update(id, form.toDraft())
+                if (id == null) {
+                    recipes.create(form.toDraft().copy(sourceUrl = state.sourceUrl))
+                } else {
+                    recipes.update(id, form.toDraft())
+                }
             } catch (error: CancellationException) {
                 throw error
             } catch (error: Exception) {
@@ -179,6 +223,8 @@ class RecipeEditorViewModel @Inject constructor(
             }
             if (id == null) {
                 analytics.logRecipeCreated(saved.id, saved.name)
+                draftMessageId?.let { handoff.saved(it, saved.id) }
+                draftMessageId = null
             } else {
                 analytics.logRecipeUpdated(saved.id, saved.name)
             }

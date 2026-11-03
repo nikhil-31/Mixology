@@ -3,6 +3,7 @@ package com.capstone.nik.mixology.ui.ada
 import android.app.Application
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
+import app.cash.turbine.test
 import com.capstone.nik.mixology.FakeChatRepository
 import com.capstone.nik.mixology.FakeCocktailService
 import com.capstone.nik.mixology.FakeRecipeService
@@ -74,6 +75,7 @@ class AdaViewModelTest {
         }
     }
     private val inbox = AdaInbox()
+    private val handoff = RecipeDraftHandoff()
 
     @Before
     fun setUp() {
@@ -105,6 +107,7 @@ class AdaViewModelTest {
             recipes,
             photos,
             inbox,
+            handoff,
             analytics,
         )
     }
@@ -558,6 +561,71 @@ class AdaViewModelTest {
         )
         viewModel.onIntent(AdaIntent.Load)
         assertTrue(viewModel.state.value.signedIn)
+    }
+
+    @Test
+    fun editRecipe_handsTheDraftToTheEditor() = runTest {
+        signIn()
+        chat.sendFlow = flowOf(
+            ChatStreamEvent.Delta("I read a Paloma. Save it?"),
+            ChatStreamEvent.Recipe(draft()),
+            ChatStreamEvent.Done("I read a Paloma. Save it?"),
+        )
+        viewModel.onIntent(AdaIntent.DraftChanged("https://www.instagram.com/p/abc/"))
+        viewModel.onIntent(AdaIntent.Send)
+        val reply = viewModel.state.value.messages.last()
+
+        viewModel.effects.test {
+            viewModel.onIntent(AdaIntent.EditRecipe(reply.id))
+            assertEquals(AdaEffect.OpenDraftEditor, awaitItem())
+        }
+
+        val request = handoff.take()
+        assertEquals(reply.id, request?.messageId)
+        assertEquals("Paloma", request?.recipe?.name)
+        // Nothing was sent to Ada.
+        assertEquals(listOf("https://www.instagram.com/p/abc/"), chat.sent)
+    }
+
+    @Test
+    fun draftSavedFromTheEditor_marksTheCardSaved() = runTest {
+        signIn()
+        chat.sendFlow = flowOf(ChatStreamEvent.Recipe(draft()), ChatStreamEvent.Done("Save it?"))
+        viewModel.onIntent(AdaIntent.DraftChanged("https://www.instagram.com/p/abc/"))
+        viewModel.onIntent(AdaIntent.Send)
+        val reply = viewModel.state.value.messages.last()
+
+        handoff.saved(reply.id, "u-9")
+
+        val recipe = viewModel.state.value.messages.last().recipe
+        assertEquals(AdaRecipe.State.Saved, recipe?.state)
+        assertEquals("u-9", recipe?.recipeId)
+    }
+
+    @Test
+    fun reconcileDrafts_showsDraftsAlreadyInMyRecipesAsSaved() {
+        fun card(id: Long, name: String, link: String?) = AdaMessage(
+            id = id,
+            role = "assistant",
+            content = "",
+            recipe = AdaRecipe(name, null, null, link, emptyList(), null, AdaRecipe.State.Draft),
+        )
+        val messages = listOf(
+            card(1, "Paloma", "https://www.instagram.com/p/abc/"),
+            card(2, "Gimlet", null),
+            card(3, "Negroni", "https://example.com/negroni"),
+        )
+        val recipes = listOf(
+            Drink(id = "u-1", name = "My Paloma", thumb = "", sourceUrl = "https://www.instagram.com/p/abc/"),
+            Drink(id = "u-2", name = "gimlet", thumb = ""),
+        )
+
+        val result = reconcileDrafts(messages, recipes)
+
+        assertEquals("u-1", result[0].recipe?.recipeId)
+        assertEquals(AdaRecipe.State.Saved, result[0].recipe?.state)
+        assertEquals("u-2", result[1].recipe?.recipeId)
+        assertEquals(AdaRecipe.State.Draft, result[2].recipe?.state)
     }
 }
 

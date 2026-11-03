@@ -70,6 +70,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.capstone.nik.mixology.R
+import com.capstone.nik.mixology.ui.components.BetaBadge
+import com.capstone.nik.mixology.ui.components.BetaNote
 import com.capstone.nik.mixology.billing.ChatCredits
 import com.capstone.nik.mixology.ui.components.rememberMonthDay
 import com.capstone.nik.mixology.ui.components.sourceLabel
@@ -198,11 +200,16 @@ fun ImportRecipeScreen(
                         contentDescription = stringResource(R.string.content_desc_up_navigation),
                     )
                 }
-                Text(
-                    text = stringResource(R.string.recipe_import_title),
-                    style = MaterialTheme.typography.titleLarge,
+                Row(
                     modifier = Modifier.weight(1f),
-                )
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = stringResource(R.string.recipe_import_title),
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                    BetaBadge(modifier = Modifier.padding(start = 8.dp))
+                }
             }
         },
         bottomBar = {
@@ -215,6 +222,12 @@ fun ImportRecipeScreen(
                         .padding(horizontal = 20.dp, vertical = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
+                    BetaNote(
+                        text = stringResource(R.string.recipe_import_beta_note),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("recipe_import_beta"),
+                    )
                     credits?.let {
                         Text(
                             text = stringResource(R.string.recipe_import_credits_note, it.remaining),
@@ -452,6 +465,16 @@ private fun ImportProgress(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(top = 16.dp),
+        )
+        BetaBadge(modifier = Modifier.padding(top = 20.dp))
+        Text(
+            text = stringResource(R.string.recipe_import_beta_note),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .padding(top = 8.dp)
+                .testTag("recipe_import_progress_beta"),
         )
         OutlinedButton(
             onClick = onCancel,

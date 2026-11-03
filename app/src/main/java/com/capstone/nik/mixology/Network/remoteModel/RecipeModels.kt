@@ -1,5 +1,7 @@
 package com.capstone.nik.mixology.Network.remoteModel
 
+import com.google.gson.annotations.SerializedName
+
 data class RecipeIngredientWrite(
     val ingredient: String,
     val measure: String? = null,
@@ -13,6 +15,8 @@ data class RecipeWrite(
     val category: String? = null,
     val instructions: String? = null,
     val ingredients: List<RecipeIngredientWrite> = emptyList(),
+    /** The page or post an imported recipe came from; sent on create only. */
+    @SerializedName("source_url") val sourceUrl: String? = null,
 )
 
 /**

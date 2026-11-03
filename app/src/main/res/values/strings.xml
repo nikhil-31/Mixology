@@ -437,6 +437,7 @@
     <string name="ada_recipe_drop_answer">Not now</string>
     <string name="ada_recipe_save">Save</string>
     <string name="ada_recipe_not_now">Not now</string>
+    <string name="ada_recipe_edit">Edit draft</string>
     <string name="ada_recipe_saved">Saved to My recipes</string>
     <string name="ada_recipe_duplicate">You already had this one</string>
     <string name="ada_recipe_dropped">Not saved</string>
@@ -452,4 +453,9 @@
     <string name="ada_suggestion_import">Import a recipe from a link</string>
     <string name="ada_link_hint">Ada will read this %1$s link as a recipe</string>
     <string name="recipe_import_ask_ada">Ask Ada</string>
+    <string name="beta_badge">BETA</string>
+    <string name="beta_badge_description">Beta feature</string>
+    <string name="recipe_import_beta_note">Beta: imported recipes might not be accurate. Check the ingredients and measures before you save.</string>
+    <string name="ada_recipe_beta_note">Beta: check it before you save.</string>
+    <string name="recipe_editor_beta_note">Imported with a beta feature: check it before you make it.</string>
 </resources>

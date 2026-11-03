@@ -135,6 +135,7 @@ import java.util.Date
 fun AdaRoute(
     onDrinkClick: (Drink) -> Unit,
     onOpenMore: (query: String, exclude: List<String>) -> Unit = { _, _ -> },
+    onEditDraft: () -> Unit = {},
     viewModel: AdaViewModel = hiltViewModel(),
     subscriptionGate: SubscriptionGateViewModel = hiltViewModel(),
 ) {
@@ -165,6 +166,7 @@ fun AdaRoute(
             is AdaEffect.OpenDrink -> onDrinkClick(effect.drink)
             is AdaEffect.OpenMore -> onOpenMore(effect.query, effect.exclude)
             AdaEffect.FocusComposer -> runCatching { composerFocus.requestFocus() }
+            AdaEffect.OpenDraftEditor -> onEditDraft()
             AdaEffect.RequestMicrophone -> {
                 val permission = Manifest.permission.RECORD_AUDIO
                 if (ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED) {
@@ -213,6 +215,7 @@ fun AdaRoute(
         onSaveRecipe = { viewModel.onIntent(AdaIntent.SaveRecipe(it)) },
         onDropRecipe = { viewModel.onIntent(AdaIntent.DropRecipe(it)) },
         onOpenRecipe = { viewModel.onIntent(AdaIntent.OpenRecipe(it)) },
+        onEditRecipe = { viewModel.onIntent(AdaIntent.EditRecipe(it)) },
         onChoosePhoto = {
             choosePhoto.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
         },
@@ -252,6 +255,7 @@ fun AdaScreen(
     onSaveRecipe: (messageId: Long) -> Unit = {},
     onDropRecipe: (messageId: Long) -> Unit = {},
     onOpenRecipe: (messageId: Long) -> Unit = {},
+    onEditRecipe: (messageId: Long) -> Unit = {},
     onChoosePhoto: () -> Unit = {},
     onTakePhoto: () -> Unit = {},
     onImportSuggestion: () -> Unit = {},
@@ -281,6 +285,7 @@ fun AdaScreen(
                 onSaveRecipe = onSaveRecipe,
                 onDropRecipe = onDropRecipe,
                 onOpenRecipe = onOpenRecipe,
+                onEditRecipe = onEditRecipe,
                 onChoosePhoto = onChoosePhoto,
                 onTakePhoto = onTakePhoto,
                 onImportSuggestion = onImportSuggestion,
@@ -308,6 +313,7 @@ private fun AdaTranscript(
     onSaveRecipe: (messageId: Long) -> Unit,
     onDropRecipe: (messageId: Long) -> Unit,
     onOpenRecipe: (messageId: Long) -> Unit,
+    onEditRecipe: (messageId: Long) -> Unit,
     onChoosePhoto: () -> Unit,
     onTakePhoto: () -> Unit,
     onImportSuggestion: () -> Unit,
@@ -430,6 +436,7 @@ private fun AdaTranscript(
                             onSaveRecipe = { onSaveRecipe(message.id) },
                             onDropRecipe = { onDropRecipe(message.id) },
                             onOpenRecipe = { onOpenRecipe(message.id) },
+                            onEditRecipe = { onEditRecipe(message.id) },
                         )
                     }
                     if (state.loadingOlder) {
@@ -756,6 +763,7 @@ private fun AdaMessageRow(
     onSaveRecipe: () -> Unit = {},
     onDropRecipe: () -> Unit = {},
     onOpenRecipe: () -> Unit = {},
+    onEditRecipe: () -> Unit = {},
 ) {
     val fromUser = message.role == "user"
     val tail = if (endsRun) BubbleTail else BubbleRadius
@@ -865,6 +873,7 @@ private fun AdaMessageRow(
                 onSave = onSaveRecipe,
                 onDrop = onDropRecipe,
                 onOpen = onOpenRecipe,
+                onEdit = onEditRecipe,
                 modifier = Modifier.padding(start = 12.dp + AvatarSize + AvatarGap, end = 12.dp, top = 8.dp),
             )
         }

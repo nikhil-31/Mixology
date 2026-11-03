@@ -22,6 +22,10 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import com.capstone.nik.mixology.ui.ada.AdaRecipe
+import com.capstone.nik.mixology.ui.ada.DraftSaved
+import com.capstone.nik.mixology.ui.ada.RecipeDraftHandoff
+import com.capstone.nik.mixology.ui.ada.RecipeDraftRequest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -63,7 +67,73 @@ class RecipeEditorViewModelTest {
         sessions.save("token", 3600, "ada@example.com", "Ada", uid = "uid-1", access = "trial")
         val subscriptions = SubscriptionRepository(FakeBillingService(), FakeStoreBilling(), sessions)
         repository = NetworkRecipeRepository(service, subscriptions, sessions)
-        viewModel = RecipeEditorViewModel(repository, photos, analytics)
+        viewModel = RecipeEditorViewModel(repository, photos, analytics, handoff)
+    }
+
+    private val handoff = RecipeDraftHandoff()
+
+    private fun offerPaloma(messageId: Long = 7L) = handoff.offer(
+        RecipeDraftRequest(
+            messageId,
+            AdaRecipe(
+                name = "Paloma",
+                photoUrl = "https://cdn.example.com/p.jpg",
+                source = "instagram",
+                sourceUrl = "https://www.instagram.com/p/abc/",
+                ingredients = listOf(IngredientMeasure("Tequila", "2 oz"), IngredientMeasure("Grapefruit soda", "4 oz")),
+                instructions = "Build over ice.",
+                state = AdaRecipe.State.Draft,
+                alcoholic = "Alcoholic",
+                glass = "Highball",
+            ),
+        ),
+    )
+
+    @Test
+    fun bindWithADraftFillsTheFormUnsaved() {
+        offerPaloma()
+
+        viewModel.onIntent(RecipeEditorIntent.Bind(null))
+
+        val state = viewModel.state.value
+        assertEquals("Paloma", state.form.name)
+        assertEquals(RecipeType.ALCOHOLIC, state.form.type)
+        assertEquals("Highball", state.form.glass)
+        assertEquals(listOf("Tequila", "Grapefruit soda"), state.form.ingredients.map { it.ingredient })
+        assertEquals(Uri.parse("https://cdn.example.com/p.jpg"), state.form.pickedPhoto)
+        assertEquals("https://www.instagram.com/p/abc/", state.sourceUrl)
+        assertEquals("instagram", state.source)
+        assertTrue(state.dirty)
+        assertNull(state.recipeId)
+        assertTrue(service.calls.isEmpty())
+
+        // Back asks before throwing the draft away.
+        viewModel.onIntent(RecipeEditorIntent.Close)
+        assertTrue(viewModel.state.value.confirmDiscard)
+    }
+
+    @Test
+    fun savingADraftCreatesItWithItsLinkAndPhotoAndTellsAda() = runTest {
+        offerPaloma(messageId = 7L)
+        viewModel.onIntent(RecipeEditorIntent.Bind(null))
+        viewModel.onIntent(RecipeEditorIntent.NameChanged("Paloma (less soda)"))
+
+        handoff.saved.test {
+            viewModel.onIntent(RecipeEditorIntent.Save)
+            assertEquals(DraftSaved(7L, "u-1"), awaitItem())
+        }
+
+        assertEquals(listOf("create", "photo u-1"), service.calls)
+        assertEquals("https://www.instagram.com/p/abc/", service.writes.single().sourceUrl)
+        assertEquals("Paloma (less soda)", service.writes.single().name)
+        assertEquals(listOf(Uri.parse("https://cdn.example.com/p.jpg")), photos.loaded)
+    }
+
+    @Test
+    fun aNewRecipeWithoutADraftStartsEmpty() {
+        viewModel.onIntent(RecipeEditorIntent.Bind(null))
+        assertEquals(RecipeForm(), viewModel.state.value.form)
+        assertTrue(!viewModel.state.value.dirty)
     }
 
     @Test

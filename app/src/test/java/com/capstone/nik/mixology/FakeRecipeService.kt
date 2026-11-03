@@ -125,6 +125,7 @@ class FakeRecipeService : RecipeService {
         category = category,
         instructions = instructions,
         ingredients = ingredients.map { IngredientMeasure(it.ingredient, it.measure.orEmpty()) },
+        sourceUrl = sourceUrl,
     )
 
     companion object {

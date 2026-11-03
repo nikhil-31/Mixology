@@ -16,6 +16,9 @@ data class AdaRecipe(
     val ingredients: List<IngredientMeasure>,
     val instructions: String?,
     val state: State,
+    val alcoholic: String? = null,
+    val glass: String? = null,
+    val category: String? = null,
     /** The saved recipe, once there is one. */
     val recipeId: String? = null,
     /** [recipeId] was already in My recipes from this link. */
@@ -43,6 +46,9 @@ data class AdaRecipe(
             },
             recipeId = dto.recipeId,
             duplicate = dto.duplicate,
+            alcoholic = dto.recipe.alcoholic?.takeIf { it.isNotBlank() },
+            glass = dto.recipe.glass?.takeIf { it.isNotBlank() },
+            category = dto.recipe.category?.takeIf { it.isNotBlank() },
         )
     }
 }
@@ -110,6 +116,8 @@ sealed interface AdaIntent {
     /** Don't save the recipe drafted in reply [messageId]. */
     data class DropRecipe(val messageId: Long) : AdaIntent
     data class OpenRecipe(val messageId: Long) : AdaIntent
+    /** "Edit draft": open the editor filled in with the card's recipe, unsaved. */
+    data class EditRecipe(val messageId: Long) : AdaIntent
     /** A photo of recipe notes to send with whatever is in the draft. */
     data class SendPhoto(val uri: Uri) : AdaIntent
     /** The "Import a recipe" starter: [clipboard] is a link on the clipboard, if any. */
@@ -124,4 +132,6 @@ sealed interface AdaEffect {
     data object RequestMicrophone : AdaEffect
     /** Put the cursor in the composer. */
     data object FocusComposer : AdaEffect
+    /** Open the recipe editor on the draft just handed to [RecipeDraftHandoff]. */
+    data object OpenDraftEditor : AdaEffect
 }

@@ -35,6 +35,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.capstone.nik.mixology.R
+import com.capstone.nik.mixology.ui.components.BetaBadge
+import com.capstone.nik.mixology.ui.components.BetaNote
 import com.capstone.nik.mixology.ui.components.DrinkImage
 import com.capstone.nik.mixology.ui.components.sourceLabel
 
@@ -53,6 +55,8 @@ fun AdaRecipeCard(
     onSave: () -> Unit,
     onDrop: () -> Unit,
     onOpen: () -> Unit,
+    /** "Edit draft": the editor, filled in, before anything is saved. */
+    onEdit: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val dropped = recipe.state == AdaRecipe.State.Dropped
@@ -123,30 +127,42 @@ fun AdaRecipeCard(
                     modifier = Modifier.padding(top = 4.dp),
                 )
             }
+            if (recipe.state == AdaRecipe.State.Draft) {
+                BetaNote(
+                    text = stringResource(R.string.ada_recipe_beta_note),
+                    modifier = Modifier
+                        .padding(top = 6.dp)
+                        .testTag("ada_recipe_beta"),
+                )
+            }
             when (recipe.state) {
                 AdaRecipe.State.Draft -> Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Button(
                         onClick = onSave,
                         enabled = canAnswer,
-                        modifier = Modifier
-                            .weight(1f)
-                            .testTag("ada_recipe_save"),
+                        modifier = Modifier.testTag("ada_recipe_save"),
                     ) {
                         Text(stringResource(R.string.ada_recipe_save))
                     }
                     OutlinedButton(
+                        onClick = onEdit,
+                        enabled = canAnswer,
+                        modifier = Modifier.testTag("ada_recipe_edit"),
+                    ) {
+                        Text(stringResource(R.string.ada_recipe_edit), maxLines = 1)
+                    }
+                    TextButton(
                         onClick = onDrop,
                         enabled = canAnswer,
-                        modifier = Modifier
-                            .weight(1f)
-                            .testTag("ada_recipe_drop"),
+                        modifier = Modifier.testTag("ada_recipe_drop"),
                     ) {
-                        Text(stringResource(R.string.ada_recipe_not_now))
+                        Text(stringResource(R.string.ada_recipe_not_now), maxLines = 1)
                     }
                 }
                 AdaRecipe.State.Saved -> Row(
@@ -193,8 +209,11 @@ private fun SourceLine(recipe: AdaRecipe) {
                 ?: stringResource(R.string.ada_recipe_from_photo),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(start = 6.dp),
+            modifier = Modifier
+                .padding(start = 6.dp)
+                .weight(1f, fill = false),
         )
+        BetaBadge(modifier = Modifier.padding(start = 8.dp))
     }
 }
 

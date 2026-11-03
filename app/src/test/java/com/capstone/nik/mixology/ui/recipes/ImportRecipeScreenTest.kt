@@ -60,6 +60,19 @@ class ImportRecipeScreenTest {
     }
 
     @Test
+    fun importIsMarkedBeta() {
+        show(ImportRecipeUiState())
+        composeRule.onNodeWithTag("beta_badge").assertIsDisplayed()
+        composeRule.onNodeWithTag("recipe_import_beta").assertIsDisplayed()
+    }
+
+    @Test
+    fun importingSaysItsBeta() {
+        show(ImportRecipeUiState(text = "https://www.tiktok.com/@bar/video/1", importing = true))
+        composeRule.onNodeWithTag("recipe_import_progress_beta").assertIsDisplayed()
+    }
+
+    @Test
     fun importingShowsProgressWithCancel() {
         show(ImportRecipeUiState(text = "https://www.tiktok.com/@bar/video/1", importing = true))
         composeRule.onNodeWithTag("recipe_import_progress").assertIsDisplayed()

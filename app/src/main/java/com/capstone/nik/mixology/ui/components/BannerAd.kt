@@ -12,9 +12,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
 import com.capstone.nik.mixology.BuildConfig
 import com.capstone.nik.mixology.R
+import com.capstone.nik.mixology.billing.Access
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
+
+/**
+ * Only accounts with no trial and no subscription see banner ads. Trial and
+ * subscribed users don't, and neither does anyone until access is known.
+ */
+fun showsBannerAds(access: Access): Boolean = access is Access.Free
 
 internal fun bannerAdUnitRes(debug: Boolean = BuildConfig.DEBUG, details: Boolean): Int = when {
     debug -> R.string.banner_test

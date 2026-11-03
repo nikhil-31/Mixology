@@ -17,6 +17,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.ui.auth.AuthRoute
 import com.capstone.nik.mixology.ui.auth.SessionViewModel
+import com.capstone.nik.mixology.ui.components.showsBannerAds
 import com.capstone.nik.mixology.ui.drinkExtra
 import com.capstone.nik.mixology.ui.sharedImportText
 import com.capstone.nik.mixology.ui.main.MixologyApp
@@ -44,6 +45,7 @@ class ActivityMain : AppCompatActivity() {
             MixologyTheme {
                 val session by sessionViewModel.session.collectAsStateWithLifecycle()
                 val showPaywall by subscriptionGate.showPaywall.collectAsStateWithLifecycle()
+                val access by subscriptionGate.access.collectAsStateWithLifecycle()
                 val signedIn = session != null
                 LaunchedEffect(signedIn) {
                     if (signedIn) subscriptionGate.refresh()
@@ -61,6 +63,7 @@ class ActivityMain : AppCompatActivity() {
                         onPendingDrinkConsumed = { pendingDrink = null },
                         pendingImport = pendingImport,
                         onPendingImportConsumed = { pendingImport = null },
+                        adsEligible = showsBannerAds(access),
                     )
                 }
             }

@@ -20,8 +20,9 @@ import java.util.concurrent.Executors
         RecentlyViewedEntity::class,
         BarIngredientEntity::class,
         ShoppingTripEntity::class,
+        DrinkNoteEntity::class,
     ],
-    version = 9,
+    version = 10,
     exportSchema = true,
 )
 @TypeConverters(IngredientListConverter::class)
@@ -34,6 +35,8 @@ abstract class MixologyDatabase : RoomDatabase() {
     abstract fun barDao(): BarDao
 
     abstract fun shoppingTripDao(): ShoppingTripDao
+
+    abstract fun drinkNoteDao(): DrinkNoteDao
 
     companion object {
         private const val TAG = "MixologyDatabase"
@@ -142,6 +145,18 @@ abstract class MixologyDatabase : RoomDatabase() {
             )
         }
 
+        internal val MIGRATION_9_10 = Migration(9, 10) { db ->
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `drink_notes` (
+                    `drinkId` TEXT NOT NULL,
+                    `notes` TEXT NOT NULL,
+                    PRIMARY KEY(`drinkId`)
+                )
+                """.trimIndent(),
+            )
+        }
+
         internal val ALL_MIGRATIONS = arrayOf(
             MIGRATION_1_2,
             MIGRATION_2_3,
@@ -151,6 +166,7 @@ abstract class MixologyDatabase : RoomDatabase() {
             MIGRATION_6_7,
             MIGRATION_7_8,
             MIGRATION_8_9,
+            MIGRATION_9_10,
         )
 
         @Volatile

@@ -1,6 +1,7 @@
 package com.capstone.nik.mixology.repository
 
 import android.app.Application
+import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.capstone.nik.mixology.FakeCocktailService
@@ -11,6 +12,7 @@ import com.capstone.nik.mixology.Network.remoteModel.CocktailDbResponse
 import com.capstone.nik.mixology.cocktailDrink
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkEntity
+import com.capstone.nik.mixology.data.DrinkNoteEntity
 import com.capstone.nik.mixology.data.MixologyDatabase
 import com.capstone.nik.mixology.data.SessionStore
 import kotlinx.coroutines.CompletableDeferred
@@ -70,6 +72,7 @@ class SavedSyncTest {
     private val context = ApplicationProvider.getApplicationContext<Application>()
     private val service = FakeSavedService()
     private val cocktails = FakeCocktailService()
+    private val prefs = context.getSharedPreferences("saved_sync_test", Context.MODE_PRIVATE)
     private lateinit var database: MixologyDatabase
     private lateinit var sessions: SessionStore
 
@@ -80,6 +83,7 @@ class SavedSyncTest {
             .setQueryExecutor { it.run() }
             .setTransactionExecutor { it.run() }
             .build()
+        prefs.edit().clear().commit()
         sessions = SessionStore(context)
         sessions.clear()
         sessions.save("token", 3600, "ada@example.com", "Ada", uid = "uid-1", access = "trial")
@@ -91,7 +95,7 @@ class SavedSyncTest {
     }
 
     private fun TestScope.newSync() =
-        NetworkSavedSync(service, cocktails, database.drinkDao(), sessions, backgroundScope)
+        NetworkSavedSync(service, cocktails, database.drinkDao(), database.drinkNoteDao(), sessions, prefs, backgroundScope)
 
     private suspend fun cache(id: String, saved: Boolean = false, notes: String = "") {
         database.drinkDao().insertDrinks(
@@ -118,7 +122,7 @@ class SavedSyncTest {
     }
 
     @Test
-    fun missingDrinkDetailsAreFetchedAndCachedWithoutASavedFlag() = runTest {
+    fun missingDrinkDetailsAreFetchedAndCachedAsSaved() = runTest {
         service.saved += "remote"
         cocktails.lookupsById = mapOf("remote" to CocktailDbResponse(listOf(cocktailDrink("remote", "Remote"))))
 
@@ -127,20 +131,50 @@ class SavedSyncTest {
 
         val cached = database.drinkDao().getById("remote")
         assertEquals("Remote", cached?.name)
-        assertFalse(cached!!.saved)
+        assertTrue(cached!!.saved)
     }
 
     @Test
-    fun legacyLocalSavesAreClearedAndNeverUploaded() = runTest {
+    fun theDevicesCopyShowsUntilThePullReplacesIt_andIsNeverUploaded() = runTest {
         cache("old", saved = true)
+        val gate = CompletableDeferred<Unit>()
+        service.gate = gate
 
         val sync = newSync()
+        runCurrent() // Loaded from Room; the startup pull waits in GET sync.
+        assertEquals(setOf("old"), sync.savedIds.value)
+
+        gate.complete(Unit)
         runCurrent()
 
         assertFalse(database.drinkDao().getById("old")!!.saved)
         assertTrue(sync.savedIds.value.isEmpty())
         assertTrue(service.saved.isEmpty())
         assertEquals(listOf("GET"), service.calls)
+    }
+
+    @Test
+    fun pendingChangesSurviveARestart() = runTest {
+        newSync()
+        runCurrent()
+        service.failWrites = true
+        val first = newSync()
+        runCurrent()
+        first.push("negroni", saved = true)
+        first.pushNotes("11007", "Salt the rim")
+        runCurrent()
+        assertTrue(service.saved.isEmpty())
+
+        // The process dies and comes back, and the server answers again.
+        service.failWrites = false
+        val second = newSync()
+        runCurrent()
+
+        assertEquals(setOf("negroni"), service.saved)
+        assertEquals(mapOf("11007" to "Salt the rim"), service.notes)
+        assertEquals(setOf("negroni"), second.savedIds.value)
+        assertEquals(mapOf("11007" to "Salt the rim"), second.notes.value)
+        assertEquals(emptySet<String>(), prefs.getStringSet("pending_saves", null))
     }
 
     @Test
@@ -163,7 +197,7 @@ class SavedSyncTest {
     }
 
     @Test
-    fun aFailedSaveIsUndone() = runTest {
+    fun aFailedSaveStaysPendingAndIsSentByTheNextPull() = runTest {
         val sync = newSync()
         runCurrent()
         service.failWrites = true
@@ -171,12 +205,18 @@ class SavedSyncTest {
         sync.push("negroni", saved = true)
         assertEquals(setOf("negroni"), sync.savedIds.value)
         runCurrent()
+        assertEquals(setOf("negroni"), sync.savedIds.value)
+        assertTrue(service.saved.isEmpty())
+        assertEquals(setOf("+negroni"), prefs.getStringSet("pending_saves", null))
 
-        assertTrue(sync.savedIds.value.isEmpty())
+        service.failWrites = false
+        sync.sync()
+        assertEquals(setOf("negroni"), service.saved)
+        assertEquals(emptySet<String>(), prefs.getStringSet("pending_saves", null))
     }
 
     @Test
-    fun aFailedUnsaveIsUndone() = runTest {
+    fun aFailedUnsaveStaysPendingAndIsSentByTheNextPull() = runTest {
         service.saved += "negroni"
         val sync = newSync()
         runCurrent()
@@ -185,8 +225,13 @@ class SavedSyncTest {
         sync.push("negroni", saved = false)
         assertTrue(sync.savedIds.value.isEmpty())
         runCurrent()
+        assertTrue(sync.savedIds.value.isEmpty())
+        assertEquals(setOf("negroni"), service.saved)
 
-        assertEquals(setOf("negroni"), sync.savedIds.value)
+        service.failWrites = false
+        sync.sync()
+        assertTrue(service.saved.isEmpty())
+        assertTrue(sync.savedIds.value.isEmpty())
     }
 
     @Test
@@ -216,6 +261,7 @@ class SavedSyncTest {
         runCurrent()
 
         assertTrue(sync.savedIds.value.isEmpty())
+        assertTrue(database.drinkDao().getSavedIds().isEmpty())
     }
 
     @Test
@@ -233,7 +279,8 @@ class SavedSyncTest {
     }
 
     @Test
-    fun signedOutChangesStayInMemory() = runTest {
+    fun signedOutChangesStayOnTheDevice() = runTest {
+        cache("negroni")
         sessions.clear()
         val sync = newSync()
         runCurrent()
@@ -242,6 +289,7 @@ class SavedSyncTest {
         runCurrent()
 
         assertEquals(setOf("negroni"), sync.savedIds.value)
+        assertTrue(database.drinkDao().getById("negroni")!!.saved)
         assertTrue(service.calls.isEmpty())
     }
 
@@ -260,13 +308,19 @@ class SavedSyncTest {
     }
 
     @Test
-    fun legacyLocalNotesAreClearedAndNeverUploaded() = runTest {
-        cache("old", notes = "Kept on the device")
+    fun theDevicesNotesShowUntilThePullReplacesThem_andAreNeverUploaded() = runTest {
+        database.drinkNoteDao().upsert(DrinkNoteEntity("old", "Kept on the device"))
+        val gate = CompletableDeferred<Unit>()
+        service.gate = gate
 
         val sync = newSync()
+        runCurrent() // Loaded from Room; the startup pull waits in GET sync.
+        assertEquals(mapOf("old" to "Kept on the device"), sync.notes.value)
+
+        gate.complete(Unit)
         runCurrent()
 
-        assertEquals("", database.drinkDao().getById("old")!!.notes)
+        assertTrue(database.drinkNoteDao().getAll().isEmpty())
         assertTrue(sync.notes.value.isEmpty())
         assertTrue(service.notes.isEmpty())
         assertEquals(listOf("GET"), service.calls)
@@ -284,7 +338,7 @@ class SavedSyncTest {
 
         assertEquals(listOf("PUT notes 11007 Salt the rim"), service.calls)
         assertEquals(mapOf("11007" to "Salt the rim"), service.notes)
-        assertEquals("", database.drinkDao().getById("11007")?.notes.orEmpty())
+        assertEquals(listOf(DrinkNoteEntity("11007", "Salt the rim")), database.drinkNoteDao().getAll())
     }
 
     @Test

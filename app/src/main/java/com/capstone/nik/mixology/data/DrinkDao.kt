@@ -27,9 +27,22 @@ interface DrinkDao {
     @Query("SELECT * FROM drinks WHERE id IN (:ids) ORDER BY name")
     suspend fun getByIds(ids: List<String>): List<DrinkEntity>
 
-    /** Saved drinks live on the server now; drops what older versions kept here. */
+    /** The device's copy of the account's saved list; SavedSync keeps it in step with the server. */
+    @Query("SELECT id FROM drinks WHERE saved = 1")
+    suspend fun getSavedIds(): List<String>
+
+    @Query("UPDATE drinks SET saved = :saved WHERE id = :id")
+    suspend fun setSaved(id: String, saved: Boolean)
+
     @Query("UPDATE drinks SET saved = 0 WHERE saved = 1")
     suspend fun clearSavedFlags()
+
+    /** Flags exactly [ids] as saved. Ids with no cached drink are skipped. */
+    @Transaction
+    suspend fun replaceSaved(ids: List<String>) {
+        clearSavedFlags()
+        ids.forEach { setSaved(it, true) }
+    }
 
     @Query("SELECT * FROM drinks WHERE id = :id")
     suspend fun getById(id: String): DrinkEntity?
@@ -114,7 +127,7 @@ interface DrinkDao {
         }
     }
 
-    /** Caches a saved drink's details; which drinks are saved, and their notes, are kept by SavedSync. */
+    /** Caches a drink's details before it is flagged saved; the flag itself is set by SavedSync. */
     @Transaction
     suspend fun saveDrink(drink: DrinkEntity) {
         val existing = getById(drink.id)
@@ -144,10 +157,6 @@ interface DrinkDao {
             }
         }
     }
-
-    /** Drink notes live on the server now; drops what older versions kept here. */
-    @Query("UPDATE drinks SET notes = '' WHERE notes != ''")
-    suspend fun clearNotes()
 
     @Query(
         """

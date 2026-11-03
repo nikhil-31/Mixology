@@ -4,15 +4,88 @@ import android.app.Application
 import android.database.sqlite.SQLiteDatabase
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
+import org.json.JSONObject
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import java.io.File
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = Application::class, sdk = [34])
 class MixologyDatabaseMigrationTest {
+
+    private val context = ApplicationProvider.getApplicationContext<Application>()
+
+    /**
+     * Creates the database as version [version] from the schema Room exported to
+     * app/schemas, so the starting point is exactly what shipped.
+     */
+    private fun createFromExportedSchema(dbName: String, version: Int): SQLiteDatabase {
+        val schemaDir = listOf(File("schemas"), File("app/schemas"))
+            .map { File(it, "com.capstone.nik.mixology.data.MixologyDatabase") }
+            .first { it.isDirectory }
+        val schema = JSONObject(File(schemaDir, "$version.json").readText()).getJSONObject("database")
+        context.deleteDatabase(dbName)
+        val path = context.getDatabasePath(dbName)
+        path.parentFile?.mkdirs()
+        val db = SQLiteDatabase.openOrCreateDatabase(path, null)
+        val entities = schema.getJSONArray("entities")
+        for (i in 0 until entities.length()) {
+            val entity = entities.getJSONObject(i)
+            val table = entity.getString("tableName")
+            db.execSQL(entity.getString("createSql").replace("\${TABLE_NAME}", table))
+            val indices = entity.optJSONArray("indices") ?: continue
+            for (j in 0 until indices.length()) {
+                db.execSQL(indices.getJSONObject(j).getString("createSql").replace("\${TABLE_NAME}", table))
+            }
+        }
+        db.execSQL("PRAGMA user_version = $version")
+        return db
+    }
+
+    /** Opens the database with every migration; Room checks the result against the entities and throws if it's off. */
+    private fun openMigrated(dbName: String): MixologyDatabase {
+        val database = Room.databaseBuilder(context, MixologyDatabase::class.java, dbName)
+            .addMigrations(*MixologyDatabase.ALL_MIGRATIONS)
+            .build()
+        database.openHelper.writableDatabase
+        return database
+    }
+
+    @Test
+    fun migrate9To10_addsDrinkNotes_andKeepsEverythingElse() {
+        val dbName = "migration-9-10.db"
+        createFromExportedSchema(dbName, 9).use { db ->
+            db.execSQL("INSERT INTO drinks (id, name, thumb, saved, notes, recipeUpdatedAt) VALUES ('11007', 'Margarita', '', 1, '', 0)")
+            db.execSQL("INSERT INTO shopping_trips (remoteId, at, items) VALUES (7, 1000, '[]')")
+        }
+
+        val database = openMigrated(dbName)
+        val db = database.openHelper.writableDatabase
+        db.query("SELECT COUNT(*) FROM drink_notes").use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            assertEquals(0, cursor.getInt(0))
+        }
+        db.query("SELECT saved FROM drinks WHERE id = '11007'").use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            assertEquals(1, cursor.getInt(0))
+        }
+        db.query("SELECT remoteId FROM shopping_trips").use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            assertEquals(7L, cursor.getLong(0))
+        }
+        database.close()
+    }
+
+    @Test
+    fun everyMigrationFrom4_producesTheCurrentSchema() {
+        val dbName = "migration-4-10.db"
+        createFromExportedSchema(dbName, 4).close()
+        openMigrated(dbName).close()
+    }
 
     @Test
     fun migrate3To4_addsNotesAndShoppingTable() {

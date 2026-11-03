@@ -26,6 +26,8 @@ class FakeChatRepository : ChatRepository {
     )
     var sendFlow: Flow<ChatStreamEvent> = flowOf()
     val sent = mutableListOf<String>()
+    /** The recipe action and id sent with each message, null when none. */
+    val sentActions = mutableListOf<Pair<String?, String?>>()
     val signUps = mutableListOf<Triple<String, String, String>>()
     val googleTokens = mutableListOf<String>()
     val appleSignIns = mutableListOf<Pair<String, String?>>()
@@ -87,8 +89,9 @@ class FakeChatRepository : ChatRepository {
         )
     }
 
-    override fun send(message: String): Flow<ChatStreamEvent> {
+    override fun send(message: String, recipeAction: String?, recipeId: String?): Flow<ChatStreamEvent> {
         sent += message
+        sentActions += recipeAction to recipeId
         if (failWithIo) return flow { throw ioError() }
         return sendFlow
     }

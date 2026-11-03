@@ -56,7 +56,11 @@ interface ChatRepository {
     /** Drinks that fit [query], leaving out [exclude], starting at [offset]. */
     suspend fun matches(query: String, exclude: List<String>, offset: Int): DrinkMatchPage
 
-    fun send(message: String): Flow<ChatStreamEvent>
+    /**
+     * Sends [message]. With [recipeAction] (`save`, `drop`, `saved`) the server acts on the
+     * recipe it last read instead of reading the words; [recipeId] names what the editor saved it as.
+     */
+    fun send(message: String, recipeAction: String? = null, recipeId: String? = null): Flow<ChatStreamEvent>
 
     /** A photo of recipe notes for Ada to read; [message] is what was typed with it. */
     fun sendPhoto(jpeg: ByteArray, message: String): Flow<ChatStreamEvent>

@@ -106,7 +106,8 @@ class NetworkChatRepository @Inject constructor(
         }
     }
 
-    override fun send(message: String): Flow<ChatStreamEvent> = guarded { streamer.stream(message) }
+    override fun send(message: String, recipeAction: String?, recipeId: String?): Flow<ChatStreamEvent> =
+        guarded { streamer.stream(message, recipeAction, recipeId) }
 
     override fun sendPhoto(jpeg: ByteArray, message: String): Flow<ChatStreamEvent> =
         guarded { streamer.streamPhoto(jpeg, message) }

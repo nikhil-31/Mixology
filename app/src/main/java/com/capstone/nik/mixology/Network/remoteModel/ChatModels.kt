@@ -4,6 +4,12 @@ import com.google.gson.annotations.SerializedName
 
 data class ChatRequest(
     val message: String,
+    /**
+     * What to do with the recipe Ada last read, instead of reading [message] as a yes or no:
+     * `save`, `drop`, or `saved` (the editor saved it; [recipeId] says as what).
+     */
+    @SerializedName("recipe_action") val recipeAction: String? = null,
+    @SerializedName("recipe_id") val recipeId: String? = null,
 )
 
 data class ChatHistoryResponse(

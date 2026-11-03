@@ -506,6 +506,7 @@ class AdaViewModelTest {
         viewModel.onIntent(AdaIntent.SaveRecipe(draftId))
 
         assertEquals("Save it", chat.sent.last())
+        assertEquals("save" to null, chat.sentActions.last())
         val messages = viewModel.state.value.messages
         val card = messages.first { it.id == draftId }.recipe
         assertEquals(AdaRecipe.State.Saved, card?.state)
@@ -527,6 +528,7 @@ class AdaViewModelTest {
         viewModel.onIntent(AdaIntent.DropRecipe(draftId))
 
         assertEquals("Not now", chat.sent.last())
+        assertEquals("drop" to null, chat.sentActions.last())
         assertEquals(AdaRecipe.State.Dropped, viewModel.state.value.messages.first { it.id == draftId }.recipe?.state)
     }
 
@@ -624,18 +626,25 @@ class AdaViewModelTest {
     }
 
     @Test
-    fun draftSavedFromTheEditor_marksTheCardSaved() = runTest {
+    fun draftSavedFromTheEditor_marksTheCardSaved_andTellsTheServer() = runTest {
         signIn()
         chat.sendFlow = flowOf(ChatStreamEvent.Recipe(draft()), ChatStreamEvent.Done("Save it?"))
         viewModel.onIntent(AdaIntent.DraftChanged("https://www.instagram.com/p/abc/"))
         viewModel.onIntent(AdaIntent.Send)
         val reply = viewModel.state.value.messages.last()
 
+        chat.sendFlow = flowOf(
+            ChatStreamEvent.Recipe(draft(ChatRecipeDto.STATE_SAVED, recipeId = "u-9")),
+            ChatStreamEvent.Done("Saved Paloma to your recipes."),
+        )
         handoff.saved(reply.id, "u-9")
 
-        val recipe = viewModel.state.value.messages.last().recipe
+        val recipe = viewModel.state.value.messages.first { it.id == reply.id }.recipe
         assertEquals(AdaRecipe.State.Saved, recipe?.state)
         assertEquals("u-9", recipe?.recipeId)
+        // The server learns the draft was saved, so a reload doesn't offer it again.
+        assertEquals("Save it", chat.sent.last())
+        assertEquals("saved" to "u-9", chat.sentActions.last())
     }
 
     @Test

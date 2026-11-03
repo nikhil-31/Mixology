@@ -25,11 +25,11 @@ class ChatStreamer @Inject constructor(
     private val jsonType = "application/json; charset=utf-8".toMediaType()
     private val jpegType = "image/jpeg".toMediaType()
 
-    fun stream(message: String): Flow<ChatStreamEvent> {
+    fun stream(message: String, recipeAction: String? = null, recipeId: String? = null): Flow<ChatStreamEvent> {
         val request = Request.Builder()
             .url(CocktailURLs.BASE_URL + "chat")
             .header("Accept", "text/event-stream")
-            .post(gson.toJson(ChatRequest(message)).toRequestBody(jsonType))
+            .post(gson.toJson(ChatRequest(message, recipeAction, recipeId)).toRequestBody(jsonType))
             .build()
         return events(request)
     }

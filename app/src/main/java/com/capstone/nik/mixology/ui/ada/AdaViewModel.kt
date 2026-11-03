@@ -106,8 +106,8 @@ class AdaViewModel @Inject constructor(
             is AdaIntent.VoiceTranscript -> onVoiceTranscript(intent.text, intent.final)
             is AdaIntent.VoiceEnded -> onVoiceEnded(intent.failed)
             AdaIntent.StopVoice -> stopVoice()
-            is AdaIntent.SaveRecipe -> answerDraft(intent.messageId, R.string.ada_recipe_save_answer)
-            is AdaIntent.DropRecipe -> answerDraft(intent.messageId, R.string.ada_recipe_drop_answer)
+            is AdaIntent.SaveRecipe -> answerDraft(intent.messageId, save = true)
+            is AdaIntent.DropRecipe -> answerDraft(intent.messageId, save = false)
             is AdaIntent.OpenRecipe -> transcript.firstOrNull { it.id == intent.messageId }
                 ?.recipe?.toDrink()?.let { sendEffect(AdaEffect.OpenDrink(it)) }
             is AdaIntent.EditRecipe -> editDraft(intent.messageId)
@@ -248,10 +248,15 @@ class AdaViewModel @Inject constructor(
     }
 
     /** The yes or no to the recipe drafted in [messageId], as a message Ada understands. */
-    private fun answerDraft(messageId: Long, answer: Int) {
+    /**
+     * Answers the recipe drafted in [messageId]. The words are the button's, in the user's
+     * language; the action is what the server acts on.
+     */
+    private fun answerDraft(messageId: Long, save: Boolean) {
         val message = transcript.firstOrNull { it.id == messageId } ?: return
-        if (message.recipe?.state != AdaRecipe.State.Draft) return
-        send(context.getString(answer))
+        if (message.recipe?.state != AdaRecipe.State.Draft || !canSend()) return
+        val text = context.getString(if (save) R.string.ada_recipe_save_answer else R.string.ada_recipe_drop_answer)
+        startReply(text, photo = null) { chatRepository.send(text, recipeAction = if (save) "save" else "drop") }
     }
 
     /** Adds the user's message and Ada's empty reply, then fills the reply from [stream]. */
@@ -343,7 +348,14 @@ class AdaViewModel @Inject constructor(
         sendEffect(AdaEffect.OpenDraftEditor)
     }
 
+    /**
+     * The editor saved the draft in [messageId] as [recipeId]: the card shows it saved, and the
+     * server is told when that draft was the one waiting, so a reload doesn't offer it again or
+     * save it twice.
+     */
     private fun markDraftSaved(messageId: Long, recipeId: String) {
+        val wasPending = transcript.lastOrNull { it.recipe != null }
+            ?.let { it.id == messageId && it.recipe?.state == AdaRecipe.State.Draft } == true
         transcript = transcript.map { message ->
             val recipe = message.recipe
             if (message.id == messageId && recipe != null) {
@@ -353,6 +365,9 @@ class AdaViewModel @Inject constructor(
             }
         }
         publishMessages()
+        if (!wasPending || !canSend()) return
+        val text = context.getString(R.string.ada_recipe_save_answer)
+        startReply(text, photo = null) { chatRepository.send(text, recipeAction = "saved", recipeId = recipeId) }
     }
 
     /** Sends a message another screen left for Ada, once nothing else is going on. */

@@ -2,7 +2,6 @@ package com.capstone.nik.mixology.repository
 
 import android.app.Application
 import androidx.test.core.app.ApplicationProvider
-import com.capstone.nik.mixology.FakeGoogleAuth
 import com.capstone.nik.mixology.FakeRecipeService
 import com.capstone.nik.mixology.Network.AuthService
 import com.capstone.nik.mixology.Network.ChatService
@@ -68,7 +67,6 @@ class NetworkChatRepositoryAuthTest {
             chatService = UnusedChatService,
             streamer = ChatStreamer(OkHttpClient()),
             sessionStore = sessions,
-            googleAuth = FakeGoogleAuth(),
             subscriptions = SubscriptionRepository(FakeBillingService(), FakeStoreBilling(), sessions),
             networkMonitor = NetworkMonitor.forTests(online = online),
             context = context,

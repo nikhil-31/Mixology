@@ -14,7 +14,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.outlined.MenuBook
+import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material.icons.outlined.EditNote
+import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Link
@@ -22,7 +24,9 @@ import androidx.compose.material.icons.outlined.Policy
 import androidx.compose.material.icons.outlined.PrivacyTip
 import androidx.compose.material.icons.outlined.StarRate
 import androidx.compose.material.icons.outlined.SystemUpdate
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
@@ -33,7 +37,11 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -87,12 +95,20 @@ fun SettingsRoute(
     val uriHandler = LocalUriHandler.current
     val themeMode = rememberThemeMode()
     val session by sessionViewModel.session.collectAsStateWithLifecycle()
+    val account by sessionViewModel.account.collectAsStateWithLifecycle()
     val access by subscriptionGate.access.collectAsStateWithLifecycle()
     val chatCredits by subscriptionGate.chatCredits.collectAsStateWithLifecycle()
+    LaunchedEffect(sessionViewModel) {
+        sessionViewModel.exports.collect { json -> shareAccountExport(context, json) }
+    }
     SettingsScreen(
         themeMode = themeMode,
         accountEmail = session?.email.orEmpty(),
         onSignOut = sessionViewModel::signOut,
+        onExportData = sessionViewModel::exportData,
+        onDeleteAccount = sessionViewModel::deleteAccount,
+        accountBusy = account.busy,
+        accountError = account.errorRes?.let { stringResource(it) },
         access = access,
         chatCredits = chatCredits,
         onSubscriptionAction = {
@@ -124,6 +140,12 @@ fun SettingsScreen(
     onThemeModeSelected: (ThemeMode) -> Unit,
     accountEmail: String = "",
     onSignOut: () -> Unit = {},
+    onExportData: () -> Unit = {},
+    onDeleteAccount: () -> Unit = {},
+    /** An export or deletion is in progress. */
+    accountBusy: Boolean = false,
+    /** Why the last export or deletion failed, or null. */
+    accountError: String? = null,
     access: Access = Access.Unknown,
     chatCredits: ChatCredits? = null,
     onSubscriptionAction: () -> Unit = {},
@@ -139,6 +161,35 @@ fun SettingsScreen(
     onPrivacyOptions: () -> Unit = {},
 ) {
     val colors = MaterialTheme.colorScheme
+    var confirmSignOut by rememberSaveable { mutableStateOf(false) }
+    var confirmDelete by rememberSaveable { mutableStateOf(false) }
+    if (confirmSignOut) {
+        ConfirmDialog(
+            title = stringResource(R.string.settings_sign_out_title),
+            body = stringResource(R.string.settings_sign_out_body),
+            confirmLabel = stringResource(R.string.settings_sign_out),
+            tag = "settings_sign_out_confirm",
+            onConfirm = {
+                confirmSignOut = false
+                onSignOut()
+            },
+            onDismiss = { confirmSignOut = false },
+        )
+    }
+    if (confirmDelete) {
+        ConfirmDialog(
+            title = stringResource(R.string.settings_delete_account_title),
+            body = stringResource(R.string.settings_delete_account_body),
+            confirmLabel = stringResource(R.string.settings_delete_account_confirm),
+            tag = "settings_delete_account_confirm",
+            destructive = true,
+            onConfirm = {
+                confirmDelete = false
+                onDeleteAccount()
+            },
+            onDismiss = { confirmDelete = false },
+        )
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -171,7 +222,7 @@ fun SettingsScreen(
             },
             trailingContent = {
                 TextButton(
-                    onClick = onSignOut,
+                    onClick = { confirmSignOut = true },
                     modifier = Modifier.testTag("settings_sign_out"),
                 ) {
                     Text(stringResource(R.string.settings_sign_out))
@@ -232,6 +283,42 @@ fun SettingsScreen(
                 },
                 modifier = Modifier.testTag("settings_chat_credits"),
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+            )
+        }
+
+        SettingsRow(
+            icon = Icons.Outlined.FileDownload,
+            title = stringResource(R.string.settings_export_data),
+            onClick = onExportData,
+            tag = "settings_export_data",
+            chevron = false,
+            enabled = !accountBusy,
+        )
+        SettingsRow(
+            icon = Icons.Outlined.DeleteForever,
+            title = stringResource(R.string.settings_delete_account),
+            onClick = { confirmDelete = true },
+            tag = "settings_delete_account",
+            chevron = false,
+            enabled = !accountBusy,
+            tint = colors.error,
+        )
+        if (accountBusy) {
+            LinearProgressIndicator(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .testTag("settings_account_progress"),
+            )
+        }
+        if (accountError != null) {
+            Text(
+                text = accountError,
+                color = colors.error,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 4.dp)
+                    .testTag("settings_account_error"),
             )
         }
 
@@ -346,20 +433,55 @@ private fun SettingsSectionTitle(text: String) {
 }
 
 @Composable
+private fun ConfirmDialog(
+    title: String,
+    body: String,
+    confirmLabel: String,
+    tag: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+    destructive: Boolean = false,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(title) },
+        text = { Text(body) },
+        confirmButton = {
+            TextButton(onClick = onConfirm, modifier = Modifier.testTag(tag)) {
+                Text(
+                    text = confirmLabel,
+                    color = if (destructive) MaterialTheme.colorScheme.error else Color.Unspecified,
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
+        },
+    )
+}
+
+@Composable
 private fun SettingsRow(
     icon: ImageVector,
     title: String,
     onClick: () -> Unit,
     tag: String,
     chevron: Boolean = true,
+    enabled: Boolean = true,
+    tint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
 ) {
     ListItem(
-        headlineContent = { Text(title) },
+        headlineContent = {
+            Text(
+                text = title,
+                color = if (tint == MaterialTheme.colorScheme.onSurfaceVariant) Color.Unspecified else tint,
+            )
+        },
         leadingContent = {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                tint = tint,
             )
         },
         trailingContent = if (chevron) {
@@ -375,7 +497,7 @@ private fun SettingsRow(
         },
         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
         modifier = Modifier
-            .clickable(onClick = onClick)
+            .clickable(enabled = enabled, onClick = onClick)
             .testTag(tag),
     )
 }

@@ -2,6 +2,7 @@ package com.capstone.nik.mixology.di
 
 import android.content.Context
 import com.capstone.nik.mixology.BuildConfig
+import com.capstone.nik.mixology.Network.AccountService
 import com.capstone.nik.mixology.Network.AuthService
 import com.capstone.nik.mixology.Network.BillingService
 import com.capstone.nik.mixology.Network.RatingService
@@ -129,6 +130,12 @@ object NetworkModule {
     @Singleton
     fun provideShoppingTripService(@AuthenticatedClient client: OkHttpClient): ShoppingTripService {
         return retrofit(client).create(ShoppingTripService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAccountService(@AuthenticatedClient client: OkHttpClient): AccountService {
+        return retrofit(client).create(AccountService::class.java)
     }
 
     @Provides

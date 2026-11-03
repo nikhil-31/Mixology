@@ -29,7 +29,6 @@ class FakeChatRepository : ChatRepository {
     val signUps = mutableListOf<Triple<String, String, String>>()
     val googleTokens = mutableListOf<String>()
     val appleSignIns = mutableListOf<Pair<String, String?>>()
-    var signedOut = false
     /** History, matches and sends fail as if the server can't be reached while set. */
     var failWithIo = false
 
@@ -54,11 +53,6 @@ class FakeChatRepository : ChatRepository {
     override suspend fun signInWithApple(firebaseIdToken: String, displayName: String?): AuthResult {
         appleSignIns += firebaseIdToken to displayName
         return signIn("", "")
-    }
-
-    override fun signOut() {
-        session = null
-        signedOut = true
     }
 
     /** Messages per page; unlimited unless a test pages on purpose. */

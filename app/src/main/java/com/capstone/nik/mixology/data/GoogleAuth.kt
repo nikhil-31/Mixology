@@ -2,9 +2,11 @@ package com.capstone.nik.mixology.data
 
 import android.app.Activity
 import android.content.Context
+import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.ClearCredentialException
 import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.NoCredentialException
@@ -31,8 +33,8 @@ interface GoogleAuth {
     /** Shows the Google account picker over [activity] and signs in to Firebase. */
     suspend fun signIn(activity: Activity): GoogleAuthResult
 
-    /** Signs out of Firebase so the next Google sign-in starts fresh. */
-    fun signOut()
+    /** Signs out of Firebase and forgets the chosen Google account, so the next sign-in starts fresh. */
+    suspend fun signOut()
 }
 
 @Singleton
@@ -74,8 +76,13 @@ class FirebaseGoogleAuth @Inject constructor(
         }
     }
 
-    override fun signOut() {
+    override suspend fun signOut() {
         FirebaseAuth.getInstance().signOut()
+        try {
+            CredentialManager.create(context).clearCredentialState(ClearCredentialStateRequest())
+        } catch (error: ClearCredentialException) {
+            // Nothing was saved, or no provider is installed; either way there is nothing to forget.
+        }
     }
 
     private fun failure() = GoogleAuthResult.Failure(context.getString(R.string.auth_google_failed))

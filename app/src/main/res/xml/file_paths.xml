@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths>
-    <!-- Photos taken for Ada to read; kept in the cache and replaced each time. -->
+    <!-- Photos taken for Ada to read; kept in the cache. -->
     <cache-path name="ada_photos" path="ada_photos/" />
+    <!-- The account's exported data, written just before the share sheet opens. -->
+    <cache-path name="exports" path="exports/" />
 </paths>

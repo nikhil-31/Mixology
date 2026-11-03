@@ -14,7 +14,6 @@ import com.capstone.nik.mixology.Network.remoteModel.ProviderLoginRequest
 import com.capstone.nik.mixology.Network.remoteModel.LoginRequest
 import com.capstone.nik.mixology.Network.remoteModel.SignupRequest
 import com.capstone.nik.mixology.billing.SubscriptionRepository
-import com.capstone.nik.mixology.data.GoogleAuth
 import com.capstone.nik.mixology.data.Session
 import com.capstone.nik.mixology.data.SessionStore
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -33,7 +32,6 @@ class NetworkChatRepository @Inject constructor(
     private val chatService: ChatService,
     private val streamer: ChatStreamer,
     private val sessionStore: SessionStore,
-    private val googleAuth: GoogleAuth,
     private val subscriptions: SubscriptionRepository,
     private val networkMonitor: NetworkMonitor,
     @ApplicationContext private val context: Context,
@@ -64,11 +62,6 @@ class NetworkChatRepository @Inject constructor(
         return authenticate("", displayName) {
             authService.apple(ProviderLoginRequest(firebaseIdToken, displayName))
         }
-    }
-
-    override fun signOut() {
-        sessionStore.clear()
-        googleAuth.signOut()
     }
 
     override suspend fun history(before: Long?): ChatPage {

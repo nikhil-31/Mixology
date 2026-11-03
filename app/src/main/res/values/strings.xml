@@ -213,6 +213,17 @@
     <string name="auth_switch_to_sign_in">Already have an account? Sign in</string>
     <string name="settings_account">Account</string>
     <string name="settings_sign_out">Sign out</string>
+    <string name="settings_sign_out_title">Sign out?</string>
+    <string name="settings_sign_out_body">Anything that hasn’t synced to your account yet will be lost.</string>
+    <string name="settings_export_data">Export my data</string>
+    <string name="settings_export_share_title">Your Mixology data</string>
+    <string name="settings_export_failed">Couldn’t export your data. Try again in a moment.</string>
+    <string name="settings_delete_account">Delete account</string>
+    <string name="settings_delete_account_title">Delete your account?</string>
+    <string name="settings_delete_account_body">This removes your account and everything in it: your bar, saved drinks, notes, recipes, shopping lists and Ada chats. It can’t be undone. A subscription has to be cancelled in Google Play separately.</string>
+    <string name="settings_delete_account_confirm">Delete</string>
+    <string name="settings_delete_account_failed">Couldn’t delete your account. Try again in a moment.</string>
+    <string name="action_cancel">Cancel</string>
     <string name="ada_prompt">Ask for a drink</string>
     <string name="ada_send">Send</string>
     <string name="ada_show_more">Show more</string>

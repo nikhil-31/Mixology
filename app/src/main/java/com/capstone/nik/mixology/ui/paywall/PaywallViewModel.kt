@@ -7,7 +7,7 @@ import com.capstone.nik.mixology.billing.PurchaseOutcome
 import com.capstone.nik.mixology.billing.StoreBilling
 import com.capstone.nik.mixology.billing.StoreUnavailableException
 import com.capstone.nik.mixology.billing.SubscriptionRepository
-import com.capstone.nik.mixology.repository.ChatRepository
+import com.capstone.nik.mixology.repository.AuthRepository
 import com.capstone.nik.mixology.ui.mvi.MviViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
@@ -18,7 +18,7 @@ import javax.inject.Inject
 class PaywallViewModel @Inject constructor(
     private val subscriptions: SubscriptionRepository,
     private val storeBilling: StoreBilling,
-    private val chatRepository: ChatRepository,
+    private val auth: AuthRepository,
 ) : MviViewModel<PaywallIntent, PaywallUiState, Nothing>(PaywallUiState()) {
 
     init {
@@ -36,7 +36,7 @@ class PaywallViewModel @Inject constructor(
             is PaywallIntent.Select -> setState { copy(selected = intent.productId) }
             is PaywallIntent.Subscribe -> subscribe(intent.activity)
             PaywallIntent.Restore -> restore()
-            PaywallIntent.SignOut -> chatRepository.signOut()
+            PaywallIntent.SignOut -> viewModelScope.launch { auth.signOut() }
             PaywallIntent.Close -> subscriptions.closePaywall()
         }
     }

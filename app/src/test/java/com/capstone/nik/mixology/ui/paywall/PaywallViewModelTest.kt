@@ -3,7 +3,7 @@ package com.capstone.nik.mixology.ui.paywall
 import android.app.Application
 import androidx.activity.ComponentActivity
 import androidx.test.core.app.ApplicationProvider
-import com.capstone.nik.mixology.FakeChatRepository
+import com.capstone.nik.mixology.FakeAuthRepository
 import com.capstone.nik.mixology.MainDispatcherRule
 import com.capstone.nik.mixology.billing.Access
 import com.capstone.nik.mixology.billing.FakeBillingService
@@ -33,7 +33,7 @@ class PaywallViewModelTest {
 
     private val store = FakeStoreBilling()
     private val backend = FakeBillingService()
-    private val chat = FakeChatRepository()
+    private val auth = FakeAuthRepository()
     private lateinit var subscriptions: SubscriptionRepository
     private val activity = Robolectric.buildActivity(ComponentActivity::class.java).setup().get()
 
@@ -45,7 +45,7 @@ class PaywallViewModelTest {
         subscriptions = SubscriptionRepository(backend, store, sessions)
     }
 
-    private fun viewModel() = PaywallViewModel(subscriptions, store, chat)
+    private fun viewModel() = PaywallViewModel(subscriptions, store, auth)
 
     @Test
     fun plansLoadWithYearlySelectedAndThePaywallCannotBeClosed() {
@@ -117,6 +117,6 @@ class PaywallViewModelTest {
     @Test
     fun signOutLeavesThePaywall() {
         viewModel().onIntent(PaywallIntent.SignOut)
-        assertTrue(chat.signedOut)
+        assertTrue(auth.signedOut)
     }
 }

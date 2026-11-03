@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
+import com.capstone.nik.mixology.FakeAuthRepository
 import com.capstone.nik.mixology.FakeChatRepository
 import com.capstone.nik.mixology.FakeCocktailService
 import com.capstone.nik.mixology.FakeRecipeService
@@ -62,6 +63,7 @@ class AdaViewModelTest {
 
     private lateinit var database: MixologyDatabase
     private val chat = FakeChatRepository()
+    private val auth = FakeAuthRepository()
     private val analytics = AnalyticsTracker.forTests()
     private val network = NetworkMonitor.forTests()
     private lateinit var viewModel: AdaViewModel
@@ -95,6 +97,7 @@ class AdaViewModelTest {
         )
         viewModel = AdaViewModel(
             chat,
+            auth,
             DrinkRepository(
                 database.drinkDao(),
                 database.shoppingDao(),
@@ -311,7 +314,7 @@ class AdaViewModelTest {
         val state = viewModel.state.value
         assertFalse(state.signedIn)
         assertTrue(state.messages.isEmpty())
-        assertTrue(chat.signedOut)
+        assertTrue(auth.signedOut)
     }
 
     @Test

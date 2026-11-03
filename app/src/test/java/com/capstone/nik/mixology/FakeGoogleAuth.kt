@@ -14,7 +14,7 @@ class FakeGoogleAuth : GoogleAuth {
         return result
     }
 
-    override fun signOut() {
+    override suspend fun signOut() {
         signedOut = true
     }
 }

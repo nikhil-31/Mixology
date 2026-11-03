@@ -50,8 +50,6 @@ interface ChatRepository {
     /** Trades a Firebase ID token from Sign in with Apple for a backend session. */
     suspend fun signInWithApple(firebaseIdToken: String, displayName: String?): AuthResult
 
-    fun signOut()
-
     /** The newest page of chat, or the page just before message id [before]. */
     suspend fun history(before: Long? = null): ChatPage
 

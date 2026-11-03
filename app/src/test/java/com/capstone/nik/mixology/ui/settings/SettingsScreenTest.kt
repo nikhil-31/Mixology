@@ -2,6 +2,7 @@ package com.capstone.nik.mixology.ui.settings
 
 import android.app.Application
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -15,6 +16,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -180,5 +183,80 @@ class SettingsScreenTest {
         composeRule.onNodeWithText("Import recipe").assertIsDisplayed()
         composeRule.onNodeWithTag("settings_import_recipe").performClick()
         assertEquals(1, imports)
+    }
+
+    @Test
+    fun signOut_asksFirstAndOnlySignsOutOnConfirm() {
+        var signedOut = false
+        composeRule.setContent {
+            MixologyTheme {
+                SettingsScreen(
+                    themeMode = ThemeMode.SYSTEM,
+                    onThemeModeSelected = {},
+                    accountEmail = "ada@example.com",
+                    onSignOut = { signedOut = true },
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("settings_sign_out").performClick()
+        composeRule.onNodeWithText("Sign out?").assertIsDisplayed()
+        composeRule.onNodeWithText("Cancel").performClick()
+        assertFalse(signedOut)
+        composeRule.onNodeWithText("Sign out?").assertDoesNotExist()
+
+        composeRule.onNodeWithTag("settings_sign_out").performClick()
+        composeRule.onNodeWithTag("settings_sign_out_confirm").performClick()
+        assertTrue(signedOut)
+    }
+
+    @Test
+    fun deleteAccount_warnsThenReportsConfirm() {
+        var deleted = false
+        composeRule.setContent {
+            MixologyTheme {
+                SettingsScreen(
+                    themeMode = ThemeMode.SYSTEM,
+                    onThemeModeSelected = {},
+                    accountEmail = "ada@example.com",
+                    onDeleteAccount = { deleted = true },
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("settings_delete_account").performScrollTo().performClick()
+        composeRule.onNodeWithText("Delete your account?").assertIsDisplayed()
+        assertFalse(deleted)
+        composeRule.onNodeWithTag("settings_delete_account_confirm").performClick()
+        assertTrue(deleted)
+        composeRule.onNodeWithText("Delete your account?").assertDoesNotExist()
+    }
+
+    @Test
+    fun exportData_reportsClick_andRowsLockWhileBusy() {
+        var exports = 0
+        var busy by mutableStateOf(false)
+        composeRule.setContent {
+            MixologyTheme {
+                SettingsScreen(
+                    themeMode = ThemeMode.SYSTEM,
+                    onThemeModeSelected = {},
+                    accountEmail = "ada@example.com",
+                    onExportData = { exports += 1 },
+                    accountBusy = busy,
+                    accountError = if (busy) null else "Couldn’t export your data. Try again in a moment.",
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("settings_export_data").performScrollTo().performClick()
+        assertEquals(1, exports)
+        composeRule.onNodeWithTag("settings_account_error").assertIsDisplayed()
+
+        busy = true
+        composeRule.onNodeWithTag("settings_account_progress").assertIsDisplayed()
+        composeRule.onNodeWithTag("settings_export_data").assertIsNotEnabled()
+        composeRule.onNodeWithTag("settings_delete_account").assertIsNotEnabled()
+        composeRule.onNodeWithTag("settings_account_error").assertDoesNotExist()
     }
 }

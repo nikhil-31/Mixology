@@ -16,6 +16,8 @@ import com.capstone.nik.mixology.Network.CocktailService
 import com.capstone.nik.mixology.Network.CocktailURLs
 import com.capstone.nik.mixology.Network.NetworkMonitor
 import com.capstone.nik.mixology.Network.ReachabilityInterceptor
+import com.capstone.nik.mixology.Network.SessionAuthInterceptor
+import com.capstone.nik.mixology.Network.TokenRefresher
 import com.capstone.nik.mixology.data.SessionStore
 import dagger.Module
 import dagger.Provides
@@ -23,7 +25,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.Cache
-import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -64,6 +65,7 @@ object NetworkModule {
     fun provideAuthenticatedClient(
         sessionStore: SessionStore,
         networkMonitor: NetworkMonitor,
+        refresher: TokenRefresher,
     ): OkHttpClient {
         // ChatStreamer uses this client too, so the chat stream reports reachability.
         val builder = OkHttpClient.Builder()
@@ -71,7 +73,7 @@ object NetworkModule {
             .readTimeout(CHAT_READ_TIMEOUT_MINUTES, TimeUnit.MINUTES)
             .writeTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .addInterceptor(ReachabilityInterceptor(networkMonitor))
-            .addInterceptor(bearerInterceptor(sessionStore))
+            .addInterceptor(SessionAuthInterceptor(sessionStore, refresher))
         if (BuildConfig.DEBUG) {
             builder.addInterceptor(loggingInterceptor())
         }
@@ -150,20 +152,6 @@ object NetworkModule {
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-    }
-
-    private fun bearerInterceptor(sessionStore: SessionStore): Interceptor {
-        return Interceptor { chain ->
-            val token = sessionStore.current()?.idToken
-            val request = if (token.isNullOrBlank()) {
-                chain.request()
-            } else {
-                chain.request().newBuilder()
-                    .header("Authorization", "Bearer $token")
-                    .build()
-            }
-            chain.proceed(request)
-        }
     }
 
     private fun loggingInterceptor(): HttpLoggingInterceptor {

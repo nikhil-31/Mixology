@@ -152,6 +152,7 @@ class NetworkChatRepository @Inject constructor(
                     displayName = response.user.displayName ?: displayName.orEmpty(),
                     uid = response.user.uid,
                     access = response.user.access,
+                    refreshToken = response.refreshToken,
                 )
                 AuthResult.Success(session)
             }

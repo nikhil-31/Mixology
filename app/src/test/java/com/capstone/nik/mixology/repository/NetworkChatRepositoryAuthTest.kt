@@ -12,6 +12,7 @@ import com.capstone.nik.mixology.Network.remoteModel.ChatHistoryResponse
 import com.capstone.nik.mixology.Network.remoteModel.ChatMatchesResponse
 import com.capstone.nik.mixology.Network.remoteModel.LoginRequest
 import com.capstone.nik.mixology.Network.remoteModel.ProviderLoginRequest
+import com.capstone.nik.mixology.Network.remoteModel.RefreshRequest
 import com.capstone.nik.mixology.Network.remoteModel.SignupRequest
 import com.capstone.nik.mixology.billing.FakeBillingService
 import com.capstone.nik.mixology.billing.FakeStoreBilling
@@ -81,6 +82,7 @@ private class FailingAuthService : AuthService {
     override suspend fun signup(body: SignupRequest): AuthTokenResponse = throw failure
     override suspend fun google(body: ProviderLoginRequest): AuthTokenResponse = throw failure
     override suspend fun apple(body: ProviderLoginRequest): AuthTokenResponse = throw failure
+    override suspend fun refresh(body: RefreshRequest): AuthTokenResponse = throw failure
 }
 
 private object UnusedChatService : ChatService {

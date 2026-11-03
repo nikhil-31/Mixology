@@ -66,4 +66,29 @@ class SessionStoreTest {
         assertNull(store.session.value)
         assertEquals(SessionEnd.EXPIRED, store.lastEnd.value)
     }
+
+    @Test
+    fun aRunOutTokenWithARefreshToken_staysASessionThatNeedsRenewing() {
+        SessionStore(context).save("token", 3600, "ada@example.com", "Ada", uid = "uid-1", refreshToken = "refresh-1")
+        context.getSharedPreferences("mixology_session", Context.MODE_PRIVATE)
+            .edit()
+            .putLong("expires_at", System.currentTimeMillis() - 1_000L)
+            .commit()
+
+        val store = SessionStore(context)
+        val session = store.session.value
+
+        assertNotNull(session)
+        assertEquals("refresh-1", session?.refreshToken)
+        assertTrue(session!!.needsRefresh())
+        assertNull(store.lastEnd.value)
+    }
+
+    @Test
+    fun needsRefresh_isTrueOnlyInTheLastMinute() {
+        val store = SessionStore(context)
+        val fresh = store.save("token", 3600, "ada@example.com", "Ada", uid = "uid-1", refreshToken = "refresh-1")
+        assertFalse(fresh.needsRefresh())
+        assertTrue(fresh.needsRefresh(now = fresh.expiresAtEpochMs - 30_000L))
+    }
 }

@@ -2,6 +2,7 @@ package com.capstone.nik.mixology.Network
 
 import com.capstone.nik.mixology.Network.remoteModel.AuthTokenResponse
 import com.capstone.nik.mixology.Network.remoteModel.ProviderLoginRequest
+import com.capstone.nik.mixology.Network.remoteModel.RefreshRequest
 import com.capstone.nik.mixology.Network.remoteModel.LoginRequest
 import com.capstone.nik.mixology.Network.remoteModel.SignupRequest
 import retrofit2.http.Body
@@ -21,4 +22,8 @@ interface AuthService {
     /** Exchanges a Firebase ID token from Sign in with Apple for a backend session. */
     @POST("auth/apple")
     suspend fun apple(@Body body: ProviderLoginRequest): AuthTokenResponse
+
+    /** A new session for the account the refresh token belongs to; 401 when it is unknown or revoked. */
+    @POST("auth/refresh")
+    suspend fun refresh(@Body body: RefreshRequest): AuthTokenResponse
 }

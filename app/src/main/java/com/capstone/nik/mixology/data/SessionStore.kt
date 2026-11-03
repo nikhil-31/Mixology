@@ -18,7 +18,17 @@ data class Session(
     val uid: String = "",
     /** Last known `trial`, `subscribed` or `free`; refreshed from `/billing/status`. */
     val access: String = "",
-)
+    /** Trades for a new [idToken] at `POST /auth/refresh`; empty for sessions saved before the app kept it. */
+    val refreshToken: String = "",
+) {
+    /** The token has run out, or is about to, and should be renewed before use. */
+    fun needsRefresh(now: Long = System.currentTimeMillis()): Boolean =
+        expiresAtEpochMs - now < REFRESH_AHEAD_MS
+
+    private companion object {
+        const val REFRESH_AHEAD_MS = 60_000L
+    }
+}
 
 /** Why [SessionStore.session] is null. */
 enum class SessionEnd {
@@ -56,7 +66,10 @@ class SessionStore @Inject constructor(
     private fun read(): Session? {
         val token = prefs.getString(KEY_TOKEN, null)?.takeIf { it.isNotBlank() } ?: return null
         val expiresAt = prefs.getLong(KEY_EXPIRES, 0L)
-        if (expiresAt <= System.currentTimeMillis()) {
+        val refreshToken = prefs.getString(KEY_REFRESH, "").orEmpty()
+        // A run-out token with nothing to renew it is gone; with a refresh token it is
+        // still a session, and the next request renews it first.
+        if (expiresAt <= System.currentTimeMillis() && refreshToken.isBlank()) {
             prefs.edit().clear().apply()
             _lastEnd.value = SessionEnd.EXPIRED
             return null
@@ -68,6 +81,7 @@ class SessionStore @Inject constructor(
             expiresAtEpochMs = expiresAt,
             uid = prefs.getString(KEY_UID, "").orEmpty(),
             access = prefs.getString(KEY_ACCESS, "").orEmpty(),
+            refreshToken = refreshToken,
         )
     }
 
@@ -78,6 +92,7 @@ class SessionStore @Inject constructor(
         displayName: String,
         uid: String = "",
         access: String = "",
+        refreshToken: String = "",
     ): Session {
         val lifetimeMs = expiresInSeconds.coerceAtLeast(1L) * 1000L
         val skewMs = if (lifetimeMs > 60_000L) 30_000L else 0L
@@ -88,6 +103,7 @@ class SessionStore @Inject constructor(
             expiresAtEpochMs = System.currentTimeMillis() + lifetimeMs - skewMs,
             uid = uid,
             access = access,
+            refreshToken = refreshToken,
         )
         prefs.edit()
             .putString(KEY_TOKEN, session.idToken)
@@ -96,6 +112,7 @@ class SessionStore @Inject constructor(
             .putLong(KEY_EXPIRES, session.expiresAtEpochMs)
             .putString(KEY_UID, session.uid)
             .putString(KEY_ACCESS, session.access)
+            .putString(KEY_REFRESH, session.refreshToken)
             .apply()
         _lastEnd.value = null
         _session.value = session
@@ -133,5 +150,6 @@ class SessionStore @Inject constructor(
         const val KEY_EXPIRES = "expires_at"
         const val KEY_UID = "uid"
         const val KEY_ACCESS = "access"
+        const val KEY_REFRESH = "refresh_token"
     }
 }

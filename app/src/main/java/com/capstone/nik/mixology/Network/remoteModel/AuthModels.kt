@@ -20,6 +20,11 @@ data class ProviderLoginRequest(
     @SerializedName("display_name") val displayName: String? = null,
 )
 
+/** Trades a refresh token for a new session at `POST /auth/refresh`. */
+data class RefreshRequest(
+    @SerializedName("refresh_token") val refreshToken: String,
+)
+
 data class AuthTokenResponse(
     @SerializedName("id_token") val idToken: String = "",
     @SerializedName("refresh_token") val refreshToken: String = "",

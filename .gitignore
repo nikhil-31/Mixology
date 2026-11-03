@@ -4,8 +4,12 @@
 /keystore.properties
 /keystore.mix.properties
 *.jks
-/.idea/workspace.xml
-/.idea/libraries
+# IDE: keep only shared code style, inspections, run configs and VCS mapping
+/.idea/*
+!/.idea/codeStyles/
+!/.idea/inspectionProfiles/
+!/.idea/runConfigurations.xml
+!/.idea/vcs.xml
 .DS_Store
 /build
 /captures

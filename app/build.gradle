@@ -22,10 +22,26 @@ def localProperties = new Properties()
 if (localPropertiesFile.exists()) {
     localProperties.load(new FileInputStream(localPropertiesFile))
 }
-def cocktailDbApiKey = localProperties.getProperty('COCKTAIL_DB_API_KEY', '1')
-def mixologyApiBaseUrl = localProperties.getProperty('MIXOLOGY_API_BASE_URL', 'http://10.0.2.2:8000/')
+// Backend URL: local.properties, then the MIXOLOGY_API_BASE_URL environment variable (CI),
+// then the emulator's view of a server on the host. Debug only: release builds must set it.
+def mixologyApiBaseUrlSource = localProperties.getProperty('MIXOLOGY_API_BASE_URL')
+        ?: System.getenv('MIXOLOGY_API_BASE_URL')
+def mixologyApiBaseUrl = mixologyApiBaseUrlSource ?: 'http://10.0.2.2:8000/'
 if (!mixologyApiBaseUrl.endsWith('/')) {
     mixologyApiBaseUrl += '/'
+}
+
+/** Stops a release or mix build that would ship pointing at a developer machine. */
+def checkReleaseApiBaseUrl = {
+    if (mixologyApiBaseUrlSource == null) {
+        throw new GradleException(
+            "MIXOLOGY_API_BASE_URL is not set. Release builds need the production backend URL in " +
+            "local.properties or the MIXOLOGY_API_BASE_URL environment variable.")
+    }
+    if (!mixologyApiBaseUrl.startsWith('https://')) {
+        throw new GradleException(
+            "MIXOLOGY_API_BASE_URL must use https:// for release builds, got '${mixologyApiBaseUrl}'.")
+    }
 }
 
 android {
@@ -55,7 +71,6 @@ android {
         versionCode 21
         versionName "2.01"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField "String", "COCKTAIL_DB_API_KEY", "\"${cocktailDbApiKey}\""
         buildConfigField "String", "MIXOLOGY_API_BASE_URL", "\"${mixologyApiBaseUrl}\""
         if (keystoreProperties != null) {
             signingConfig signingConfigs.config
@@ -99,6 +114,14 @@ android {
     sourceSets {
         test.assets.srcDirs += files("$projectDir/schemas")
         androidTest.assets.srcDirs += files("$projectDir/schemas")
+    }
+}
+
+android.applicationVariants.configureEach { variant ->
+    if (variant.buildType.name != 'debug') {
+        variant.preBuildProvider.configure {
+            doFirst { checkReleaseApiBaseUrl() }
+        }
     }
 }
 

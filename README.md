@@ -20,13 +20,13 @@ Store listing copy and a screenshot checklist live in `docs/PLAY_STORE.md`.
 * Firebase Crashlytics + Analytics
 
 ## Setup
-Put your TheCocktailDB API key in `local.properties` (gitignored):
+The app talks to the Mixology backend (`../mixology-backend`). Point it at a server in `local.properties` (gitignored):
 
 ```
-COCKTAIL_DB_API_KEY=your_key
+MIXOLOGY_API_BASE_URL=http://127.0.0.1:8000/
 ```
 
-If the property is missing, debug builds fall back to the public test key `1`.
+Debug builds fall back to `http://10.0.2.2:8000/`, the emulator's address for a server on the host. On a phone over USB, use `127.0.0.1` with `adb reverse tcp:8000 tcp:8000`. Release and `mix` builds refuse to build unless the URL is set and uses `https://`; CI passes it through the `MIXOLOGY_API_BASE_URL` environment variable.
 
 ## Credits
 This product uses TheCocktailDB API.

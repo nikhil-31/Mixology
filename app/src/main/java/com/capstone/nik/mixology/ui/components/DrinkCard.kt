@@ -94,11 +94,20 @@ fun DrinkCard(
                 style = MaterialTheme.typography.titleSmall,
                 color = Color.White,
             )
-            // The user's own recipes can't be saved; they live under My recipes.
+            // The user's own recipes can't be saved; an imported one shows where it came from.
             if (!item.isUserRecipe) {
                 FavoriteButton(
                     saved = item.saved,
                     onClick = onToggleSaved,
+                    overlay = true,
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(8.dp),
+                )
+            } else {
+                SourceBadge(
+                    source = item.source,
+                    sourceUrl = item.sourceUrl,
                     overlay = true,
                     modifier = Modifier
                         .align(Alignment.TopStart)

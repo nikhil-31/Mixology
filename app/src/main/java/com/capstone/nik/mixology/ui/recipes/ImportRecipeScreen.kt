@@ -74,6 +74,7 @@ import com.capstone.nik.mixology.ui.components.BetaBadge
 import com.capstone.nik.mixology.ui.components.BetaNote
 import com.capstone.nik.mixology.billing.ChatCredits
 import com.capstone.nik.mixology.ui.components.rememberMonthDay
+import com.capstone.nik.mixology.ui.components.siteKey
 import com.capstone.nik.mixology.ui.components.sourceLabel
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 import com.capstone.nik.mixology.ui.paywall.SubscriptionGateViewModel
@@ -106,22 +107,6 @@ internal fun firstLink(text: String): String? {
 internal fun linkSite(text: String): String? = firstLink(text)?.let { link ->
     val url = if (link.startsWith("http", ignoreCase = true)) link else "https://$link"
     sourceLabel(siteKey(url), url)
-}
-
-/** The server's name for a social link's site, so [sourceLabel] can spell it. */
-private fun siteKey(url: String): String? {
-    val host = runCatching { android.net.Uri.parse(url).host }.getOrNull()?.lowercase() ?: return null
-    return listOf(
-        "instagram" to listOf("instagram.com"),
-        "tiktok" to listOf("tiktok.com"),
-        "youtube" to listOf("youtube.com", "youtu.be"),
-        "pinterest" to listOf("pinterest.", "pin.it"),
-        "x" to listOf("x.com", "twitter.com"),
-        "reddit" to listOf("reddit.com", "redd.it"),
-        "threads" to listOf("threads.net", "threads.com"),
-        "facebook" to listOf("facebook.com", "fb.watch"),
-    ).firstOrNull { (_, hosts) -> hosts.any { host == it || host.endsWith(".$it") || host.startsWith(it) } }
-        ?.first
 }
 
 @Composable

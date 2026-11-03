@@ -82,6 +82,8 @@ fun DrinkListItem(
                     saved = drink.saved,
                     onClick = { onToggleSaved(drink) },
                 )
+            } else {
+                SourceBadge(source = drink.source, sourceUrl = drink.sourceUrl)
             }
         }
             DropdownMenu(

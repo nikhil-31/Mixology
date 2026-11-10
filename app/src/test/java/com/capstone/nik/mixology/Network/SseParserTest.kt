@@ -82,4 +82,23 @@ class SseParserTest {
         assertEquals("u-9", event.recipe.recipeId)
         assertTrue(event.recipe.duplicate)
     }
+
+    @Test
+    fun actionEvent_saysWhatAdaChanged() {
+        val added = parseSseBlock(
+            "event: action\ndata: {\"kind\":\"bar_added\",\"names\":[\"Gin\",\"Lime\"]}",
+        )?.toChatStreamEvent() as ChatStreamEvent.Action
+        assertEquals(ChatStreamEvent.Action("bar_added", listOf("Gin", "Lime")), added)
+        assertEquals(true, added.changesBar)
+        assertEquals(false, added.changesShopping)
+
+        val shopped = parseSseBlock("event: action\ndata: {\"kind\":\"shopping_added\"}")
+            ?.toChatStreamEvent() as ChatStreamEvent.Action
+        assertEquals(true, shopped.changesShopping)
+        assertEquals(false, shopped.changesBar)
+        // A finished shop moves what was bought into the bar.
+        assertEquals(true, ChatStreamEvent.Action("trip_recorded").changesBar)
+        assertEquals(false, ChatStreamEvent.Action("saved").changesBar)
+        assertEquals(null, parseSseBlock("event: action\ndata: {}")?.toChatStreamEvent())
+    }
 }

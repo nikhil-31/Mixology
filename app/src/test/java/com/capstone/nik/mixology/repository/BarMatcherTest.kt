@@ -1,5 +1,10 @@
 package com.capstone.nik.mixology.repository
 
+import com.capstone.nik.mixology.Network.remoteModel.ApiBarAlmost
+import com.capstone.nik.mixology.Network.remoteModel.ApiBarBuyNext
+import com.capstone.nik.mixology.Network.remoteModel.ApiBarItem
+import com.capstone.nik.mixology.Network.remoteModel.ApiBarSubstitute
+import com.capstone.nik.mixology.Network.remoteModel.ApiDrink
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.ui.model.IngredientMeasure
 import org.junit.Assert.assertEquals
@@ -15,6 +20,52 @@ class BarMatcherTest {
         assertTrue(BarMatcher.inBar("Bourbon whiskey", bar))
         assertTrue(BarMatcher.inBar("bourbon", bar))
         assertEquals(false, BarMatcher.inBar("Campari", bar))
+    }
+
+    @Test
+    fun inBar_matchesWholeWordsOnly_asTheServerDoes() {
+        val bar = setOf("gin", "lemon")
+        assertTrue(BarMatcher.inBar("London dry gin", bar))
+        assertTrue(BarMatcher.inBar("Lemon juice", bar))
+        assertTrue(BarMatcher.inBar("Lemon-lime soda", bar))
+        assertEquals(false, BarMatcher.inBar("Ginger ale", bar))
+        assertEquals(false, BarMatcher.inBar("Virgin olive oil", bar))
+        // Either way round: a bar with "Sloe gin" has what a recipe calls "Gin".
+        assertTrue(BarMatcher.inBar("Gin", setOf("sloe gin")))
+        assertEquals(false, BarMatcher.inBar("Gin", setOf("ginger ale")))
+    }
+
+    @Test
+    fun recommendations_preferTheServersBuyNext_andFallBackToTheirOwn() {
+        val almost = listOf(BarAlmostDrink(Drink("1", "Martini", ""), listOf("Dry Vermouth")))
+        assertEquals(listOf(BarUnlock("Dry Vermouth", 1)), BarRecommendations(almost = almost).unlocks)
+        val server = listOf(BarUnlock("Mint", 0, nearly = 4))
+        assertEquals(server, BarRecommendations(almost = almost, buyNext = server).unlocks)
+        assertTrue(BarRecommendations(almost = almost, buyNext = emptyList()).unlocks.isEmpty())
+    }
+
+    @Test
+    fun barRecommendationsOf_mapsSubstitutesShelvesAndBuyNext() {
+        val recs = barRecommendationsOf(
+            makeable = emptyList(),
+            almost = listOf(
+                ApiBarAlmost(
+                    ApiDrink(id = "1", name = "Negroni", thumb = "https://example.com/n.jpg"),
+                    listOf("Campari"),
+                    listOf(ApiBarSubstitute("Campari", "Aperol", "lighter"), ApiBarSubstitute("", "", "")),
+                ),
+            ),
+            items = listOf(ApiBarItem("Gin", "spirit"), ApiBarItem("Odd", "new shelf")),
+            buyNext = listOf(ApiBarBuyNext("Campari", unlocks = 1, nearly = 2)),
+        )
+        assertEquals(listOf(BarSubstitute("Campari", "Aperol", "lighter")), recs.almost.single().substitutes)
+        assertTrue(recs.almost.single().makeableWithSwaps)
+        assertEquals(mapOf("gin" to BarCategory.SPIRIT, "odd" to BarCategory.OTHER), recs.categories)
+        assertEquals(listOf(BarUnlock("Campari", 1, 2)), recs.unlocks)
+        // An older server sends none of it.
+        val old = barRecommendationsOf(emptyList(), listOf(ApiBarAlmost(ApiDrink(id = "1", name = "N", thumb = "t"), listOf("X"))))
+        assertEquals(null, old.buyNext)
+        assertTrue(old.almost.single().substitutes.isEmpty())
     }
 
     @Test

@@ -80,6 +80,12 @@ data class ChatMatchesResponse(
     @SerializedName("has_more") val hasMore: Boolean = false,
 )
 
+/** The `action` event: Ada changed the user's data. */
+data class ActionPayload(
+    val kind: String? = null,
+    val names: List<String>? = null,
+)
+
 data class DeltaPayload(
     val text: String = "",
 )

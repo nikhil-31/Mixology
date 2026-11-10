@@ -31,6 +31,7 @@ import com.capstone.nik.mixology.data.Session
 import com.capstone.nik.mixology.repository.AuthResult
 import com.capstone.nik.mixology.repository.ChatRepository
 import com.capstone.nik.mixology.repository.ChatTurn
+import com.capstone.nik.mixology.repository.BarSync
 import com.capstone.nik.mixology.repository.DrinkRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
@@ -115,6 +116,46 @@ class AdaViewModelTest {
     @After
     fun tearDown() {
         database.close()
+    }
+
+    @Test
+    fun whenAdaChangesTheBar_theBarIsBroughtDownAgain() = runTest {
+        var pulls = 0
+        val sync = object : BarSync {
+            override fun push(name: String, owned: Boolean) = Unit
+            override suspend fun pull() {
+                pulls++
+            }
+        }
+        val context = ApplicationProvider.getApplicationContext<Application>()
+        viewModel = AdaViewModel(
+            chat,
+            DrinkRepository(
+                database.drinkDao(),
+                database.shoppingDao(),
+                database.barDao(),
+                FakeCocktailService(),
+                context,
+                barSync = sync,
+            ),
+            network,
+            context,
+            recipes,
+            photos,
+            inbox,
+            handoff,
+            analytics,
+        )
+        signIn()
+        chat.sendFlow = flowOf(ChatStreamEvent.Action("saved"), ChatStreamEvent.Done("Saved."))
+        viewModel.onIntent(AdaIntent.DraftChanged("save the first one"))
+        viewModel.onIntent(AdaIntent.Send)
+        assertEquals(0, pulls)
+
+        chat.sendFlow = flowOf(ChatStreamEvent.Action("bar_added", listOf("Gin")), ChatStreamEvent.Done("Added."))
+        viewModel.onIntent(AdaIntent.DraftChanged("I bought gin"))
+        viewModel.onIntent(AdaIntent.Send)
+        assertEquals(1, pulls)
     }
 
     @Test

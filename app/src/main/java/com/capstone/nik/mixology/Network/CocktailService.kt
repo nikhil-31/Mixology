@@ -1,6 +1,7 @@
 package com.capstone.nik.mixology.Network
 
 import com.capstone.nik.mixology.Network.remoteModel.ApiBarRecommendations
+import com.capstone.nik.mixology.Network.remoteModel.ApiIngredient
 import com.capstone.nik.mixology.Network.remoteModel.CatalogListResponse
 import com.capstone.nik.mixology.Network.remoteModel.CocktailDbResponse
 import retrofit2.http.GET
@@ -40,6 +41,10 @@ interface CocktailService {
 
     @GET("list.php")
     suspend fun listAlcoholic(@Query("a") list: String = "list"): CatalogListResponse
+
+    /** Every ingredient with how many drinks use it and its category, for the bar's picker. */
+    @GET("ingredients")
+    suspend fun ingredients(): List<ApiIngredient>
 
     @GET("bar/recommendations")
     suspend fun getBarRecommendations(@Query("i") ingredients: List<String>): ApiBarRecommendations

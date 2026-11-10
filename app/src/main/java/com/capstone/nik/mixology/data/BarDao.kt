@@ -15,6 +15,10 @@ interface BarDao {
     @Query("SELECT * FROM bar_ingredients")
     suspend fun getAll(): List<BarIngredientEntity>
 
+    /** The stored spelling of [name], whatever its case; null when the bar hasn't got it. */
+    @Query("SELECT name FROM bar_ingredients WHERE name = :name COLLATE NOCASE LIMIT 1")
+    suspend fun find(name: String): String?
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(item: BarIngredientEntity)
 

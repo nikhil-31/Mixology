@@ -4,6 +4,7 @@ import com.capstone.nik.mixology.Network.CocktailService
 import com.capstone.nik.mixology.Network.remoteModel.ApiBarAlmost
 import com.capstone.nik.mixology.Network.remoteModel.ApiBarRecommendations
 import com.capstone.nik.mixology.Network.remoteModel.ApiDrink
+import com.capstone.nik.mixology.Network.remoteModel.ApiIngredient
 import com.capstone.nik.mixology.Network.remoteModel.CatalogListItem
 import com.capstone.nik.mixology.Network.remoteModel.CatalogListResponse
 import com.capstone.nik.mixology.Network.remoteModel.CocktailDbDrink
@@ -29,6 +30,8 @@ class FakeCocktailService : CocktailService {
     var glasses = CatalogListResponse()
     var ingredients = CatalogListResponse()
     var alcoholic = CatalogListResponse()
+    /** `GET /ingredients`; empty, as from a server without it, leaves the picker on [ingredients]. */
+    var barIngredients: List<ApiIngredient> = emptyList()
     var recommendationDrinks: List<Drink> = emptyList()
     var failRecommendations = false
     var recommendationCalls = 0
@@ -52,6 +55,7 @@ class FakeCocktailService : CocktailService {
     override suspend fun listGlasses(list: String) = io { glasses }
     override suspend fun listIngredients(list: String) = io { ingredients }
     override suspend fun listAlcoholic(list: String) = io { alcoholic }
+    override suspend fun ingredients(): List<ApiIngredient> = io { barIngredients }
     override suspend fun getBarRecommendations(ingredients: List<String>): ApiBarRecommendations {
         recommendationCalls++
         if (failRecommendations) error("recommendations failed")

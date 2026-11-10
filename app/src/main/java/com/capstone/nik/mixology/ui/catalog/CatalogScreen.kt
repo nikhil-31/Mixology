@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
@@ -60,6 +61,9 @@ import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.repository.FilterKind
 import com.capstone.nik.mixology.ui.components.ConnectionErrorState
 import com.capstone.nik.mixology.ui.components.IngredientImage
+import com.capstone.nik.mixology.ui.components.LocalCollapsingHeader
+import com.capstone.nik.mixology.ui.components.bleedHorizontally
+import com.capstone.nik.mixology.ui.components.collapsingHeaderScroll
 import com.capstone.nik.mixology.ui.model.ingredientImageUrl
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 import kotlinx.coroutines.launch
@@ -102,7 +106,59 @@ fun CatalogScreen(
     onRefresh: () -> Unit = {},
     onRetry: () -> Unit = {},
 ) {
-    Column(modifier = Modifier.fillMaxSize()) {
+    // The kind chips and search field lead the list, so they scroll away with the terms.
+    val header: @Composable () -> Unit = {
+        CatalogHeader(state = state, onSelectKind = onSelectKind, onQueryChanged = onQueryChanged)
+    }
+    val collapsingHeader = LocalCollapsingHeader.current
+    PullToRefreshBox(
+        isRefreshing = state.refreshing,
+        onRefresh = onRefresh,
+        modifier = Modifier.fillMaxSize(),
+    ) {
+        when {
+            state.terms.isNotEmpty() && catalogUsesGrid(state.terms.size) -> CatalogTermGrid(
+                terms = state.visibleTerms,
+                kind = state.kind,
+                bar = state.bar,
+                onOpenTerm = onOpenTerm,
+                header = header,
+                modifier = Modifier.collapsingHeaderScroll(collapsingHeader),
+            )
+            state.terms.isNotEmpty() -> CatalogTermIndex(
+                terms = state.visibleTerms,
+                kind = state.kind,
+                bar = state.bar,
+                onOpenTerm = onOpenTerm,
+                header = header,
+                modifier = Modifier.collapsingHeaderScroll(collapsingHeader),
+            )
+            // Nothing to scroll yet: loading, an error, or an empty catalog.
+            else -> Column(modifier = Modifier.fillMaxSize()) {
+                header()
+                Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                    when {
+                        state.loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
+                        state.error != null -> ConnectionErrorState(
+                            error = state.error,
+                            onRetry = onRetry,
+                            modifier = Modifier.align(Alignment.Center),
+                        )
+                        else -> CatalogNoTerms(Modifier.align(Alignment.Center))
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CatalogHeader(
+    state: CatalogUiState,
+    onSelectKind: (FilterKind) -> Unit,
+    onQueryChanged: (String) -> Unit,
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
         LazyRow(
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -137,48 +193,16 @@ fun CatalogScreen(
                 unfocusedContainerColor = MaterialTheme.colorScheme.surface,
             ),
         )
-        PullToRefreshBox(
-            isRefreshing = state.refreshing,
-            onRefresh = onRefresh,
-            modifier = Modifier.weight(1f).fillMaxWidth(),
-        ) {
-            Box(modifier = Modifier.fillMaxSize()) {
-                when {
-                    state.loading && state.terms.isEmpty() ->
-                        CircularProgressIndicator(Modifier.align(Alignment.Center))
-                    state.terms.isEmpty() && state.error != null -> ConnectionErrorState(
-                        error = state.error,
-                        onRetry = onRetry,
-                        modifier = Modifier.align(Alignment.Center),
-                    )
-                    state.terms.isEmpty() ->
-                        Text(
-                            text = stringResource(R.string.network_error_search_no_data_available),
-                            modifier = Modifier.align(Alignment.Center).padding(24.dp),
-                            color = MaterialTheme.colorScheme.onSurface,
-                        )
-                    state.visibleTerms.isEmpty() ->
-                        Text(
-                            text = stringResource(R.string.network_error_search_no_data_available),
-                            modifier = Modifier.align(Alignment.Center).padding(24.dp),
-                            color = MaterialTheme.colorScheme.onSurface,
-                        )
-                    catalogUsesGrid(state.terms.size) -> CatalogTermGrid(
-                        terms = state.visibleTerms,
-                        kind = state.kind,
-                        bar = state.bar,
-                        onOpenTerm = onOpenTerm,
-                    )
-                    else -> CatalogTermIndex(
-                        terms = state.visibleTerms,
-                        kind = state.kind,
-                        bar = state.bar,
-                        onOpenTerm = onOpenTerm,
-                    )
-                }
-            }
-        }
     }
+}
+
+@Composable
+private fun CatalogNoTerms(modifier: Modifier = Modifier) {
+    Text(
+        text = stringResource(R.string.network_error_search_no_data_available),
+        modifier = modifier.padding(24.dp),
+        color = MaterialTheme.colorScheme.onSurface,
+    )
 }
 
 @Composable
@@ -187,13 +211,25 @@ private fun CatalogTermGrid(
     kind: FilterKind,
     bar: Set<String>,
     onOpenTerm: (String) -> Unit,
+    header: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 160.dp),
-        contentPadding = PaddingValues(16.dp),
+        modifier = modifier.fillMaxSize(),
+        // No top padding: the header sits right under the toolbar, as it did above the grid.
+        contentPadding = PaddingValues(start = GridPadding, end = GridPadding, bottom = GridPadding),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+        item(key = HEADER_KEY, span = { GridItemSpan(maxLineSpan) }) {
+            Box(Modifier.bleedHorizontally(GridPadding)) { header() }
+        }
+        if (terms.isEmpty()) {
+            item(key = NO_MATCHES_KEY, span = { GridItemSpan(maxLineSpan) }) {
+                Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) { CatalogNoTerms() }
+            }
+        }
         items(terms, key = { it }) { term ->
             CatalogTermTile(
                 term = term,
@@ -211,6 +247,8 @@ private fun CatalogTermIndex(
     kind: FilterKind,
     bar: Set<String>,
     onOpenTerm: (String) -> Unit,
+    header: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val sections = groupCatalogTermsByLetter(terms)
     val listState = rememberLazyListState()
@@ -219,8 +257,15 @@ private fun CatalogTermIndex(
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             state = listState,
+            modifier = modifier.fillMaxSize(),
             contentPadding = PaddingValues(bottom = 24.dp, end = if (showIndex) 28.dp else 0.dp),
         ) {
+            item(key = HEADER_KEY) { header() }
+            if (terms.isEmpty()) {
+                item(key = NO_MATCHES_KEY) {
+                    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) { CatalogNoTerms() }
+                }
+            }
             sections.forEach { section ->
                 item(key = "letter-${section.letter}") {
                     Text(
@@ -250,7 +295,8 @@ private fun CatalogTermIndex(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 sections.forEachIndexed { index, section ->
-                    val target = sections.take(index).sumOf { it.terms.size + 1 }
+                    // The header is item 0, so each letter is one further down.
+                    val target = 1 + sections.take(index).sumOf { it.terms.size + 1 }
                     Text(
                         text = section.letter,
                         modifier = Modifier
@@ -266,6 +312,10 @@ private fun CatalogTermIndex(
         }
     }
 }
+
+private val GridPadding = 16.dp
+private const val HEADER_KEY = "catalog_header"
+private const val NO_MATCHES_KEY = "catalog_no_matches"
 
 @Composable
 private fun CatalogTermTile(

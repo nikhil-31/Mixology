@@ -253,7 +253,13 @@
     <string name="bar_show_less">Ver menos</string>
     <string name="bar_buy_next_title">Qué comprar</string>
     <string name="bar_buy_next_info">Añade uno para desbloquear más cócteles</string>
-    <string name="bar_add_named">Añadir %1$s a tu bar</string>
+    <string name="bar_add_named">Añadir %1$s</string>
+    <string name="bar_add_sheet_needed_for">Necesario para %1$s</string>
+    <string name="bar_add_sheet_to_bar">Añadir a mi bar</string>
+    <string name="bar_add_sheet_to_bar_info">Ya lo tengo</string>
+    <string name="bar_add_sheet_to_shopping">Añadir a la lista de la compra</string>
+    <string name="bar_add_sheet_to_shopping_info">Comprarlo más tarde</string>
+    <string name="bar_added_to_shopping">%1$s añadido a tu lista de la compra</string>
     <string name="bar_picker_in_bar">En tu bar (%1$d)</string>
     <string name="bar_picker_all">Todos los ingredientes</string>
     <string name="bar_no_matches_title">Todavía no hay nada que preparar</string>
@@ -271,6 +277,33 @@
         <item quantity="other">%d casi</item>
     </plurals>
     <string name="bar_empty_title">Tu bar está vacío</string>
+    <string name="bar_category_spirit">Destilados</string>
+    <string name="bar_category_liqueur">Licores</string>
+    <string name="bar_category_wine">Vino y vermut</string>
+    <string name="bar_category_mixer">Refrescos y zumos</string>
+    <string name="bar_category_syrup">Siropes y endulzantes</string>
+    <string name="bar_category_bitters">Bitters</string>
+    <string name="bar_category_fresh">Frescos</string>
+    <string name="bar_category_other">Otros</string>
+    <string name="bar_picker_popular">Populares</string>
+    <string name="bar_picker_no_results">Ningún ingrediente coincide</string>
+    <string name="bar_add_custom">Añadir «%1$s»</string>
+    <string name="bar_add_custom_info">No está en la lista. Añádelo igualmente.</string>
+    <plurals name="bar_gets_closer">
+        <item quantity="one">Te acerca a %d bebida</item>
+        <item quantity="other">Te acerca a %d bebidas</item>
+    </plurals>
+    <string name="bar_with_swap">Con un cambio</string>
+    <string name="bar_with_swap_info">Algo de tu bar puede sustituirlo</string>
+    <string name="bar_swap">Usa %1$s en lugar de %2$s</string>
+    <string name="bar_swap_note">Usa %1$s en lugar de %2$s · %3$s</string>
+    <string name="bar_see_all_drinks">Ver las %1$d</string>
+    <string name="bar_see_fewer">Ver menos</string>
+    <string name="bar_already_on_shopping">%1$s ya está en tu lista de la compra</string>
+    <string name="bar_ask_ada">Pregunta a Ada</string>
+    <string name="bar_ask_ada_prompt">¿Qué puedo preparar con lo que tengo en mi bar?</string>
+    <string name="bar_add_photo">Añadir desde una foto</string>
+    <string name="bar_photo_caption">Esta es una foto de mi bar. Añade a mi bar lo que veas.</string>
     <string name="detail_notes_hint">Ajustes, valoraciones, dónde la probaste…</string>
     <string name="detail_notes_save">Guardar</string>
     <string name="settings_library">Biblioteca</string>
@@ -460,4 +493,8 @@
     <string name="recipe_import_beta_note">Beta: las recetas importadas pueden no ser exactas. Revisa los ingredientes y las medidas antes de guardar.</string>
     <string name="ada_recipe_beta_note">Beta: revísala antes de guardar.</string>
     <string name="recipe_editor_beta_note">Importada con una función beta: revísala antes de prepararla.</string>
+    <plurals name="nav_bottom_badge">
+        <item quantity="one">%d artículo por comprar</item>
+        <item quantity="other">%d artículos por comprar</item>
+    </plurals>
 </resources>

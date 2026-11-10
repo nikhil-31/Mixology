@@ -74,6 +74,9 @@ class AdaViewModel @Inject constructor(
         viewModelScope.launch {
             inbox.pending.collect { if (it != null) deliverInbox() }
         }
+        viewModelScope.launch {
+            inbox.pendingPhoto.collect { if (it != null) deliverInbox() }
+        }
         // "Edit draft" saved from the editor: that card is saved now.
         viewModelScope.launch {
             handoff.saved.collect { saved -> markDraftSaved(saved.messageId, saved.recipeId) }
@@ -226,10 +229,13 @@ class AdaViewModel @Inject constructor(
         startReply(failed.text, failed.photo, failed.stream)
     }
 
-    /** Sends a photo of recipe notes, with whatever is typed as what the user said. */
-    private fun sendPhoto(uri: Uri) {
+    /**
+     * Sends a photo of recipe notes or a bar shelf, with [caption] (or, without one,
+     * whatever is typed) as what the user said.
+     */
+    private fun sendPhoto(uri: Uri, caption: String? = null) {
         if (!canSend()) return
-        val text = currentState.draft.trim()
+        val text = caption ?: currentState.draft.trim()
         stopVoice()
         setState { copy(sending = true, error = null, outOfCredits = false) }
         sendJob?.cancel()
@@ -291,6 +297,7 @@ class AdaViewModel @Inject constructor(
                             it.copy(drinks = event.drinks, hasMore = event.hasMore)
                         }
                         is ChatStreamEvent.Recipe -> onRecipe(assistantId, event.recipe)
+                        is ChatStreamEvent.Action -> onAction(event)
                         is ChatStreamEvent.Done -> updateAssistant(assistantId) {
                             it.copy(content = event.content, streaming = false)
                         }
@@ -370,9 +377,30 @@ class AdaViewModel @Inject constructor(
         startReply(text, photo = null) { chatRepository.send(text, recipeAction = "saved", recipeId = recipeId) }
     }
 
+    /** Ada changed the bar or the shopping list on the server; brings this device's copy in line. */
+    private fun onAction(action: ChatStreamEvent.Action) {
+        if (!action.changesBar && !action.changesShopping) return
+        viewModelScope.launch {
+            try {
+                if (action.changesBar) drinkRepository.syncBar()
+                if (action.changesShopping) drinkRepository.syncShopping()
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                // The next sync of either list picks the change up.
+            }
+        }
+    }
+
     /** Sends a message another screen left for Ada, once nothing else is going on. */
     private fun deliverInbox() {
-        if (inbox.pending.value == null || !canSend()) return
+        if (!canSend()) return
+        val photo = inbox.takePhoto()
+        if (photo != null) {
+            sendPhoto(photo.uri, photo.caption)
+            return
+        }
+        if (inbox.pending.value == null) return
         inbox.take()?.let { send(it) }
     }
 

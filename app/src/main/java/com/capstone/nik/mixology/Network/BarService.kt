@@ -1,7 +1,10 @@
 package com.capstone.nik.mixology.Network
 
 import com.capstone.nik.mixology.Network.remoteModel.ApiBarAlmost
+import com.capstone.nik.mixology.Network.remoteModel.ApiBarBuyNext
+import com.capstone.nik.mixology.Network.remoteModel.ApiBarItem
 import com.capstone.nik.mixology.Network.remoteModel.ApiDrink
+import com.google.gson.annotations.SerializedName
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -17,6 +20,8 @@ data class BarStateDto(
     val ingredients: List<String> = emptyList(),
     val makeable: List<ApiDrink> = emptyList(),
     val almost: List<ApiBarAlmost> = emptyList(),
+    val items: List<ApiBarItem>? = null,
+    @SerializedName("buy_next") val buyNext: List<ApiBarBuyNext>? = null,
 )
 
 data class BarIngredientsBody(

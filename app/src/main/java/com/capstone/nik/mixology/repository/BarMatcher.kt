@@ -1,23 +1,79 @@
 package com.capstone.nik.mixology.repository
 
 import com.capstone.nik.mixology.Network.remoteModel.ApiBarAlmost
+import com.capstone.nik.mixology.Network.remoteModel.ApiBarBuyNext
+import com.capstone.nik.mixology.Network.remoteModel.ApiBarItem
 import com.capstone.nik.mixology.Network.remoteModel.ApiDrink
 import com.capstone.nik.mixology.data.Drink
+
+/** [use] is in the bar and can stand in for [missing]; [note] says how the drink changes. */
+data class BarSubstitute(
+    val missing: String,
+    val use: String,
+    val note: String,
+)
 
 data class BarAlmostDrink(
     val drink: Drink,
     val missing: List<String>,
-)
+    /** A stand-in the bar already has, for each missing ingredient that has one. */
+    val substitutes: List<BarSubstitute> = emptyList(),
+) {
+    /** Everything missing has a stand-in in the bar, so the drink can be made tonight. */
+    val makeableWithSwaps: Boolean
+        get() = missing.isNotEmpty() && missing.all { name -> substituteFor(name) != null }
+
+    fun substituteFor(name: String): BarSubstitute? =
+        substitutes.firstOrNull { it.missing.equals(name, ignoreCase = true) }
+}
 
 data class BarRecommendations(
     val makeable: List<Drink> = emptyList(),
     val almost: List<BarAlmostDrink> = emptyList(),
-)
+    /** The server's "Buy next"; null when it sent none, and [unlocks] works it out instead. */
+    val buyNext: List<BarUnlock>? = null,
+    /** Each bar ingredient's category ([BarCategory]), by lowercase name; empty when unknown. */
+    val categories: Map<String, String> = emptyMap(),
+    /** The last load failed, so the drinks here are from before it (or none). */
+    val error: Throwable? = null,
+) {
+    /** What to buy next, best first. */
+    val unlocks: List<BarUnlock>
+        get() = buyNext ?: topUnlocks()
+}
 
-/** An ingredient that is the only thing missing from [count] of the "almost" drinks. */
+/**
+ * An ingredient worth buying: it is the only thing missing from [count] of the "almost"
+ * drinks, and one of two things missing from [nearly] more.
+ */
 data class BarUnlock(
     val ingredient: String,
     val count: Int,
+    val nearly: Int = 0,
+)
+
+/** The shelves a bar is grouped into, in the order they're shown. */
+object BarCategory {
+    const val SPIRIT = "spirit"
+    const val LIQUEUR = "liqueur"
+    const val WINE = "wine"
+    const val MIXER = "mixer"
+    const val SYRUP = "syrup"
+    const val BITTERS = "bitters"
+    const val FRESH = "fresh"
+    const val OTHER = "other"
+
+    val all = listOf(SPIRIT, LIQUEUR, WINE, MIXER, SYRUP, BITTERS, FRESH, OTHER)
+
+    /** [value] when it is a category this app knows, else [OTHER]. */
+    fun of(value: String?): String = value?.takeIf { it in all } ?: OTHER
+}
+
+/** One ingredient the picker offers. [usedIn] is how many drinks use it; 0 when unknown. */
+data class BarTerm(
+    val name: String,
+    val category: String = BarCategory.OTHER,
+    val usedIn: Int = 0,
 )
 
 /**
@@ -45,16 +101,30 @@ internal fun barRecommendationsOf(
     makeable: List<ApiDrink>,
     almost: List<ApiBarAlmost>,
     saved: Set<String> = emptySet(),
+    items: List<ApiBarItem>? = null,
+    buyNext: List<ApiBarBuyNext>? = null,
 ): BarRecommendations = BarRecommendations(
     makeable = makeable.mapNotNull { drink -> drink.toDrink(saved = drink.id in saved) },
     almost = almost.mapNotNull { item ->
         val drink = item.drink.toDrink(saved = item.drink.id in saved) ?: return@mapNotNull null
-        BarAlmostDrink(drink, item.missing)
+        BarAlmostDrink(
+            drink = drink,
+            missing = item.missing,
+            substitutes = item.substitutes.orEmpty()
+                .filter { it.missing.isNotBlank() && it.use.isNotBlank() }
+                .map { BarSubstitute(it.missing, it.use, it.note) },
+        )
     },
+    buyNext = buyNext
+        ?.filter { it.name.isNotBlank() }
+        ?.map { BarUnlock(it.name, it.unlocks, it.nearly) },
+    categories = items.orEmpty()
+        .filter { it.name.isNotBlank() }
+        .associate { it.name.lowercase() to BarCategory.of(it.category) },
 )
 
 /** The same recommendations with each drink's saved flag taken from [saved]. */
-internal fun BarRecommendations.withSaved(saved: Set<String>): BarRecommendations = BarRecommendations(
+internal fun BarRecommendations.withSaved(saved: Set<String>): BarRecommendations = copy(
     makeable = makeable.map { it.copy(saved = it.id in saved) },
     almost = almost.map { it.copy(drink = it.drink.copy(saved = it.drink.id in saved)) },
 )
@@ -65,10 +135,31 @@ object BarMatcher {
 
     fun normalize(name: String): String = name.trim().lowercase().replace(extraSpaces, " ")
 
+    /**
+     * Whether a bar of [normalize]d names stocks the ingredient: by name, or by whole words
+     * either way, as the server matches. "Gin" covers "London dry gin" and "Bourbon" covers
+     * "Bourbon whiskey", but "Gin" does not cover "Ginger ale".
+     */
     fun inBar(ingredient: String, bar: Set<String>): Boolean {
         val needle = normalize(ingredient)
         if (needle.isEmpty()) return true
-        return bar.any { owned -> owned == needle || owned.contains(needle) || needle.contains(owned) }
+        return bar.any { owned ->
+            owned == needle || containsWord(owned, needle) || containsWord(needle, owned)
+        }
+    }
+
+    /** Whether [needle] appears in [haystack] with no letter or digit touching either end. */
+    internal fun containsWord(haystack: String, needle: String): Boolean {
+        if (needle.isEmpty() || haystack.length < needle.length) return false
+        var from = haystack.indexOf(needle)
+        while (from >= 0) {
+            val end = from + needle.length
+            val before = from == 0 || !haystack[from - 1].isLetterOrDigit()
+            val after = end >= haystack.length || !haystack[end].isLetterOrDigit()
+            if (before && after) return true
+            from = haystack.indexOf(needle, from + 1)
+        }
+        return false
     }
 
     fun isPantry(name: String): Boolean = normalize(name) in pantry

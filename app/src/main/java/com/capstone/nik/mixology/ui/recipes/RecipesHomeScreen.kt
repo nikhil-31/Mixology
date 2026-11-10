@@ -1,5 +1,7 @@
 package com.capstone.nik.mixology.ui.recipes
 
+import com.capstone.nik.mixology.ui.components.ScrollToTopOnReselect
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.outlined.Link
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -133,7 +135,10 @@ private fun RecipesHomeContent(
 ) {
     val slides = remember(state.bar) { heroSlides(state.bar) }
     val featured = remember(state.mine, state.saved) { featuredDrink(state.mine + state.saved) }
+    val listState = rememberLazyListState()
+    ScrollToTopOnReselect(listState)
     LazyColumn(
+        state = listState,
         modifier = Modifier.fillMaxSize().testTag("recipes_home_list"),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),

@@ -41,13 +41,44 @@ data class ApiDrink(
     }
 }
 
+/** Something in the bar that can stand in for a missing ingredient, and how the drink changes. */
+data class ApiBarSubstitute(
+    val missing: String = "",
+    val use: String = "",
+    val note: String = "",
+)
+
 data class ApiBarAlmost(
     val drink: ApiDrink = ApiDrink(),
     val missing: List<String> = emptyList(),
+    val substitutes: List<ApiBarSubstitute>? = null,
+)
+
+/** A bar ingredient with the shelf it belongs on: spirit, liqueur, wine, mixer, syrup, bitters, fresh or other. */
+data class ApiBarItem(
+    val name: String = "",
+    val category: String = "",
+)
+
+/** An ingredient worth buying: [unlocks] drinks need only it, [nearly] need it and one more thing. */
+data class ApiBarBuyNext(
+    val name: String = "",
+    val unlocks: Int = 0,
+    val nearly: Int = 0,
 )
 
 data class ApiBarRecommendations(
     val ingredients: List<String> = emptyList(),
     val makeable: List<ApiDrink> = emptyList(),
     val almost: List<ApiBarAlmost> = emptyList(),
+    val items: List<ApiBarItem>? = null,
+    /** Null from a server that doesn't send it yet; the app then works it out from [almost]. */
+    @SerializedName("buy_next") val buyNext: List<ApiBarBuyNext>? = null,
+)
+
+/** One row of `GET /ingredients`: how many drinks use it and the shelf it belongs on. */
+data class ApiIngredient(
+    val name: String = "",
+    @SerializedName("used_in") val usedIn: Int = 0,
+    val category: String = "",
 )

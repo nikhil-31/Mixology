@@ -1,5 +1,6 @@
 package com.capstone.nik.mixology.ui.shopping
 
+import com.capstone.nik.mixology.Network.NetworkMonitor
 import androidx.lifecycle.viewModelScope
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.Drink
@@ -26,6 +27,7 @@ class ShoppingViewModel @Inject constructor(
     private val recipes: RecipeRepository = RecipeRepository.None,
     private val preferences: ShoppingPreferences = ShoppingPreferences.inMemory(),
     private val trips: ShoppingTripRepository = ShoppingTripRepository.inMemory(),
+    private val networkMonitor: NetworkMonitor = NetworkMonitor.forTests(),
 ) : MviViewModel<ShoppingIntent, ShoppingUiState, ShoppingEffect>(
     ShoppingUiState(byIngredient = preferences.byIngredient),
 ) {
@@ -47,6 +49,10 @@ class ShoppingViewModel @Inject constructor(
 
     init {
         viewModelScope.launch { repository.syncShopping() }
+        // Retry, or the server answering again: pick up what changed on the account meanwhile.
+        viewModelScope.launch {
+            networkMonitor.retries.collect { repository.syncShopping() }
+        }
         viewModelScope.launch {
             repository.observeBar().collect { names ->
                 setState { copy(bar = names.mapTo(HashSet()) { normalizeIngredient(it) }) }

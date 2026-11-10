@@ -1,5 +1,7 @@
 package com.capstone.nik.mixology.ui.shopping
 
+import com.capstone.nik.mixology.ui.components.ScrollToTopOnReselect
+import androidx.compose.foundation.lazy.rememberLazyListState
 import android.content.ComponentName
 import android.content.Intent
 import android.os.Build
@@ -81,6 +83,8 @@ import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.ShoppingItemEntity
 import com.capstone.nik.mixology.data.ShoppingSection
 import com.capstone.nik.mixology.ui.components.DrinkImage
+import com.capstone.nik.mixology.ui.components.LocalCollapsingHeader
+import com.capstone.nik.mixology.ui.components.collapsingHeaderScroll
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 
 @Composable
@@ -195,8 +199,13 @@ fun ShoppingScreen(
         if (state.sections.isEmpty()) {
             ShoppingEmpty(onFindRecipe = onFindRecipe, onOpenHistory = onOpenHistory)
         } else {
+            val listState = rememberLazyListState()
+            ScrollToTopOnReselect(listState)
             LazyColumn(
-                modifier = Modifier.fillMaxSize(),
+                state = listState,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .collapsingHeaderScroll(LocalCollapsingHeader.current),
                 contentPadding = PaddingValues(bottom = 24.dp),
             ) {
                 item(key = "controls") {

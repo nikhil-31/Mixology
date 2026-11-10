@@ -28,6 +28,7 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -35,6 +36,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -64,6 +66,9 @@ import com.capstone.nik.mixology.ui.ada.AdaRoute
 import com.capstone.nik.mixology.ui.bar.BarRoute
 import com.capstone.nik.mixology.ui.catalog.CatalogRoute
 import com.capstone.nik.mixology.ui.components.BannerAd
+import com.capstone.nik.mixology.ui.components.CollapsingHeaderState
+import com.capstone.nik.mixology.ui.components.LocalCollapsingHeader
+import com.capstone.nik.mixology.ui.components.collapsingHeader
 import com.capstone.nik.mixology.ui.details.DrinkDetailsRoute
 import com.capstone.nik.mixology.ui.grid.DrinkGridRoute
 import com.capstone.nik.mixology.ui.hot.HotRoute
@@ -99,6 +104,7 @@ fun MixologyApp(
     /** Whether this account should see banner ads; see [showsBannerAds]. */
     adsEligible: Boolean = false,
     viewModel: MainViewModel = hiltViewModel(),
+    bottomBarViewModel: BottomBarViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val navController = rememberNavController()
@@ -237,6 +243,12 @@ fun MixologyApp(
             ?: destination.filter.displayName()
     }
 
+    // The toolbar scrolls off with the page and comes back at the top. Ada's chat keeps it.
+    val header = remember { CollapsingHeaderState() }
+    // Overlays (details, search, the editor) have no toolbar for their scrolling to move.
+    header.enabled = !overlay && destination !is DrawerDestination.Ada
+    LaunchedEffect(destination, overlay) { header.expand() }
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
@@ -248,9 +260,12 @@ fun MixologyApp(
                     )
                 }
                 if (!overlay) {
+                    val shoppingLeft by bottomBarViewModel.shoppingLeft.collectAsStateWithLifecycle()
                     MixologyBottomBar(
                         currentDestination = destination,
                         onDestinationSelected = { viewModel.onIntent(MainIntent.SelectDestination(it)) },
+                        shoppingLeft = shoppingLeft,
+                        onReselect = { header.requestScrollToTop() },
                     )
                 }
             }
@@ -265,6 +280,7 @@ fun MixologyApp(
             ) {
                 if (!overlay) {
                     ScreenHeader(
+                        modifier = Modifier.collapsingHeader(header),
                         title = title,
                         showUp = showUp,
                         showSearch = showSearch,
@@ -297,334 +313,338 @@ fun MixologyApp(
                 connectionBannerError(online, serverReachable)?.let { error ->
                     OfflineBanner(error = error, onRetry = networkMonitor::retry)
                 }
-                Row(modifier = Modifier.weight(1f).fillMaxWidth()) {
-                    NavHost(
-                        navController = navController,
-                        startDestination = RECIPES_HOME_ROUTE,
-                        modifier = Modifier.weight(1f),
-                    ) {
-                        composable(
-                            route = GRID_ROUTE,
-                            arguments = listOf(
-                                navArgument("filter") { type = NavType.StringType },
-                            ),
-                        ) { entry ->
-                            val filter = DrinkFilter.fromName(
-                                entry.arguments?.getString("filter").orEmpty(),
-                            )
-                            DrinkGridRoute(
-                                filter = filter,
-                                snackbarHostState = snackbarHostState,
-                                onDrinkClick = { drink ->
-                                    viewModel.onIntent(MainIntent.DrinkSelected(drink, selectDrinkTwoPane.value))
-                                },
-                            )
-                        }
-                        composable(CATALOG_ROUTE) {
-                            CatalogRoute(
-                                onOpenFilter = { filter ->
-                                    viewModel.onIntent(
-                                        MainIntent.OpenSearch(
-                                            query = filter.query.orEmpty(),
-                                            mode = if (filter.kind == FilterKind.INGREDIENT) {
-                                                SearchMode.INGREDIENT
-                                            } else {
-                                                SearchMode.NAME
-                                            },
-                                            filterKind = filter.kind,
-                                        ),
-                                    )
-                                },
-                            )
-                        }
-                        composable(BAR_ROUTE) {
-                            BarRoute(
-                                snackbarHostState = snackbarHostState,
-                                onDrinkClick = { drink ->
-                                    viewModel.onIntent(MainIntent.DrinkSelected(drink, selectDrinkTwoPane.value))
-                                },
-                            )
-                        }
-                        composable(HOT_ROUTE) {
-                            HotRoute(
-                                snackbarHostState = snackbarHostState,
-                                onOpenBar = { viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Bar)) },
-                                onOpenAda = { viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Ada)) },
-                                onDrinkClick = { drink ->
-                                    viewModel.onIntent(MainIntent.DrinkSelected(drink, selectDrinkTwoPane.value))
-                                },
-                                onSeeAll = { filter ->
-                                    viewModel.onIntent(
-                                        MainIntent.OpenSearch(
-                                            query = filter.query.orEmpty(),
-                                            mode = if (filter.kind == FilterKind.INGREDIENT) {
-                                                SearchMode.INGREDIENT
-                                            } else {
-                                                SearchMode.NAME
-                                            },
-                                            filterKind = filter.kind,
-                                        ),
-                                    )
-                                },
-                            )
-                        }
-                        composable(ADA_ROUTE) {
-                            AdaRoute(
-                                onDrinkClick = { drink ->
-                                    viewModel.onIntent(MainIntent.DrinkSelected(drink, selectDrinkTwoPane.value))
-                                },
-                                onOpenMore = { query, exclude ->
-                                    navController.navigate(adaMoreRoute(query, exclude)) {
-                                        launchSingleTop = true
-                                    }
-                                },
-                                // The editor fills itself from RecipeDraftHandoff.
-                                onEditDraft = {
-                                    navController.navigate(recipeEditorRoute(imported = true)) { launchSingleTop = true }
-                                },
-                            )
-                        }
-                        composable(
-                            route = ADA_MORE_ROUTE,
-                            arguments = listOf(
-                                navArgument("q") {
-                                    type = NavType.StringType
-                                    defaultValue = ""
-                                },
-                                navArgument("exclude") {
-                                    type = NavType.StringType
-                                    defaultValue = ""
-                                },
-                            ),
-                        ) { entry ->
-                            AdaMoreRoute(
-                                query = entry.arguments?.getString("q").orEmpty(),
-                                exclude = entry.arguments?.getString("exclude").orEmpty()
-                                    .split(',')
-                                    .filter { it.isNotBlank() },
-                                onBack = { navController.navigateUp() },
-                                onDrinkClick = { drink ->
-                                    viewModel.onIntent(MainIntent.DrinkSelected(drink, selectDrinkTwoPane.value))
-                                },
-                            )
-                        }
-                        composable(SETTINGS_ROUTE) {
-                            SettingsRoute(
-                                onDiscover = {
-                                    viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Hot))
-                                },
-                                onSaved = {
-                                    viewModel.onIntent(
-                                        MainIntent.SelectDestination(DrawerDestination.Filter(DrinkFilter.SAVED)),
-                                    )
-                                },
-                                onCatalog = {
-                                    viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Catalog))
-                                },
-                                onMyRecipes = {
-                                    viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Recipes))
-                                },
-                                onImportRecipe = {
-                                    navController.navigate(importRecipeRoute()) { launchSingleTop = true }
-                                },
-                                onCheckForUpdates = {
-                                    activity?.let { host ->
-                                        playScope.launch { playUpdates.start(host, userRequested = true) }
-                                    }
-                                },
-                                onRateApp = {
-                                    playReviews.onOpenedListing()
-                                    openPlayStoreListing(context)
-                                },
-                                privacyOptionsRequired = privacyOptionsRequired,
-                                onPrivacyPolicy = {
-                                    context.startActivity(
-                                        Intent(Intent.ACTION_VIEW, Uri.parse(PRIVACY_POLICY_URL)),
-                                    )
-                                },
-                                onPrivacyOptions = {
-                                    activity?.let { adConsent.presentPrivacyOptions(it) }
-                                },
-                            )
-                        }
-                        composable(SHOPPING_ROUTE) {
-                            ShoppingRoute(
-                                snackbarHostState = snackbarHostState,
-                                onDrinkClick = { drink ->
-                                    viewModel.onIntent(MainIntent.DrinkSelected(drink, selectDrinkTwoPane.value))
-                                },
-                                onFindRecipe = {
-                                    viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.RecipesHome))
-                                },
-                                onOpenHistory = {
-                                    navController.navigate(SHOPPING_HISTORY_ROUTE) { launchSingleTop = true }
-                                },
-                            )
-                        }
-                        composable(SHOPPING_HISTORY_ROUTE) {
-                            ShoppingHistoryRoute(
-                                onBack = { navController.navigateUp() },
-                                onOpenTrip = { id -> navController.navigate(shoppingTripRoute(id)) },
-                            )
-                        }
-                        composable(
-                            route = SHOPPING_TRIP_ROUTE,
-                            arguments = listOf(navArgument("id") { type = NavType.LongType }),
-                        ) { entry ->
-                            ShoppingTripRoute(
-                                id = entry.arguments?.getLong("id") ?: 0L,
-                                onBack = { navController.navigateUp() },
-                            )
-                        }
-                        composable(RECIPES_HOME_ROUTE) {
-                            RecipesHomeRoute(
-                                onDrinkClick = { drink ->
-                                    viewModel.onIntent(MainIntent.DrinkSelected(drink, selectDrinkTwoPane.value))
-                                },
-                                onAddRecipe = {
-                                    navController.navigate(recipeEditorRoute()) { launchSingleTop = true }
-                                },
-                                onSeeAllRecipes = {
-                                    viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Recipes))
-                                },
-                                onSeeAllSaved = {
-                                    viewModel.onIntent(
-                                        MainIntent.SelectDestination(DrawerDestination.Filter(DrinkFilter.SAVED)),
-                                    )
-                                },
-                                onImportRecipe = {
-                                    navController.navigate(importRecipeRoute()) { launchSingleTop = true }
-                                },
-                            )
-                        }
-                        composable(MY_RECIPES_ROUTE) {
-                            MyRecipesRoute(
-                                onRecipeClick = { drink ->
-                                    viewModel.onIntent(MainIntent.DrinkSelected(drink, selectDrinkTwoPane.value))
-                                },
-                                onAddRecipe = {
-                                    navController.navigate(recipeEditorRoute()) { launchSingleTop = true }
-                                },
-                                onImportRecipe = {
-                                    navController.navigate(importRecipeRoute()) { launchSingleTop = true }
-                                },
-                            )
-                        }
-                        composable(
-                            route = RECIPE_EDITOR_ROUTE,
-                            arguments = listOf(
-                                navArgument("id") {
-                                    type = NavType.StringType
-                                    defaultValue = ""
-                                },
-                                navArgument("imported") {
-                                    type = NavType.BoolType
-                                    defaultValue = false
-                                },
-                            ),
-                        ) { entry ->
-                            RecipeEditorRoute(
-                                recipeId = entry.arguments?.getString("id")?.takeIf { it.isNotBlank() },
-                                imported = entry.arguments?.getBoolean("imported") == true,
-                                onClose = { navController.navigateUp() },
-                                // Details for the deleted recipe closes itself once it's gone.
-                                onDeleted = { navController.navigateUp() },
-                            )
-                        }
-                        composable(
-                            route = IMPORT_RECIPE_ROUTE,
-                            arguments = listOf(
-                                navArgument("text") {
-                                    type = NavType.StringType
-                                    defaultValue = ""
-                                },
-                            ),
-                        ) { entry ->
-                            ImportRecipeRoute(
-                                sharedText = entry.arguments?.getString("text")?.takeIf { it.isNotBlank() },
-                                onAskAda = {
-                                    navController.popBackStack(IMPORT_RECIPE_ROUTE, inclusive = true)
-                                    viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Ada))
-                                },
-                                onBack = { navController.navigateUp() },
-                                // The editor takes the import's place, so Back returns to Settings.
-                                onImported = { id ->
-                                    navController.navigate(recipeEditorRoute(id, imported = true)) {
-                                        popUpTo(IMPORT_RECIPE_ROUTE) { inclusive = true }
-                                    }
-                                },
-                            )
-                        }
-                        composable(
-                            route = SEARCH_ROUTE,
-                            arguments = listOf(
-                                navArgument("query") {
-                                    type = NavType.StringType
-                                    defaultValue = ""
-                                },
-                                navArgument("mode") {
-                                    type = NavType.StringType
-                                    defaultValue = SearchMode.NAME.name
-                                },
-                                navArgument("kind") {
-                                    type = NavType.StringType
-                                    defaultValue = ""
-                                },
-                            ),
-                        ) { entry ->
-                            SearchRoute(
-                                initialQuery = entry.arguments?.getString("query").orEmpty(),
-                                initialMode = searchModeFromRoute(entry.arguments?.getString("mode")),
-                                initialFilterKind = filterKindFromRoute(entry.arguments?.getString("kind")),
-                                onBack = { navController.navigateUp() },
-                                onDrinkClick = { drink ->
-                                    viewModel.onIntent(MainIntent.DrinkSelected(drink, selectDrinkTwoPane.value))
-                                },
-                            )
-                        }
-                        composable(
-                            route = DETAILS_ROUTE,
-                            arguments = listOf(
-                                navArgument("id") { type = NavType.StringType },
-                                navArgument("name") {
-                                    type = NavType.StringType
-                                    defaultValue = ""
-                                },
-                                navArgument("thumb") {
-                                    type = NavType.StringType
-                                    defaultValue = ""
-                                },
-                            ),
-                        ) { entry ->
-                            val drink = Drink(
-                                id = entry.arguments?.getString("id").orEmpty(),
-                                name = entry.arguments?.getString("name").orEmpty(),
-                                thumb = entry.arguments?.getString("thumb").orEmpty(),
-                            )
-                            DrinkDetailsRoute(
-                                drink = drink,
-                                showUpNavigation = true,
-                                onBack = { navController.navigateUp() },
-                                onEditRecipe = { id ->
-                                    navController.navigate(recipeEditorRoute(id)) { launchSingleTop = true }
-                                },
-                                wrapInScaffold = true,
-                            )
-                        }
-                    }
-                    if (showTwoPane) {
-                        Box(modifier = Modifier.weight(1f)) {
-                            val drink = state.selectedDrink
-                            if (drink != null) {
+                CompositionLocalProvider(LocalCollapsingHeader provides header) {
+                    Row(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                        NavHost(
+                            navController = navController,
+                            startDestination = RECIPES_HOME_ROUTE,
+                            // Only the tab's own content moves the toolbar, not the two-pane details beside it.
+                            modifier = Modifier.weight(1f).nestedScroll(header.connection),
+                        ) {
+                            composable(
+                                route = GRID_ROUTE,
+                                arguments = listOf(
+                                    navArgument("filter") { type = NavType.StringType },
+                                ),
+                            ) { entry ->
+                                val filter = DrinkFilter.fromName(
+                                    entry.arguments?.getString("filter").orEmpty(),
+                                )
+                                DrinkGridRoute(
+                                    filter = filter,
+                                    snackbarHostState = snackbarHostState,
+                                    onDrinkClick = { drink ->
+                                        viewModel.onIntent(MainIntent.DrinkSelected(drink, selectDrinkTwoPane.value))
+                                    },
+                                )
+                            }
+                            composable(CATALOG_ROUTE) {
+                                CatalogRoute(
+                                    onOpenFilter = { filter ->
+                                        viewModel.onIntent(
+                                            MainIntent.OpenSearch(
+                                                query = filter.query.orEmpty(),
+                                                mode = if (filter.kind == FilterKind.INGREDIENT) {
+                                                    SearchMode.INGREDIENT
+                                                } else {
+                                                    SearchMode.NAME
+                                                },
+                                                filterKind = filter.kind,
+                                            ),
+                                        )
+                                    },
+                                )
+                            }
+                            composable(BAR_ROUTE) {
+                                BarRoute(
+                                    snackbarHostState = snackbarHostState,
+                                    onOpenAda = { viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Ada)) },
+                                    onDrinkClick = { drink ->
+                                        viewModel.onIntent(MainIntent.DrinkSelected(drink, selectDrinkTwoPane.value))
+                                    },
+                                )
+                            }
+                            composable(HOT_ROUTE) {
+                                HotRoute(
+                                    snackbarHostState = snackbarHostState,
+                                    onOpenBar = { viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Bar)) },
+                                    onOpenAda = { viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Ada)) },
+                                    onDrinkClick = { drink ->
+                                        viewModel.onIntent(MainIntent.DrinkSelected(drink, selectDrinkTwoPane.value))
+                                    },
+                                    onSeeAll = { filter ->
+                                        viewModel.onIntent(
+                                            MainIntent.OpenSearch(
+                                                query = filter.query.orEmpty(),
+                                                mode = if (filter.kind == FilterKind.INGREDIENT) {
+                                                    SearchMode.INGREDIENT
+                                                } else {
+                                                    SearchMode.NAME
+                                                },
+                                                filterKind = filter.kind,
+                                            ),
+                                        )
+                                    },
+                                )
+                            }
+                            composable(ADA_ROUTE) {
+                                AdaRoute(
+                                    onDrinkClick = { drink ->
+                                        viewModel.onIntent(MainIntent.DrinkSelected(drink, selectDrinkTwoPane.value))
+                                    },
+                                    onOpenMore = { query, exclude ->
+                                        navController.navigate(adaMoreRoute(query, exclude)) {
+                                            launchSingleTop = true
+                                        }
+                                    },
+                                    // The editor fills itself from RecipeDraftHandoff.
+                                    onEditDraft = {
+                                        navController.navigate(recipeEditorRoute(imported = true)) { launchSingleTop = true }
+                                    },
+                                )
+                            }
+                            composable(
+                                route = ADA_MORE_ROUTE,
+                                arguments = listOf(
+                                    navArgument("q") {
+                                        type = NavType.StringType
+                                        defaultValue = ""
+                                    },
+                                    navArgument("exclude") {
+                                        type = NavType.StringType
+                                        defaultValue = ""
+                                    },
+                                ),
+                            ) { entry ->
+                                AdaMoreRoute(
+                                    query = entry.arguments?.getString("q").orEmpty(),
+                                    exclude = entry.arguments?.getString("exclude").orEmpty()
+                                        .split(',')
+                                        .filter { it.isNotBlank() },
+                                    onBack = { navController.navigateUp() },
+                                    onDrinkClick = { drink ->
+                                        viewModel.onIntent(MainIntent.DrinkSelected(drink, selectDrinkTwoPane.value))
+                                    },
+                                )
+                            }
+                            composable(SETTINGS_ROUTE) {
+                                SettingsRoute(
+                                    onDiscover = {
+                                        viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Hot))
+                                    },
+                                    onSaved = {
+                                        viewModel.onIntent(
+                                            MainIntent.SelectDestination(DrawerDestination.Filter(DrinkFilter.SAVED)),
+                                        )
+                                    },
+                                    onCatalog = {
+                                        viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Catalog))
+                                    },
+                                    onMyRecipes = {
+                                        viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Recipes))
+                                    },
+                                    onImportRecipe = {
+                                        navController.navigate(importRecipeRoute()) { launchSingleTop = true }
+                                    },
+                                    onCheckForUpdates = {
+                                        activity?.let { host ->
+                                            playScope.launch { playUpdates.start(host, userRequested = true) }
+                                        }
+                                    },
+                                    onRateApp = {
+                                        playReviews.onOpenedListing()
+                                        openPlayStoreListing(context)
+                                    },
+                                    privacyOptionsRequired = privacyOptionsRequired,
+                                    onPrivacyPolicy = {
+                                        context.startActivity(
+                                            Intent(Intent.ACTION_VIEW, Uri.parse(PRIVACY_POLICY_URL)),
+                                        )
+                                    },
+                                    onPrivacyOptions = {
+                                        activity?.let { adConsent.presentPrivacyOptions(it) }
+                                    },
+                                )
+                            }
+                            composable(SHOPPING_ROUTE) {
+                                ShoppingRoute(
+                                    snackbarHostState = snackbarHostState,
+                                    onDrinkClick = { drink ->
+                                        viewModel.onIntent(MainIntent.DrinkSelected(drink, selectDrinkTwoPane.value))
+                                    },
+                                    onFindRecipe = {
+                                        viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.RecipesHome))
+                                    },
+                                    onOpenHistory = {
+                                        navController.navigate(SHOPPING_HISTORY_ROUTE) { launchSingleTop = true }
+                                    },
+                                )
+                            }
+                            composable(SHOPPING_HISTORY_ROUTE) {
+                                ShoppingHistoryRoute(
+                                    onBack = { navController.navigateUp() },
+                                    onOpenTrip = { id -> navController.navigate(shoppingTripRoute(id)) },
+                                )
+                            }
+                            composable(
+                                route = SHOPPING_TRIP_ROUTE,
+                                arguments = listOf(navArgument("id") { type = NavType.LongType }),
+                            ) { entry ->
+                                ShoppingTripRoute(
+                                    id = entry.arguments?.getLong("id") ?: 0L,
+                                    onBack = { navController.navigateUp() },
+                                )
+                            }
+                            composable(RECIPES_HOME_ROUTE) {
+                                RecipesHomeRoute(
+                                    onDrinkClick = { drink ->
+                                        viewModel.onIntent(MainIntent.DrinkSelected(drink, selectDrinkTwoPane.value))
+                                    },
+                                    onAddRecipe = {
+                                        navController.navigate(recipeEditorRoute()) { launchSingleTop = true }
+                                    },
+                                    onSeeAllRecipes = {
+                                        viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Recipes))
+                                    },
+                                    onSeeAllSaved = {
+                                        viewModel.onIntent(
+                                            MainIntent.SelectDestination(DrawerDestination.Filter(DrinkFilter.SAVED)),
+                                        )
+                                    },
+                                    onImportRecipe = {
+                                        navController.navigate(importRecipeRoute()) { launchSingleTop = true }
+                                    },
+                                )
+                            }
+                            composable(MY_RECIPES_ROUTE) {
+                                MyRecipesRoute(
+                                    onRecipeClick = { drink ->
+                                        viewModel.onIntent(MainIntent.DrinkSelected(drink, selectDrinkTwoPane.value))
+                                    },
+                                    onAddRecipe = {
+                                        navController.navigate(recipeEditorRoute()) { launchSingleTop = true }
+                                    },
+                                    onImportRecipe = {
+                                        navController.navigate(importRecipeRoute()) { launchSingleTop = true }
+                                    },
+                                )
+                            }
+                            composable(
+                                route = RECIPE_EDITOR_ROUTE,
+                                arguments = listOf(
+                                    navArgument("id") {
+                                        type = NavType.StringType
+                                        defaultValue = ""
+                                    },
+                                    navArgument("imported") {
+                                        type = NavType.BoolType
+                                        defaultValue = false
+                                    },
+                                ),
+                            ) { entry ->
+                                RecipeEditorRoute(
+                                    recipeId = entry.arguments?.getString("id")?.takeIf { it.isNotBlank() },
+                                    imported = entry.arguments?.getBoolean("imported") == true,
+                                    onClose = { navController.navigateUp() },
+                                    // Details for the deleted recipe closes itself once it's gone.
+                                    onDeleted = { navController.navigateUp() },
+                                )
+                            }
+                            composable(
+                                route = IMPORT_RECIPE_ROUTE,
+                                arguments = listOf(
+                                    navArgument("text") {
+                                        type = NavType.StringType
+                                        defaultValue = ""
+                                    },
+                                ),
+                            ) { entry ->
+                                ImportRecipeRoute(
+                                    sharedText = entry.arguments?.getString("text")?.takeIf { it.isNotBlank() },
+                                    onAskAda = {
+                                        navController.popBackStack(IMPORT_RECIPE_ROUTE, inclusive = true)
+                                        viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Ada))
+                                    },
+                                    onBack = { navController.navigateUp() },
+                                    // The editor takes the import's place, so Back returns to Settings.
+                                    onImported = { id ->
+                                        navController.navigate(recipeEditorRoute(id, imported = true)) {
+                                            popUpTo(IMPORT_RECIPE_ROUTE) { inclusive = true }
+                                        }
+                                    },
+                                )
+                            }
+                            composable(
+                                route = SEARCH_ROUTE,
+                                arguments = listOf(
+                                    navArgument("query") {
+                                        type = NavType.StringType
+                                        defaultValue = ""
+                                    },
+                                    navArgument("mode") {
+                                        type = NavType.StringType
+                                        defaultValue = SearchMode.NAME.name
+                                    },
+                                    navArgument("kind") {
+                                        type = NavType.StringType
+                                        defaultValue = ""
+                                    },
+                                ),
+                            ) { entry ->
+                                SearchRoute(
+                                    initialQuery = entry.arguments?.getString("query").orEmpty(),
+                                    initialMode = searchModeFromRoute(entry.arguments?.getString("mode")),
+                                    initialFilterKind = filterKindFromRoute(entry.arguments?.getString("kind")),
+                                    onBack = { navController.navigateUp() },
+                                    onDrinkClick = { drink ->
+                                        viewModel.onIntent(MainIntent.DrinkSelected(drink, selectDrinkTwoPane.value))
+                                    },
+                                )
+                            }
+                            composable(
+                                route = DETAILS_ROUTE,
+                                arguments = listOf(
+                                    navArgument("id") { type = NavType.StringType },
+                                    navArgument("name") {
+                                        type = NavType.StringType
+                                        defaultValue = ""
+                                    },
+                                    navArgument("thumb") {
+                                        type = NavType.StringType
+                                        defaultValue = ""
+                                    },
+                                ),
+                            ) { entry ->
+                                val drink = Drink(
+                                    id = entry.arguments?.getString("id").orEmpty(),
+                                    name = entry.arguments?.getString("name").orEmpty(),
+                                    thumb = entry.arguments?.getString("thumb").orEmpty(),
+                                )
                                 DrinkDetailsRoute(
                                     drink = drink,
-                                    showUpNavigation = false,
-                                    onBack = { viewModel.onIntent(MainIntent.CloseDetails) },
+                                    showUpNavigation = true,
+                                    onBack = { navController.navigateUp() },
                                     onEditRecipe = { id ->
                                         navController.navigate(recipeEditorRoute(id)) { launchSingleTop = true }
                                     },
                                     wrapInScaffold = true,
                                 )
+                            }
+                        }
+                        if (showTwoPane) {
+                            Box(modifier = Modifier.weight(1f)) {
+                                val drink = state.selectedDrink
+                                if (drink != null) {
+                                    DrinkDetailsRoute(
+                                        drink = drink,
+                                        showUpNavigation = false,
+                                        onBack = { viewModel.onIntent(MainIntent.CloseDetails) },
+                                        onEditRecipe = { id ->
+                                            navController.navigate(recipeEditorRoute(id)) { launchSingleTop = true }
+                                        },
+                                        wrapInScaffold = true,
+                                    )
+                                }
                             }
                         }
                     }
@@ -641,12 +661,13 @@ internal fun ScreenHeader(
     onUp: () -> Unit,
     onSearch: () -> Unit,
     onSettings: () -> Unit,
+    modifier: Modifier = Modifier,
     settingsSelected: Boolean = false,
     /** Shown next to Settings on the Shopping tab. */
     onHistory: (() -> Unit)? = null,
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(start = 4.dp, end = 4.dp, top = 12.dp, bottom = 8.dp)
             .testTag("screen_header"),

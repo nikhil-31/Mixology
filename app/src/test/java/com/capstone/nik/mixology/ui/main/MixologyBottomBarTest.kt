@@ -1,6 +1,10 @@
 package com.capstone.nik.mixology.ui.main
 
 import android.app.Application
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -27,11 +31,13 @@ class MixologyBottomBarTest {
     @Test
     fun showsHomeMyBarShoppingAndAda_andReportsSelection() {
         val selected = mutableListOf<DrawerDestination>()
+        val reselected = mutableListOf<DrawerDestination>()
         composeRule.setContent {
             MixologyTheme {
                 MixologyBottomBar(
                     currentDestination = DrawerDestination.RecipesHome,
                     onDestinationSelected = { selected.add(it) },
+                    onReselect = { reselected.add(it) },
                 )
             }
         }
@@ -49,11 +55,47 @@ class MixologyBottomBarTest {
         composeRule.onNodeWithTag("bottom_Shopping").performClick()
         composeRule.onNodeWithTag("bottom_Ada").performClick()
 
-        assertEquals(4, selected.size)
-        assertTrue(selected[0] is DrawerDestination.RecipesHome)
-        assertTrue(selected[1] is DrawerDestination.Bar)
-        assertTrue(selected[2] is DrawerDestination.Shopping)
-        assertTrue(selected[3] is DrawerDestination.Ada)
+        // Home is the current tab, so tapping it again is a reselect (scroll to top), not a move.
+        assertTrue(reselected.single() is DrawerDestination.RecipesHome)
+        assertEquals(3, selected.size)
+        assertTrue(selected[0] is DrawerDestination.Bar)
+        assertTrue(selected[1] is DrawerDestination.Shopping)
+        assertTrue(selected[2] is DrawerDestination.Ada)
+    }
+
+    @Test
+    fun shoppingTab_showsWhatIsLeftToBuy() {
+        composeRule.setContent {
+            MixologyTheme {
+                MixologyBottomBar(
+                    currentDestination = DrawerDestination.Bar,
+                    onDestinationSelected = {},
+                    shoppingLeft = 3,
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("bottom_badge_Shopping", useUnmergedTree = true)
+            .assertContentDescriptionEquals("3 items to buy")
+        composeRule.onNodeWithTag("bottom_badge_Home", useUnmergedTree = true).assertDoesNotExist()
+    }
+
+    @Test
+    fun shoppingBadge_capsAt99_andHidesAtZero() {
+        var left by mutableIntStateOf(150)
+        composeRule.setContent {
+            MixologyTheme {
+                MixologyBottomBar(
+                    currentDestination = DrawerDestination.Bar,
+                    onDestinationSelected = {},
+                    shoppingLeft = left,
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("99+", useUnmergedTree = true).assertExists()
+        left = 0
+        composeRule.onNodeWithTag("bottom_badge_Shopping", useUnmergedTree = true).assertDoesNotExist()
     }
 
     @Test

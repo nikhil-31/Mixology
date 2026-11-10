@@ -11,6 +11,7 @@ import javax.inject.Inject
 class MyApplication : Application() {
 
     @Inject lateinit var networkMonitor: NetworkMonitor
+    @Inject lateinit var reachabilityWatcher: ReachabilityWatcher
     @Inject lateinit var analyticsTracker: AnalyticsTracker
 
     override fun onCreate() {
@@ -21,5 +22,6 @@ class MyApplication : Application() {
         crashlytics.setCustomKey("version_code", BuildConfig.VERSION_CODE)
         analyticsTracker.setCollectionEnabled(!BuildConfig.DEBUG)
         networkMonitor.start()
+        reachabilityWatcher.start()
     }
 }

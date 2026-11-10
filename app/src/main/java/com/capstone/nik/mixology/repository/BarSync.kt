@@ -217,7 +217,12 @@ class NetworkBarSync internal constructor(
      */
     private fun publish(state: BarStateDto) {
         if (pendingChanges().isNotEmpty() || sessionStore.current() == null) return
-        latest.value = barRecommendationsOf(state.makeable, state.almost)
+        latest.value = barRecommendationsOf(
+            state.makeable,
+            state.almost,
+            items = state.items,
+            buyNext = state.buyNext,
+        )
     }
 
     private suspend fun runCatchingNetwork(block: suspend () -> Unit) {

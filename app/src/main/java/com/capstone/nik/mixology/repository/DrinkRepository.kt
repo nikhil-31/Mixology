@@ -25,6 +25,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
@@ -57,6 +60,10 @@ class DrinkRepository @Inject constructor(
 
     private val remoteLists = MutableStateFlow<Map<String, List<Drink>>>(emptyMap())
     private val catalogTerms = MutableStateFlow<Map<FilterKind, List<String>>>(emptyMap())
+    /** The ingredient catalog with categories and use counts; empty until [refreshBarTerms] works. */
+    private val barTerms = MutableStateFlow<List<BarTerm>>(emptyList())
+    /** Bumped to load the public bar recommendations again after a failure. */
+    private val barRetries = MutableStateFlow(0)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun observeDrinks(filter: DrinkFilter): Flow<List<Drink>> {
@@ -181,9 +188,34 @@ class DrinkRepository @Inject constructor(
 
     fun observeBar(): Flow<List<String>> = barDao.observeAll().map { items -> items.map { it.name } }
 
+    /**
+     * What the bar's picker offers. With the server's ingredient catalog this carries each
+     * ingredient's category and how many drinks use it; without it (offline, or an older
+     * server) it is the plain ingredient list, all in [BarCategory.OTHER].
+     */
+    fun observeBarTerms(): Flow<List<BarTerm>> =
+        combine(barTerms, observeCatalog(FilterKind.INGREDIENT)) { rich, names ->
+            rich.ifEmpty { names.map { BarTerm(it) } }
+        }
+
+    /** Loads the ingredient catalog for [observeBarTerms]; a failure keeps what was there. */
+    suspend fun refreshBarTerms() {
+        try {
+            val seen = mutableSetOf<String>()
+            barTerms.value = service.ingredients()
+                .filter { it.name.isNotBlank() && seen.add(it.name.trim().lowercase()) }
+                .map { BarTerm(it.name.trim(), BarCategory.of(it.category), it.usedIn) }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to load the ingredient catalog", e)
+        }
+    }
+
+    /** Adds [name] unless the bar already has it in any case. */
     suspend fun addToBar(name: String) {
         val trimmed = name.trim()
-        if (trimmed.isEmpty()) return
+        if (trimmed.isEmpty() || barDao.find(trimmed) != null) return
         barDao.insert(BarIngredientEntity(trimmed))
         barSync.push(trimmed, owned = true)
     }
@@ -219,23 +251,46 @@ class DrinkRepository @Inject constructor(
             }
     }
 
+    /** Asks for the public bar recommendations again, after a load that failed. */
+    fun retryBarRecommendations() {
+        barRetries.update { it + 1 }
+    }
+
+    /**
+     * The catalog preview for the device's bar. Quick edits are answered by one request, not
+     * one each. A failed load keeps the drinks from before it and says so in
+     * [BarRecommendations.error], so the screen can tell "nothing matches" from "couldn't ask".
+     */
+    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
     private fun publicBarRecommendations(): Flow<BarRecommendations> {
-        return combine(observeBar(), observeSavedIds()) { names, saved ->
-            if (names.isEmpty()) {
-                BarRecommendations()
-            } else {
-                try {
-                    val response = service.getBarRecommendations(names)
-                    barRecommendationsOf(response.makeable, response.almost, saved)
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: Exception) {
-                    Log.e(TAG, "Failed to load bar recommendations", e)
-                    recordCrash(e)
+        var first = true
+        var last = BarRecommendations()
+        val loaded = combine(observeBar(), barRetries) { names, _ -> names }
+            .debounce { if (first) 0L else BAR_DEBOUNCE_MS }
+            .mapLatest { names ->
+                first = false
+                last = if (names.isEmpty()) {
                     BarRecommendations()
+                } else {
+                    try {
+                        val response = service.getBarRecommendations(names)
+                        barRecommendationsOf(
+                            response.makeable,
+                            response.almost,
+                            items = response.items,
+                            buyNext = response.buyNext,
+                        )
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Failed to load bar recommendations", e)
+                        recordCrash(e)
+                        last.copy(error = e)
+                    }
                 }
+                last
             }
-        }
+        return combine(loaded, observeSavedIds()) { recs, saved -> recs.withSaved(saved) }
     }
 
     suspend fun addToShoppingList(drink: Drink) {
@@ -248,6 +303,19 @@ class DrinkRepository @Inject constructor(
             shoppingDao.insert(ShoppingItemEntity(name = name, drinkId = drink.id))
         }
         shoppingSync.push()
+    }
+
+    /**
+     * Adds one ingredient to the shopping list, under [drinkId] (or none).
+     * False when it was already there, so nothing was added.
+     */
+    suspend fun addIngredientToShoppingList(name: String, drinkId: String = ""): Boolean {
+        val trimmed = name.trim()
+        if (trimmed.isEmpty()) return false
+        if (trimmed.lowercase() in shoppingDao.namesForDrink(drinkId)) return false
+        shoppingDao.insert(ShoppingItemEntity(name = trimmed, drinkId = drinkId))
+        shoppingSync.push()
+        return true
     }
 
     /** Brings in the account's shopping list, after sending any local edits. */
@@ -326,6 +394,8 @@ class DrinkRepository @Inject constructor(
         private const val TAG = "DrinkRepository"
         const val ACTION_DATABASE_UPDATED = "com.capstone.nik.mixology.action.DATABASE_UPDATED"
         const val MAX_RECENTLY_VIEWED = 30
+        /** How long the bar must sit still before the public recommendations are asked for again. */
+        const val BAR_DEBOUNCE_MS = 300L
 
         fun hasUsableThumb(drink: CocktailDbDrink): Boolean = drink.hasUsableThumb()
     }

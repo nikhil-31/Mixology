@@ -24,7 +24,20 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.DoneAll
+import androidx.compose.material.icons.outlined.ExpandLess
+import androidx.compose.material.icons.outlined.ExpandMore
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import com.capstone.nik.mixology.ui.bar.barCategoryLabel
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.ShoppingCart
@@ -119,6 +132,10 @@ fun ShoppingRoute(
                 )
                 if (result == SnackbarResult.ActionPerformed) viewModel.onIntent(ShoppingIntent.Undo)
             }
+            is ShoppingEffect.ShowMessage -> {
+                snackbarHostState.currentSnackbarData?.dismiss()
+                snackbarHostState.showSnackbar(context.getString(effect.messageRes))
+            }
         }
     }
 
@@ -140,8 +157,17 @@ fun ShoppingRoute(
         onOpenHistory = onOpenHistory,
         onToggleReviewRow = { viewModel.onIntent(ShoppingIntent.ToggleReviewRow(it)) },
         onConfirmReview = { viewModel.onIntent(ShoppingIntent.ConfirmReview) },
+        onAddItem = { viewModel.onIntent(ShoppingIntent.AddItem(it)) },
+        onRemoveOwned = { viewModel.onIntent(ShoppingIntent.RemoveOwned) },
+        onCheckDrink = { viewModel.onIntent(ShoppingIntent.CheckDrink(it)) },
         onShare = {
-            shoppingShareText(state.sections, state.byIngredient, otherLabel)?.let { text ->
+            shoppingShareText(
+                state.sections,
+                state.byIngredient,
+                otherLabel,
+                terms = state.terms,
+                aisleLabel = { context.getString(barCategoryLabel(it)) },
+            )?.let { text ->
                 val send = Intent(Intent.ACTION_SEND).apply {
                     type = "text/plain"
                     putExtra(Intent.EXTRA_TEXT, text)
@@ -181,6 +207,9 @@ fun ShoppingScreen(
     onOpenHistory: () -> Unit = {},
     onToggleReviewRow: (String) -> Unit = {},
     onConfirmReview: () -> Unit = {},
+    onAddItem: (String) -> Unit = {},
+    onRemoveOwned: () -> Unit = {},
+    onCheckDrink: (String) -> Unit = {},
 ) {
     state.review?.let { review ->
         ShoppingReviewSheet(
@@ -197,8 +226,10 @@ fun ShoppingScreen(
         modifier = Modifier.fillMaxSize(),
     ) {
         if (state.sections.isEmpty()) {
-            ShoppingEmpty(onFindRecipe = onFindRecipe, onOpenHistory = onOpenHistory)
+            ShoppingEmpty(onFindRecipe = onFindRecipe, onOpenHistory = onOpenHistory, onAddItem = onAddItem)
         } else {
+            var checkedExpanded by rememberSaveable { mutableStateOf(true) }
+            val owned = state.owned
             val listState = rememberLazyListState()
             ScrollToTopOnReselect(listState)
             LazyColumn(
@@ -216,14 +247,28 @@ fun ShoppingScreen(
                         onShare = onShare,
                         onDoneShopping = onOpenReview,
                         onOpenHistory = onOpenHistory,
+                        ownedCount = owned.size,
+                        onRemoveOwned = onRemoveOwned,
                     )
                 }
+                item(key = "add-item") { AddItemField(onAdd = onAddItem, modifier = Modifier.padding(horizontal = 16.dp)) }
                 if (state.byIngredient) {
                     val (open, done) = state.combined.partition { !it.checked }
-                    combinedRows(open, onToggleCombined, onRemoveCombined)
+                    val aisles = groupByAisle(open, state.terms)
+                    // One aisle (often "Other", before the catalog loads) needs no heading.
+                    aisles.forEach { aisle ->
+                        if (aisles.size > 1) {
+                            item(key = "aisle-${aisle.category}") { AisleHeader(aisle.category) }
+                        }
+                        combinedRows(aisle.rows, owned, onToggleCombined, onRemoveCombined)
+                    }
                     if (done.isNotEmpty()) {
-                        item(key = "checked-header") { CheckedHeader() }
-                        combinedRows(done.sortedBy { it.key }, onToggleCombined, onRemoveCombined)
+                        item(key = "checked-header") {
+                            CheckedHeader(done.size, checkedExpanded) { checkedExpanded = !checkedExpanded }
+                        }
+                        if (checkedExpanded) {
+                            combinedRows(done.sortedBy { it.key }, owned, onToggleCombined, onRemoveCombined)
+                        }
                     }
                 } else {
                     val (open, done) = splitChecked(state.sections)
@@ -233,6 +278,7 @@ fun ShoppingScreen(
                                 section = section,
                                 onDrinkClick = onDrinkClick,
                                 onRemoveDrink = onRemoveDrink,
+                                onCheckDrink = onCheckDrink,
                             )
                         }
                         items(section.items, key = { it.id }) { item ->
@@ -242,14 +288,17 @@ fun ShoppingScreen(
                                     detail = null,
                                     measure = section.measure(item),
                                     checked = item.checked,
+                                    inBar = item.id in owned,
                                     onToggle = { onToggle(item) },
                                 )
                             }
                         }
                     }
                     if (done.isNotEmpty()) {
-                        item(key = "checked-header") { CheckedHeader() }
-                        items(done, key = { it.item.id }) { row ->
+                        item(key = "checked-header") {
+                            CheckedHeader(done.size, checkedExpanded) { checkedExpanded = !checkedExpanded }
+                        }
+                        if (checkedExpanded) items(done, key = { it.item.id }) { row ->
                             SwipeToRemove(onRemove = { onRemove(row.item) }) {
                                 ShoppingRow(
                                     name = row.item.name,
@@ -269,16 +318,24 @@ fun ShoppingScreen(
 
 private fun LazyListScope.combinedRows(
     rows: List<CombinedShoppingItem>,
+    owned: Set<Long>,
     onToggle: (CombinedShoppingItem) -> Unit,
     onRemove: (CombinedShoppingItem) -> Unit,
 ) {
     items(rows, key = { "combined-${it.key}" }) { row ->
         SwipeToRemove(onRemove = { onRemove(row) }) {
+            // Several drinks' measures don't add up, so say how many drinks need it instead.
+            val drinks = row.drinkNames.size
             ShoppingRow(
                 name = row.name,
                 detail = row.drinkNames.joinToString(" · ").takeIf { it.isNotEmpty() },
-                measure = row.measure,
+                measure = if (row.measure.isEmpty() && drinks > 1) {
+                    pluralStringResource(R.plurals.shopping_drink_count, drinks, drinks)
+                } else {
+                    row.measure
+                },
                 checked = row.checked,
+                inBar = row.items.any { it.id in owned },
                 onToggle = { onToggle(row) },
             )
         }
@@ -293,6 +350,8 @@ private fun ShoppingControls(
     onShare: () -> Unit,
     onDoneShopping: () -> Unit,
     onOpenHistory: () -> Unit,
+    ownedCount: Int = 0,
+    onRemoveOwned: () -> Unit = {},
 ) {
     val colors = MaterialTheme.colorScheme
     val allDone = state.total > 0 && state.checkedCount == state.total
@@ -366,21 +425,108 @@ private fun ShoppingControls(
             modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
             drawStopIndicator = {},
         )
+        if (ownedCount > 0) {
+            Surface(
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp).testTag("shopping_owned_banner"),
+                shape = RoundedCornerShape(12.dp),
+                color = colors.secondaryContainer,
+            ) {
+                Row(
+                    modifier = Modifier.padding(start = 16.dp, end = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        Icons.Filled.CheckCircle,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = colors.onSecondaryContainer,
+                    )
+                    Text(
+                        text = pluralStringResource(R.plurals.shopping_owned_banner, ownedCount, ownedCount),
+                        modifier = Modifier.weight(1f).padding(horizontal = 12.dp),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = colors.onSecondaryContainer,
+                    )
+                    TextButton(onClick = onRemoveOwned, modifier = Modifier.testTag("shopping_remove_owned")) {
+                        Text(stringResource(R.string.shopping_remove_owned))
+                    }
+                }
+            }
+        }
     }
+}
+
+/** A field for adding anything to the list (ice, cups, limes), filed under "Other". */
+@Composable
+private fun AddItemField(onAdd: (String) -> Unit, modifier: Modifier = Modifier) {
+    var text by rememberSaveable { mutableStateOf("") }
+    val submit = {
+        if (text.isNotBlank()) {
+            onAdd(text)
+            text = ""
+        }
+    }
+    OutlinedTextField(
+        value = text,
+        onValueChange = { text = it },
+        modifier = modifier.fillMaxWidth().padding(bottom = 4.dp).testTag("shopping_add_field"),
+        placeholder = { Text(stringResource(R.string.shopping_add_item_hint)) },
+        singleLine = true,
+        shape = RoundedCornerShape(12.dp),
+        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences, imeAction = ImeAction.Done),
+        keyboardActions = KeyboardActions(onDone = { submit() }),
+        trailingIcon = {
+            IconButton(
+                onClick = submit,
+                enabled = text.isNotBlank(),
+                modifier = Modifier.testTag("shopping_add_button"),
+            ) {
+                Icon(Icons.Outlined.Add, contentDescription = stringResource(R.string.shopping_add_item))
+            }
+        },
+    )
+}
+
+/** Heads one aisle of the By ingredient list, using My Bar's shelf names. */
+@Composable
+private fun AisleHeader(category: String) {
+    Text(
+        text = stringResource(barCategoryLabel(category)),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 4.dp)
+            .semantics { heading() }
+            .testTag("shopping_aisle_$category"),
+        style = MaterialTheme.typography.titleSmall,
+        color = MaterialTheme.colorScheme.primary,
+    )
 }
 
 /** Heads the bottom of the list, where checked items wait until they're cleared. */
 @Composable
-private fun CheckedHeader() {
-    Text(
-        text = stringResource(R.string.shopping_checked_section),
+private fun CheckedHeader(count: Int, expanded: Boolean, onToggle: () -> Unit) {
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 4.dp)
+            .padding(top = 12.dp)
+            .clickable(onClickLabel = stringResource(if (expanded) R.string.shopping_hide_checked else R.string.shopping_show_checked)) { onToggle() }
+            .padding(start = 16.dp, end = 12.dp, top = 8.dp, bottom = 8.dp)
+            .semantics(mergeDescendants = true) { heading() }
             .testTag("shopping_checked_header"),
-        style = MaterialTheme.typography.titleSmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-    )
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = stringResource(R.string.shopping_checked_count, count),
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Icon(
+            imageVector = if (expanded) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
 }
 
 @Composable
@@ -388,6 +534,7 @@ private fun ShoppingSectionHeader(
     section: ShoppingSection,
     onDrinkClick: (Drink) -> Unit,
     onRemoveDrink: (String) -> Unit,
+    onCheckDrink: (String) -> Unit = {},
 ) {
     val drink = section.drink
     if (drink == null) {
@@ -415,19 +562,36 @@ private fun ShoppingSectionHeader(
                 .size(56.dp)
                 .clip(RoundedCornerShape(8.dp)),
         )
-        Text(
-            text = drink.name,
-            modifier = Modifier.weight(1f),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-        )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = drink.name,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+            // Open sections only hold what's still to buy.
+            val left = section.items.count { !it.checked }
+            Text(
+                text = pluralStringResource(R.plurals.shopping_left, left, left),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
         Box {
-            IconButton(onClick = { menu = true }) {
+            IconButton(onClick = { menu = true }, modifier = Modifier.testTag("shopping_section_menu_${section.drinkId}")) {
                 Icon(Icons.Outlined.MoreVert, contentDescription = stringResource(R.string.shopping_more_options))
             }
             DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.shopping_check_all)) },
+                    leadingIcon = { Icon(Icons.Outlined.DoneAll, contentDescription = null) },
+                    onClick = {
+                        menu = false
+                        onCheckDrink(section.drinkId)
+                    },
+                    modifier = Modifier.testTag("shopping_check_all"),
+                )
                 DropdownMenuItem(
                     text = { Text(stringResource(R.string.shopping_remove_drink)) },
                     leadingIcon = { Icon(Icons.Outlined.Delete, contentDescription = null) },
@@ -496,6 +660,7 @@ private fun ShoppingRow(
     measure: String,
     checked: Boolean,
     onToggle: () -> Unit,
+    inBar: Boolean = false,
 ) {
     val colors = MaterialTheme.colorScheme
     Row(
@@ -514,6 +679,20 @@ private fun ShoppingRow(
                 color = if (checked) colors.onSurfaceVariant else colors.onSurface,
                 textDecoration = if (checked) TextDecoration.LineThrough else TextDecoration.None,
             )
+            if (inBar && !checked) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    modifier = Modifier.testTag("shopping_in_bar"),
+                ) {
+                    Icon(Icons.Filled.CheckCircle, contentDescription = null, modifier = Modifier.size(14.dp), tint = colors.primary)
+                    Text(
+                        text = stringResource(R.string.shopping_in_bar),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = colors.primary,
+                    )
+                }
+            }
             if (detail != null) {
                 Text(
                     text = detail,
@@ -538,7 +717,7 @@ private fun ShoppingRow(
 }
 
 @Composable
-private fun ShoppingEmpty(onFindRecipe: () -> Unit, onOpenHistory: () -> Unit) {
+private fun ShoppingEmpty(onFindRecipe: () -> Unit, onOpenHistory: () -> Unit, onAddItem: (String) -> Unit = {}) {
     // Scrollable so pull-to-refresh still works on an empty list.
     Column(
         modifier = Modifier
@@ -569,6 +748,7 @@ private fun ShoppingEmpty(onFindRecipe: () -> Unit, onOpenHistory: () -> Unit) {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
         )
+        AddItemField(onAdd = onAddItem, modifier = Modifier.padding(bottom = 12.dp))
         FilledTonalButton(onClick = onFindRecipe, modifier = Modifier.testTag("shopping_find_recipe")) {
             Text(stringResource(R.string.shopping_find_recipe))
         }

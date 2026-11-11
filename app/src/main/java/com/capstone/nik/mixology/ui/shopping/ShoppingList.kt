@@ -4,7 +4,9 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.capstone.nik.mixology.data.ShoppingItemEntity
 import com.capstone.nik.mixology.data.ShoppingSection
+import com.capstone.nik.mixology.repository.BarCategory
 import com.capstone.nik.mixology.repository.BarMatcher
+import com.capstone.nik.mixology.repository.BarTerm
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
@@ -92,22 +94,72 @@ fun reviewRows(sections: List<ShoppingSection>, bar: Collection<String>): List<R
 }
 
 /**
- * The items still to buy as a plain-text checklist, grouped under drink names (or flat when
- * combined). Null when everything is checked.
+ * The aisle (a [BarCategory], the same shelves as My Bar) an ingredient is bought from. [terms]
+ * maps lowercase catalog names to categories. An exact name wins; otherwise the longest catalog
+ * name found in it as whole words, so "Fresh lime juice" goes where "Lime juice" does.
+ */
+fun shoppingCategory(name: String, terms: Map<String, String>): String {
+    val key = BarMatcher.normalize(name)
+    if (key.isEmpty() || terms.isEmpty()) return BarCategory.OTHER
+    terms[key]?.let { return BarCategory.of(it) }
+    val best = terms.entries
+        .filter { (term, _) -> term.isNotEmpty() && BarMatcher.containsWord(key, term) }
+        .maxByOrNull { it.key.length }
+    return BarCategory.of(best?.value)
+}
+
+/** The catalog's terms as [shoppingCategory] reads them, by normalised name. */
+fun shoppingTerms(terms: List<BarTerm>): Map<String, String> =
+    terms.filter { it.category != BarCategory.OTHER }
+        .associate { BarMatcher.normalize(it.name) to it.category }
+
+/** One aisle of the By ingredient list. */
+data class AisleGroup(val category: String, val rows: List<CombinedShoppingItem>)
+
+/** [rows] by aisle, in My Bar's shelf order, A–Z within each; empty aisles are left out. */
+fun groupByAisle(rows: List<CombinedShoppingItem>, terms: Map<String, String>): List<AisleGroup> {
+    val grouped = rows.groupBy { shoppingCategory(it.name, terms) }
+    return BarCategory.all.mapNotNull { category ->
+        grouped[category]?.let { AisleGroup(category, it.sortedBy { row -> row.key }) }
+    }
+}
+
+/**
+ * Ids of the unchecked items My Bar already stocks ([bar] holds normalised names), matched as
+ * the Done shopping review does. Ice and water are never flagged.
+ */
+fun ownedOpen(sections: List<ShoppingSection>, bar: Collection<String>): Set<Long> {
+    val owned = bar.map { BarMatcher.normalize(it) }.filterTo(HashSet()) { it.isNotEmpty() }
+    if (owned.isEmpty()) return emptySet()
+    return sections.flatMap { it.items }
+        .filter { !it.checked && !BarMatcher.isPantry(it.name) && BarMatcher.inBar(it.name, owned) }
+        .mapTo(HashSet()) { it.id }
+}
+
+/**
+ * The items still to buy as a plain-text checklist, grouped under drink names, or when combined
+ * under aisle names (flat when everything is in one aisle). Null when everything is checked.
  */
 fun shoppingShareText(
     sections: List<ShoppingSection>,
     byIngredient: Boolean,
     otherLabel: String,
+    terms: Map<String, String> = emptyMap(),
+    aisleLabel: (String) -> String = { it },
 ): String? {
     fun line(name: String, measure: String) =
         if (measure.isBlank()) "☐ ${name.trim()}" else "☐ ${name.trim()} (${measure.trim()})"
 
-    val lines = if (byIngredient) {
-        combineByIngredient(sections)
-            .filterNot { it.checked }
-            .map { row -> line(row.name, row.measure) }
-    } else {
+    if (byIngredient) {
+        val open = combineByIngredient(sections).filterNot { it.checked }
+        if (open.isEmpty()) return null
+        val aisles = groupByAisle(open, terms)
+        if (aisles.size == 1) return open.joinToString("\n") { line(it.name, it.measure) }
+        return aisles.joinToString("\n\n") { aisle ->
+            (listOf(aisleLabel(aisle.category)) + aisle.rows.map { line(it.name, it.measure) }).joinToString("\n")
+        }
+    }
+    val lines = run {
         sections.mapNotNull { section ->
             val open = section.items.filterNot { it.checked }
             if (open.isEmpty()) return@mapNotNull null
@@ -116,7 +168,7 @@ fun shoppingShareText(
         }
     }
     if (lines.isEmpty()) return null
-    return lines.joinToString(if (byIngredient) "\n" else "\n\n")
+    return lines.joinToString("\n\n")
 }
 
 /** Remembers the By drink / By ingredient choice on this device. */

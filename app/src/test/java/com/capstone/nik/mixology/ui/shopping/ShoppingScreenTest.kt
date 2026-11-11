@@ -7,6 +7,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performCustomAccessibilityActionWithLabel
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onAllNodesWithText
@@ -337,5 +338,110 @@ class ShoppingScreenTest {
         }
         composeRule.onNodeWithTag("shopping_empty_history").performClick()
         assertEquals(1, history)
+    }
+
+    private val margaritaSection = ShoppingSection(
+        drinkId = "1",
+        drink = Drink("1", "Margarita", "", ingredients = listOf(IngredientMeasure("Tequila", "2 oz"))),
+        items = listOf(
+            ShoppingItemEntity(id = 1, name = "Tequila", drinkId = "1"),
+            ShoppingItemEntity(id = 2, name = "Lime", drinkId = "1"),
+            ShoppingItemEntity(id = 3, name = "Salt", checked = true, drinkId = "1"),
+        ),
+    )
+
+    @Test
+    fun addField_submitsTrimmedText_andClears() {
+        val added = mutableListOf<String>()
+        composeRule.setContent {
+            MixologyTheme {
+                ShoppingScreen(
+                    state = ShoppingUiState(sections = listOf(margaritaSection)),
+                    onToggle = {}, onRemove = {}, onClearChecked = {},
+                    onAddItem = { added.add(it) },
+                )
+            }
+        }
+        composeRule.onNodeWithTag("shopping_add_field").performTextInput("Cups")
+        composeRule.onNodeWithTag("shopping_add_button").performClick()
+        assertEquals(listOf("Cups"), added)
+        composeRule.onNodeWithText("Cups").assertDoesNotExist()
+    }
+
+    @Test
+    fun ownedItems_areMarked_andTheBannerRemovesThem() {
+        var removedOwned = 0
+        composeRule.setContent {
+            MixologyTheme {
+                ShoppingScreen(
+                    state = ShoppingUiState(sections = listOf(margaritaSection), bar = setOf("tequila")),
+                    onToggle = {}, onRemove = {}, onClearChecked = {},
+                    onRemoveOwned = { removedOwned++ },
+                )
+            }
+        }
+        composeRule.onNodeWithText("In your bar").assertIsDisplayed()
+        composeRule.onNodeWithText("1 item is already in your bar").assertIsDisplayed()
+        composeRule.onNodeWithTag("shopping_remove_owned").performClick()
+        assertEquals(1, removedOwned)
+    }
+
+    @Test
+    fun drinkHeader_showsWhatsLeft_andCheckAll() {
+        var checked: String? = null
+        composeRule.setContent {
+            MixologyTheme {
+                ShoppingScreen(
+                    state = ShoppingUiState(sections = listOf(margaritaSection), byIngredient = false),
+                    onToggle = {}, onRemove = {}, onClearChecked = {},
+                    onCheckDrink = { checked = it },
+                )
+            }
+        }
+        composeRule.onNodeWithText("2 left").assertIsDisplayed()
+        composeRule.onNodeWithTag("shopping_section_menu_1").performClick()
+        composeRule.onNodeWithTag("shopping_check_all").performClick()
+        assertEquals("1", checked)
+    }
+
+    @Test
+    fun checkedSection_collapses() {
+        composeRule.setContent {
+            MixologyTheme {
+                ShoppingScreen(
+                    state = ShoppingUiState(sections = listOf(margaritaSection), byIngredient = false),
+                    onToggle = {}, onRemove = {}, onClearChecked = {},
+                )
+            }
+        }
+        composeRule.onNodeWithText("Checked (1)").assertIsDisplayed()
+        composeRule.onNodeWithText("Salt").assertExists()
+        composeRule.onNodeWithTag("shopping_checked_header").performClick()
+        composeRule.onNodeWithText("Salt").assertDoesNotExist()
+    }
+
+    @Test
+    fun byIngredient_groupsIntoAisles_andCountsDrinks() {
+        val daiquiri = ShoppingSection(
+            "2", Drink("2", "Daiquiri", ""), listOf(ShoppingItemEntity(id = 4, name = "Lime", drinkId = "2")),
+        )
+        composeRule.setContent {
+            MixologyTheme {
+                ShoppingScreen(
+                    state = ShoppingUiState(
+                        sections = listOf(margaritaSection, daiquiri),
+                        byIngredient = true,
+                        terms = mapOf("tequila" to "spirit", "lime" to "fresh"),
+                    ),
+                    onToggle = {}, onRemove = {}, onClearChecked = {},
+                )
+            }
+        }
+        composeRule.onNodeWithTag("shopping_aisle_spirit").assertIsDisplayed()
+        composeRule.onNodeWithTag("shopping_aisle_fresh").assertIsDisplayed()
+        composeRule.onNodeWithText("2 drinks").assertIsDisplayed()
+        val spirit = composeRule.onNodeWithTag("shopping_aisle_spirit").fetchSemanticsNode().positionInRoot.y
+        val fresh = composeRule.onNodeWithTag("shopping_aisle_fresh").fetchSemanticsNode().positionInRoot.y
+        assertTrue(spirit < fresh)
     }
 }

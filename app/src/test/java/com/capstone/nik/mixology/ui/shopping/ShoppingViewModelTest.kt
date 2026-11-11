@@ -280,6 +280,53 @@ class ShoppingViewModelTest {
             cancelAndIgnoreRemainingEvents()
         }
     }
+
+    @Test
+    fun addItem_filesItUnderOther_ignoresBlank_andSaysWhenAlreadyListed() = runTest {
+        viewModel.effects.test {
+            viewModel.onIntent(ShoppingIntent.AddItem("   "))
+            viewModel.onIntent(ShoppingIntent.AddItem(" Ice cubes "))
+            val added = viewModel.state.first { it.items.isNotEmpty() }
+            assertEquals(listOf("Ice cubes"), added.items.map { it.name })
+            assertEquals("", added.items.single().drinkId)
+
+            viewModel.onIntent(ShoppingIntent.AddItem("ice cubes"))
+            assertEquals(ShoppingEffect.ShowMessage(com.capstone.nik.mixology.R.string.shopping_already_listed), awaitItem())
+            assertEquals(1, viewModel.state.value.items.size)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun removeOwned_takesOffWhatTheBarHas_andUndoPutsItBack() = runTest {
+        viewModel.state.test {
+            repository.addToBar("Tequila")
+            repository.addToShoppingList(margarita)
+            val listed = awaitItemUntil { it.items.size == 2 && it.owned.size == 1 }
+            assertEquals("Tequila", listed.items.first { it.id in listed.owned }.name)
+
+            viewModel.onIntent(ShoppingIntent.RemoveOwned)
+            val left = awaitItemUntil { it.items.size == 1 }
+            assertTrue(left.owned.isEmpty())
+
+            viewModel.onIntent(ShoppingIntent.Undo)
+            awaitItemUntil { it.items.size == 2 }
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun checkDrink_checksOnlyThatDrinksItems() = runTest {
+        viewModel.state.test {
+            repository.addToShoppingList(margarita)
+            repository.addToShoppingList(daiquiri)
+            awaitItemUntil { it.items.size == 4 }
+            viewModel.onIntent(ShoppingIntent.CheckDrink("1"))
+            val done = awaitItemUntil { s -> s.items.filter { it.drinkId == "1" }.all { it.checked } }
+            assertTrue(done.items.filter { it.drinkId == "2" }.none { it.checked })
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
 }
 
 /** Only [recipes] and [load] matter to the shopping list. */

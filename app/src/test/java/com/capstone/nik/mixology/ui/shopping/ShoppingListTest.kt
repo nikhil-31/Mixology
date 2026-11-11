@@ -69,6 +69,57 @@ class ShoppingListTest {
         assertEquals("Margarita\n☐ Tequila (2 oz)\n\nDaiquiri\n☐ Lime  Juice (3/4 oz)", text)
     }
 
+    private val terms = mapOf("tequila" to "spirit", "lime juice" to "mixer", "lime" to "fresh")
+
+    @Test
+    fun shoppingCategory_exactThenLongestWholeWord_elseOther() {
+        assertEquals("spirit", shoppingCategory("  TEQUILA ", terms))
+        // "lime juice" is longer than "lime", so it wins.
+        assertEquals("mixer", shoppingCategory("Fresh lime juice", terms))
+        assertEquals("fresh", shoppingCategory("Lime wedges", terms))
+        assertEquals("other", shoppingCategory("Limeade", terms))
+        assertEquals("other", shoppingCategory("Cups", terms))
+        assertEquals("other", shoppingCategory("Tequila", emptyMap()))
+    }
+
+    @Test
+    fun groupByAisle_followsBarShelfOrder_andSkipsEmptyAisles() {
+        val rows = combineByIngredient(
+            sections() + ShoppingSection("", null, listOf(ShoppingItemEntity(id = 9, name = "Cups"))),
+        )
+        val aisles = groupByAisle(rows, terms)
+        assertEquals(listOf("spirit", "mixer", "other"), aisles.map { it.category })
+        assertEquals(listOf("Lime juice"), aisles[1].rows.map { it.name })
+    }
+
+    @Test
+    fun ownedOpen_flagsUncheckedBarItems_notPantryOrChecked() {
+        val list = listOf(
+            ShoppingSection(
+                "", null,
+                listOf(
+                    ShoppingItemEntity(id = 1, name = "Blanco tequila"),
+                    ShoppingItemEntity(id = 2, name = "Ice"),
+                    ShoppingItemEntity(id = 3, name = "Tequila", checked = true),
+                    ShoppingItemEntity(id = 4, name = "Ginger ale"),
+                ),
+            ),
+        )
+        assertEquals(setOf(1L), ownedOpen(list, listOf("tequila", "ice", "gin")))
+        assertTrue(ownedOpen(list, emptyList()).isEmpty())
+    }
+
+    @Test
+    fun shareText_byIngredient_headsEachAisle_whenThereIsMoreThanOne() {
+        assertEquals(
+            "Spirits\n☐ Tequila (2 oz)\n\nMixers\n☐ Lime juice",
+            shoppingShareText(
+                sections(), byIngredient = true, otherLabel = "Other", terms = terms,
+                aisleLabel = { if (it == "spirit") "Spirits" else "Mixers" },
+            ),
+        )
+    }
+
     @Test
     fun shareText_byIngredient_isFlat_andNullWhenAllDone() {
         assertEquals(

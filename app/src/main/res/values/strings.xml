@@ -167,6 +167,27 @@
         <item quantity="one">%1$d of %2$d checked</item>
         <item quantity="other">%1$d of %2$d checked</item>
     </plurals>
+    <string name="shopping_add_item">Add item</string>
+    <string name="shopping_add_item_hint">Add an item, like ice or limes</string>
+    <string name="shopping_already_listed">That\'s already on your list</string>
+    <string name="shopping_in_bar">In your bar</string>
+    <plurals name="shopping_owned_banner">
+        <item quantity="one">%d item is already in your bar</item>
+        <item quantity="other">%d items are already in your bar</item>
+    </plurals>
+    <string name="shopping_remove_owned">Remove</string>
+    <plurals name="shopping_left">
+        <item quantity="one">%d left</item>
+        <item quantity="other">%d left</item>
+    </plurals>
+    <plurals name="shopping_drink_count">
+        <item quantity="one">%d drink</item>
+        <item quantity="other">%d drinks</item>
+    </plurals>
+    <string name="shopping_check_all">Check all</string>
+    <string name="shopping_checked_count">Checked (%d)</string>
+    <string name="shopping_show_checked">Show checked items</string>
+    <string name="shopping_hide_checked">Hide checked items</string>
     <string name="shopping_all_done">All done</string>
     <string name="shopping_remove_drink">Remove drink</string>
     <string name="shopping_more_options">More options</string>

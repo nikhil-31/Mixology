@@ -59,6 +59,18 @@ class ShoppingViewModel @Inject constructor(
             }
         }
         viewModelScope.launch {
+            var requestedTerms = false
+            repository.observeBarTerms().collect { terms ->
+                val categorised = shoppingTerms(terms)
+                // Offline the catalog has no categories yet; ask the server for them once.
+                if (categorised.isEmpty() && !requestedTerms) {
+                    requestedTerms = true
+                    launch { repository.refreshBarTerms() }
+                }
+                setState { copy(terms = categorised) }
+            }
+        }
+        viewModelScope.launch {
             combine(repository.observeShoppingSections(), recipes.recipes) { sections, mine ->
                 loadRecipesIfMissing(sections, mine)
                 withRecipes(sections, mine)
@@ -129,6 +141,24 @@ class ShoppingViewModel @Inject constructor(
             is ShoppingIntent.SetByIngredient -> {
                 preferences.byIngredient = intent.byIngredient
                 setState { copy(byIngredient = intent.byIngredient) }
+            }
+            is ShoppingIntent.AddItem -> {
+                val name = intent.name.trim()
+                if (name.isEmpty()) return
+                viewModelScope.launch {
+                    if (!repository.addIngredientToShoppingList(name)) {
+                        sendEffect(ShoppingEffect.ShowMessage(R.string.shopping_already_listed))
+                    }
+                }
+            }
+            ShoppingIntent.RemoveOwned -> {
+                val owned = currentState.owned
+                removeItems(currentState.items.filter { it.id in owned }, R.plurals.shopping_removed_items)
+            }
+            is ShoppingIntent.CheckDrink -> viewModelScope.launch {
+                currentState.items
+                    .filter { it.drinkId == intent.drinkId && !it.checked }
+                    .forEach { repository.setShoppingChecked(it.id, true) }
             }
             ShoppingIntent.Refresh -> viewModelScope.launch {
                 setState { copy(refreshing = true) }

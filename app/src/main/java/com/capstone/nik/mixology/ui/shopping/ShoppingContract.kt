@@ -12,11 +12,15 @@ data class ShoppingUiState(
     val bar: Set<String> = emptySet(),
     /** The Done shopping review sheet, while it's open. */
     val review: ReviewUi? = null,
+    /** Catalog ingredient categories by normalised name, for grouping By ingredient into aisles. */
+    val terms: Map<String, String> = emptyMap(),
 ) {
     val items: List<ShoppingItemEntity> get() = sections.flatMap { it.items }
     val total: Int get() = items.size
     val checkedCount: Int get() = items.count { it.checked }
     val combined: List<CombinedShoppingItem> get() = combineByIngredient(sections)
+    /** Ids of unchecked items My Bar already has. */
+    val owned: Set<Long> get() = ownedOpen(sections, bar)
 }
 
 data class ReviewUi(
@@ -49,9 +53,17 @@ sealed interface ShoppingIntent {
     data object ConfirmReview : ShoppingIntent
     /** Not now: records the trip and clears the checked items, adding nothing to My Bar. */
     data object SkipReview : ShoppingIntent
+    /** Adds something typed in, under no drink ("Other"). */
+    data class AddItem(val name: String) : ShoppingIntent
+    /** Takes the unchecked items My Bar already has off the list, with Undo. */
+    data object RemoveOwned : ShoppingIntent
+    /** Checks every item still to buy for one drink. */
+    data class CheckDrink(val drinkId: String) : ShoppingIntent
 }
 
 sealed interface ShoppingEffect {
     /** [messageRes] is a plurals resource taking [count], or a plain string when [count] is null. */
     data class ShowUndo(val messageRes: Int, val count: Int?) : ShoppingEffect
+    /** A plain message with no action. */
+    data class ShowMessage(val messageRes: Int) : ShoppingEffect
 }

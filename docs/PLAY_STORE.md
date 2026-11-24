@@ -54,3 +54,47 @@ Las recetas son para adultos en edad legal. Bebe con responsabilidad.
 6. Shopping list by aisle
 7. Import recipe
 8. Home-screen widget
+
+## Play Console checklist
+
+The listing copy above is not the whole submission. These are the declarations Play asks for, with what the app does today so the answers match the code.
+
+**Privacy policy**
+- URL: `https://nikhil-31.github.io/Mixology/privacy-policy` (the same link Settings and the paywall open). Check it covers everything in the Data safety list below.
+
+**Account deletion**
+- In the app: Settings > Delete account, and on the trial-ended paywall.
+- Play also needs a web link where someone can ask for deletion without installing the app. To do: publish that page and enter its URL in the Data safety form.
+
+**Data safety**
+What leaves the device, and why:
+
+| Data | Where it goes | Why |
+|---|---|---|
+| Email, display name, account ID | Mixology backend (Firebase sign-in) | Account |
+| Saved drinks, My Bar, shopping list, your recipes, notes and ratings | Mixology backend | Sync across devices |
+| Recipe photos and photos sent to Ada | Mixology backend | Your recipes, and Ada reading a bottle or menu |
+| Messages to Ada, and text or links you import | Mixology backend and its AI provider | Ada's replies and recipe import |
+| Purchase history | Google Play Billing, confirmed by the backend | Subscription |
+| Crash logs and diagnostics | Firebase Crashlytics | Stability |
+| App interactions | Firebase Analytics | Product analytics |
+| Advertising ID and device identifiers | AdMob, only for accounts that are shown ads and after the consent prompt | Ads |
+
+- Voice input uses the device's speech recognizer (`RECORD_AUDIO`). The app sends the recognized text to Ada, not the audio. Declare the microphone permission's purpose, and check how the device's recognizer handles audio before answering "audio collected: no".
+- Data is encrypted in transit: release builds refuse a backend URL that isn't `https://`.
+- Users can request deletion: yes (see above).
+- To do: confirm the AI provider and retention periods with the backend before submitting.
+
+**Content rating and audience**
+- The app is about alcohol: answer the rating questionnaire's alcohol questions accordingly, and set the target audience to adults only (18+). To do: decide whether the listing needs country restrictions where alcohol content is limited.
+
+**Ads**
+- Declare "Contains ads": banner ads show for accounts that qualify (see `showsBannerAds`).
+
+**Subscription**
+- Products: `mixology_premium_monthly`, `mixology_premium_yearly`.
+- The description already says an account is required and that the 7-day trial is followed by a paid subscription; keep that sentence, Play rejects listings that hide it.
+- The paywall shows the price and renewal terms, and Settings links to Google Play to manage or cancel. Recheck both after any price change.
+
+**Signing**
+- Do not upload a build signed with either keystore that was once in this repo; see "Signing" in the README.

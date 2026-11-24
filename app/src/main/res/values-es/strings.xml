@@ -467,6 +467,7 @@
     <string name="recipe_error_ingredient_missing">Añade el ingrediente de esta medida</string>
     <string name="recipe_error_too_long">Máximo %d caracteres</string>
     <string name="recipe_error_limit">Puedes guardar hasta %d recetas. Elimina una para añadir otra.</string>
+    <string name="recipe_editor_load_error">No se pudo cargar esta receta.</string>
     <string name="recipe_error_generic">No se pudo guardar tu receta. Inténtalo de nuevo.</string>
     <string name="settings_import_recipe">Importar receta</string>
     <string name="recipe_import_title">Importar receta</string>
@@ -488,9 +489,9 @@
     <string name="recipe_import_share_tip">Consejo: en Instagram o TikTok, toca Compartir → Mixology para importar sin copiar el enlace.</string>
     <string name="recipe_import_step_opening">Abriendo la publicación…</string>
     <string name="recipe_import_step_reading">Leyendo la receta…</string>
-    <string name="recipe_import_step_saving">Guardando la foto…</string>
+    <string name="recipe_import_step_saving">Seguimos en ello…</string>
     <string name="recipe_import_from_site">De %1$s</string>
-    <string name="recipe_import_wait_note">Puede tardar hasta 30 segundos</string>
+    <string name="recipe_import_wait_note">La mayoría tarda menos de un minuto. Los videos pueden tardar hasta dos.</string>
     <string name="recipe_import_cancel">Cancelar</string>
     <string name="recipe_import_paste_caption">Pegar texto</string>
     <string name="recipe_import_edit_text">Editar texto</string>
@@ -520,7 +521,7 @@
     <string name="recipe_import_ask_ada">Preguntar a Ada</string>
     <string name="beta_badge">BETA</string>
     <string name="beta_badge_description">Función beta</string>
-    <string name="recipe_import_beta_note">Beta: las recetas importadas pueden no ser exactas. Revisa los ingredientes y las medidas antes de guardar.</string>
+    <string name="recipe_import_beta_note">Beta: las recetas importadas pueden no ser exactas. Se guardan en Mis recetas al momento, así que revisa los ingredientes y las medidas, y bórrala si está mal.</string>
     <string name="ada_recipe_beta_note">Beta: revísala antes de guardar.</string>
     <string name="recipe_editor_beta_note">Importada con una función beta: revísala antes de prepararla.</string>
     <plurals name="nav_bottom_badge">

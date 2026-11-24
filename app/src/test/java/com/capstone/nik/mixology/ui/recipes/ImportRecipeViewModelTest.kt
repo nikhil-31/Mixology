@@ -157,6 +157,14 @@ class ImportRecipeViewModelTest {
         assertEquals(ImportRecipeError.Unreachable, viewModel.state.value.error)
         assertFalse(viewModel.state.value.importing)
 
+        // Any other answer isn't about the recipe, so it doesn't read as "no recipe found".
+        service.failImportWith = 429 to "Too many imports. Try again in a minute."
+        viewModel.onIntent(ImportRecipeIntent.Import)
+        assertEquals(
+            ImportRecipeError.Failed("Too many imports. Try again in a minute."),
+            viewModel.state.value.error,
+        )
+
         // Editing clears the error; nothing was saved.
         viewModel.onIntent(ImportRecipeIntent.TextChanged("2 oz gin"))
         assertNull(viewModel.state.value.error)

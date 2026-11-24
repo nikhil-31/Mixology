@@ -570,6 +570,12 @@ private fun ImportRecipeError.content(creditsResetAt: Date?): ErrorContent = whe
         detail,
         ErrorAction.FocusText,
     )
+    is ImportRecipeError.Failed -> ErrorContent(
+        Icons.Outlined.ErrorOutline,
+        stringResource(R.string.recipe_import_error_generic),
+        detail,
+        ErrorAction.Retry,
+    )
     ImportRecipeError.Generic -> ErrorContent(
         Icons.Outlined.ErrorOutline,
         stringResource(R.string.recipe_import_error_generic),

@@ -2,6 +2,9 @@ package com.capstone.nik.mixology.ui.recipes
 
 import android.net.Uri
 import androidx.lifecycle.viewModelScope
+import com.capstone.nik.mixology.Network.NetworkMonitor
+import com.capstone.nik.mixology.Network.connectionError
+import com.capstone.nik.mixology.Network.serverDetail
 import com.capstone.nik.mixology.analytics.AnalyticsTracker
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.repository.RecipeRepository
@@ -19,6 +22,7 @@ class RecipeEditorViewModel @Inject constructor(
     private val photos: RecipePhotoLoader,
     private val analytics: AnalyticsTracker = AnalyticsTracker.forTests(),
     private val handoff: RecipeDraftHandoff = RecipeDraftHandoff(),
+    private val networkMonitor: NetworkMonitor = NetworkMonitor.forTests(),
 ) : MviViewModel<RecipeEditorIntent, RecipeEditorUiState, RecipeEditorEffect>(RecipeEditorUiState()) {
 
     private var bound = false
@@ -36,6 +40,7 @@ class RecipeEditorViewModel @Inject constructor(
     override fun onIntent(intent: RecipeEditorIntent) {
         when (intent) {
             is RecipeEditorIntent.Bind -> bind(intent.id)
+            RecipeEditorIntent.RetryLoad -> currentState.recipeId?.takeIf { currentState.loadFailed }?.let(::load)
             is RecipeEditorIntent.NameChanged -> edit { copy(name = intent.value) }
             is RecipeEditorIntent.TypeSelected -> edit { copy(type = intent.type) }
             is RecipeEditorIntent.GlassChanged -> edit { copy(glass = intent.value) }
@@ -75,14 +80,19 @@ class RecipeEditorViewModel @Inject constructor(
             fill(cached)
             return
         }
-        setState { copy(recipeId = id, loading = true) }
+        load(id)
+    }
+
+    private fun load(id: String) {
+        setState { copy(recipeId = id, loading = true, loadFailed = false, error = null, connectionError = null) }
         viewModelScope.launch {
             try {
                 fill(recipes.get(id))
             } catch (error: CancellationException) {
                 throw error
             } catch (error: Exception) {
-                setState { copy(loading = false, error = error.message.orEmpty()) }
+                failed(error)
+                setState { copy(loading = false, loadFailed = true) }
             }
         }
     }
@@ -198,11 +208,11 @@ class RecipeEditorViewModel @Inject constructor(
 
     private fun save() {
         val state = currentState
-        if (state.saving || state.loading) return
+        if (state.saving || state.loading || state.loadFailed) return
         submitted = true
         val errors = validateRecipe(state.form)
         val atLimit = !state.editing && recipes.recipes.value.size >= RecipeRepository.MAX_RECIPES
-        setState { copy(errors = errors, atRecipeLimit = atLimit, error = null) }
+        setState { copy(errors = errors, atRecipeLimit = atLimit, error = null, connectionError = null) }
         if (!errors.isEmpty || atLimit) return
 
         val form = state.form
@@ -218,7 +228,7 @@ class RecipeEditorViewModel @Inject constructor(
             } catch (error: CancellationException) {
                 throw error
             } catch (error: Exception) {
-                setState { copy(saving = false, error = error.message.orEmpty()) }
+                failed(error)
                 return@launch
             }
             if (id == null) {
@@ -240,6 +250,18 @@ class RecipeEditorViewModel @Inject constructor(
                 )
             }
             finishWithPhoto(saved.id, form)
+        }
+    }
+
+    /** A load, save or delete failed: offline and server-down get their own words, not the exception's. */
+    private fun failed(error: Exception) {
+        val connection = networkMonitor.connectionError(error)
+        setState {
+            copy(
+                saving = false,
+                error = error.serverDetail().takeIf { connection == null },
+                connectionError = connection,
+            )
         }
     }
 
@@ -285,7 +307,7 @@ class RecipeEditorViewModel @Inject constructor(
     private fun delete() {
         val id = currentState.recipeId ?: return
         val name = currentState.form.name
-        setState { copy(confirmDelete = false, saving = true, error = null) }
+        setState { copy(confirmDelete = false, saving = true, error = null, connectionError = null) }
         viewModelScope.launch {
             try {
                 recipes.delete(id)
@@ -295,7 +317,7 @@ class RecipeEditorViewModel @Inject constructor(
             } catch (error: CancellationException) {
                 throw error
             } catch (error: Exception) {
-                setState { copy(saving = false, error = error.message.orEmpty()) }
+                failed(error)
             }
         }
     }

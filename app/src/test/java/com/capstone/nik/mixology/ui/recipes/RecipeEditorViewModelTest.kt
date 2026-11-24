@@ -6,6 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
 import com.capstone.nik.mixology.FakeRecipeService
 import com.capstone.nik.mixology.MainDispatcherRule
+import com.capstone.nik.mixology.Network.ConnectionError
 import com.capstone.nik.mixology.Network.remoteModel.ApiDrink
 import com.capstone.nik.mixology.analytics.AnalyticsTracker
 import com.capstone.nik.mixology.analytics.EVENT_RECIPE_CREATED
@@ -322,6 +323,58 @@ class RecipeEditorViewModelTest {
         assertFalse(state.saving)
         assertNull(state.recipeId)
         assertEquals("Whiskey Sour", state.form.name)
+    }
+
+    @Test
+    fun aSaveThatGetsNoAnswerShowsTheConnectionProblemNotTheException() {
+        viewModel.onIntent(RecipeEditorIntent.Bind(null))
+        fillSour()
+        service.failWithIo = true
+
+        viewModel.onIntent(RecipeEditorIntent.Save)
+
+        val state = viewModel.state.value
+        assertEquals(ConnectionError.SERVER_UNREACHABLE, state.connectionError)
+        assertNull(state.error)
+        assertFalse(state.saving)
+        assertEquals("Whiskey Sour", state.form.name)
+    }
+
+    @Test
+    fun aRecipeThatDoesNotLoadOffersRetryInsteadOfAnEmptyForm() {
+        service.recipes += ApiDrink(id = "u-3", name = "Slow to arrive")
+        service.failWithIo = true
+
+        viewModel.onIntent(RecipeEditorIntent.Bind("u-3"))
+
+        val failed = viewModel.state.value
+        assertTrue(failed.loadFailed)
+        assertFalse(failed.loading)
+        assertEquals(ConnectionError.SERVER_UNREACHABLE, failed.connectionError)
+        assertNull(failed.error)
+        // Nothing loaded, so there is nothing to save over the real recipe.
+        viewModel.onIntent(RecipeEditorIntent.Save)
+        assertEquals(listOf("get u-3"), service.calls)
+
+        service.failWithIo = false
+        viewModel.onIntent(RecipeEditorIntent.RetryLoad)
+
+        val loaded = viewModel.state.value
+        assertFalse(loaded.loadFailed)
+        assertNull(loaded.connectionError)
+        assertEquals("Slow to arrive", loaded.form.name)
+    }
+
+    @Test
+    fun aLoadTheServerRefusesShowsItsDetail() {
+        service.failWith = 404
+
+        viewModel.onIntent(RecipeEditorIntent.Bind("u-9"))
+
+        val state = viewModel.state.value
+        assertTrue(state.loadFailed)
+        assertNull(state.connectionError)
+        assertEquals("Error 404", state.error)
     }
 
     private fun fillSour() {

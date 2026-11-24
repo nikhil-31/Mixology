@@ -1,6 +1,7 @@
 package com.capstone.nik.mixology.ui.recipes
 
 import android.net.Uri
+import com.capstone.nik.mixology.Network.ConnectionError
 import com.capstone.nik.mixology.repository.RecipeDraft
 import com.capstone.nik.mixology.ui.model.IngredientMeasure
 
@@ -111,6 +112,8 @@ data class RecipeEditorUiState(
     /** Null while creating; set once the recipe exists on the server. */
     val recipeId: String? = null,
     val loading: Boolean = false,
+    /** The recipe to edit didn't load, so there is no form to show; offers Retry. */
+    val loadFailed: Boolean = false,
     val form: RecipeForm = RecipeForm(),
     /** The saved photo's thumb (relative to the API), if any. */
     val savedPhoto: String? = null,
@@ -123,6 +126,8 @@ data class RecipeEditorUiState(
     val dirty: Boolean = false,
     /** The server's message, or empty for a generic one. */
     val error: String? = null,
+    /** The load, save or delete got no answer; shown in place of [error]. */
+    val connectionError: ConnectionError? = null,
     /** The user is at [com.capstone.nik.mixology.repository.RecipeRepository.MAX_RECIPES]. */
     val atRecipeLimit: Boolean = false,
     /** The recipe saved but its photo didn't; offers Retry. */
@@ -141,6 +146,8 @@ data class RecipeEditorUiState(
 sealed interface RecipeEditorIntent {
     /** Opens the editor for recipe [id], or a new recipe when null. */
     data class Bind(val id: String?) : RecipeEditorIntent
+    /** Try loading the recipe again after [RecipeEditorUiState.loadFailed]. */
+    data object RetryLoad : RecipeEditorIntent
     data class NameChanged(val value: String) : RecipeEditorIntent
     data class TypeSelected(val type: RecipeType) : RecipeEditorIntent
     data class GlassChanged(val value: String) : RecipeEditorIntent

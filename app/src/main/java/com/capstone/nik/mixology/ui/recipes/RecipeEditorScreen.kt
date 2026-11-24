@@ -27,6 +27,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.AddAPhoto
+import androidx.compose.material.icons.outlined.CloudOff
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
@@ -69,6 +70,8 @@ import coil.request.ImageRequest
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.repository.RecipeRepository
+import com.capstone.nik.mixology.ui.components.ConnectionErrorState
+import com.capstone.nik.mixology.ui.components.EmptyState
 import com.capstone.nik.mixology.ui.components.FullscreenImage
 import com.capstone.nik.mixology.ui.components.BetaNote
 import com.capstone.nik.mixology.ui.components.SourceLink
@@ -95,6 +98,25 @@ fun RecipeEditorRoute(
     }
     BackHandler { viewModel.onIntent(RecipeEditorIntent.Close) }
     RecipeEditorScreen(state = state, onIntent = viewModel::onIntent, imported = imported)
+}
+
+/** The recipe to edit didn't load: says why and offers Retry, with no form to type into. */
+@Composable
+private fun LoadFailed(state: RecipeEditorUiState, onRetry: () -> Unit) {
+    val connection = state.connectionError
+    if (connection != null) {
+        ConnectionErrorState(error = connection, onRetry = onRetry)
+    } else {
+        EmptyState(
+            icon = Icons.Outlined.CloudOff,
+            title = stringResource(R.string.recipe_editor_load_error),
+            body = state.error?.takeIf { it.isNotBlank() },
+            modifier = Modifier.testTag("recipe_editor_load_error"),
+            action = {
+                TextButton(onClick = onRetry) { Text(stringResource(R.string.action_retry)) }
+            },
+        )
+    }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -147,7 +169,7 @@ fun RecipeEditorScreen(
                 } else {
                     TextButton(
                         onClick = { onIntent(RecipeEditorIntent.Save) },
-                        enabled = !state.loading,
+                        enabled = !state.loading && !state.loadFailed,
                         modifier = Modifier.testTag("recipe_editor_save"),
                     ) {
                         Text(stringResource(R.string.recipe_save))
@@ -157,6 +179,12 @@ fun RecipeEditorScreen(
             if (state.loading) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
+                }
+                return@Column
+            }
+            if (state.loadFailed) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    LoadFailed(state = state, onRetry = { onIntent(RecipeEditorIntent.RetryLoad) })
                 }
                 return@Column
             }
@@ -172,6 +200,9 @@ fun RecipeEditorScreen(
                         onRetry = { onIntent(RecipeEditorIntent.RetryPhoto) },
                         onSkip = { onIntent(RecipeEditorIntent.SkipPhoto) },
                     )
+                }
+                state.connectionError?.let { connection ->
+                    ErrorText(stringResource(connection.messageRes), "recipe_editor_error")
                 }
                 state.error?.let { detail ->
                     ErrorText(detail.ifEmpty { stringResource(R.string.recipe_error_generic) }, "recipe_editor_error")

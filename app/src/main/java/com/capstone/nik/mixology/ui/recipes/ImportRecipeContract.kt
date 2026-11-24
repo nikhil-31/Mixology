@@ -7,8 +7,10 @@ const val IMPORT_TEXT_LIMIT = 5000
 
 /** Why an import didn't save a recipe. */
 sealed interface ImportRecipeError {
-    /** The server's message, such as "No drink recipe was found there". */
+    /** The server read the post and found no recipe (422); its message says why. */
     data class Server(val detail: String) : ImportRecipeError
+    /** The server answered, but not about the recipe: it's busy, or the request was refused. */
+    data class Failed(val detail: String) : ImportRecipeError
     /** The server couldn't fetch the post (502/504); pasting its caption may still work. */
     data object Unreachable : ImportRecipeError
     /** The app got no answer from the server: the device is offline or the server is down. */

@@ -480,6 +480,7 @@
     <string name="recipe_error_ingredient_missing">Add the ingredient for this measure</string>
     <string name="recipe_error_too_long">Keep it to %d characters or fewer</string>
     <string name="recipe_error_limit">You can keep up to %d recipes. Delete one to add another.</string>
+    <string name="recipe_editor_load_error">Couldn’t load this recipe.</string>
     <string name="recipe_error_generic">Couldn’t save your recipe. Please try again.</string>
     <string name="settings_import_recipe">Import recipe</string>
     <string name="recipe_import_title">Import recipe</string>
@@ -501,9 +502,9 @@
     <string name="recipe_import_share_tip">Tip: in Instagram or TikTok, tap Share → Mixology to import without copying the link.</string>
     <string name="recipe_import_step_opening">Opening the post…</string>
     <string name="recipe_import_step_reading">Reading the recipe…</string>
-    <string name="recipe_import_step_saving">Saving the photo…</string>
+    <string name="recipe_import_step_saving">Still working on it…</string>
     <string name="recipe_import_from_site">From %1$s</string>
-    <string name="recipe_import_wait_note">This can take up to 30 seconds</string>
+    <string name="recipe_import_wait_note">Most posts take under a minute. Videos can take up to two.</string>
     <string name="recipe_import_cancel">Cancel</string>
     <string name="recipe_import_paste_caption">Paste caption</string>
     <string name="recipe_import_edit_text">Edit text</string>
@@ -533,7 +534,7 @@
     <string name="recipe_import_ask_ada">Ask Ada</string>
     <string name="beta_badge">BETA</string>
     <string name="beta_badge_description">Beta feature</string>
-    <string name="recipe_import_beta_note">Beta: imported recipes might not be accurate. Check the ingredients and measures before you save.</string>
+    <string name="recipe_import_beta_note">Beta: imported recipes might not be accurate. They’re saved to My recipes straight away, so check the ingredients and measures, and delete it if it’s wrong.</string>
     <string name="ada_recipe_beta_note">Beta: check it before you save.</string>
     <string name="recipe_editor_beta_note">Imported with a beta feature: check it before you make it.</string>
     <plurals name="nav_bottom_badge">

@@ -75,8 +75,9 @@ class ImportRecipeViewModel @Inject constructor(
         402 -> ImportRecipeError.OutOfCredits
         // The server couldn't reach the post, or gave up waiting on it.
         502, 504 -> ImportRecipeError.Unreachable
+        // Only 422 means the post was read and held no recipe.
         else -> message?.takeIf { it.isNotBlank() }
-            ?.let { ImportRecipeError.Server(it) }
+            ?.let { if (code == 422) ImportRecipeError.Server(it) else ImportRecipeError.Failed(it) }
             ?: ImportRecipeError.Generic
     }
 }

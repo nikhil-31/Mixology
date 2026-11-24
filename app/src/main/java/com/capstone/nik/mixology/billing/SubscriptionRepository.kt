@@ -16,6 +16,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.io.IOException
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -141,16 +143,21 @@ class SubscriptionRepository @Inject constructor(
      * owns. Returns true when the account ends up subscribed.
      */
     suspend fun restore(): Boolean {
+        var unchecked: Exception? = null
         for (purchase in storeBilling.ownedPurchases()) {
             try {
                 billingService.verifyPlay(PlayVerifyRequest(purchase.token, purchase.productId))
             } catch (error: CancellationException) {
                 throw error
-            } catch (_: Exception) {
+            } catch (error: Exception) {
                 // One bad purchase (e.g. owned by another account) shouldn't stop the rest.
+                if (error.isTransient()) unchecked = error
             }
         }
-        return refresh() is Access.Subscribed
+        val subscribed = refresh() is Access.Subscribed
+        // A purchase the backend never got to look at isn't "nothing to restore".
+        if (!subscribed) unchecked?.let { throw it }
+        return subscribed
     }
 
     /** The server answered 403 "Subscription required": show the paywall now, then confirm. */
@@ -204,3 +211,14 @@ class SubscriptionRepository @Inject constructor(
         val DEFAULT_PRODUCTS = listOf("mixology_premium_monthly", "mixology_premium_yearly")
     }
 }
+
+/** True when the backend couldn't be reached or broke, rather than answering no. */
+fun Throwable.isTransient(): Boolean =
+    this is IOException || (this is HttpException && code() >= 500)
+
+/** Days before the paywall, once the trial is close enough to its end to say so; null otherwise. */
+fun trialEndingDays(access: Access): Int? =
+    (access as? Access.Trial)?.daysLeft?.takeIf { it in 1..TRIAL_WARNING_DAYS }
+
+/** How many days before the trial ends Home starts counting down. */
+const val TRIAL_WARNING_DAYS = 3

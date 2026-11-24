@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.capstone.nik.mixology.billing.Access
 import com.capstone.nik.mixology.billing.PurchaseOutcome
 import com.capstone.nik.mixology.billing.StoreBilling
+import com.capstone.nik.mixology.billing.StorePurchase
+import com.capstone.nik.mixology.billing.isTransient
 import com.capstone.nik.mixology.billing.StoreUnavailableException
 import com.capstone.nik.mixology.billing.SubscriptionRepository
 import com.capstone.nik.mixology.repository.AuthRepository
@@ -74,8 +76,7 @@ class PaywallViewModel @Inject constructor(
                 when (val outcome = storeBilling.purchase(activity, productId, subscriptions.accountId())) {
                     is PurchaseOutcome.Purchased -> {
                         // On success the paywall disappears as access becomes subscribed.
-                        val access = subscriptions.recordPurchase(outcome.purchase)
-                        if (access is Access.Subscribed) null else PaywallNotice.PURCHASE_FAILED
+                        confirm(outcome.purchase)
                     }
                     PurchaseOutcome.Pending -> PaywallNotice.PENDING
                     PurchaseOutcome.Cancelled -> null
@@ -92,6 +93,20 @@ class PaywallViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Records a purchase Google Play has already charged for. When the backend
+     * can't be reached the money is taken but Premium isn't unlocked yet, which
+     * must not read as a failed purchase.
+     */
+    private suspend fun confirm(purchase: StorePurchase): PaywallNotice? = try {
+        val access = subscriptions.recordPurchase(purchase)
+        if (access is Access.Subscribed) null else PaywallNotice.CONFIRMING
+    } catch (error: CancellationException) {
+        throw error
+    } catch (error: Exception) {
+        if (error.isTransient()) PaywallNotice.CONFIRMING else PaywallNotice.PURCHASE_FAILED
+    }
+
     private fun restore() {
         if (currentState.busy) return
         setState { copy(busy = true, notice = null) }
@@ -103,7 +118,7 @@ class PaywallViewModel @Inject constructor(
             } catch (_: StoreUnavailableException) {
                 PaywallNotice.STORE_UNAVAILABLE
             } catch (_: Exception) {
-                PaywallNotice.NOTHING_TO_RESTORE
+                PaywallNotice.RESTORE_FAILED
             }
             setState { copy(busy = false, notice = notice) }
         }

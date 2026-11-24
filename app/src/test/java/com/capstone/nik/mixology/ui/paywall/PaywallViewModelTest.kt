@@ -12,6 +12,7 @@ import com.capstone.nik.mixology.billing.PurchaseOutcome
 import com.capstone.nik.mixology.billing.StorePurchase
 import com.capstone.nik.mixology.billing.SubscriptionRepository
 import com.capstone.nik.mixology.data.SessionStore
+import java.io.IOException
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -97,6 +98,32 @@ class PaywallViewModelTest {
         assertEquals(PaywallNotice.NOTHING_TO_RESTORE, viewModel.state.value.notice)
 
         store.owned = listOf(StorePurchase("tok-owned", "mixology_premium_yearly"))
+        viewModel.onIntent(PaywallIntent.Restore)
+        assertNull(viewModel.state.value.notice)
+        assertFalse(subscriptions.showPaywall.value)
+    }
+
+    @Test
+    fun aChargedPurchaseTheBackendCannotConfirmIsNotCalledAFailure() {
+        val viewModel = viewModel()
+        backend.verifyFailure = IOException("offline")
+
+        viewModel.onIntent(PaywallIntent.Subscribe(activity))
+
+        assertEquals(PaywallNotice.CONFIRMING, viewModel.state.value.notice)
+        assertTrue(subscriptions.showPaywall.value)
+    }
+
+    @Test
+    fun restoreThatCannotReachTheBackendSaysSoInsteadOfFindingNothing() {
+        val viewModel = viewModel()
+        store.owned = listOf(StorePurchase("tok-owned", "mixology_premium_yearly"))
+        backend.verifyFailure = IOException("offline")
+
+        viewModel.onIntent(PaywallIntent.Restore)
+        assertEquals(PaywallNotice.RESTORE_FAILED, viewModel.state.value.notice)
+
+        backend.verifyFailure = null
         viewModel.onIntent(PaywallIntent.Restore)
         assertNull(viewModel.state.value.notice)
         assertFalse(subscriptions.showPaywall.value)

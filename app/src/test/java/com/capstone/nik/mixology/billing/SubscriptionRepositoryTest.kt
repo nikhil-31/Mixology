@@ -146,4 +146,16 @@ class SubscriptionRepositoryTest {
         repository.closePaywall()
         assertFalse(repository.showPaywall.value)
     }
+
+    @Test
+    fun trialEndingDaysOnlyCountsDownTheLastFewDaysOfATrial() {
+        assertNull(trialEndingDays(Access.Trial(TRIAL_WARNING_DAYS + 1)))
+        assertEquals(TRIAL_WARNING_DAYS, trialEndingDays(Access.Trial(TRIAL_WARNING_DAYS)))
+        assertEquals(1, trialEndingDays(Access.Trial(1)))
+        // 0 is also what a cached trial reports before the backend answers.
+        assertNull(trialEndingDays(Access.Trial(0)))
+        assertNull(trialEndingDays(Access.Subscribed(null, null)))
+        assertNull(trialEndingDays(Access.Free))
+        assertNull(trialEndingDays(Access.Unknown))
+    }
 }

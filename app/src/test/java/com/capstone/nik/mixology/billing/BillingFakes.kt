@@ -41,11 +41,14 @@ class FakeBillingService : BillingService {
     var status = BillingStatusDto(access = "free", products = SubscriptionRepository.DEFAULT_PRODUCTS)
     val validTokens = mutableSetOf("tok-new", "tok-owned")
     val verified = mutableListOf<String>()
+    /** Thrown by every verification while set, as when the backend can't be reached. */
+    var verifyFailure: Exception? = null
 
     override suspend fun status(): BillingStatusDto = status
 
     override suspend fun verifyPlay(body: PlayVerifyRequest) {
         verified += body.purchaseToken
+        verifyFailure?.let { throw it }
         if (body.purchaseToken !in validTokens) error("Purchase not found")
         status = status.copy(
             access = "subscribed",

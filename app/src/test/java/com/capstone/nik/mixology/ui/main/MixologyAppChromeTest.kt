@@ -136,6 +136,23 @@ class MixologyAppChromeTest {
     }
 
     @Test
+    fun trialEndingBanner_countsTheDaysAndOpensThePaywall() {
+        var subscribes = 0
+        var days by mutableStateOf(3)
+        composeRule.setContent {
+            MixologyTheme {
+                TrialEndingBanner(daysLeft = days, onSubscribe = { subscribes += 1 })
+            }
+        }
+
+        composeRule.onNodeWithText("Your free trial ends in 3 days").assertIsDisplayed()
+        days = 1
+        composeRule.onNodeWithText("Your free trial ends in 1 day").assertIsDisplayed()
+        composeRule.onNodeWithTag("trial_ending_subscribe").performClick()
+        assertEquals(1, subscribes)
+    }
+
+    @Test
     fun offlineBanner_retry_invokesCallback() {
         var retries = 0
         composeRule.setContent {

@@ -24,7 +24,6 @@ import androidx.compose.material.icons.outlined.Policy
 import androidx.compose.material.icons.outlined.PrivacyTip
 import androidx.compose.material.icons.outlined.StarRate
 import androidx.compose.material.icons.outlined.SystemUpdate
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Icon
@@ -59,6 +58,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.billing.Access
 import com.capstone.nik.mixology.billing.ChatCredits
+import com.capstone.nik.mixology.ui.components.ConfirmDialog
 import com.capstone.nik.mixology.ui.components.rememberMonthDay
 import com.capstone.nik.mixology.ui.paywall.SubscriptionGateViewModel
 import com.capstone.nik.mixology.ui.auth.SessionViewModel
@@ -429,34 +429,6 @@ private fun SettingsSectionTitle(text: String) {
         modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 4.dp),
         style = MixologySectionTitle,
         color = MaterialTheme.colorScheme.primary,
-    )
-}
-
-@Composable
-private fun ConfirmDialog(
-    title: String,
-    body: String,
-    confirmLabel: String,
-    tag: String,
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit,
-    destructive: Boolean = false,
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(title) },
-        text = { Text(body) },
-        confirmButton = {
-            TextButton(onClick = onConfirm, modifier = Modifier.testTag(tag)) {
-                Text(
-                    text = confirmLabel,
-                    color = if (destructive) MaterialTheme.colorScheme.error else Color.Unspecified,
-                )
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
-        },
     )
 }
 

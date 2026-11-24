@@ -39,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -57,6 +58,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import com.capstone.nik.mixology.BuildConfig
 import com.capstone.nik.mixology.R
+import com.capstone.nik.mixology.billing.trialEndingDays
 import com.capstone.nik.mixology.Network.ConnectionError
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
@@ -103,6 +105,9 @@ fun MixologyApp(
     onPendingImportConsumed: () -> Unit = {},
     /** Whether this account should see banner ads; see [showsBannerAds]. */
     adsEligible: Boolean = false,
+    /** Days until the trial ends, when that is soon; see [trialEndingDays]. */
+    trialDaysLeft: Int? = null,
+    onSubscribe: () -> Unit = {},
     viewModel: MainViewModel = hiltViewModel(),
     bottomBarViewModel: BottomBarViewModel = hiltViewModel(),
 ) {
@@ -136,8 +141,9 @@ fun MixologyApp(
     val lifecycleOwner = LocalLifecycleOwner.current
     val playScope = rememberCoroutineScope()
 
-    LaunchedEffect(activity, adConsent) {
-        activity?.let { adConsent.start(it) }
+    // Consent is only worth asking for from an account that can be shown ads.
+    LaunchedEffect(activity, adConsent, adsEligible) {
+        if (adsEligible) activity?.let { adConsent.start(it) }
     }
     LaunchedEffect(playReviews) {
         playReviews.onAppOpen()
@@ -312,6 +318,9 @@ fun MixologyApp(
                 }
                 connectionBannerError(online, serverReachable)?.let { error ->
                     OfflineBanner(error = error, onRetry = networkMonitor::retry)
+                }
+                if (trialDaysLeft != null && !overlay && destination is DrawerDestination.RecipesHome) {
+                    TrialEndingBanner(daysLeft = trialDaysLeft, onSubscribe = onSubscribe)
                 }
                 CompositionLocalProvider(LocalCollapsingHeader provides header) {
                     Row(modifier = Modifier.weight(1f).fillMaxWidth()) {
@@ -731,6 +740,28 @@ internal fun connectionBannerError(online: Boolean, serverReachable: Boolean): C
     !online -> ConnectionError.NO_CONNECTION
     !serverReachable -> ConnectionError.SERVER_UNREACHABLE
     else -> null
+}
+
+/** Says the whole app locks soon, so the paywall doesn't arrive unannounced. */
+@Composable
+internal fun TrialEndingBanner(daysLeft: Int, onSubscribe: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 4.dp)
+            .testTag("trial_ending_banner"),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = pluralStringResource(R.plurals.trial_ending_banner, daysLeft, daysLeft),
+            modifier = Modifier.weight(1f),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        TextButton(onClick = onSubscribe, modifier = Modifier.testTag("trial_ending_subscribe")) {
+            Text(stringResource(R.string.settings_subscription_subscribe))
+        }
+    }
 }
 
 @Composable

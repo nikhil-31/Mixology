@@ -15,6 +15,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.capstone.nik.mixology.data.Drink
+import com.capstone.nik.mixology.billing.trialEndingDays
 import com.capstone.nik.mixology.ui.auth.AuthRoute
 import com.capstone.nik.mixology.ui.auth.SessionViewModel
 import com.capstone.nik.mixology.ui.components.showsBannerAds
@@ -66,6 +67,8 @@ class ActivityMain : AppCompatActivity() {
                         pendingImport = pendingImport,
                         onPendingImportConsumed = { pendingImport = null },
                         adsEligible = showsBannerAds(access),
+                        trialDaysLeft = trialEndingDays(access),
+                        onSubscribe = subscriptionGate::openPaywall,
                     )
                 }
             }

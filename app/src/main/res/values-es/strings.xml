@@ -334,6 +334,7 @@
     <string name="settings_library">Biblioteca</string>
     <string name="settings_privacy_header">Privacidad</string>
     <string name="paywall_title">Tu prueba gratis ha terminado</string>
+    <string name="paywall_subtitle_premium">Conserva todo Mixology cuando termine tu prueba gratis.</string>
     <string name="paywall_title_premium">Mixology Premium</string>
     <string name="paywall_subtitle">Suscríbete para seguir usando Mixology.</string>
     <string name="paywall_benefit_ada">Pídele a Ada, tu bartender con IA, la bebida perfecta</string>
@@ -353,6 +354,12 @@
     <string name="paywall_disclosure">Las suscripciones se renuevan automáticamente hasta que las canceles. Cancela cuando quieras en Google Play al menos 24 horas antes de la renovación.</string>
     <string name="paywall_pending">Tu compra está pendiente. Premium se activará en cuanto Google Play la confirme.</string>
     <string name="paywall_nothing_to_restore">No encontramos una suscripción activa para esta cuenta de Google.</string>
+    <string name="paywall_confirming">Google Play cobró tu compra, pero aún no pudimos confirmarla. Toca Restaurar compras en un momento para activar Premium.</string>
+    <string name="paywall_restore_failed">No pudimos comprobar tus compras. Revisa tu conexión e inténtalo de nuevo.</string>
+    <plurals name="trial_ending_banner">
+        <item quantity="one">Tu prueba gratis termina en %d día</item>
+        <item quantity="other">Tu prueba gratis termina en %d días</item>
+    </plurals>
     <string name="paywall_store_unavailable">Google Play no está disponible ahora. Revisa tu conexión e inténtalo de nuevo.</string>
     <string name="paywall_purchase_failed">La compra no se completó. Inténtalo de nuevo.</string>
     <string name="settings_subscription_premium">Mixology Premium</string>

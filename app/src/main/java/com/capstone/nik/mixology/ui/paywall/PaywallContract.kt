@@ -9,7 +9,18 @@ data class PaywallPlan(
 )
 
 /** What the paywall can tell the user, resolved to text by the screen. */
-enum class PaywallNotice { PENDING, NOTHING_TO_RESTORE, STORE_UNAVAILABLE, PURCHASE_FAILED }
+enum class PaywallNotice {
+    PENDING,
+    NOTHING_TO_RESTORE,
+    STORE_UNAVAILABLE,
+    PURCHASE_FAILED,
+
+    /** Google Play took the payment but the backend couldn't confirm it yet. */
+    CONFIRMING,
+
+    /** Restore couldn't reach the backend, so there's no telling what the account owns. */
+    RESTORE_FAILED,
+}
 
 data class PaywallUiState(
     val plans: List<PaywallPlan> = emptyList(),

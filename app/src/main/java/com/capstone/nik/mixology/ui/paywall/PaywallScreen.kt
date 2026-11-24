@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,7 +32,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,16 +53,31 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.play.findActivity
+import com.capstone.nik.mixology.ui.auth.AccountUiState
+import com.capstone.nik.mixology.ui.auth.SessionViewModel
+import com.capstone.nik.mixology.ui.components.ConfirmDialog
 import com.capstone.nik.mixology.ui.settings.PRIVACY_POLICY_URL
+import com.capstone.nik.mixology.ui.settings.shareAccountExport
 
 @Composable
-fun PaywallRoute(viewModel: PaywallViewModel = hiltViewModel()) {
+fun PaywallRoute(
+    viewModel: PaywallViewModel = hiltViewModel(),
+    sessionViewModel: SessionViewModel = hiltViewModel(),
+) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val activity = LocalContext.current.findActivity()
+    val account by sessionViewModel.account.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val activity = context.findActivity()
+    LaunchedEffect(sessionViewModel) {
+        sessionViewModel.exports.collect { json -> shareAccountExport(context, json) }
+    }
     PaywallScreen(
         state = state,
         onIntent = { intent -> viewModel.onIntent(intent) },
         onSubscribe = { activity?.let { viewModel.onIntent(PaywallIntent.Subscribe(it)) } },
+        account = account,
+        onExportData = sessionViewModel::exportData,
+        onDeleteAccount = sessionViewModel::deleteAccount,
     )
 }
 
@@ -67,8 +87,26 @@ fun PaywallScreen(
     state: PaywallUiState,
     onIntent: (PaywallIntent) -> Unit,
     onSubscribe: () -> Unit,
+    account: AccountUiState = AccountUiState(),
+    onExportData: () -> Unit = {},
+    onDeleteAccount: () -> Unit = {},
 ) {
     val uriHandler = LocalUriHandler.current
+    var confirmDelete by rememberSaveable { mutableStateOf(false) }
+    if (confirmDelete) {
+        ConfirmDialog(
+            title = stringResource(R.string.settings_delete_account_title),
+            body = stringResource(R.string.settings_delete_account_body),
+            confirmLabel = stringResource(R.string.settings_delete_account_confirm),
+            tag = "paywall_delete_account_confirm",
+            destructive = true,
+            onConfirm = {
+                confirmDelete = false
+                onDeleteAccount()
+            },
+            onDismiss = { confirmDelete = false },
+        )
+    }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -111,7 +149,9 @@ fun PaywallScreen(
                 textAlign = TextAlign.Center,
             )
             Text(
-                text = stringResource(R.string.paywall_subtitle),
+                text = stringResource(
+                    if (state.canClose) R.string.paywall_subtitle_premium else R.string.paywall_subtitle,
+                ),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -164,7 +204,7 @@ fun PaywallScreen(
                 Text(
                     text = stringResource(notice.message()),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = if (notice == PaywallNotice.PENDING) {
+                    color = if (notice == PaywallNotice.PENDING || notice == PaywallNotice.CONFIRMING) {
                         MaterialTheme.colorScheme.onSurfaceVariant
                     } else {
                         MaterialTheme.colorScheme.error
@@ -207,6 +247,36 @@ fun PaywallScreen(
                     ) {
                         Text(stringResource(R.string.paywall_sign_out))
                     }
+                }
+            }
+            // Leaving for good must not need a subscription: the trial-ended
+            // paywall is the only screen such an account can reach.
+            if (!state.canClose) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    TextButton(
+                        onClick = onExportData,
+                        enabled = !account.busy,
+                        modifier = Modifier.testTag("paywall_export_data"),
+                    ) {
+                        Text(stringResource(R.string.settings_export_data))
+                    }
+                    TextButton(
+                        onClick = { confirmDelete = true },
+                        enabled = !account.busy,
+                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                        modifier = Modifier.testTag("paywall_delete_account"),
+                    ) {
+                        Text(stringResource(R.string.settings_delete_account))
+                    }
+                }
+                account.errorRes?.let { error ->
+                    Text(
+                        text = stringResource(error),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.testTag("paywall_account_error"),
+                    )
                 }
             }
             Text(
@@ -281,4 +351,6 @@ private fun PaywallNotice.message(): Int = when (this) {
     PaywallNotice.NOTHING_TO_RESTORE -> R.string.paywall_nothing_to_restore
     PaywallNotice.STORE_UNAVAILABLE -> R.string.paywall_store_unavailable
     PaywallNotice.PURCHASE_FAILED -> R.string.paywall_purchase_failed
+    PaywallNotice.CONFIRMING -> R.string.paywall_confirming
+    PaywallNotice.RESTORE_FAILED -> R.string.paywall_restore_failed
 }

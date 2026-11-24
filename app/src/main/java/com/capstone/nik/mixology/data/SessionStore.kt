@@ -6,6 +6,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -39,11 +40,18 @@ enum class SessionEnd {
 }
 
 @Singleton
-class SessionStore @Inject constructor(
-    @ApplicationContext context: Context,
+class SessionStore internal constructor(
+    context: Context,
+    private val cipher: TokenCipher,
 ) {
+    @Inject
+    constructor(@ApplicationContext context: Context) : this(context, KeystoreTokenCipher())
+
     private val prefs: SharedPreferences =
         context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+
+    /** Stored value to token, so reading the session doesn't go to the keystore on every request. */
+    private val opened = ConcurrentHashMap<String, String>()
 
     private val _lastEnd = MutableStateFlow<SessionEnd?>(null)
 
@@ -64,9 +72,18 @@ class SessionStore @Inject constructor(
     }
 
     private fun read(): Session? {
-        val token = prefs.getString(KEY_TOKEN, null)?.takeIf { it.isNotBlank() } ?: return null
+        val storedToken = prefs.getString(KEY_TOKEN, null)?.takeIf { it.isNotBlank() } ?: return null
+        val storedRefresh = prefs.getString(KEY_REFRESH, "").orEmpty()
+        val token = open(storedToken)
+        val refreshToken = open(storedRefresh)
+        if (token == null || refreshToken == null) {
+            // The key that sealed the tokens is gone, so they are too: sign in again.
+            prefs.edit().clear().apply()
+            _lastEnd.value = SessionEnd.EXPIRED
+            return null
+        }
+        sealIfPlain(storedToken, storedRefresh)
         val expiresAt = prefs.getLong(KEY_EXPIRES, 0L)
-        val refreshToken = prefs.getString(KEY_REFRESH, "").orEmpty()
         // A run-out token with nothing to renew it is gone; with a refresh token it is
         // still a session, and the next request renews it first.
         if (expiresAt <= System.currentTimeMillis() && refreshToken.isBlank()) {
@@ -106,13 +123,13 @@ class SessionStore @Inject constructor(
             refreshToken = refreshToken,
         )
         prefs.edit()
-            .putString(KEY_TOKEN, session.idToken)
+            .putString(KEY_TOKEN, seal(session.idToken))
             .putString(KEY_EMAIL, session.email)
             .putString(KEY_NAME, session.displayName)
             .putLong(KEY_EXPIRES, session.expiresAtEpochMs)
             .putString(KEY_UID, session.uid)
             .putString(KEY_ACCESS, session.access)
-            .putString(KEY_REFRESH, session.refreshToken)
+            .putString(KEY_REFRESH, seal(session.refreshToken))
             .apply()
         _lastEnd.value = null
         _session.value = session
@@ -133,7 +150,31 @@ class SessionStore @Inject constructor(
     /** The server no longer accepts the token; the user has to sign in again. */
     fun expire() = end(SessionEnd.EXPIRED)
 
+    /** [token] as it is stored: sealed, or as it is when the keystore can't be used. */
+    private fun seal(token: String): String {
+        if (token.isEmpty()) return token
+        val sealed = cipher.seal(token) ?: return token
+        return (SEALED + sealed).also { opened[it] = token }
+    }
+
+    /** The token behind [stored], which is sealed or was saved before tokens were; null when it can't be opened. */
+    private fun open(stored: String): String? {
+        if (!stored.startsWith(SEALED)) return stored
+        opened[stored]?.let { return it }
+        return cipher.open(stored.removePrefix(SEALED))?.also { opened[stored] = it }
+    }
+
+    /** Seals tokens an older version of the app left readable in the prefs file. */
+    private fun sealIfPlain(storedToken: String, storedRefresh: String) {
+        if (storedToken.startsWith(SEALED) && (storedRefresh.isEmpty() || storedRefresh.startsWith(SEALED))) return
+        val token = seal(open(storedToken) ?: return)
+        val refresh = seal(open(storedRefresh) ?: return)
+        if (token == storedToken && refresh == storedRefresh) return
+        prefs.edit().putString(KEY_TOKEN, token).putString(KEY_REFRESH, refresh).apply()
+    }
+
     private fun end(reason: SessionEnd) {
+        opened.clear()
         prefs.edit().clear().apply()
         _lastEnd.value = reason
         _session.value = null
@@ -151,5 +192,8 @@ class SessionStore @Inject constructor(
         const val KEY_UID = "uid"
         const val KEY_ACCESS = "access"
         const val KEY_REFRESH = "refresh_token"
+
+        /** Marks a stored token as sealed by [TokenCipher]; one without it is from before tokens were sealed. */
+        const val SEALED = "sealed1:"
     }
 }

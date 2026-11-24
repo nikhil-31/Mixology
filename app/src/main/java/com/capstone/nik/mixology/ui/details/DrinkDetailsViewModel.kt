@@ -329,21 +329,17 @@ class DrinkDetailsViewModel @Inject constructor(
 
     private fun share() {
         val drink = currentState.drink ?: return
-        val builder = StringBuilder()
-            .append(appContext.getString(R.string.detail_share_sent_from_mixology)).append(" \n")
-            .append(appContext.getString(R.string.detail_share_name)).append(" ").append(drink.name).append("\n")
-            .append(appContext.getString(R.string.detail_share_alcoholic)).append(" ").append(drink.alcoholic).append("\n")
-            .append(appContext.getString(R.string.detail_share_instructions)).append(" \n")
-            .append(drink.instructions).append("\n")
-            .append(appContext.getString(R.string.detail_share_ingredients)).append("\n")
-        drink.ingredients.forEach { item ->
-            builder.append(item.ingredient).append(" -- ").append(item.measure).append("\n")
-        }
+        val text = shareText(
+            drink = drink,
+            ingredientsLabel = appContext.getString(R.string.detail_share_ingredients),
+            instructionsLabel = appContext.getString(R.string.detail_share_instructions),
+            footer = appContext.getString(R.string.detail_share_sent_from_mixology),
+        )
         analytics.logShareDrink(drink.id, drink.name)
         val intent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
-            putExtra(Intent.EXTRA_SUBJECT, appContext.getString(R.string.detail_share_sent_from_mixology))
-            putExtra(Intent.EXTRA_TEXT, builder.toString())
+            putExtra(Intent.EXTRA_SUBJECT, drink.name)
+            putExtra(Intent.EXTRA_TEXT, text)
         }
         sendEffect(DrinkDetailsEffect.ShareRecipe(intent))
     }
@@ -351,4 +347,37 @@ class DrinkDetailsViewModel @Inject constructor(
     companion object {
         private const val TAG = "DrinkDetailsViewModel"
     }
+}
+
+/**
+ * A recipe as plain text for the share sheet: the name, what kind of drink it is, then the
+ * ingredients and steps. Anything the recipe doesn't have is left out, not printed as blank.
+ */
+internal fun shareText(
+    drink: Drink,
+    ingredientsLabel: String,
+    instructionsLabel: String,
+    footer: String,
+): String = buildString {
+    appendLine(drink.name)
+    listOfNotNull(drink.alcoholic, drink.glass)
+        .filter { it.isNotBlank() }
+        .takeIf { it.isNotEmpty() }
+        ?.let { appendLine(it.joinToString(" · ")) }
+    val ingredients = drink.ingredients.filter { it.ingredient.isNotBlank() }
+    if (ingredients.isNotEmpty()) {
+        appendLine()
+        appendLine(ingredientsLabel)
+        ingredients.forEach { item ->
+            val measure = item.measure.trim()
+            appendLine(if (measure.isEmpty()) "• ${item.ingredient.trim()}" else "• $measure ${item.ingredient.trim()}")
+        }
+    }
+    drink.instructions?.trim()?.takeIf { it.isNotEmpty() }?.let { steps ->
+        appendLine()
+        appendLine(instructionsLabel)
+        appendLine(steps)
+    }
+    appendLine()
+    append(footer)
 }

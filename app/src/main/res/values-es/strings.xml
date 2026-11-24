@@ -93,11 +93,9 @@
     <string name="nav_item_highball_glass">Vaso highball</string>
 
     <string name="detail_share_via">Compartir mediante</string>
-    <string name="detail_share_sent_from_mixology">Receta enviada desde Mixology</string>
-    <string name="detail_share_name">Nombre: </string>
-    <string name="detail_share_alcoholic">Contenido alcohólico: </string>
-    <string name="detail_share_instructions">Instrucciones: </string>
-    <string name="detail_share_ingredients">Ingredientes: </string>
+    <string name="detail_share_sent_from_mixology">Compartido desde Mixology</string>
+    <string name="detail_share_instructions">Instrucciones</string>
+    <string name="detail_share_ingredients">Ingredientes</string>
 
     <string name="empty_string_cocktail_image">imagen_coctel</string>
 

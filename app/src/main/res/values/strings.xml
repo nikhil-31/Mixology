@@ -102,11 +102,9 @@
 
     <!-- Share Intent detail fragment that shares data to many different apps -->
     <string name="detail_share_via">Share Via</string>
-    <string name="detail_share_sent_from_mixology">Recipe Sent From Mixology !!!!!!!</string>
-    <string name="detail_share_name">Name: </string>
-    <string name="detail_share_alcoholic">Alcohol Content: </string>
-    <string name="detail_share_instructions">Instructions: </string>
-    <string name="detail_share_ingredients">Ingredients: </string>
+    <string name="detail_share_sent_from_mixology">Shared from Mixology</string>
+    <string name="detail_share_instructions">Instructions</string>
+    <string name="detail_share_ingredients">Ingredients</string>
 
     <string name="empty_string_cocktail_image">cocktail_image</string>
 

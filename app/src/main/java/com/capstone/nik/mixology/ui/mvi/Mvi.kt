@@ -6,12 +6,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -25,8 +25,10 @@ abstract class MviViewModel<I, S, E>(initialState: S) : ViewModel(), MviStore<I,
     private val _state = MutableStateFlow(initialState)
     override val state: StateFlow<S> = _state.asStateFlow()
 
-    private val _effects = MutableSharedFlow<E>(extraBufferCapacity = 64)
-    override val effects: Flow<E> = _effects.asSharedFlow()
+    // A channel holds an effect until the screen collects it, so one sent while the screen is
+    // being rebuilt (a rotation) still arrives. Each effect goes to one collector, once.
+    private val _effects = Channel<E>(capacity = 64)
+    override val effects: Flow<E> = _effects.receiveAsFlow()
 
     protected val currentState: S get() = _state.value
 
@@ -35,8 +37,8 @@ abstract class MviViewModel<I, S, E>(initialState: S) : ViewModel(), MviStore<I,
     }
 
     protected fun sendEffect(effect: E) {
-        if (!_effects.tryEmit(effect)) {
-            viewModelScope.launch { _effects.emit(effect) }
+        if (_effects.trySend(effect).isFailure) {
+            viewModelScope.launch { _effects.send(effect) }
         }
     }
 }

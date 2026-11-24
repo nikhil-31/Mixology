@@ -174,6 +174,22 @@ class DrinkRepositoryTest {
     }
 
     @Test
+    fun lookupDrink_keepsTheRecipeOfAViewedDrinkForOffline() = runTest {
+        service.lookupsById = mapOf(
+            "9" to CocktailDbResponse(listOf(cocktailDrink("9", "Negroni"))),
+        )
+        // A card only knows the name and photo.
+        repository.recordViewed(Drink("9", "Negroni", "https://example.com/9.jpg"))
+        assertNull(repository.cachedDrink("9")?.instructions)
+
+        repository.lookupDrink("9")
+
+        val cached = repository.cachedDrink("9")
+        assertEquals("Shake.", cached?.instructions)
+        assertEquals(listOf("Gin"), cached?.ingredients?.map { it.ingredient })
+    }
+
+    @Test
     fun notes_comeFromSavedSyncAndNeverReachRoom() = runTest {
         val context = ApplicationProvider.getApplicationContext<Application>()
         val notes = MutableStateFlow(mapOf("11007" to "Salt the rim"))

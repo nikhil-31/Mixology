@@ -118,6 +118,9 @@ class DrinkRepository @Inject constructor(
 
     suspend fun lookupDrink(id: String): Drink? {
         val remote = service.getDrinkById(id).drinks.orEmpty().firstOrNull()?.toDrink() ?: return null
+        // A drink the user opened or saved has a row with just its name and photo;
+        // fill in the recipe so it still opens offline. Other lookups aren't kept.
+        if (remote.hasRecipe && dao.getById(id) != null) dao.saveDrink(remote.toEntity())
         return withSaved(remote)
     }
 

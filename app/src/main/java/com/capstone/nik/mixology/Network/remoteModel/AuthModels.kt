@@ -7,6 +7,9 @@ data class LoginRequest(
     val password: String,
 )
 
+/** Asks for a link to choose a new password at `POST /auth/password-reset`. */
+data class PasswordResetRequest(val email: String)
+
 data class SignupRequest(
     val email: String,
     val password: String,

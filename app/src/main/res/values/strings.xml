@@ -232,6 +232,10 @@
     <string name="auth_continue_with_apple">Continue with Apple</string>
     <string name="auth_apple_failed">Sign in with Apple didn’t work. Please try again.</string>
     <string name="auth_google_failed">Google sign-in didn’t work. Please try again.</string>
+    <string name="auth_forgot_password">Forgot password?</string>
+    <string name="auth_reset_sent">If %1$s has a Mixology password, a link to choose a new one is on its way.</string>
+    <string name="auth_reset_needs_email">Enter your email above, then tap Forgot password.</string>
+    <string name="auth_password_rule">Use at least 6 characters.</string>
     <string name="auth_google_no_account">No Google account is signed in on this device.</string>
     <string name="auth_switch_to_sign_in">Already have an account? Sign in</string>
     <string name="settings_account">Account</string>

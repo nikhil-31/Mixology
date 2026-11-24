@@ -6,6 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.capstone.nik.mixology.Network.remoteModel.AuthTokenResponse
 import com.capstone.nik.mixology.Network.remoteModel.AuthUser
 import com.capstone.nik.mixology.Network.remoteModel.LoginRequest
+import com.capstone.nik.mixology.Network.remoteModel.PasswordResetRequest
 import com.capstone.nik.mixology.Network.remoteModel.ProviderLoginRequest
 import com.capstone.nik.mixology.Network.remoteModel.RefreshRequest
 import com.capstone.nik.mixology.Network.remoteModel.SignupRequest
@@ -40,6 +41,7 @@ class SessionAuthInterceptorTest {
         override suspend fun signup(body: SignupRequest): AuthTokenResponse = error("unused")
         override suspend fun google(body: ProviderLoginRequest): AuthTokenResponse = error("unused")
         override suspend fun apple(body: ProviderLoginRequest): AuthTokenResponse = error("unused")
+        override suspend fun passwordReset(body: PasswordResetRequest): retrofit2.Response<Unit> = error("unused")
 
         override suspend fun refresh(body: RefreshRequest): AuthTokenResponse {
             refreshes += 1

@@ -218,6 +218,10 @@
     <string name="auth_continue_with_apple">Continuar con Apple</string>
     <string name="auth_apple_failed">No se pudo iniciar sesión con Apple. Inténtalo de nuevo.</string>
     <string name="auth_google_failed">No se pudo iniciar sesión con Google. Inténtalo de nuevo.</string>
+    <string name="auth_forgot_password">¿Olvidaste tu contraseña?</string>
+    <string name="auth_reset_sent">Si %1$s tiene una contraseña de Mixology, ya va en camino un enlace para elegir una nueva.</string>
+    <string name="auth_reset_needs_email">Escribe tu correo arriba y luego toca «¿Olvidaste tu contraseña?».</string>
+    <string name="auth_password_rule">Usa al menos 6 caracteres.</string>
     <string name="auth_google_no_account">No hay ninguna cuenta de Google en este dispositivo.</string>
     <string name="auth_switch_to_sign_in">¿Ya tienes cuenta? Entra</string>
     <string name="settings_account">Cuenta</string>

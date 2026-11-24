@@ -203,6 +203,41 @@ fun AuthScreen(
                 ),
                 keyboardActions = KeyboardActions(onDone = { submit() }),
             )
+            if (!signUp) {
+                TextButton(
+                    onClick = { onIntent(AuthIntent.ForgotPassword) },
+                    enabled = !state.submitting,
+                    modifier = Modifier
+                        .align(Alignment.End)
+                        .testTag("auth_forgot_password"),
+                ) {
+                    Text(stringResource(R.string.auth_forgot_password))
+                }
+            } else {
+                Text(
+                    text = stringResource(R.string.auth_password_rule),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+            state.notice?.let { notice ->
+                Text(
+                    text = when (notice) {
+                        AuthNotice.RESET_SENT -> stringResource(R.string.auth_reset_sent, state.email.trim())
+                        AuthNotice.RESET_NEEDS_EMAIL -> stringResource(R.string.auth_reset_needs_email)
+                    },
+                    color = if (notice == AuthNotice.RESET_SENT) {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    } else {
+                        MaterialTheme.colorScheme.error
+                    },
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("auth_notice"),
+                )
+            }
             state.error?.takeIf { it.isNotBlank() }?.let { detail ->
                 Text(
                     text = detail,

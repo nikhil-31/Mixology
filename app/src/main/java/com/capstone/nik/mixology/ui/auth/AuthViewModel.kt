@@ -22,17 +22,19 @@ class AuthViewModel @Inject constructor(
 
     override fun onIntent(intent: AuthIntent) {
         when (intent) {
-            is AuthIntent.EmailChanged -> setState { copy(email = intent.value, error = null) }
-            is AuthIntent.PasswordChanged -> setState { copy(password = intent.value, error = null) }
+            is AuthIntent.EmailChanged -> setState { copy(email = intent.value, error = null, notice = null) }
+            is AuthIntent.PasswordChanged -> setState { copy(password = intent.value, error = null, notice = null) }
             is AuthIntent.DisplayNameChanged -> setState { copy(displayName = intent.value, error = null) }
             AuthIntent.TogglePasswordVisible -> setState { copy(passwordVisible = !passwordVisible) }
             AuthIntent.SwitchMode -> setState {
                 copy(
                     mode = if (mode == AuthMode.SIGN_IN) AuthMode.SIGN_UP else AuthMode.SIGN_IN,
                     error = null,
+                    notice = null,
                 )
             }
             AuthIntent.Submit -> submit()
+            AuthIntent.ForgotPassword -> forgotPassword()
             is AuthIntent.SignInWithGoogle -> signInWithGoogle(intent.activity)
             is AuthIntent.SignInWithApple -> signInWithApple(intent.activity)
         }
@@ -61,10 +63,26 @@ class AuthViewModel @Inject constructor(
      */
     private fun signInWithProvider(attempt: suspend () -> AuthResult?) {
         if (currentState.submitting) return
-        setState { copy(submitting = true, error = null) }
+        setState { copy(submitting = true, error = null, notice = null) }
         viewModelScope.launch {
             val error = (attempt() as? AuthResult.Failure)?.detail
             setState { copy(submitting = false, error = error) }
+        }
+    }
+
+    private fun forgotPassword() {
+        if (currentState.submitting) return
+        val email = currentState.email.trim()
+        if (email.isEmpty()) {
+            setState { copy(error = null, notice = AuthNotice.RESET_NEEDS_EMAIL) }
+            return
+        }
+        setState { copy(submitting = true, error = null, notice = null) }
+        viewModelScope.launch {
+            val error = chatRepository.requestPasswordReset(email)
+            setState {
+                copy(submitting = false, error = error, notice = AuthNotice.RESET_SENT.takeIf { error == null })
+            }
         }
     }
 
@@ -72,7 +90,7 @@ class AuthViewModel @Inject constructor(
         val state = currentState
         if (!state.canSubmit) return
         val email = state.email.trim()
-        setState { copy(submitting = true, error = null) }
+        setState { copy(submitting = true, error = null, notice = null) }
         viewModelScope.launch {
             val result = when (state.mode) {
                 AuthMode.SIGN_IN -> chatRepository.signIn(email, state.password)

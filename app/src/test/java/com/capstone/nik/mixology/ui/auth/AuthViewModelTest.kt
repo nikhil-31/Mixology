@@ -77,6 +77,28 @@ class AuthViewModelTest {
     }
 
     @Test
+    fun signUp_waitsForAPasswordThatMeetsTheRule() {
+        viewModel.onIntent(AuthIntent.SwitchMode)
+        viewModel.onIntent(AuthIntent.EmailChanged("ada@mixology.test"))
+        viewModel.onIntent(AuthIntent.PasswordChanged("12345"))
+        assertFalse(viewModel.state.value.canSubmit)
+
+        viewModel.onIntent(AuthIntent.Submit)
+        assertTrue(chat.signUps.isEmpty())
+
+        viewModel.onIntent(AuthIntent.PasswordChanged("123456"))
+        assertTrue(viewModel.state.value.canSubmit)
+    }
+
+    @Test
+    fun signIn_takesAShortPasswordFromAnOlderAccount() {
+        viewModel.onIntent(AuthIntent.EmailChanged("ada@mixology.test"))
+        viewModel.onIntent(AuthIntent.PasswordChanged("abc"))
+
+        assertTrue(viewModel.state.value.canSubmit)
+    }
+
+    @Test
     fun switchMode_togglesAndClearsError() {
         chat.signInResult = AuthResult.Failure("Nope")
         viewModel.onIntent(AuthIntent.EmailChanged("ada@mixology.test"))
@@ -97,5 +119,31 @@ class AuthViewModelTest {
         assertTrue(viewModel.state.value.passwordVisible)
         viewModel.onIntent(AuthIntent.TogglePasswordVisible)
         assertFalse(viewModel.state.value.passwordVisible)
+    }
+
+    @Test
+    fun forgotPassword_asksForAnEmailThenSendsTheResetLink() {
+        viewModel.onIntent(AuthIntent.ForgotPassword)
+        assertEquals(AuthNotice.RESET_NEEDS_EMAIL, viewModel.state.value.notice)
+        assertTrue(chat.passwordResets.isEmpty())
+
+        viewModel.onIntent(AuthIntent.EmailChanged(" ada@mixology.test "))
+        assertNull(viewModel.state.value.notice)
+        viewModel.onIntent(AuthIntent.ForgotPassword)
+
+        assertEquals(listOf("ada@mixology.test"), chat.passwordResets)
+        assertEquals(AuthNotice.RESET_SENT, viewModel.state.value.notice)
+        assertNull(viewModel.state.value.error)
+    }
+
+    @Test
+    fun forgotPassword_failureShowsWhy() {
+        chat.passwordResetError = "You're offline."
+        viewModel.onIntent(AuthIntent.EmailChanged("ada@mixology.test"))
+
+        viewModel.onIntent(AuthIntent.ForgotPassword)
+
+        assertEquals("You're offline.", viewModel.state.value.error)
+        assertNull(viewModel.state.value.notice)
     }
 }

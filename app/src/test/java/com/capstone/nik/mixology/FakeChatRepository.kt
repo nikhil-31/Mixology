@@ -47,6 +47,14 @@ class FakeChatRepository : ChatRepository {
         return signIn(email, password)
     }
 
+    val passwordResets = mutableListOf<String>()
+    var passwordResetError: String? = null
+
+    override suspend fun requestPasswordReset(email: String): String? {
+        passwordResets += email
+        return passwordResetError
+    }
+
     override suspend fun signInWithGoogle(firebaseIdToken: String): AuthResult {
         googleTokens += firebaseIdToken
         return signIn("", "")

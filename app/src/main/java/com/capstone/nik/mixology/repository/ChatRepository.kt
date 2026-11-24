@@ -44,6 +44,9 @@ interface ChatRepository {
 
     suspend fun signUp(email: String, password: String, displayName: String): AuthResult
 
+    /** Emails a password-reset link to [email]. Returns why it couldn't, or null once the request was accepted. */
+    suspend fun requestPasswordReset(email: String): String?
+
     /** Trades a Firebase ID token from Google sign-in for a backend session. */
     suspend fun signInWithGoogle(firebaseIdToken: String): AuthResult
 

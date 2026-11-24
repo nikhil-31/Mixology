@@ -12,6 +12,7 @@ import com.capstone.nik.mixology.Network.connectionMessage
 import com.capstone.nik.mixology.Network.remoteModel.AuthTokenResponse
 import com.capstone.nik.mixology.Network.remoteModel.ProviderLoginRequest
 import com.capstone.nik.mixology.Network.remoteModel.LoginRequest
+import com.capstone.nik.mixology.Network.remoteModel.PasswordResetRequest
 import com.capstone.nik.mixology.Network.remoteModel.SignupRequest
 import com.capstone.nik.mixology.billing.SubscriptionRepository
 import com.capstone.nik.mixology.data.Session
@@ -49,6 +50,17 @@ class NetworkChatRepository @Inject constructor(
         val name = displayName.trim().takeIf { it.isNotEmpty() }
         return authenticate(email.trim(), name) {
             authService.signup(SignupRequest(email.trim(), password, name))
+        }
+    }
+
+    override suspend fun requestPasswordReset(email: String): String? {
+        return try {
+            val response = authService.passwordReset(PasswordResetRequest(email.trim()))
+            if (response.isSuccessful) null else authFailureDetail(HttpException(response))
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: Exception) {
+            authFailureDetail(error)
         }
     }
 

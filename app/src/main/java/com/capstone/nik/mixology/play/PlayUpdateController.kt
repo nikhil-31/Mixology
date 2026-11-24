@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.capstone.nik.mixology.runCatchingCancellable
 
 enum class PlayUpdateEvent {
     Downloaded,
@@ -42,7 +43,7 @@ class PlayUpdateController @Inject constructor(
             return
         }
         ensureListening()
-        val info = runCatching { appUpdateManager.requestAppUpdateInfo() }.getOrElse {
+        val info = runCatchingCancellable { appUpdateManager.requestAppUpdateInfo() }.getOrElse {
             if (userRequested) _events.tryEmit(PlayUpdateEvent.UpToDate)
             return
         }

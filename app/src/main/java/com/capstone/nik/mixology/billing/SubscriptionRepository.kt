@@ -25,6 +25,7 @@ import java.util.Locale
 import java.util.TimeZone
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.capstone.nik.mixology.runCatchingCancellable
 
 /** What the signed-in account may use. */
 sealed interface Access {
@@ -104,7 +105,7 @@ class SubscriptionRepository @Inject constructor(
         }
         scope.launch {
             storeBilling.purchaseUpdates.collect { purchase ->
-                runCatching { recordPurchase(purchase) }
+                runCatchingCancellable { recordPurchase(purchase) }
             }
         }
     }
@@ -128,7 +129,7 @@ class SubscriptionRepository @Inject constructor(
      */
     suspend fun refreshOnLaunch() {
         if (refresh() is Access.Free) {
-            runCatching { restore() }
+            runCatchingCancellable { restore() }
         }
     }
 

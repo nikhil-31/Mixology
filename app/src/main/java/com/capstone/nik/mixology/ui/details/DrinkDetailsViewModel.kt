@@ -15,6 +15,7 @@ import com.capstone.nik.mixology.repository.DrinkRating
 import com.capstone.nik.mixology.repository.DrinkRepository
 import com.capstone.nik.mixology.repository.RatingRepository
 import com.capstone.nik.mixology.repository.RecipeRepository
+import com.capstone.nik.mixology.runCatchingCancellable
 import com.capstone.nik.mixology.ui.mvi.MviViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -239,7 +240,7 @@ class DrinkDetailsViewModel @Inject constructor(
     private fun loadRating(id: String) {
         ratingJob?.cancel()
         ratingJob = viewModelScope.launch {
-            val rating = runCatching { ratings.rating(id) }.getOrNull()
+            val rating = runCatchingCancellable { ratings.rating(id) }.getOrNull()
             if (loadedId == id) setState { copy(rating = rating) }
         }
     }

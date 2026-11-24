@@ -12,6 +12,7 @@ import com.capstone.nik.mixology.repository.ShoppingTripRepository
 import com.capstone.nik.mixology.data.withRecipes
 import com.capstone.nik.mixology.repository.RecipeRepository
 import com.capstone.nik.mixology.repository.DrinkRepository
+import com.capstone.nik.mixology.runCatchingCancellable
 import com.capstone.nik.mixology.ui.mvi.MviViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Deferred
@@ -227,7 +228,7 @@ class ShoppingViewModel @Inject constructor(
         val needed = sections.any { it.drinkId.startsWith(Drink.USER_RECIPE_PREFIX) && it.drinkId !in known }
         if (!needed) return
         requestedRecipes = true
-        viewModelScope.launch { runCatching { recipes.load() } }
+        viewModelScope.launch { runCatchingCancellable { recipes.load() } }
     }
 
     private fun removeItems(items: List<ShoppingItemEntity>, messageRes: Int) {

@@ -14,6 +14,7 @@ import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.repository.DrinkRepository
 import com.capstone.nik.mixology.repository.FilterKind
 import com.capstone.nik.mixology.repository.RecipeRepository
+import com.capstone.nik.mixology.runCatchingCancellable
 import com.capstone.nik.mixology.ui.components.DrinkViewPreferences
 import com.capstone.nik.mixology.ui.mvi.MviViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -52,6 +53,9 @@ class SearchViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 repository.refreshCatalogs()
+            } catch (e: CancellationException) {
+                // Leaving Search isn't a failure to report.
+                throw e
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to refresh catalogs", e)
                 recordCrash(e)
@@ -59,7 +63,7 @@ class SearchViewModel @Inject constructor(
         }
         viewModelScope.launch {
             // Brings in My recipes so they can match; search works without them.
-            runCatching { recipes.load() }
+            runCatchingCancellable { recipes.load() }
         }
         viewModelScope.launch {
             combine(

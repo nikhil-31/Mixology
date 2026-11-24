@@ -44,6 +44,8 @@ class SearchViewModel @Inject constructor(
     private val mode = MutableStateFlow(SearchMode.NAME)
     private val listView = MutableStateFlow(DrinkViewPreferences.listView(context))
     private var catalogKind: FilterKind? = null
+    /** The term [catalogKind] was opened with. */
+    private var catalogTerm: String? = null
     private var searchJob: Job? = null
 
     init {
@@ -109,10 +111,20 @@ class SearchViewModel @Inject constructor(
                     searchJob?.cancel()
                     mode.value = intent.mode
                 }
-                catalogKind = intent.filterKind
+                // A catalog term ("Highball glass") stays a glass, category or alcohol
+                // filter through Retry and the keyboard's Search key; it only becomes
+                // a plain search once the text is changed.
+                val term = normalize(intent.query)
+                if (intent.filterKind != null) {
+                    catalogKind = intent.filterKind
+                    catalogTerm = term
+                } else if (term != catalogTerm) {
+                    catalogKind = null
+                    catalogTerm = null
+                }
                 search(
                     intent.query,
-                    immediate = intent.filterKind != null || intent.commit,
+                    immediate = catalogKind != null || intent.commit,
                 )
             }
             is SearchIntent.SetMode -> setMode(intent.mode)
@@ -130,6 +142,7 @@ class SearchViewModel @Inject constructor(
             mode.value = SearchMode.INGREDIENT
         }
         catalogKind = null
+        catalogTerm = null
         search(ingredient, immediate = true)
     }
 
@@ -138,16 +151,19 @@ class SearchViewModel @Inject constructor(
         searchJob?.cancel()
         mode.value = next
         catalogKind = null
+        catalogTerm = null
         search(query.value)
     }
 
     private fun search(rawQuery: String, immediate: Boolean = false) {
-        val adjusted = rawQuery.replace("%20", " ").trim()
+        val adjusted = normalize(rawQuery)
         searchJob?.cancel()
         query.value = adjusted
         drinks.value = emptyList()
         searchText(adjusted, immediate)
     }
+
+    private fun normalize(rawQuery: String): String = rawQuery.replace("%20", " ").trim()
 
     private fun searchText(adjusted: String, immediate: Boolean) {
         if (adjusted.length < SEARCH_MIN_CHARS) {

@@ -223,6 +223,29 @@ class SearchViewModelTest {
         assertEquals("1", analytics.recorded[0].params[FirebaseAnalytics.Param.ITEM_ID])
     }
 
+    @Test
+    fun aCatalogTermStaysAFilterWhenSearchedAgain_untilTheTextChanges() = runTest(dispatcher) {
+        service.glassByQuery = mapOf(
+            "Highball glass" to CocktailDbResponse(listOf(cocktailDrink("7", "Paloma"))),
+        )
+        seedRecipe("1", "Highball Hero")
+        viewModel.onIntent(SearchIntent.Search("Highball glass", filterKind = FilterKind.GLASS))
+        advanceUntilIdle()
+        assertEquals(listOf("Paloma"), viewModel.state.value.results.map { it.name })
+
+        // The screen echoing the text, Retry and the keyboard's Search key all resend it.
+        viewModel.onIntent(SearchIntent.Search("Highball glass"))
+        advanceUntilIdle()
+        assertEquals(listOf("Paloma"), viewModel.state.value.results.map { it.name })
+        viewModel.onIntent(SearchIntent.Search("Highball glass", commit = true))
+        advanceUntilIdle()
+        assertEquals(listOf("Paloma"), viewModel.state.value.results.map { it.name })
+
+        viewModel.onIntent(SearchIntent.Search("Highball", commit = true))
+        advanceUntilIdle()
+        assertEquals(listOf("Highball Hero"), viewModel.state.value.results.map { it.name })
+    }
+
     private fun seedRecipe(id: String, name: String, ingredient: String = "Gin") {
         val response = CocktailDbResponse(listOf(cocktailDrink(id, name, ingredient = ingredient)))
         service.search = response

@@ -6,8 +6,11 @@ import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.Network.remoteModel.ChatRecipeDto
 import com.capstone.nik.mixology.repository.RecipeRepository
 import com.capstone.nik.mixology.ui.recipes.RecipePhotoLoader
-import kotlinx.coroutines.flow.Flow
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import com.capstone.nik.mixology.Network.NetworkMonitor
 import com.capstone.nik.mixology.Network.connectionMessage
 import com.capstone.nik.mixology.Network.serverDetail
@@ -42,7 +45,11 @@ class AdaViewModel @Inject constructor(
     private val inbox: AdaInbox,
     private val handoff: RecipeDraftHandoff = RecipeDraftHandoff(),
     private val analytics: AnalyticsTracker = AnalyticsTracker.forTests(),
-) : MviViewModel<AdaIntent, AdaUiState, AdaEffect>(AdaUiState()) {
+    private val savedState: SavedStateHandle = SavedStateHandle(),
+) : MviViewModel<AdaIntent, AdaUiState, AdaEffect>(
+    // A half-typed message comes back if the system closed the app in the background.
+    AdaUiState(draft = savedState.get<String>(KEY_DRAFT).orEmpty()),
+) {
 
     private var transcript: List<AdaMessage> = emptyList()
     private var savedIds: Set<String> = emptySet()
@@ -64,6 +71,9 @@ class AdaViewModel @Inject constructor(
     )
 
     init {
+        viewModelScope.launch {
+            state.map { it.draft }.distinctUntilChanged().collect { savedState[KEY_DRAFT] = it }
+        }
         viewModelScope.launch {
             drinkRepository.observeSavedIds().collect { ids ->
                 savedIds = ids
@@ -593,3 +603,6 @@ private fun AdaMessage.withSaved(ids: Set<String>): AdaMessage {
     if (drinks.isEmpty()) return this
     return copy(drinks = drinks.map { drink -> drink.copy(saved = drink.id in ids) })
 }
+
+/** Where the composer text is kept so it survives the system closing the app. */
+private const val KEY_DRAFT = "ada_draft"

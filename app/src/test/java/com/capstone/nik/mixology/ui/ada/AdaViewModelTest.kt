@@ -1,6 +1,7 @@
 package com.capstone.nik.mixology.ui.ada
 
 import android.app.Application
+import androidx.lifecycle.SavedStateHandle
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
@@ -110,7 +111,20 @@ class AdaViewModelTest {
             inbox,
             handoff,
             analytics,
+            savedState,
         )
+    }
+
+    private val savedState = SavedStateHandle()
+
+    @Test
+    fun aHalfTypedMessageIsKeptForTheSystemToHandBack_andClearedOnceSent() = runTest {
+        viewModel.onIntent(AdaIntent.DraftChanged("something with gin and"))
+        assertEquals("something with gin and", savedState.get<String>("ada_draft"))
+
+        signIn()
+        viewModel.onIntent(AdaIntent.Send)
+        assertEquals("", savedState.get<String>("ada_draft"))
     }
 
     @After

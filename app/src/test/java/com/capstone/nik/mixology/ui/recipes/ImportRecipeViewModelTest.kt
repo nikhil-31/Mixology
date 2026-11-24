@@ -1,6 +1,7 @@
 package com.capstone.nik.mixology.ui.recipes
 
 import android.app.Application
+import androidx.lifecycle.SavedStateHandle
 import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
 import com.capstone.nik.mixology.FakeRecipeService
@@ -98,6 +99,18 @@ class ImportRecipeViewModelTest {
         }
         assertEquals("https://www.liquor.com/recipes/paper-plane/", adaInbox.pending.value)
         assertNull(viewModel.state.value.error)
+    }
+
+    @Test
+    fun pastedTextComesBackAfterTheSystemClosesTheApp() {
+        val savedState = SavedStateHandle()
+        ImportRecipeViewModel(repository, network, adaInbox, savedState)
+            .onIntent(ImportRecipeIntent.TextChanged("2 oz gin, 1 oz lime"))
+
+        val reopened = ImportRecipeViewModel(repository, network, adaInbox, savedState)
+
+        assertEquals("2 oz gin, 1 oz lime", reopened.state.value.text)
+        assertTrue(reopened.state.value.canImport)
     }
 
     @Test

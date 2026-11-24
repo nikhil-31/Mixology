@@ -2,6 +2,7 @@ package com.capstone.nik.mixology.ui.recipes
 
 import android.app.Application
 import android.net.Uri
+import androidx.lifecycle.SavedStateHandle
 import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
 import com.capstone.nik.mixology.FakeRecipeService
@@ -375,6 +376,62 @@ class RecipeEditorViewModelTest {
         assertTrue(state.loadFailed)
         assertNull(state.connectionError)
         assertEquals("Error 404", state.error)
+    }
+
+    @Test
+    fun aNewRecipeBeingWrittenComesBackAfterTheSystemClosesTheApp() {
+        val savedState = SavedStateHandle()
+        viewModel = RecipeEditorViewModel(repository, photos, analytics, handoff, savedState = savedState)
+        viewModel.onIntent(RecipeEditorIntent.Bind(null))
+        fillSour()
+        val written = viewModel.state.value.form
+
+        val reopened = RecipeEditorViewModel(repository, photos, analytics, handoff, savedState = savedState)
+        reopened.onIntent(RecipeEditorIntent.Bind(null))
+
+        val state = reopened.state.value
+        assertEquals(written, state.form)
+        assertTrue(state.dirty)
+        // New rows don't reuse a restored row's key.
+        reopened.onIntent(RecipeEditorIntent.RemoveIngredient(state.form.ingredients.last().key))
+        reopened.onIntent(RecipeEditorIntent.AddIngredient)
+        assertEquals(3, reopened.state.value.form.ingredients.map { it.key }.distinct().size)
+    }
+
+    @Test
+    fun unsavedEditsToARecipeComeBackOverTheLoadedOne_andSavingClearsThem() {
+        service.recipes += ApiDrink(id = "u-3", name = "Negroni", ingredients = listOf(IngredientMeasure("Gin", "1 oz")))
+        val savedState = SavedStateHandle()
+        viewModel = RecipeEditorViewModel(repository, photos, analytics, handoff, savedState = savedState)
+        viewModel.onIntent(RecipeEditorIntent.Bind("u-3"))
+        viewModel.onIntent(RecipeEditorIntent.NameChanged("Negroni Sbagliato"))
+
+        val reopened = RecipeEditorViewModel(repository, photos, analytics, handoff, savedState = savedState)
+        reopened.onIntent(RecipeEditorIntent.Bind("u-3"))
+
+        assertEquals("Negroni Sbagliato", reopened.state.value.form.name)
+        assertEquals("Gin", reopened.state.value.form.ingredients.single().ingredient)
+        assertTrue(reopened.state.value.dirty)
+
+        reopened.onIntent(RecipeEditorIntent.Save)
+        assertEquals("Negroni Sbagliato", repository.recipes.value.single().name)
+        assertFalse(savedState.contains("recipe_editor_unsaved") && savedState.get<Any>("recipe_editor_unsaved") != null)
+    }
+
+    @Test
+    fun unsavedEditsToAnotherRecipeAreNotPutIntoThisOne() {
+        service.recipes += ApiDrink(id = "u-3", name = "Negroni")
+        service.recipes += ApiDrink(id = "u-4", name = "Boulevardier")
+        val savedState = SavedStateHandle()
+        viewModel = RecipeEditorViewModel(repository, photos, analytics, handoff, savedState = savedState)
+        viewModel.onIntent(RecipeEditorIntent.Bind("u-3"))
+        viewModel.onIntent(RecipeEditorIntent.NameChanged("Changed"))
+
+        val other = RecipeEditorViewModel(repository, photos, analytics, handoff, savedState = savedState)
+        other.onIntent(RecipeEditorIntent.Bind("u-4"))
+
+        assertEquals("Boulevardier", other.state.value.form.name)
+        assertFalse(other.state.value.dirty)
     }
 
     private fun fillSour() {

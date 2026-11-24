@@ -1,5 +1,6 @@
 package com.capstone.nik.mixology.ui.recipes
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.capstone.nik.mixology.Network.NetworkMonitor
 import com.capstone.nik.mixology.Network.connectionError
@@ -10,6 +11,8 @@ import com.capstone.nik.mixology.ui.mvi.MviViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -18,9 +21,19 @@ class ImportRecipeViewModel @Inject constructor(
     private val recipes: RecipeRepository,
     private val networkMonitor: NetworkMonitor,
     private val adaInbox: AdaInbox,
-) : MviViewModel<ImportRecipeIntent, ImportRecipeUiState, ImportRecipeEffect>(ImportRecipeUiState()) {
+    private val savedState: SavedStateHandle = SavedStateHandle(),
+) : MviViewModel<ImportRecipeIntent, ImportRecipeUiState, ImportRecipeEffect>(
+    // What was pasted comes back if the system closed the app in the background.
+    ImportRecipeUiState(text = savedState.get<String>(KEY_TEXT).orEmpty()),
+) {
 
     private var importJob: Job? = null
+
+    init {
+        viewModelScope.launch {
+            state.map { it.text }.distinctUntilChanged().collect { savedState[KEY_TEXT] = it }
+        }
+    }
 
     override fun onIntent(intent: ImportRecipeIntent) {
         when (intent) {
@@ -79,5 +92,9 @@ class ImportRecipeViewModel @Inject constructor(
         else -> message?.takeIf { it.isNotBlank() }
             ?.let { if (code == 422) ImportRecipeError.Server(it) else ImportRecipeError.Failed(it) }
             ?: ImportRecipeError.Generic
+    }
+
+    private companion object {
+        const val KEY_TEXT = "import_text"
     }
 }

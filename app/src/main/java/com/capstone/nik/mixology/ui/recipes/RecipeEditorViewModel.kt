@@ -1,6 +1,8 @@
 package com.capstone.nik.mixology.ui.recipes
 
 import android.net.Uri
+import android.os.Bundle
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.capstone.nik.mixology.Network.NetworkMonitor
 import com.capstone.nik.mixology.Network.connectionError
@@ -13,6 +15,8 @@ import com.capstone.nik.mixology.ui.ada.RecipeDraftRequest
 import com.capstone.nik.mixology.ui.mvi.MviViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,6 +27,7 @@ class RecipeEditorViewModel @Inject constructor(
     private val analytics: AnalyticsTracker = AnalyticsTracker.forTests(),
     private val handoff: RecipeDraftHandoff = RecipeDraftHandoff(),
     private val networkMonitor: NetworkMonitor = NetworkMonitor.forTests(),
+    private val savedState: SavedStateHandle = SavedStateHandle(),
 ) : MviViewModel<RecipeEditorIntent, RecipeEditorUiState, RecipeEditorEffect>(RecipeEditorUiState()) {
 
     private var bound = false
@@ -36,6 +41,22 @@ class RecipeEditorViewModel @Inject constructor(
     private var submitted = false
     /** Ada's card this editor was opened from ("Edit draft"), told once it's saved. */
     private var draftMessageId: Long? = null
+    /** The recipe id the editor was opened for; null for a new recipe. */
+    private var boundId: String? = null
+    /** Unsaved edits from before the system closed the app, put back once the recipe is loaded. */
+    private var restored: Bundle? = savedState.get<Bundle>(KEY_UNSAVED)
+
+    init {
+        // Keeps unsaved edits where the system can hand them back; nothing is kept once they're saved.
+        viewModelScope.launch {
+            state.map { Triple(it.form, it.dirty, it.sourceUrl to it.source) }
+                .distinctUntilChanged()
+                .collect { (form, dirty) ->
+                    // Until the edits handed back have been applied, they are what's worth keeping.
+                    if (bound && restored == null) savedState[KEY_UNSAVED] = form.takeIf { dirty }?.let(::unsaved)
+                }
+        }
+    }
 
     override fun onIntent(intent: RecipeEditorIntent) {
         when (intent) {
@@ -71,8 +92,13 @@ class RecipeEditorViewModel @Inject constructor(
     private fun bind(id: String?) {
         if (bound) return
         bound = true
+        boundId = id?.takeIf { it.isNotBlank() }
+        // Edits to some other recipe aren't this one's.
+        restored = restored?.takeIf { it.getString(UNSAVED_ID) == boundId }
         if (id.isNullOrBlank()) {
-            handoff.take()?.let(::fillDraft)
+            val unsaved = restored
+            restored = null
+            if (unsaved != null) restoreNew(unsaved) else handoff.take()?.let(::fillDraft)
             return
         }
         val cached = recipes.recipes.value.firstOrNull { it.id == id }
@@ -110,18 +136,74 @@ class RecipeEditorViewModel @Inject constructor(
             instructions = recipe.instructions.orEmpty(),
             ingredients = rows,
         )
+        val form = restored?.let(::formFrom) ?: savedForm
+        restored = null
+        nextKey = maxOf(nextKey, form.ingredients.maxOf { it.key } + 1)
         setState {
             copy(
                 recipeId = recipe.id,
                 loading = false,
-                form = savedForm,
+                form = form,
                 savedPhoto = recipe.thumb.takeIf { recipe.hasUsableThumb() },
                 sourceUrl = recipe.sourceUrl,
                 source = recipe.source,
-                dirty = false,
+                dirty = form != savedForm,
                 error = null,
             )
         }
+    }
+
+    /** Puts back a new recipe that was being written, or Ada's draft that was being changed. */
+    private fun restoreNew(unsaved: Bundle) {
+        val form = formFrom(unsaved)
+        nextKey = form.ingredients.maxOf { it.key } + 1
+        draftMessageId = unsaved.getLong(UNSAVED_MESSAGE, NO_MESSAGE).takeIf { it != NO_MESSAGE }
+        setState {
+            copy(
+                form = form,
+                sourceUrl = unsaved.getString(UNSAVED_SOURCE_URL),
+                source = unsaved.getString(UNSAVED_SOURCE),
+                dirty = true,
+            )
+        }
+    }
+
+    private fun unsaved(form: RecipeForm) = Bundle().apply {
+        putString(UNSAVED_ID, boundId)
+        putString(UNSAVED_NAME, form.name)
+        putString(UNSAVED_TYPE, form.type.name)
+        putString(UNSAVED_GLASS, form.glass)
+        putString(UNSAVED_CATEGORY, form.category)
+        putString(UNSAVED_INSTRUCTIONS, form.instructions)
+        putLongArray(UNSAVED_KEYS, form.ingredients.map { it.key }.toLongArray())
+        putStringArrayList(UNSAVED_INGREDIENTS, ArrayList(form.ingredients.map { it.ingredient }))
+        putStringArrayList(UNSAVED_MEASURES, ArrayList(form.ingredients.map { it.measure }))
+        putBoolean(UNSAVED_PHOTO_REMOVED, form.photoRemoved)
+        putString(UNSAVED_PHOTO, form.pickedPhoto?.takeIf { it.scheme == "https" || it.scheme == "http" }?.toString())
+        putString(UNSAVED_SOURCE_URL, currentState.sourceUrl)
+        putString(UNSAVED_SOURCE, currentState.source)
+        putLong(UNSAVED_MESSAGE, draftMessageId ?: NO_MESSAGE)
+    }
+
+    // A photo picked on the device isn't kept: the app's access to it doesn't outlive the
+    // process. One Ada found on the web is only a link, so it is.
+    private fun formFrom(unsaved: Bundle): RecipeForm {
+        val keys = unsaved.getLongArray(UNSAVED_KEYS) ?: LongArray(0)
+        val ingredients = unsaved.getStringArrayList(UNSAVED_INGREDIENTS).orEmpty()
+        val measures = unsaved.getStringArrayList(UNSAVED_MEASURES).orEmpty()
+        val rows = keys.mapIndexed { index, key ->
+            IngredientField(key, ingredients.getOrNull(index).orEmpty(), measures.getOrNull(index).orEmpty())
+        }.ifEmpty { listOf(IngredientField(0)) }
+        return RecipeForm(
+            name = unsaved.getString(UNSAVED_NAME).orEmpty(),
+            type = RecipeType.entries.firstOrNull { it.name == unsaved.getString(UNSAVED_TYPE) } ?: RecipeType.NONE,
+            glass = unsaved.getString(UNSAVED_GLASS).orEmpty(),
+            category = unsaved.getString(UNSAVED_CATEGORY).orEmpty(),
+            instructions = unsaved.getString(UNSAVED_INSTRUCTIONS).orEmpty(),
+            ingredients = rows,
+            pickedPhoto = unsaved.getString(UNSAVED_PHOTO)?.let(Uri::parse),
+            photoRemoved = unsaved.getBoolean(UNSAVED_PHOTO_REMOVED),
+        )
     }
 
     /** A recipe Ada read, ready to change before it's saved: new and unsaved. */
@@ -320,5 +402,24 @@ class RecipeEditorViewModel @Inject constructor(
                 failed(error)
             }
         }
+    }
+
+    private companion object {
+        const val KEY_UNSAVED = "recipe_editor_unsaved"
+        const val UNSAVED_ID = "id"
+        const val UNSAVED_NAME = "name"
+        const val UNSAVED_TYPE = "type"
+        const val UNSAVED_GLASS = "glass"
+        const val UNSAVED_CATEGORY = "category"
+        const val UNSAVED_INSTRUCTIONS = "instructions"
+        const val UNSAVED_KEYS = "keys"
+        const val UNSAVED_INGREDIENTS = "ingredients"
+        const val UNSAVED_MEASURES = "measures"
+        const val UNSAVED_PHOTO_REMOVED = "photo_removed"
+        const val UNSAVED_PHOTO = "photo"
+        const val UNSAVED_SOURCE_URL = "source_url"
+        const val UNSAVED_SOURCE = "source"
+        const val UNSAVED_MESSAGE = "message"
+        const val NO_MESSAGE = -1L
     }
 }

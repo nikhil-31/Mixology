@@ -52,6 +52,8 @@ fun AdaRecipeCard(
     recipe: AdaRecipe,
     /** Save and Not now work; false while Ada is answering something else. */
     canAnswer: Boolean,
+    /** This is the recipe a yes or no reaches; an older draft can only be edited. */
+    pending: Boolean = true,
     onSave: () -> Unit,
     onDrop: () -> Unit,
     onOpen: () -> Unit,
@@ -143,12 +145,14 @@ fun AdaRecipeCard(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Button(
-                        onClick = onSave,
-                        enabled = canAnswer,
-                        modifier = Modifier.testTag("ada_recipe_save"),
-                    ) {
-                        Text(stringResource(R.string.ada_recipe_save))
+                    if (pending) {
+                        Button(
+                            onClick = onSave,
+                            enabled = canAnswer,
+                            modifier = Modifier.testTag("ada_recipe_save"),
+                        ) {
+                            Text(stringResource(R.string.ada_recipe_save))
+                        }
                     }
                     OutlinedButton(
                         onClick = onEdit,
@@ -157,12 +161,14 @@ fun AdaRecipeCard(
                     ) {
                         Text(stringResource(R.string.ada_recipe_edit), maxLines = 1)
                     }
-                    TextButton(
-                        onClick = onDrop,
-                        enabled = canAnswer,
-                        modifier = Modifier.testTag("ada_recipe_drop"),
-                    ) {
-                        Text(stringResource(R.string.ada_recipe_not_now), maxLines = 1)
+                    if (pending) {
+                        TextButton(
+                            onClick = onDrop,
+                            enabled = canAnswer,
+                            modifier = Modifier.testTag("ada_recipe_drop"),
+                        ) {
+                            Text(stringResource(R.string.ada_recipe_not_now), maxLines = 1)
+                        }
                     }
                 }
                 AdaRecipe.State.Saved -> Row(

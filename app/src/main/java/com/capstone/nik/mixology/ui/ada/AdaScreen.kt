@@ -108,6 +108,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
@@ -423,6 +428,8 @@ private fun AdaTranscript(
                 ) {
                     val newestId = state.messages.lastOrNull()?.id
                     val newestFirst = state.messages.asReversed()
+                    // The one recipe a Save or Not now would reach on the server.
+                    val pendingRecipeId = state.messages.lastOrNull { it.recipe != null }?.id
                     itemsIndexed(newestFirst, key = { _, message -> message.id }) { index, message ->
                         // Newest first: index - 1 is the message after this one, index + 1 the one before.
                         AdaMessageRow(
@@ -434,6 +441,7 @@ private fun AdaTranscript(
                             // Only the newest reply pages; older ones would page the wrong search.
                             onShowMore = { onShowMore(message.id) }.takeIf { message.id == newestId && !state.sending },
                             canAnswerRecipe = !state.sending,
+                            recipePending = message.id == pendingRecipeId,
                             onSaveRecipe = { onSaveRecipe(message.id) },
                             onDropRecipe = { onDropRecipe(message.id) },
                             onOpenRecipe = { onOpenRecipe(message.id) },
@@ -770,6 +778,8 @@ private fun AdaMessageRow(
     /** Last in a run from one sender: it gets the avatar and the tail. */
     endsRun: Boolean = true,
     canAnswerRecipe: Boolean = true,
+    /** This reply's recipe is the one still waiting for a yes or no. */
+    recipePending: Boolean = true,
     onSaveRecipe: () -> Unit = {},
     onDropRecipe: () -> Unit = {},
     onOpenRecipe: () -> Unit = {},
@@ -842,7 +852,11 @@ private fun AdaMessageRow(
                             Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
                                 if (message.content.isNotEmpty()) {
                                     SelectionContainer {
-                                        Text(text = message.content, style = MaterialTheme.typography.bodyLarge)
+                                        Text(
+                                            // Ada marks drink names in bold; what the user typed stays as typed.
+                                            text = if (fromUser) AnnotatedString(message.content) else boldMarkdown(message.content),
+                                            style = MaterialTheme.typography.bodyLarge,
+                                        )
                                     }
                                 }
                                 if (message.streaming) {
@@ -880,6 +894,7 @@ private fun AdaMessageRow(
             AdaRecipeCard(
                 recipe = message.recipe,
                 canAnswer = canAnswerRecipe,
+                pending = recipePending,
                 onSave = onSaveRecipe,
                 onDrop = onDropRecipe,
                 onOpen = onOpenRecipe,
@@ -1044,3 +1059,26 @@ private fun adaCameraUri(context: Context): Uri {
 }
 
 private const val CAMERA_PHOTO_KEEP_MS = 24L * 60 * 60 * 1000
+
+/**
+ * [text] with `**bold**` runs shown bold and their asterisks dropped. A run still open at the
+ * end, as while a reply streams in, is bold to the end.
+ */
+internal fun boldMarkdown(text: String): AnnotatedString = buildAnnotatedString {
+    var index = 0
+    var bold = false
+    while (index < text.length) {
+        val marker = text.indexOf("**", index)
+        val end = if (marker < 0) text.length else marker
+        if (end > index) {
+            if (bold) {
+                withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(text, index, end) }
+            } else {
+                append(text, index, end)
+            }
+        }
+        if (marker < 0) break
+        bold = !bold
+        index = marker + 2
+    }
+}

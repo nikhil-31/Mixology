@@ -574,6 +574,27 @@ class AdaViewModelTest {
     }
 
     @Test
+    fun anOlderDraftCardCannotAnswerForTheNewestOne() = runTest {
+        signIn()
+        chat.sendFlow = flowOf(ChatStreamEvent.Recipe(draft()), ChatStreamEvent.Done("Save it?"))
+        viewModel.onIntent(AdaIntent.DraftChanged("https://www.instagram.com/p/abc/"))
+        viewModel.onIntent(AdaIntent.Send)
+        val olderId = viewModel.state.value.messages.last().id
+        viewModel.onIntent(AdaIntent.DraftChanged("https://www.instagram.com/p/def/"))
+        viewModel.onIntent(AdaIntent.Send)
+        val newerId = viewModel.state.value.messages.last().id
+        val sentBefore = chat.sent.size
+
+        // The server would save the newer recipe, not the one this card shows.
+        viewModel.onIntent(AdaIntent.SaveRecipe(olderId))
+        viewModel.onIntent(AdaIntent.DropRecipe(olderId))
+        assertEquals(sentBefore, chat.sent.size)
+
+        viewModel.onIntent(AdaIntent.DropRecipe(newerId))
+        assertEquals("Not now", chat.sent.last())
+    }
+
+    @Test
     fun history_foldsTheAnswerOntoTheDraft() = runTest {
         chat.history = listOf(
             ChatTurn("user", "https://www.instagram.com/p/abc/"),

@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import androidx.lifecycle.viewModelScope
 import com.capstone.nik.mixology.Network.NetworkMonitor
 import com.capstone.nik.mixology.Network.connectionMessage
+import com.capstone.nik.mixology.Network.serverDetail
 import com.capstone.nik.mixology.Network.ChatHttpException
 import com.capstone.nik.mixology.analytics.AnalyticsTracker
 import com.capstone.nik.mixology.analytics.VOICE_CANCELLED
@@ -253,7 +254,6 @@ class AdaViewModel @Inject constructor(
         }
     }
 
-    /** The yes or no to the recipe drafted in [messageId], as a message Ada understands. */
     /**
      * Answers the recipe drafted in [messageId]. The words are the button's, in the user's
      * language; the action is what the server acts on.
@@ -261,6 +261,8 @@ class AdaViewModel @Inject constructor(
     private fun answerDraft(messageId: Long, save: Boolean) {
         val message = transcript.firstOrNull { it.id == messageId } ?: return
         if (message.recipe?.state != AdaRecipe.State.Draft || !canSend()) return
+        // The server answers for the newest recipe it read, so an older card must not speak for it.
+        if (transcript.lastOrNull { it.recipe != null }?.id != messageId) return
         val text = context.getString(if (save) R.string.ada_recipe_save_answer else R.string.ada_recipe_drop_answer)
         startReply(text, photo = null) { chatRepository.send(text, recipeAction = if (save) "save" else "drop") }
     }
@@ -510,11 +512,10 @@ class AdaViewModel @Inject constructor(
         }
     }
 
-    /** A connection problem's message, or what the server or exception said. */
+    /** A connection problem's message, or what the server said; empty shows the generic one. */
     private fun message(error: Exception): String =
         networkMonitor.connectionMessage(context, error)
-            ?: (error as? ChatHttpException)?.detail
-            ?: error.message.orEmpty()
+            ?: error.serverDetail()
 
     private fun updateAssistant(id: Long, block: (AdaMessage) -> AdaMessage) {
         transcript = transcript.map { message ->

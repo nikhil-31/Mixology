@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -44,6 +45,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -62,6 +64,7 @@ import com.capstone.nik.mixology.ui.components.DrinkCardRailHeight
 import com.capstone.nik.mixology.ui.components.DrinkCardRailWidth
 import com.capstone.nik.mixology.ui.components.DrinkImage
 import com.capstone.nik.mixology.ui.components.FavoriteButton
+import com.capstone.nik.mixology.ui.components.FavoriteOverlayInset
 import com.capstone.nik.mixology.ui.components.SectionHeader
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 import com.capstone.nik.mixology.ui.theme.PosterBadge
@@ -174,7 +177,7 @@ private fun HomeHero(
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(1.05f)
-            .clickable(onClick = onOpen)
+            .clickable(role = Role.Button, onClick = onOpen)
             .testTag("home_hero"),
     ) {
         DrinkImage(
@@ -236,7 +239,10 @@ private fun HomeHero(
                     saved = drink.saved,
                     onClick = onToggleSaved,
                     overlay = true,
-                    modifier = Modifier.testTag("home_hero_save"),
+                    // Keeps the badge 12dp from the button, not its wider touch area.
+                    modifier = Modifier
+                        .offset(x = -FavoriteOverlayInset)
+                        .testTag("home_hero_save"),
                 )
             }
         }

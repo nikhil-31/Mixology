@@ -1,5 +1,6 @@
 package com.capstone.nik.mixology.ui.recipes
 
+import androidx.compose.ui.semantics.Role
 import com.capstone.nik.mixology.ui.components.ScrollToTopOnReselect
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.outlined.Link
@@ -449,7 +450,7 @@ private fun RecipeRow(drink: Drink, onClick: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickable(role = Role.Button, onClick = onClick)
             .padding(vertical = 8.dp)
             .testTag("recipes_home_row_${drink.id}"),
     ) {

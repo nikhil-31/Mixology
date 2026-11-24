@@ -100,9 +100,10 @@ fun DrinkCard(
                     saved = item.saved,
                     onClick = onToggleSaved,
                     overlay = true,
+                    // The badge sits 8dp in from the corner, as before; its touch area reaches the edges.
                     modifier = Modifier
                         .align(Alignment.TopStart)
-                        .padding(8.dp),
+                        .padding(8.dp - FavoriteOverlayInset),
                 )
             } else {
                 SourceBadge(

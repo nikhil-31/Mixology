@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -52,7 +53,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -299,11 +302,14 @@ private fun CatalogTermIndex(
                     val target = 1 + sections.take(index).sumOf { it.terms.size + 1 }
                     Text(
                         text = section.letter,
+                        // 26 letters can't each be 48dp tall, so the strip is at least wide enough to hit.
                         modifier = Modifier
-                            .clickable {
+                            .clickable(role = Role.Button) {
                                 scope.launch { listState.animateScrollToItem(target) }
                             }
+                            .widthIn(min = 32.dp)
                             .padding(vertical = 1.dp, horizontal = 4.dp),
+                        textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.primary,
                     )
@@ -328,7 +334,7 @@ private fun CatalogTermTile(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .clickable { onOpenTerm(term) }
+            .clickable(role = Role.Button) { onOpenTerm(term) }
             .padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
@@ -354,7 +360,7 @@ private fun CatalogTermRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onOpenTerm(term) }
+            .clickable(role = Role.Button) { onOpenTerm(term) }
             .padding(horizontal = 20.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp),

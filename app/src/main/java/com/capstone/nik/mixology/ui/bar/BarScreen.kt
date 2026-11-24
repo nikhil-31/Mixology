@@ -6,6 +6,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
+import androidx.compose.foundation.selection.toggleable
 import com.capstone.nik.mixology.ui.components.ScrollToTopOnReselect
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.background
@@ -1106,7 +1107,8 @@ private fun BarTermRow(
                     Modifier
                 },
             )
-            .clickable { onToggle(term) }
+            // Says "in My Bar or not" to a screen reader, not just "double tap to activate".
+            .toggleable(value = selected, role = Role.Checkbox, onValueChange = { onToggle(term) })
             .padding(horizontal = 20.dp, vertical = 10.dp)
             .testTag(tag),
         verticalAlignment = Alignment.CenterVertically,

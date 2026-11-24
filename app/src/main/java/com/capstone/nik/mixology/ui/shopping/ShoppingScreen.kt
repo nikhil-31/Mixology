@@ -553,7 +553,7 @@ private fun ShoppingSectionHeader(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onDrinkClick(drink) }
+            .clickable(role = Role.Button) { onDrinkClick(drink) }
             .padding(start = 16.dp, end = 4.dp, top = 8.dp, bottom = 8.dp)
             .testTag("shopping_section_${section.drinkId}"),
         verticalAlignment = Alignment.CenterVertically,

@@ -44,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
@@ -286,10 +287,12 @@ fun AuthScreen(
                     activity?.let { onIntent(AuthIntent.SignInWithApple(it)) }
                 },
                 enabled = !state.submitting && activity != null,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Black,
-                    contentColor = Color.White,
-                ),
+                // Apple's button is black on light backgrounds and white on dark ones.
+                colors = if (MaterialTheme.colorScheme.background.luminance() < 0.5f) {
+                    ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black)
+                } else {
+                    ButtonDefaults.buttonColors(containerColor = Color.Black, contentColor = Color.White)
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp)

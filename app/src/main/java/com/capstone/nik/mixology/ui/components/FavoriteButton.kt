@@ -5,6 +5,7 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -69,21 +70,29 @@ fun FavoriteButton(
     }
 
     if (overlay) {
+        // The badge stays 32dp; the box around it is the 48dp a finger needs.
         Box(
             modifier = modifier
                 .then(positionModifier)
-                .size(32.dp)
-                .clip(RoundedCornerShape(20.dp))
-                .background(PosterBadge)
+                .size(OverlayTouchSize)
+                .clip(CircleShape)
                 .toggleable(value = saved, role = Role.Checkbox, onValueChange = { handleClick() }),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = contentDescription,
-                modifier = Modifier.size(20.dp),
-                tint = tint,
-            )
+            Box(
+                modifier = Modifier
+                    .size(OverlayBadgeSize)
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(PosterBadge),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = contentDescription,
+                    modifier = Modifier.size(20.dp),
+                    tint = tint,
+                )
+            }
         }
     } else {
         Icon(
@@ -98,3 +107,9 @@ fun FavoriteButton(
         )
     }
 }
+
+private val OverlayTouchSize = 48.dp
+private val OverlayBadgeSize = 32.dp
+
+/** How far the overlay badge sits inside its touch area, for callers lining the badge up with an edge. */
+val FavoriteOverlayInset = (OverlayTouchSize - OverlayBadgeSize) / 2

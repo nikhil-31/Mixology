@@ -55,6 +55,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -344,7 +345,7 @@ private fun SearchSuggestionRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onSelect(term) }
+            .clickable(role = Role.Button) { onSelect(term) }
             .padding(horizontal = 20.dp, vertical = 10.dp)
             .testTag("search_suggestion_$term"),
         verticalAlignment = Alignment.CenterVertically,

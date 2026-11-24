@@ -225,7 +225,10 @@ fun ShoppingScreen(
         onRefresh = onRefresh,
         modifier = Modifier.fillMaxSize(),
     ) {
-        if (state.sections.isEmpty()) {
+        if (!state.loaded) {
+            // Read from the device in a moment: an empty-list prompt would only flash.
+            Box(modifier = Modifier.fillMaxSize())
+        } else if (state.sections.isEmpty()) {
             ShoppingEmpty(onFindRecipe = onFindRecipe, onOpenHistory = onOpenHistory, onAddItem = onAddItem)
         } else {
             var checkedExpanded by rememberSaveable { mutableStateOf(true) }

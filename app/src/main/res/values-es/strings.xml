@@ -54,6 +54,7 @@
     <string name="hot_recently_viewed">Vistos recientemente</string>
     <string name="action_undo">Deshacer</string>
     <string name="action_retry">Reintentar</string>
+    <string name="refresh_failed">No se pudo actualizar. Se muestra lo guardado en este dispositivo.</string>
 
     <string name="search_mode_name">Nombre de la bebida</string>
     <string name="search_mode_ingredient">Ingrediente</string>

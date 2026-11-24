@@ -30,7 +30,7 @@ class ShoppingViewModel @Inject constructor(
     private val trips: ShoppingTripRepository = ShoppingTripRepository.inMemory(),
     private val networkMonitor: NetworkMonitor = NetworkMonitor.forTests(),
 ) : MviViewModel<ShoppingIntent, ShoppingUiState, ShoppingEffect>(
-    ShoppingUiState(byIngredient = preferences.byIngredient),
+    ShoppingUiState(byIngredient = preferences.byIngredient, loaded = false),
 ) {
 
     /** What the last remove or clear took off, for Undo. */
@@ -76,7 +76,7 @@ class ShoppingViewModel @Inject constructor(
                 loadRecipesIfMissing(sections, mine)
                 withRecipes(sections, mine)
             }.collect { sections ->
-                setState { copy(sections = sections) }
+                setState { copy(sections = sections, loaded = true) }
             }
         }
     }
@@ -164,8 +164,9 @@ class ShoppingViewModel @Inject constructor(
             ShoppingIntent.Refresh -> viewModelScope.launch {
                 setState { copy(refreshing = true) }
                 try {
-                    repository.syncShopping()
-                    runCatching { recipes.load() }
+                    // The list on the device stays as it is; a pull that failed only needs saying.
+                    if (!repository.syncShopping()) sendEffect(ShoppingEffect.ShowMessage(R.string.refresh_failed))
+                    runCatchingCancellable { recipes.load() }
                 } finally {
                     setState { copy(refreshing = false) }
                 }

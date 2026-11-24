@@ -6,12 +6,14 @@ import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
 import com.capstone.nik.mixology.FakeCocktailService
 import com.capstone.nik.mixology.MainDispatcherRule
+import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.MixologyDatabase
 import com.capstone.nik.mixology.repository.DrinkRepository
 import com.capstone.nik.mixology.repository.ImportedRecipe
 import com.capstone.nik.mixology.repository.RecipeDraft
 import com.capstone.nik.mixology.repository.RecipeRepository
+import com.capstone.nik.mixology.repository.ShoppingSync
 import kotlinx.coroutines.flow.first
 import com.capstone.nik.mixology.repository.ShoppingTripRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -90,6 +92,37 @@ class ShoppingViewModelTest {
 
             viewModel.onIntent(ShoppingIntent.Remove(remaining.items.single()))
             awaitItemUntil { it.items.isEmpty() }
+        }
+    }
+
+    @Test
+    fun aRefreshThatCannotReachTheServer_saysSoAndKeepsTheList() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Application>()
+        val offline = object : ShoppingSync {
+            override fun push() = Unit
+            override suspend fun sync() = false
+        }
+        val vm = ShoppingViewModel(
+            DrinkRepository(
+                database.drinkDao(),
+                database.shoppingDao(),
+                database.barDao(),
+                FakeCocktailService(),
+                context,
+                shoppingSync = offline,
+            ),
+        )
+
+        vm.effects.test {
+            vm.onIntent(ShoppingIntent.Refresh)
+            assertEquals(ShoppingEffect.ShowMessage(R.string.refresh_failed), awaitItem())
+        }
+        assertFalse(vm.state.value.refreshing)
+
+        // A refresh that works has nothing to say.
+        viewModel.effects.test {
+            viewModel.onIntent(ShoppingIntent.Refresh)
+            expectNoEvents()
         }
     }
 

@@ -43,7 +43,7 @@ interface ShoppingTripRepository {
     suspend fun delete(id: Long)
 
     /** Sends trips recorded offline, then pulls the account's trips. */
-    suspend fun sync()
+    suspend fun sync(): Boolean
 
     companion object {
         /** For tests and previews: trips stay in memory. */
@@ -66,7 +66,7 @@ private class InMemoryShoppingTrips : ShoppingTripRepository {
         state.value = state.value.filterNot { it.id == id }
     }
 
-    override suspend fun sync() = Unit
+    override suspend fun sync() = true
 }
 
 @Singleton
@@ -137,9 +137,9 @@ class NetworkShoppingTripRepository internal constructor(
         scope.launch { runCatchingNetwork { deleteRemote(remoteId) } }
     }
 
-    override suspend fun sync() {
-        val session = sessionStore.current() ?: return
-        lock.withLock {
+    override suspend fun sync(): Boolean {
+        val session = sessionStore.current() ?: return true
+        return lock.withLock {
             runCatchingNetwork {
                 val account = account(session)
                 val claimed = prefs.getString(KEY_ACCOUNT, null)
@@ -215,14 +215,17 @@ class NetworkShoppingTripRepository internal constructor(
 
     private fun account(session: Session) = session.uid.ifEmpty { session.email }
 
-    private suspend fun runCatchingNetwork(block: suspend () -> Unit) {
-        try {
+    /** False when [block] failed; the failure is logged and left for the next sync. */
+    private suspend fun runCatchingNetwork(block: suspend () -> Unit): Boolean {
+        return try {
             block()
+            true
         } catch (error: CancellationException) {
             throw error
         } catch (error: Exception) {
             // Offline or signed out: trips stay here, and the next sync sends them.
             Log.w(TAG, "Shopping trip sync failed", error)
+            false
         }
     }
 

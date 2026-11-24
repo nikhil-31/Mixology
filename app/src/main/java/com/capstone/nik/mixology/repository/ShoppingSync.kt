@@ -34,13 +34,13 @@ interface ShoppingSync {
     fun push()
 
     /** Sends any unsent edits, then pulls the account's list into the local database. */
-    suspend fun sync()
+    suspend fun sync(): Boolean
 
     companion object {
         /** For tests and previews: the list stays on the device. */
         val None = object : ShoppingSync {
             override fun push() = Unit
-            override suspend fun sync() = Unit
+            override suspend fun sync() = true
         }
     }
 }
@@ -92,9 +92,9 @@ class NetworkShoppingSync internal constructor(
         }
     }
 
-    override suspend fun sync() {
-        val session = sessionStore.current() ?: return
-        lock.withLock {
+    override suspend fun sync(): Boolean {
+        val session = sessionStore.current() ?: return true
+        return lock.withLock {
             runCatchingNetwork { pull(session) }
         }
     }
@@ -208,14 +208,17 @@ class NetworkShoppingSync internal constructor(
 
     private fun account(session: Session) = session.uid.ifEmpty { session.email }
 
-    private suspend fun runCatchingNetwork(block: suspend () -> Unit) {
-        try {
+    /** False when [block] failed; the failure is logged and left for the next sync. */
+    private suspend fun runCatchingNetwork(block: suspend () -> Unit): Boolean {
+        return try {
             block()
+            true
         } catch (error: CancellationException) {
             throw error
         } catch (error: Exception) {
             // Offline, signed out or past the trial: keep the local list and try again later.
             Log.w(TAG, "Shopping list sync failed", error)
+            false
         }
     }
 

@@ -122,6 +122,20 @@ class ShoppingHistoryTest {
     }
 
     @Test
+    fun aRefreshThatCannotReachTheServer_saysSo() = runTest {
+        val offline = object : ShoppingTripRepository by ShoppingTripRepository.inMemory() {
+            override suspend fun sync() = false
+        }
+        val vm = ShoppingHistoryViewModel(offline)
+
+        vm.effects.test {
+            vm.onIntent(ShoppingHistoryIntent.Refresh)
+            assertEquals(ShoppingHistoryEffect.RefreshFailed, awaitItem())
+        }
+        assertEquals(false, vm.state.value.refreshing)
+    }
+
+    @Test
     fun delete_removesTheTripStraightAway() = runTest {
         val repo = ShoppingTripRepository.inMemory()
         val trip = repo.record(listOf(lime))

@@ -28,6 +28,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
@@ -54,6 +56,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.ShoppingTrip
 import com.capstone.nik.mixology.data.ShoppingTripItem
+import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 import java.util.Date
 
 @Composable
@@ -63,8 +66,16 @@ fun ShoppingHistoryRoute(
     viewModel: ShoppingHistoryViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val refreshFailed = stringResource(R.string.refresh_failed)
+    CollectMviEffects(viewModel.effects) { effect ->
+        when (effect) {
+            ShoppingHistoryEffect.RefreshFailed -> snackbarHostState.showSnackbar(refreshFailed)
+        }
+    }
     ShoppingHistoryScreen(
         state = state,
+        snackbarHostState = snackbarHostState,
         onBack = onBack,
         onOpenTrip = onOpenTrip,
         onDelete = { viewModel.onIntent(ShoppingHistoryIntent.Delete(it)) },
@@ -81,10 +92,12 @@ fun ShoppingHistoryScreen(
     onDelete: (Long) -> Unit,
     onRefresh: () -> Unit,
     nowMillis: Long = System.currentTimeMillis(),
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = { BackTitle(stringResource(R.string.shopping_history), onBack, "shopping_history_back") },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { padding ->
         PullToRefreshBox(
             isRefreshing = state.refreshing,

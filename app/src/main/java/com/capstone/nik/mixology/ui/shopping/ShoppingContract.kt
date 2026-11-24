@@ -14,6 +14,8 @@ data class ShoppingUiState(
     val review: ReviewUi? = null,
     /** Catalog ingredient categories by normalised name, for grouping By ingredient into aisles. */
     val terms: Map<String, String> = emptyMap(),
+    /** The list has been read from the device, so an empty one really is empty. */
+    val loaded: Boolean = true,
 ) {
     val items: List<ShoppingItemEntity> get() = sections.flatMap { it.items }
     val total: Int get() = items.size

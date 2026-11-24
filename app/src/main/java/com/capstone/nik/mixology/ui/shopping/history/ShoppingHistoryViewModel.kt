@@ -57,8 +57,10 @@ sealed interface ShoppingHistoryIntent {
     data object Refresh : ShoppingHistoryIntent
 }
 
-/** Nothing one-off to show yet; deleting is immediate, as on iOS. */
-sealed interface ShoppingHistoryEffect
+sealed interface ShoppingHistoryEffect {
+    /** A pull to refresh couldn't reach the server; the trips on the device still show. */
+    data object RefreshFailed : ShoppingHistoryEffect
+}
 
 @HiltViewModel
 class ShoppingHistoryViewModel @Inject constructor(
@@ -78,7 +80,7 @@ class ShoppingHistoryViewModel @Inject constructor(
             ShoppingHistoryIntent.Refresh -> viewModelScope.launch {
                 setState { copy(refreshing = true) }
                 try {
-                    repository.sync()
+                    if (!repository.sync()) sendEffect(ShoppingHistoryEffect.RefreshFailed)
                 } finally {
                     setState { copy(refreshing = false) }
                 }

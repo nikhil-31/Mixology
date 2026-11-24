@@ -321,10 +321,8 @@ class DrinkRepository @Inject constructor(
         return true
     }
 
-    /** Brings in the account's shopping list, after sending any local edits. */
-    suspend fun syncShopping() {
-        shoppingSync.sync()
-    }
+    /** Brings in the account's shopping list, after sending any local edits; false when it couldn't. */
+    suspend fun syncShopping(): Boolean = shoppingSync.sync()
 
     suspend fun removeFromShoppingList(drinkId: String) {
         shoppingDao.deleteForDrink(drinkId)

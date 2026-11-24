@@ -62,6 +62,7 @@
     <string name="hot_recently_viewed">Recently viewed</string>
     <string name="action_undo">Undo</string>
     <string name="action_retry">Retry</string>
+    <string name="refresh_failed">Couldn’t refresh. Showing what’s on this device.</string>
 
     <string name="search_mode_name">Drink name</string>
     <string name="search_mode_ingredient">Ingredient</string>

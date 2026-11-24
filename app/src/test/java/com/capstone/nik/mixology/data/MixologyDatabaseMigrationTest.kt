@@ -81,6 +81,34 @@ class MixologyDatabaseMigrationTest {
     }
 
     @Test
+    fun migrate8To9_addsShoppingTrips_andKeepsEverythingElse() {
+        val dbName = "migration-8-9.db"
+        createFromExportedSchema(dbName, 8).use { db ->
+            db.execSQL("INSERT INTO drinks (id, name, thumb, saved, notes, recipeUpdatedAt) VALUES ('11007', 'Margarita', '', 1, 'More lime', 0)")
+        }
+
+        val database = openMigrated(dbName)
+        val db = database.openHelper.writableDatabase
+        db.query("SELECT COUNT(*) FROM shopping_trips").use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            assertEquals(0, cursor.getInt(0))
+        }
+        // Trip ids count up by themselves, as the entity says.
+        db.execSQL("INSERT INTO shopping_trips (at, items) VALUES (1000, '[]')")
+        db.query("SELECT id, remoteId FROM shopping_trips").use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            assertEquals(1L, cursor.getLong(0))
+            assertTrue(cursor.isNull(1))
+        }
+        db.query("SELECT saved, notes FROM drinks WHERE id = '11007'").use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            assertEquals(1, cursor.getInt(0))
+            assertEquals("More lime", cursor.getString(1))
+        }
+        database.close()
+    }
+
+    @Test
     fun everyMigrationFrom4_producesTheCurrentSchema() {
         val dbName = "migration-4-10.db"
         createFromExportedSchema(dbName, 4).close()

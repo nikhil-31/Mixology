@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.capstone.nik.mixology.Network.NetworkMonitor
 import com.capstone.nik.mixology.Network.connectionMessage
+import com.capstone.nik.mixology.Network.serverDetail
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.repository.DrinkRepository
 import com.capstone.nik.mixology.repository.RecipeRepository
@@ -62,7 +63,7 @@ class RecipesHomeViewModel @Inject constructor(
             } catch (error: CancellationException) {
                 throw error
             } catch (error: Exception) {
-                val message = networkMonitor.connectionMessage(context, error) ?: error.message.orEmpty()
+                val message = networkMonitor.connectionMessage(context, error) ?: error.serverDetail()
                 setState { copy(loading = false, loaded = true, error = message) }
             }
         }

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.viewModelScope
 import com.capstone.nik.mixology.Network.NetworkMonitor
 import com.capstone.nik.mixology.Network.connectionMessage
+import com.capstone.nik.mixology.Network.serverDetail
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.repository.ChatRepository
 import com.capstone.nik.mixology.repository.DrinkRepository
@@ -109,7 +110,7 @@ class AdaMoreViewModel @Inject constructor(
     }
 
     private fun message(error: Exception): String =
-        networkMonitor.connectionMessage(context, error) ?: error.message.orEmpty()
+        networkMonitor.connectionMessage(context, error) ?: error.serverDetail()
 
     private fun toggleListView() {
         val listView = !currentState.listView

@@ -92,9 +92,10 @@ class AdaMoreViewModelTest {
 
     @Test
     fun failure_showsErrorAndRetryLoadsAgain() = runTest {
-        chat.matchError = IllegalStateException("offline")
+        // An exception's own text isn't for users: blank makes the screen show its generic message.
+        chat.matchError = IllegalStateException("Expected BEGIN_OBJECT at line 1")
         viewModel.onIntent(AdaMoreIntent.Bind("drinks with gin", emptyList()))
-        assertEquals("offline", viewModel.state.value.error)
+        assertEquals("", viewModel.state.value.error)
         assertTrue(viewModel.state.value.drinks.isEmpty())
         assertFalse(viewModel.state.value.showEmpty)
 

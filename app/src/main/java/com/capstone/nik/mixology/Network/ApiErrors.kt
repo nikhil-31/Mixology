@@ -50,6 +50,16 @@ object ApiErrors {
     private const val SERVICE_UNAVAILABLE = 503
 }
 
+/**
+ * What the server said about [error], or empty when it said nothing meant for a user.
+ * Other exceptions carry English developer text, so screens show their own message for those.
+ */
+fun Throwable.serverDetail(): String = when (this) {
+    is ChatHttpException -> detail
+    is RecipeHttpException -> message.orEmpty()
+    else -> ""
+}
+
 /** [ApiErrors.connectionError] for the device's current network. */
 fun NetworkMonitor.connectionError(error: Throwable): ConnectionError? =
     ApiErrors.connectionError(error, online.value)

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 12 and later read this instead of backup_descriptor.xml; keep the two lists the same.
+  The login session and per-account sync state stay off cloud backup and off a transfer to a
+  new phone: the session's tokens are sealed with a key that never leaves this device, and
+  the sync markers belong to this install.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="database" path="mixology.db" />
+        <exclude domain="database" path="mixology.db-wal" />
+        <exclude domain="database" path="mixology.db-shm" />
+        <exclude domain="sharedpref" path="mixology_session.xml" />
+        <exclude domain="sharedpref" path="saved_sync.xml" />
+        <exclude domain="sharedpref" path="bar_sync.xml" />
+        <exclude domain="sharedpref" path="shopping_sync.xml" />
+        <exclude domain="sharedpref" path="shopping_trips.xml" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="database" path="mixology.db" />
+        <exclude domain="database" path="mixology.db-wal" />
+        <exclude domain="database" path="mixology.db-shm" />
+        <exclude domain="sharedpref" path="mixology_session.xml" />
+        <exclude domain="sharedpref" path="saved_sync.xml" />
+        <exclude domain="sharedpref" path="bar_sync.xml" />
+        <exclude domain="sharedpref" path="shopping_sync.xml" />
+        <exclude domain="sharedpref" path="shopping_trips.xml" />
+    </device-transfer>
+</data-extraction-rules>

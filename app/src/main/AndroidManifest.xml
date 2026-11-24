@@ -17,6 +17,7 @@
         android:name=".Network.MyApplication"
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup_descriptor"
+        android:dataExtractionRules="@xml/data_extraction_rules"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
@@ -72,12 +73,20 @@
             android:label="@string/widget_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="com.capstone.nik.mixology.action.DATABASE_UPDATED" />
             </intent-filter>
 
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/cocktail_app_widget_info" />
+        </receiver>
+
+        <!-- The app's own "saved drinks changed" signal; not exported, so only the app can send it. -->
+        <receiver
+            android:name=".Widget.WidgetRefreshReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.capstone.nik.mixology.action.DATABASE_UPDATED" />
+            </intent-filter>
         </receiver>
     </application>
 </manifest>

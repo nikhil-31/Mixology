@@ -15,14 +15,18 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items as lazyListItems
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CloudOff
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,14 +34,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.capstone.nik.mixology.Network.ConnectionError
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
+import com.capstone.nik.mixology.ui.components.ConnectionErrorState
 import com.capstone.nik.mixology.ui.components.DrinkCard
 import com.capstone.nik.mixology.ui.components.DrinkListItem
 import com.capstone.nik.mixology.ui.components.DrinkResultsHeader
@@ -77,6 +84,10 @@ fun DrinkGridRoute(
         onDrinkClick = { viewModel.onIntent(DrinkGridIntent.OpenDrink(it)) },
         onToggleSaved = { viewModel.onIntent(DrinkGridIntent.ToggleSaved(it)) },
         onToggleListView = { viewModel.onIntent(DrinkGridIntent.ToggleListView) },
+        loading = state.loading,
+        connectionError = state.connectionError,
+        failed = state.failed,
+        onRetry = { viewModel.onIntent(DrinkGridIntent.Retry) },
     )
 }
 
@@ -90,6 +101,10 @@ fun DrinkGridScreen(
     onToggleListView: () -> Unit = {},
     query: String = "",
     onQueryChanged: (String) -> Unit = {},
+    loading: Boolean = false,
+    connectionError: ConnectionError? = null,
+    failed: Boolean = false,
+    onRetry: () -> Unit = {},
 ) {
     val saved = filter.showEmptySaved
     val visible = if (saved) filterSavedDrinks(drinks, query) else drinks
@@ -119,6 +134,27 @@ fun DrinkGridScreen(
                     modifier = Modifier.align(Alignment.Center),
                 )
             }
+        }
+        // Loading and errors only take the screen while there is nothing cached to show.
+        !saved && drinks.isEmpty() && connectionError != null -> Box(modifier = Modifier.fillMaxSize()) {
+            ConnectionErrorState(
+                error = connectionError,
+                onRetry = onRetry,
+                modifier = Modifier.align(Alignment.Center),
+            )
+        }
+        !saved && drinks.isEmpty() && failed -> Box(modifier = Modifier.fillMaxSize()) {
+            EmptyState(
+                icon = Icons.Outlined.CloudOff,
+                title = stringResource(R.string.network_error),
+                modifier = Modifier.align(Alignment.Center).testTag("drink_grid_error"),
+                action = {
+                    TextButton(onClick = onRetry) { Text(stringResource(R.string.action_retry)) }
+                },
+            )
+        }
+        !saved && drinks.isEmpty() && loading -> Box(modifier = Modifier.fillMaxSize()) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center).testTag("drink_grid_loading"))
         }
         showList -> LazyColumn(
             modifier = Modifier.fillMaxSize(),

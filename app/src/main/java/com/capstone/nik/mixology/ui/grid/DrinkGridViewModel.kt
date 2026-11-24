@@ -10,6 +10,7 @@ import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.repository.DrinkRepository
 import com.capstone.nik.mixology.Network.NetworkMonitor
+import com.capstone.nik.mixology.Network.connectionError
 import com.capstone.nik.mixology.Network.errorMessageRes
 import com.capstone.nik.mixology.ui.components.DrinkViewPreferences
 import com.capstone.nik.mixology.ui.mvi.MviViewModel
@@ -29,6 +30,7 @@ class DrinkGridViewModel @Inject constructor(
 ) : MviViewModel<DrinkGridIntent, DrinkGridUiState, DrinkGridEffect>(DrinkGridUiState()) {
 
     private var observeJob: Job? = null
+    private var refreshJob: Job? = null
 
     init {
         setState { copy(listView = DrinkViewPreferences.listView(context)) }
@@ -46,12 +48,13 @@ class DrinkGridViewModel @Inject constructor(
             is DrinkGridIntent.OpenDrink -> sendEffect(DrinkGridEffect.OpenDrink(intent.drink))
             DrinkGridIntent.ToggleListView -> toggleListView()
             is DrinkGridIntent.QueryChanged -> setState { copy(query = intent.query) }
+            DrinkGridIntent.Retry -> refresh(currentState.filter)
         }
     }
 
     private fun bind(filter: DrinkFilter) {
         if (currentState.filter != filter || observeJob == null) {
-            setState { copy(filter = filter, query = "") }
+            setState { copy(filter = filter, query = "", drinks = emptyList(), connectionError = null, failed = false) }
             observeJob?.cancel()
             observeJob = viewModelScope.launch {
                 repository.observeDrinks(filter).collect { items ->
@@ -82,15 +85,25 @@ class DrinkGridViewModel @Inject constructor(
 
     private fun refresh(filter: DrinkFilter) {
         if (filter.kind == null || filter.query == null) return
-        viewModelScope.launch {
+        refreshJob?.cancel()
+        setState { copy(loading = true, connectionError = null, failed = false) }
+        refreshJob = viewModelScope.launch {
             try {
                 repository.fetchAndCache(filter)
+                setState { copy(loading = false) }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to refresh ${filter.name}", e)
                 recordCrash(e, "Failed to refresh ${filter.name}")
-                sendEffect(DrinkGridEffect.ShowMessageRes(networkMonitor.errorMessageRes(e, R.string.network_error)))
+                if (currentState.drinks.isEmpty()) {
+                    // Nothing cached to look at: the screen says so itself, with Retry.
+                    val connection = networkMonitor.connectionError(e)
+                    setState { copy(loading = false, connectionError = connection, failed = connection == null) }
+                } else {
+                    setState { copy(loading = false) }
+                    sendEffect(DrinkGridEffect.ShowMessageRes(networkMonitor.errorMessageRes(e, R.string.network_error)))
+                }
             }
         }
     }

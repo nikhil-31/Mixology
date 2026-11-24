@@ -28,6 +28,11 @@ MIXOLOGY_API_BASE_URL=http://127.0.0.1:8000/
 
 Debug builds fall back to `http://10.0.2.2:8000/`, the emulator's address for a server on the host. On a phone over USB, use `127.0.0.1` with `adb reverse tcp:8000 tcp:8000`. Release and `mix` builds refuse to build unless the URL is set and uses `https://`; CI passes it through the `MIXOLOGY_API_BASE_URL` environment variable.
 
+## Signing
+Keystores and their passwords stay out of the repo. Copy `keystore.properties.example` to `keystore.properties` (gitignored) and point `storeFile` at a keystore kept outside the checkout; `keystore.mix.properties` does the same for the `mix` build type. Without those files, release builds are left unsigned.
+
+The two keystores that used to be tracked here are public in this repo's history, along with their passwords, so treat them as compromised and don't sign a release with them.
+
 ## Credits
 This product uses TheCocktailDB API.
 

@@ -91,7 +91,7 @@ class CatalogScreenTest {
             }
         }
 
-        composeRule.onNodeWithText("Favourite Ingredients").assertIsDisplayed()
+        composeRule.onNodeWithText("Ingredients").assertIsDisplayed()
         composeRule.onNodeWithText("Category").performClick()
         composeRule.onNodeWithText("Glass").performClick()
         composeRule.onNodeWithText("Alcoholic").performClick()
@@ -130,7 +130,7 @@ class CatalogScreenTest {
             }
         }
 
-        composeRule.onNodeWithText("Sorry. Drink not available in the database. Try a new search.")
+        composeRule.onNodeWithText("Nothing matches that. Try a different word.")
             .assertIsDisplayed()
     }
 

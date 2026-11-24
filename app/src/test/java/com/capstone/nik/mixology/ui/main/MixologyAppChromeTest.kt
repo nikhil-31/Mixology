@@ -162,7 +162,7 @@ class MixologyAppChromeTest {
         }
 
         composeRule.onNodeWithTag("offline_banner").assertIsDisplayed()
-        composeRule.onNodeWithText("No Internet Connection").assertIsDisplayed()
+        composeRule.onNodeWithText("No internet connection").assertIsDisplayed()
         composeRule.onNodeWithText("Retry").performClick()
         assertEquals(1, retries)
     }

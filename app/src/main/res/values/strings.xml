@@ -23,8 +23,8 @@
 
     <!-- Network error -->
     <string name="network_error">Network error</string>
-    <string name="network_error_no_network_available">No Internet Connection</string>
-    <string name="network_error_search_no_data_available">Sorry. Drink not available in the database. Try a new search.</string>
+    <string name="network_error_no_network_available">No internet connection</string>
+    <string name="network_error_search_no_data_available">Nothing matches that. Try a different word.</string>
     <string name="network_error_check_internet_connection">Please, check your internet connection.</string>
     <string name="error_no_connection_title">No connection</string>
     <string name="error_no_connection_body">You’re offline. Check your connection and try again.</string>
@@ -37,7 +37,7 @@
     <string name="nav_title_inspire_me">Inspire me</string>
     <string name="nav_title_alcoholic">Alcoholic</string>
     <string name="nav_title_category">Category</string>
-    <string name="nav_title_favourite_ingredients">Favourite Ingredients</string>
+    <string name="nav_title_favourite_ingredients">Ingredients</string>
     <string name="nav_title_glass">Glass</string>
 
     <!-- Widget -->
@@ -214,9 +214,9 @@
     <string name="bar_in_bar">In your bar</string>
     <string name="auth_welcome_back">Welcome back</string>
     <string name="auth_create_title">Create your account</string>
-    <string name="auth_subtitle">Sign in to save drinks, stock your bar and chat with Ada.</string>
+    <string name="auth_subtitle">Sign in to browse drinks, stock your bar and chat with Ada.</string>
     <string name="auth_session_expired">Your session timed out. Sign in again to pick up where you left off.</string>
-    <string name="auth_sign_up_subtitle">New accounts start with a 7-day Ada trial.</string>
+    <string name="auth_sign_up_subtitle">New accounts get all of Mixology free for 7 days. After that it needs a subscription.</string>
     <string name="auth_name">Name (optional)</string>
     <string name="auth_email">Email</string>
     <string name="auth_password">Password</string>
@@ -230,12 +230,12 @@
     <string name="auth_continue_with_apple">Continue with Apple</string>
     <string name="auth_apple_failed">Sign in with Apple didn’t work. Please try again.</string>
     <string name="auth_google_failed">Google sign-in didn’t work. Please try again.</string>
+    <string name="auth_google_no_account">No Google account is signed in on this device.</string>
+    <string name="auth_switch_to_sign_in">Already have an account? Sign in</string>
     <string name="auth_forgot_password">Forgot password?</string>
     <string name="auth_reset_sent">If %1$s has a Mixology password, a link to choose a new one is on its way.</string>
     <string name="auth_reset_needs_email">Enter your email above, then tap Forgot password.</string>
     <string name="auth_password_rule">Use at least 6 characters.</string>
-    <string name="auth_google_no_account">No Google account is signed in on this device.</string>
-    <string name="auth_switch_to_sign_in">Already have an account? Sign in</string>
     <string name="settings_account">Account</string>
     <string name="settings_sign_out">Sign out</string>
     <string name="settings_sign_out_title">Sign out?</string>
@@ -348,9 +348,9 @@
     <string name="settings_library">Library</string>
     <string name="settings_privacy_header">Privacy</string>
     <string name="paywall_title">Your free trial has ended</string>
-    <string name="paywall_subtitle_premium">Keep all of Mixology when your free trial ends.</string>
     <string name="paywall_title_premium">Mixology Premium</string>
     <string name="paywall_subtitle">Subscribe to keep using Mixology.</string>
+    <string name="paywall_subtitle_premium">Keep all of Mixology when your free trial ends.</string>
     <string name="paywall_benefit_ada">Ask Ada, your AI bartender, for the right drink</string>
     <string name="paywall_benefit_bar">Build My Bar and see what you can make tonight</string>
     <string name="paywall_benefit_saved">Save drinks, notes and shopping lists across devices</string>
@@ -368,14 +368,14 @@
     <string name="paywall_disclosure">Subscriptions renew automatically until cancelled. Cancel anytime in Google Play at least 24 hours before the renewal date.</string>
     <string name="paywall_pending">Your purchase is pending. Premium unlocks as soon as Google Play confirms it.</string>
     <string name="paywall_nothing_to_restore">No active subscription was found for this Google account.</string>
+    <string name="paywall_store_unavailable">Google Play isn’t available right now. Check your connection and try again.</string>
+    <string name="paywall_purchase_failed">The purchase didn’t go through. Please try again.</string>
     <string name="paywall_confirming">Google Play took your payment, but we couldn’t confirm it yet. Tap Restore purchases in a moment to unlock Premium.</string>
     <string name="paywall_restore_failed">Couldn’t check your purchases. Check your connection and try again.</string>
     <plurals name="trial_ending_banner">
         <item quantity="one">Your free trial ends in %d day</item>
         <item quantity="other">Your free trial ends in %d days</item>
     </plurals>
-    <string name="paywall_store_unavailable">Google Play isn’t available right now. Check your connection and try again.</string>
-    <string name="paywall_purchase_failed">The purchase didn’t go through. Please try again.</string>
     <string name="settings_subscription_premium">Mixology Premium</string>
     <string name="settings_subscription_free">No subscription</string>
     <string name="settings_subscription_manage">Manage</string>

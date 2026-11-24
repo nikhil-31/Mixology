@@ -4,7 +4,7 @@
 <a href='https://play.google.com/store/apps/details?id=com.capstone.nik.mixology&hl=en&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png' width="250" height="100"/></a>
 
 ## Overview
-Mixology is a Jetpack Compose cocktail browser backed by [TheCocktailDB](https://www.thecocktaildb.com/). Browse Hot picks, search by name, ingredient, or letter, swipe Randomixer, and keep saved recipes plus a shopping list. Phones and tablets (two-pane details) are supported. Spanish strings are included. Appearance follows system, light, or dark mode.
+Mixology is a Jetpack Compose cocktail app that talks to the Mixology backend. Stock My Bar and see what you can make, ask Ada (an AI bartender) for a drink, import recipes from a link or a social post, write your own, and keep saved recipes plus a shopping list grouped by aisle. Search works by drink name or ingredient. An account is required; new accounts get a 7-day free trial, then a subscription. Phones and tablets (two-pane details) are supported. Spanish strings are included. Appearance follows system, light, or dark mode.
 
 Store listing copy and a screenshot checklist live in `docs/PLAY_STORE.md`.
 

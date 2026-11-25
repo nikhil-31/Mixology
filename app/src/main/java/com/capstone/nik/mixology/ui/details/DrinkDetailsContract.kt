@@ -2,12 +2,25 @@ package com.capstone.nik.mixology.ui.details
 
 import android.content.Intent
 import com.capstone.nik.mixology.data.Drink
+import com.capstone.nik.mixology.repository.DrinkRating
 
 data class DrinkDetailsUiState(
     val loading: Boolean = false,
     val drink: Drink? = null,
     val saved: Boolean = false,
-)
+    val onShoppingList: Boolean = false,
+    /** Null until loaded, or when ratings couldn't be reached. */
+    val rating: DrinkRating? = null,
+    /** The note has text typed since it was last saved. */
+    val unsavedNote: Boolean = false,
+    /** The full recipe couldn't be fetched and there's nothing cached to show. */
+    val loadFailed: Boolean = false,
+    /** Lower-cased names of the ingredients in My Bar. */
+    val inBar: Set<String> = emptySet(),
+) {
+    /** The user's own recipe: editable, but never saved or rated. */
+    val isUserRecipe: Boolean get() = drink?.isUserRecipe == true
+}
 
 sealed interface DrinkDetailsIntent {
     data class Load(val drink: Drink) : DrinkDetailsIntent
@@ -15,8 +28,17 @@ sealed interface DrinkDetailsIntent {
     data object Share : DrinkDetailsIntent
     data object Back : DrinkDetailsIntent
     data class UpdateNotes(val notes: String) : DrinkDetailsIntent
+    /** Sends the typed note to the account; leaving the drink does the same. */
+    data object SaveNotes : DrinkDetailsIntent
     data object AddToShoppingList : DrinkDetailsIntent
+    data object RemoveFromShoppingList : DrinkDetailsIntent
     data class OpenVideo(val url: String) : DrinkDetailsIntent
+    /** Tapping the star that is already the user's rating clears it. */
+    data class Rate(val stars: Int) : DrinkDetailsIntent
+    /** Opens the editor for the user's own recipe. */
+    data object EditRecipe : DrinkDetailsIntent
+    /** Tries the recipe again after it failed to load. */
+    data object Retry : DrinkDetailsIntent
 }
 
 sealed interface DrinkDetailsEffect {
@@ -24,4 +46,5 @@ sealed interface DrinkDetailsEffect {
     data class ShareRecipe(val intent: Intent) : DrinkDetailsEffect
     data class OpenUrl(val url: String) : DrinkDetailsEffect
     data object NavigateBack : DrinkDetailsEffect
+    data class OpenRecipeEditor(val recipeId: String) : DrinkDetailsEffect
 }

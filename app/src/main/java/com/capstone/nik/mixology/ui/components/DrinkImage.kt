@@ -3,9 +3,11 @@ package com.capstone.nik.mixology.ui.components
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -13,6 +15,7 @@ import androidx.compose.ui.unit.Dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.capstone.nik.mixology.R
+import com.capstone.nik.mixology.data.Drink
 
 @Composable
 fun DrinkImage(
@@ -24,13 +27,14 @@ fun DrinkImage(
 ) {
     AsyncImage(
         model = ImageRequest.Builder(LocalContext.current)
-            .data(url?.takeIf { it.isNotBlank() && it != "null" })
+            .data(Drink.resolveThumbUrl(url))
             .error(errorRes)
             .fallback(errorRes)
             .crossfade(true)
             .build(),
         contentDescription = contentDescription,
         contentScale = contentScale,
+        placeholder = ColorPainter(MaterialTheme.colorScheme.surfaceVariant),
         modifier = modifier,
     )
 }
@@ -44,7 +48,7 @@ fun CircularDrinkImage(
 ) {
     AsyncImage(
         model = ImageRequest.Builder(LocalContext.current)
-            .data(url?.takeIf { it.isNotBlank() && it != "null" })
+            .data(Drink.resolveThumbUrl(url))
             .error(errorRes)
             .fallback(errorRes)
             .crossfade(true)

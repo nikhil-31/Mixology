@@ -1,0 +1,218 @@
+package com.capstone.nik.mixology.ui.recipes
+
+import android.app.Application
+import androidx.lifecycle.SavedStateHandle
+import androidx.test.core.app.ApplicationProvider
+import app.cash.turbine.test
+import com.capstone.nik.mixology.FakeRecipeService
+import com.capstone.nik.mixology.MainDispatcherRule
+import com.capstone.nik.mixology.Network.ConnectionError
+import com.capstone.nik.mixology.Network.NetworkMonitor
+import com.capstone.nik.mixology.billing.FakeBillingService
+import com.capstone.nik.mixology.billing.FakeStoreBilling
+import com.capstone.nik.mixology.billing.SubscriptionRepository
+import com.capstone.nik.mixology.data.SessionStore
+import com.capstone.nik.mixology.repository.NetworkRecipeRepository
+import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+
+@RunWith(RobolectricTestRunner::class)
+@Config(application = Application::class, sdk = [34])
+class ImportRecipeViewModelTest {
+
+    @get:Rule
+    val mainDispatcherRule = MainDispatcherRule()
+
+    private val service = FakeRecipeService()
+    private val network = NetworkMonitor.forTests()
+    private lateinit var repository: NetworkRecipeRepository
+    private lateinit var viewModel: ImportRecipeViewModel
+    private val adaInbox = com.capstone.nik.mixology.ui.ada.AdaInbox()
+
+    @Before
+    fun setUp() {
+        val sessions = SessionStore(ApplicationProvider.getApplicationContext())
+        sessions.clear()
+        sessions.save("token", 3600, "ada@example.com", "Ada", uid = "uid-1", access = "trial")
+        val subscriptions = SubscriptionRepository(FakeBillingService(), FakeStoreBilling(), sessions)
+        repository = NetworkRecipeRepository(service, subscriptions, sessions)
+        viewModel = ImportRecipeViewModel(repository, network, adaInbox)
+    }
+
+    @Test
+    fun sharedTextIsFilledInAndImported() = runTest {
+        viewModel.effects.test {
+            viewModel.onIntent(ImportRecipeIntent.Shared("Try this https://www.tiktok.com/@bar/video/1"))
+            assertEquals(ImportRecipeEffect.Imported("u-import", duplicate = false), awaitItem())
+        }
+
+        assertEquals("Try this https://www.tiktok.com/@bar/video/1", viewModel.state.value.text)
+        assertEquals("Try this https://www.tiktok.com/@bar/video/1", service.imports.single().text)
+    }
+
+    @Test
+    fun blankSharedTextDoesNothing() = runTest {
+        viewModel.onIntent(ImportRecipeIntent.Shared("   "))
+
+        assertEquals("", viewModel.state.value.text)
+        assertTrue(service.imports.isEmpty())
+    }
+
+    @Test
+    fun cancelStopsWaitingAndKeepsTheText() = runTest {
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        service.importGate = gate
+        viewModel.onIntent(ImportRecipeIntent.TextChanged("https://www.instagram.com/reel/abc/"))
+
+        viewModel.effects.test {
+            viewModel.onIntent(ImportRecipeIntent.Import)
+            assertTrue(viewModel.state.value.importing)
+
+            viewModel.onIntent(ImportRecipeIntent.Cancel)
+            gate.complete(Unit)
+
+            assertFalse(viewModel.state.value.importing)
+            assertEquals("https://www.instagram.com/reel/abc/", viewModel.state.value.text)
+            expectNoEvents()
+        }
+        assertTrue(repository.recipes.value.isEmpty())
+    }
+
+    @Test
+    fun askAdaHandsTheTextToAdaAndOpensHerTab() = runTest {
+        service.failImportWith = 502 to "The page answered 403"
+        viewModel.onIntent(ImportRecipeIntent.TextChanged("https://www.liquor.com/recipes/paper-plane/"))
+        viewModel.onIntent(ImportRecipeIntent.Import)
+
+        viewModel.effects.test {
+            viewModel.onIntent(ImportRecipeIntent.AskAda)
+            assertEquals(ImportRecipeEffect.OpenAda, awaitItem())
+        }
+        assertEquals("https://www.liquor.com/recipes/paper-plane/", adaInbox.pending.value)
+        assertNull(viewModel.state.value.error)
+    }
+
+    @Test
+    fun pastedTextComesBackAfterTheSystemClosesTheApp() {
+        val savedState = SavedStateHandle()
+        ImportRecipeViewModel(repository, network, adaInbox, savedState)
+            .onIntent(ImportRecipeIntent.TextChanged("2 oz gin, 1 oz lime"))
+
+        val reopened = ImportRecipeViewModel(repository, network, adaInbox, savedState)
+
+        assertEquals("2 oz gin, 1 oz lime", reopened.state.value.text)
+        assertTrue(reopened.state.value.canImport)
+    }
+
+    @Test
+    fun dismissErrorClearsIt() = runTest {
+        service.failImportWith = 502 to "The page answered 403"
+        viewModel.onIntent(ImportRecipeIntent.TextChanged("https://www.liquor.com/recipes/paper-plane/"))
+        viewModel.onIntent(ImportRecipeIntent.Import)
+        assertEquals(ImportRecipeError.Unreachable, viewModel.state.value.error)
+
+        viewModel.onIntent(ImportRecipeIntent.DismissError)
+
+        assertNull(viewModel.state.value.error)
+    }
+
+    @Test
+    fun importSavesTheRecipeAndOpensIt() = runTest {
+        assertFalse(viewModel.state.value.canImport)
+        viewModel.onIntent(ImportRecipeIntent.TextChanged("  Look! https://vm.tiktok.com/ZM6/  "))
+
+        viewModel.effects.test {
+            viewModel.onIntent(ImportRecipeIntent.Import)
+            assertEquals(ImportRecipeEffect.Imported("u-import", duplicate = false), awaitItem())
+        }
+
+        assertEquals("Look! https://vm.tiktok.com/ZM6/", service.imports.single().text)
+        assertEquals(listOf("u-import"), repository.recipes.value.map { it.id })
+        assertFalse(viewModel.state.value.importing)
+        assertNull(viewModel.state.value.error)
+    }
+
+    @Test
+    fun importingTheSamePostAgainOpensTheSavedRecipe() = runTest {
+        viewModel.onIntent(ImportRecipeIntent.TextChanged("https://vm.tiktok.com/ZM6/"))
+        viewModel.effects.test {
+            viewModel.onIntent(ImportRecipeIntent.Import)
+            assertEquals(ImportRecipeEffect.Imported("u-import", duplicate = false), awaitItem())
+            viewModel.onIntent(ImportRecipeIntent.Import)
+            assertEquals(ImportRecipeEffect.Imported("u-import", duplicate = true), awaitItem())
+        }
+        assertEquals(1, repository.recipes.value.size)
+    }
+
+    @Test
+    fun failuresShowWhatWentWrong() = runTest {
+        viewModel.onIntent(ImportRecipeIntent.TextChanged("Our summer menu is coming soon."))
+
+        service.failImportWith = 422 to "No drink recipe was found there"
+        viewModel.onIntent(ImportRecipeIntent.Import)
+        assertEquals(ImportRecipeError.Server("No drink recipe was found there"), viewModel.state.value.error)
+
+        service.failImportWith = 402 to "Out of chat credits until 2026-11-01"
+        viewModel.onIntent(ImportRecipeIntent.Import)
+        assertEquals(ImportRecipeError.OutOfCredits, viewModel.state.value.error)
+
+        service.failImportWith = 502 to "The page could not be fetched"
+        viewModel.onIntent(ImportRecipeIntent.Import)
+        assertEquals(ImportRecipeError.Unreachable, viewModel.state.value.error)
+        assertFalse(viewModel.state.value.importing)
+
+        // Any other answer isn't about the recipe, so it doesn't read as "no recipe found".
+        service.failImportWith = 429 to "Too many imports. Try again in a minute."
+        viewModel.onIntent(ImportRecipeIntent.Import)
+        assertEquals(
+            ImportRecipeError.Failed("Too many imports. Try again in a minute."),
+            viewModel.state.value.error,
+        )
+
+        // Editing clears the error; nothing was saved.
+        viewModel.onIntent(ImportRecipeIntent.TextChanged("2 oz gin"))
+        assertNull(viewModel.state.value.error)
+        assertTrue(repository.recipes.value.isEmpty())
+    }
+
+    @Test
+    fun noAnswerFromTheServerIsAConnectionErrorNotGeneric() = runTest {
+        viewModel.onIntent(ImportRecipeIntent.TextChanged("2 oz gin"))
+
+        service.failImportWith = 503 to "Service Unavailable"
+        viewModel.onIntent(ImportRecipeIntent.Import)
+        assertEquals(
+            ImportRecipeError.NoConnection(ConnectionError.SERVER_UNREACHABLE),
+            viewModel.state.value.error,
+        )
+
+        service.failImportWith = null
+        service.failWithIo = true
+        viewModel.onIntent(ImportRecipeIntent.Import)
+        assertEquals(
+            ImportRecipeError.NoConnection(ConnectionError.SERVER_UNREACHABLE),
+            viewModel.state.value.error,
+        )
+
+        viewModel = ImportRecipeViewModel(repository, NetworkMonitor.forTests(online = false), adaInbox)
+        viewModel.onIntent(ImportRecipeIntent.TextChanged("2 oz gin"))
+        viewModel.onIntent(ImportRecipeIntent.Import)
+        assertEquals(ImportRecipeError.NoConnection(ConnectionError.NO_CONNECTION), viewModel.state.value.error)
+        assertFalse(viewModel.state.value.importing)
+    }
+
+    @Test
+    fun textIsCutToTheServerLimit() {
+        viewModel.onIntent(ImportRecipeIntent.TextChanged("x".repeat(IMPORT_TEXT_LIMIT + 10)))
+        assertEquals(IMPORT_TEXT_LIMIT, viewModel.state.value.text.length)
+    }
+}

@@ -11,7 +11,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.yield
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -61,14 +60,19 @@ class MainViewModelTest {
     }
 
     @Test
-    fun selectFilterDestination_clearsSelectedDrink() {
+    fun selectFilterDestination_clearsSelectedDrinkAndNavigates() = runBlocking {
         val viewModel = MainViewModel()
         viewModel.onIntent(
             MainIntent.DrinkSelected(Drink("11007", "Margarita", ""), twoPane = true),
         )
+        val deferred = CompletableDeferred<MainEffect>()
+        val job = launch { deferred.complete(viewModel.effects.first()) }
+        yield()
         viewModel.onIntent(MainIntent.SelectDestination(DrawerDestination.Filter(DrinkFilter.GIN)))
+        val effect = withTimeout(1_000) { deferred.await() }
+        job.cancel()
         assertNull(viewModel.state.value.selectedDrink)
-        assertEquals("grid/GIN", viewModel.state.value.destination.route)
+        assertEquals(MainEffect.Navigate(DrawerDestination.Filter(DrinkFilter.GIN)), effect)
     }
 
     @Test
@@ -82,14 +86,5 @@ class MainViewModelTest {
         job.cancel()
         assertTrue(effect is MainEffect.OpenDetails)
         assertEquals("11007", (effect as MainEffect.OpenDetails).drink.id)
-    }
-
-    @Test
-    fun dismissMenu_hidesDropdown() {
-        val viewModel = MainViewModel()
-        viewModel.onIntent(MainIntent.OpenMenu)
-        assertTrue(viewModel.state.value.menuExpanded)
-        viewModel.onIntent(MainIntent.DismissMenu)
-        assertFalse(viewModel.state.value.menuExpanded)
     }
 }

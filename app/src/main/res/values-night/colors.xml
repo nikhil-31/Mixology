@@ -3,14 +3,8 @@
     <color name="colorPrimary">#FF8A80</color>
     <color name="colorPrimaryDark">#141010</color>
     <color name="colorAccent">#FF8A80</color>
-    <color name="colorHighlight">#3A2E2B</color>
 
-    <color name="gray">#2A2320</color>
     <color name="material_gray_200">#221C1A</color>
 
     <color name="primary_text">#F5EBE6</color>
-    <color name="red">#FF8A80</color>
-    <color name="activated">#2A2320</color>
-    <color name="background_material_theme_white">#100E0D</color>
-    <color name="light_gray">#2A2320</color>
 </resources>

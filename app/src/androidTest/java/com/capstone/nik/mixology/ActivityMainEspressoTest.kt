@@ -18,9 +18,12 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.capstone.nik.mixology.Activities.ActivityMain
 import com.capstone.nik.mixology.data.Drink
+import com.capstone.nik.mixology.data.SessionStore
 import com.capstone.nik.mixology.ui.putDrinkExtra
+import com.capstone.nik.mixology.ui.tour.WelcomeTourPreferences
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,6 +34,19 @@ class ActivityMainEspressoTest {
 
     @get:Rule
     val composeRule = createEmptyComposeRule()
+
+    @Before
+    fun signIn() {
+        // The app only opens behind a session, so seed one before each launch.
+        SessionStore(ApplicationProvider.getApplicationContext()).save(
+            idToken = "espresso-token",
+            expiresInSeconds = 24 * 60 * 60,
+            email = "espresso@mixology.test",
+            displayName = "Espresso",
+        )
+        // The first-run tour would cover everything these tests look at.
+        WelcomeTourPreferences.setSeen(ApplicationProvider.getApplicationContext(), true)
+    }
 
     @Test
     fun launchWithoutExtras_staysResumed() {
@@ -47,19 +63,21 @@ class ActivityMainEspressoTest {
             waitForTag("bottom_Home")
             composeRule.onNodeWithTag("screen_title").assertTextEquals("Home")
             composeRule.onNodeWithTag("bottom_Home").assertIsDisplayed()
-            composeRule.onNodeWithTag("bottom_Catalog").assertIsDisplayed()
             composeRule.onNodeWithTag("bottom_My Bar").assertIsDisplayed()
             composeRule.onNodeWithTag("bottom_Saved").assertIsDisplayed()
-            composeRule.onNodeWithTag("bottom_Mixer").assertIsDisplayed()
+            composeRule.onNodeWithTag("bottom_Ada").assertIsDisplayed()
+            composeRule.onNodeWithTag("header_settings").assertIsDisplayed()
         }
     }
 
     @Test
-    fun catalogTab_showsBrowseCatalog() {
+    fun settingsCatalog_showsBrowseCatalog() {
         ActivityScenario.launch(ActivityMain::class.java).use {
             waitUntilIdle()
-            waitForTag("bottom_Catalog")
-            composeRule.onNodeWithTag("bottom_Catalog").performClick()
+            waitForTag("header_settings")
+            composeRule.onNodeWithTag("header_settings").performClick()
+            waitForTag("settings_catalog")
+            composeRule.onNodeWithTag("settings_catalog").performClick()
             waitUntilIdle()
             waitForText("Browse catalog")
             composeRule.onNodeWithText("Browse catalog").assertIsDisplayed()
@@ -85,7 +103,7 @@ class ActivityMainEspressoTest {
         ActivityScenario.launch(ActivityMain::class.java).use {
             waitUntilIdle()
             waitForTag("screen_header")
-            composeRule.onNodeWithContentDescription("Settings").performClick()
+            composeRule.onNodeWithTag("header_settings").performClick()
             waitUntilIdle()
             waitForText("Appearance")
             composeRule.onNodeWithText("Appearance").assertIsDisplayed()

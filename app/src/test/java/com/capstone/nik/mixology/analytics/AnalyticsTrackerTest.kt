@@ -17,11 +17,13 @@ class AnalyticsTrackerTest {
     @Test
     fun screenName_mapsNavRoutes() {
         assertEquals(SCREEN_HOME, analyticsScreenName("hot"))
-        assertEquals(SCREEN_RANDOMIXER, analyticsScreenName("randomixer"))
         assertEquals(SCREEN_SETTINGS, analyticsScreenName("settings"))
+        assertEquals(SCREEN_ADA, analyticsScreenName("ada"))
         assertEquals(SCREEN_CATALOG, analyticsScreenName("catalog"))
         assertEquals(SCREEN_MY_BAR, analyticsScreenName("bar"))
         assertEquals(SCREEN_SHOPPING_LIST, analyticsScreenName("shopping"))
+        assertEquals(SCREEN_MY_RECIPES, analyticsScreenName("recipes"))
+        assertEquals(SCREEN_RECIPE_EDITOR, analyticsScreenName("recipe_editor?id={id}"))
         assertEquals(SCREEN_DRINK_GRID, analyticsScreenName("grid/{filter}"))
         assertEquals(SCREEN_SEARCH, analyticsScreenName("search?query={query}&mode={mode}&kind={kind}"))
         assertEquals(SCREEN_DRINK_DETAILS, analyticsScreenName("details/{id}?name={name}&thumb={thumb}"))
@@ -41,7 +43,6 @@ class AnalyticsTrackerTest {
         analytics.logSaveDrink("11007", "Margarita", saved = false)
         analytics.logShareDrink("11007", "Margarita")
         analytics.logAddToShoppingList("11007", "Margarita")
-        analytics.logRandomixerSkip("11007", "Margarita")
 
         assertEquals(
             listOf(
@@ -52,7 +53,6 @@ class AnalyticsTrackerTest {
                 EVENT_REMOVE_FROM_WISHLIST,
                 FirebaseAnalytics.Event.SHARE,
                 FirebaseAnalytics.Event.ADD_TO_CART,
-                EVENT_RANDOMIXER_SKIP,
             ),
             analytics.recorded.map { it.name },
         )
@@ -65,11 +65,26 @@ class AnalyticsTrackerTest {
         assertTrue(analytics.recorded[3].params[PARAM_SAVED] as Boolean)
         assertEquals(false, analytics.recorded[4].params[PARAM_SAVED])
         assertEquals("drink", analytics.recorded[5].params[FirebaseAnalytics.Param.CONTENT_TYPE])
-        assertEquals("11007", analytics.recorded[7].params[FirebaseAnalytics.Param.ITEM_ID])
+        assertEquals("11007", analytics.recorded[6].params[FirebaseAnalytics.Param.ITEM_ID])
     }
 
     @Test
     fun setCollectionEnabled_isNoOpWithoutFirebase() {
         AnalyticsTracker.forTests().setCollectionEnabled(true)
+    }
+
+    @Test
+    fun forTests_recordsRecipeEvents() {
+        val analytics = AnalyticsTracker.forTests()
+        analytics.logRecipeCreated("u-1", "House Sour")
+        analytics.logRecipeUpdated("u-1", "House Sour")
+        analytics.logRecipeDeleted("u-1", "House Sour")
+
+        assertEquals(
+            listOf(EVENT_RECIPE_CREATED, EVENT_RECIPE_UPDATED, EVENT_RECIPE_DELETED),
+            analytics.recorded.map { it.name },
+        )
+        assertEquals("u-1", analytics.recorded[0].params[FirebaseAnalytics.Param.ITEM_ID])
+        assertEquals("House Sour", analytics.recorded[2].params[FirebaseAnalytics.Param.ITEM_NAME])
     }
 }

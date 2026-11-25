@@ -19,8 +19,10 @@ import java.util.concurrent.Executors
         ShoppingItemEntity::class,
         RecentlyViewedEntity::class,
         BarIngredientEntity::class,
+        ShoppingTripEntity::class,
+        DrinkNoteEntity::class,
     ],
-    version = 6,
+    version = 10,
     exportSchema = true,
 )
 @TypeConverters(IngredientListConverter::class)
@@ -31,6 +33,10 @@ abstract class MixologyDatabase : RoomDatabase() {
     abstract fun shoppingDao(): ShoppingDao
 
     abstract fun barDao(): BarDao
+
+    abstract fun shoppingTripDao(): ShoppingTripDao
+
+    abstract fun drinkNoteDao(): DrinkNoteDao
 
     companion object {
         private const val TAG = "MixologyDatabase"
@@ -98,12 +104,69 @@ abstract class MixologyDatabase : RoomDatabase() {
             )
         }
 
+        internal val MIGRATION_6_7 = Migration(6, 7) { db ->
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `shopping_items_new` (
+                    `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    `name` TEXT NOT NULL,
+                    `checked` INTEGER NOT NULL,
+                    `drinkId` TEXT NOT NULL DEFAULT ''
+                )
+                """.trimIndent(),
+            )
+            db.execSQL(
+                """
+                INSERT INTO shopping_items_new (id, name, checked, drinkId)
+                SELECT id, name, checked, '' FROM shopping_items
+                """.trimIndent(),
+            )
+            db.execSQL("DROP TABLE shopping_items")
+            db.execSQL("ALTER TABLE shopping_items_new RENAME TO shopping_items")
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_shopping_items_drinkId` ON `shopping_items` (`drinkId`)",
+            )
+        }
+
+        internal val MIGRATION_7_8 = Migration(7, 8) { db ->
+            db.execSQL("ALTER TABLE shopping_items ADD COLUMN remoteId INTEGER")
+        }
+
+        internal val MIGRATION_8_9 = Migration(8, 9) { db ->
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `shopping_trips` (
+                    `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    `remoteId` INTEGER,
+                    `at` INTEGER NOT NULL,
+                    `items` TEXT NOT NULL
+                )
+                """.trimIndent(),
+            )
+        }
+
+        internal val MIGRATION_9_10 = Migration(9, 10) { db ->
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `drink_notes` (
+                    `drinkId` TEXT NOT NULL,
+                    `notes` TEXT NOT NULL,
+                    PRIMARY KEY(`drinkId`)
+                )
+                """.trimIndent(),
+            )
+        }
+
         internal val ALL_MIGRATIONS = arrayOf(
             MIGRATION_1_2,
             MIGRATION_2_3,
             MIGRATION_3_4,
             MIGRATION_4_5,
             MIGRATION_5_6,
+            MIGRATION_6_7,
+            MIGRATION_7_8,
+            MIGRATION_8_9,
+            MIGRATION_9_10,
         )
 
         @Volatile
@@ -120,9 +183,6 @@ abstract class MixologyDatabase : RoomDatabase() {
                         instance = created
                         Executors.newSingleThreadExecutor().execute {
                             importLegacySavedDrinks(appContext, created.drinkDao())
-                            runBlocking {
-                                CatalogSeed.importIfNeeded(appContext, created.drinkDao())
-                            }
                         }
                     }
             }
@@ -156,15 +216,12 @@ abstract class MixologyDatabase : RoomDatabase() {
                                         id = id,
                                         name = cursor.getString(nameIndex).orEmpty(),
                                         thumb = cursor.getString(thumbIndex).orEmpty(),
-                                        saved = true,
                                     ),
                                 )
                             }
                             if (drinks.isNotEmpty()) {
-                                runBlocking {
-                                    dao.insertDrinks(drinks)
-                                    drinks.forEach { dao.setSaved(it.id, true) }
-                                }
+                                // Only the details are kept: saved drinks come from the server.
+                                runBlocking { dao.insertDrinks(drinks) }
                             }
                         }
                     }

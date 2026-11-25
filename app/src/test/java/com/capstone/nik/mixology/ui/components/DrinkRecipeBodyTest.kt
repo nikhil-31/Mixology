@@ -35,4 +35,29 @@ class DrinkRecipeBodyTest {
             instructionSteps("Shake with ice.\nStrain into the glass."),
         )
     }
+
+    @Test
+    fun instructionSteps_paragraphOfSentences_becomesSteps() {
+        assertEquals(
+            listOf(
+                "Rub the rim of the glass with lime.",
+                "Shake the other ingredients with ice.",
+                "Strain into the glass.",
+            ),
+            instructionSteps(
+                "Rub the rim of the glass with lime. Shake the other ingredients with ice. Strain into the glass.",
+            ),
+        )
+    }
+
+    @Test
+    fun instructionSteps_shortSentences_stayOneBlock() {
+        assertEquals(listOf("Stir. Serve."), instructionSteps("Stir. Serve."))
+    }
+
+    @Test
+    fun instructionSteps_abbreviationsWithoutCapitals_dontSplit() {
+        val text = "Add 2 oz. of gin and stir well with ice cubes."
+        assertEquals(listOf(text), instructionSteps(text))
+    }
 }

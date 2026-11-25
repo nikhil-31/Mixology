@@ -1,14 +1,15 @@
 package com.capstone.nik.mixology.ui.main
 
 import android.app.Application
-import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.ui.theme.MixologyTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -28,32 +29,73 @@ class MixologyBottomBarTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun showsHomeCatalogMyBarSavedAndRandomixer_andReportsSelection() {
+    fun showsHomeMyBarShoppingAndAda_andReportsSelection() {
         val selected = mutableListOf<DrawerDestination>()
+        val reselected = mutableListOf<DrawerDestination>()
         composeRule.setContent {
             MixologyTheme {
                 MixologyBottomBar(
-                    currentDestination = DrawerDestination.Hot,
+                    currentDestination = DrawerDestination.RecipesHome,
                     onDestinationSelected = { selected.add(it) },
+                    onReselect = { reselected.add(it) },
                 )
             }
         }
 
         composeRule.onNodeWithText("Home").assertIsDisplayed()
-        composeRule.onNodeWithText("Catalog").assertIsDisplayed()
         composeRule.onNodeWithText("My Bar").assertIsDisplayed()
-        composeRule.onNodeWithText("Saved").assertIsDisplayed()
-        composeRule.onNodeWithText("Mixer").assertIsDisplayed()
-        composeRule.onAllNodesWithText("Settings").assertCountEquals(0)
-        composeRule.onNodeWithTag("bottom_Catalog").performClick()
+        composeRule.onNodeWithText("Shopping").assertIsDisplayed()
+        composeRule.onNodeWithText("Ada").assertIsDisplayed()
+        composeRule.onNodeWithTag("bottom_Catalog").assertDoesNotExist()
+        // Saved and Discover open from Settings; Recipes is the Home tab.
+        composeRule.onNodeWithTag("bottom_Saved").assertDoesNotExist()
+        composeRule.onNodeWithTag("bottom_Recipes").assertDoesNotExist()
+        composeRule.onNodeWithTag("bottom_Home").performClick()
         composeRule.onNodeWithTag("bottom_My Bar").performClick()
-        composeRule.onNodeWithTag("bottom_Saved").performClick()
-        composeRule.onNodeWithTag("bottom_Mixer").performClick()
+        composeRule.onNodeWithTag("bottom_Shopping").performClick()
+        composeRule.onNodeWithTag("bottom_Ada").performClick()
 
-        assertTrue(selected[0] is DrawerDestination.Catalog)
-        assertTrue(selected[1] is DrawerDestination.Bar)
-        assertEquals(DrinkFilter.SAVED, (selected[2] as DrawerDestination.Filter).filter)
-        assertTrue(selected[3] is DrawerDestination.Randomixer)
+        // Home is the current tab, so tapping it again is a reselect (scroll to top), not a move.
+        assertTrue(reselected.single() is DrawerDestination.RecipesHome)
+        assertEquals(3, selected.size)
+        assertTrue(selected[0] is DrawerDestination.Bar)
+        assertTrue(selected[1] is DrawerDestination.Shopping)
+        assertTrue(selected[2] is DrawerDestination.Ada)
+    }
+
+    @Test
+    fun shoppingTab_showsWhatIsLeftToBuy() {
+        composeRule.setContent {
+            MixologyTheme {
+                MixologyBottomBar(
+                    currentDestination = DrawerDestination.Bar,
+                    onDestinationSelected = {},
+                    shoppingLeft = 3,
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("bottom_badge_Shopping", useUnmergedTree = true)
+            .assertContentDescriptionEquals("3 items to buy")
+        composeRule.onNodeWithTag("bottom_badge_Home", useUnmergedTree = true).assertDoesNotExist()
+    }
+
+    @Test
+    fun shoppingBadge_capsAt99_andHidesAtZero() {
+        var left by mutableIntStateOf(150)
+        composeRule.setContent {
+            MixologyTheme {
+                MixologyBottomBar(
+                    currentDestination = DrawerDestination.Bar,
+                    onDestinationSelected = {},
+                    shoppingLeft = left,
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("99+", useUnmergedTree = true).assertExists()
+        left = 0
+        composeRule.onNodeWithTag("bottom_badge_Shopping", useUnmergedTree = true).assertDoesNotExist()
     }
 
     @Test
@@ -69,6 +111,6 @@ class MixologyBottomBarTest {
         }
 
         composeRule.onNodeWithTag("bottom_Home").performClick()
-        assertTrue(selected.single() is DrawerDestination.Hot)
+        assertTrue(selected.single() is DrawerDestination.RecipesHome)
     }
 }

@@ -5,19 +5,23 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
+import com.capstone.nik.mixology.FakeCocktailService
 import com.capstone.nik.mixology.MainDispatcherRule
+import com.capstone.nik.mixology.Network.ConnectionError
 import com.capstone.nik.mixology.Network.NetworkMonitor
+import com.capstone.nik.mixology.Network.remoteModel.CocktailDbResponse
 import com.capstone.nik.mixology.analytics.AnalyticsTracker
 import com.capstone.nik.mixology.analytics.EVENT_REMOVE_FROM_WISHLIST
 import com.capstone.nik.mixology.cocktailDrink
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.data.MixologyDatabase
-import com.capstone.nik.mixology.data.toEntity
 import com.capstone.nik.mixology.repository.DrinkRepository
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -34,6 +38,7 @@ class DrinkGridViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private lateinit var database: MixologyDatabase
+    private val service = FakeCocktailService()
     private lateinit var repository: DrinkRepository
     private lateinit var analytics: AnalyticsTracker
     private lateinit var viewModel: DrinkGridViewModel
@@ -54,6 +59,7 @@ class DrinkGridViewModelTest {
             database.drinkDao(),
             database.shoppingDao(),
             database.barDao(),
+            service,
             context,
         )
         analytics = AnalyticsTracker.forTests()
@@ -67,7 +73,7 @@ class DrinkGridViewModelTest {
 
     @Test
     fun bind_loadsCachedFilterDrinks() = runTest {
-        database.drinkDao().upsertRecipe(cocktailDrink("1", "Gin Fizz").toDrink()!!.toEntity())
+        service.ingredient = CocktailDbResponse(listOf(cocktailDrink("1", "Gin Fizz")))
         viewModel.onIntent(DrinkGridIntent.Bind(DrinkFilter.GIN))
         viewModel.state.test {
             val loaded = awaitItemUntil { it.drinks.any { drink -> drink.name == "Gin Fizz" } }
@@ -78,7 +84,7 @@ class DrinkGridViewModelTest {
 
     @Test
     fun toggleSaved_savesDrinkWithoutMessage() = runTest {
-        database.drinkDao().upsertRecipe(cocktailDrink("1", "Gin Fizz").toDrink()!!.toEntity())
+        service.ingredient = CocktailDbResponse(listOf(cocktailDrink("1", "Gin Fizz")))
         viewModel.onIntent(DrinkGridIntent.Bind(DrinkFilter.GIN))
         viewModel.state.test {
             val loaded = awaitItemUntil { it.drinks.isNotEmpty() }
@@ -95,6 +101,47 @@ class DrinkGridViewModelTest {
             listOf(FirebaseAnalytics.Event.ADD_TO_WISHLIST, EVENT_REMOVE_FROM_WISHLIST),
             analytics.recorded.map { it.name },
         )
+    }
+
+    @Test
+    fun aFilterThatCannotLoad_saysSoOnTheScreen_andRetryLoadsIt() = runTest {
+        service.failWithIo = true
+        viewModel.onIntent(DrinkGridIntent.Bind(DrinkFilter.GIN))
+        viewModel.state.test {
+            val failed = awaitItemUntil { it.connectionError != null }
+            assertEquals(ConnectionError.SERVER_UNREACHABLE, failed.connectionError)
+            assertFalse(failed.loading)
+            assertTrue(failed.drinks.isEmpty())
+
+            service.failWithIo = false
+            service.ingredient = CocktailDbResponse(listOf(cocktailDrink("1", "Gin Fizz")))
+            viewModel.onIntent(DrinkGridIntent.Retry)
+
+            val loaded = awaitItemUntil { it.drinks.isNotEmpty() && !it.loading }
+            assertNull(loaded.connectionError)
+            assertFalse(loaded.failed)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun aRefreshThatFailsOverCachedDrinks_keepsThemAndOnlyShowsAMessage() = runTest {
+        service.ingredient = CocktailDbResponse(listOf(cocktailDrink("1", "Gin Fizz")))
+        viewModel.onIntent(DrinkGridIntent.Bind(DrinkFilter.GIN))
+        viewModel.state.test {
+            awaitItemUntil { it.drinks.isNotEmpty() && !it.loading }
+            cancelAndIgnoreRemainingEvents()
+        }
+
+        service.failWithIo = true
+        viewModel.effects.test {
+            viewModel.onIntent(DrinkGridIntent.Bind(DrinkFilter.GIN))
+            assertTrue(awaitItem() is DrinkGridEffect.ShowMessageRes)
+        }
+        val state = viewModel.state.value
+        assertEquals("Gin Fizz", state.drinks.single().name)
+        assertNull(state.connectionError)
+        assertFalse(state.failed)
     }
 
     @Test

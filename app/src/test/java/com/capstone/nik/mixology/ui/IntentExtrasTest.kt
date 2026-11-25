@@ -41,4 +41,34 @@ class IntentExtrasTest {
         assertEquals("11007", drink?.id)
         assertEquals("Margarita", drink?.name)
     }
+
+    @Test
+    fun sharedImportText_readsSharedText() {
+        val intent = Intent(Intent.ACTION_SEND)
+            .setType("text/plain")
+            .putExtra(Intent.EXTRA_TEXT, "  https://www.instagram.com/reel/abc/  ")
+
+        assertEquals("https://www.instagram.com/reel/abc/", intent.sharedImportText())
+    }
+
+    @Test
+    fun sharedImportText_putsANewSubjectFirst() {
+        val intent = Intent(Intent.ACTION_SEND)
+            .putExtra(Intent.EXTRA_SUBJECT, "Paper Plane")
+            .putExtra(Intent.EXTRA_TEXT, "https://youtu.be/xyz")
+
+        assertEquals("Paper Plane\nhttps://youtu.be/xyz", intent.sharedImportText())
+
+        val repeated = Intent(Intent.ACTION_SEND)
+            .putExtra(Intent.EXTRA_SUBJECT, "Paper Plane")
+            .putExtra(Intent.EXTRA_TEXT, "Paper Plane https://youtu.be/xyz")
+        assertEquals("Paper Plane https://youtu.be/xyz", repeated.sharedImportText())
+    }
+
+    @Test
+    fun sharedImportText_isNullForOtherIntentsAndBlankText() {
+        assertNull(Intent(Intent.ACTION_VIEW).putExtra(Intent.EXTRA_TEXT, "https://x.com/a").sharedImportText())
+        assertNull(Intent(Intent.ACTION_SEND).putExtra(Intent.EXTRA_TEXT, "   ").sharedImportText())
+        assertNull(Intent(Intent.ACTION_SEND).sharedImportText())
+    }
 }

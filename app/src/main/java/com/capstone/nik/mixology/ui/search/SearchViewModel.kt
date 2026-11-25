@@ -3,6 +3,9 @@ package com.capstone.nik.mixology.ui.search
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.viewModelScope
+import com.capstone.nik.mixology.Network.NetworkMonitor
+import com.capstone.nik.mixology.Network.connectionError
+import com.capstone.nik.mixology.Network.errorMessageRes
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.recordCrash
 import com.capstone.nik.mixology.analytics.AnalyticsTracker
@@ -10,6 +13,8 @@ import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.repository.DrinkRepository
 import com.capstone.nik.mixology.repository.FilterKind
+import com.capstone.nik.mixology.repository.RecipeRepository
+import com.capstone.nik.mixology.runCatchingCancellable
 import com.capstone.nik.mixology.ui.components.DrinkViewPreferences
 import com.capstone.nik.mixology.ui.mvi.MviViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,46 +33,60 @@ class SearchViewModel @Inject constructor(
     private val repository: DrinkRepository,
     @ApplicationContext private val context: Context,
     private val analytics: AnalyticsTracker = AnalyticsTracker.forTests(),
+    private val recipes: RecipeRepository = RecipeRepository.None,
+    private val networkMonitor: NetworkMonitor = NetworkMonitor.forTests(),
 ) : MviViewModel<SearchIntent, SearchUiState, SearchEffect>(SearchUiState()) {
 
     private val drinks = MutableStateFlow<List<Drink>>(emptyList())
     private val loading = MutableStateFlow(false)
+    private val errorRes = MutableStateFlow<Int?>(null)
     private val queried = MutableStateFlow(false)
     private val query = MutableStateFlow("")
     private val mode = MutableStateFlow(SearchMode.NAME)
     private val listView = MutableStateFlow(DrinkViewPreferences.listView(context))
     private var catalogKind: FilterKind? = null
+    /** The term [catalogKind] was opened with. */
+    private var catalogTerm: String? = null
     private var searchJob: Job? = null
 
     init {
         viewModelScope.launch {
             try {
                 repository.refreshCatalogs()
+            } catch (e: CancellationException) {
+                // Leaving Search isn't a failure to report.
+                throw e
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to refresh catalogs", e)
                 recordCrash(e)
             }
         }
         viewModelScope.launch {
+            // Brings in My recipes so they can match; search works without them.
+            runCatchingCancellable { recipes.load() }
+        }
+        viewModelScope.launch {
             combine(
                 combine(
                     drinks,
                     repository.observeSavedIds(),
-                    loading,
+                    combine(loading, errorRes) { isLoading, error -> isLoading to error },
                     queried,
                     query,
-                ) { drinkList, savedIds, isLoading, hasQueried, currentQuery ->
+                ) { drinkList, savedIds, (isLoading, error), hasQueried, currentQuery ->
                     SearchUiState(
                         query = currentQuery,
                         loading = isLoading,
                         results = drinkList.map { it.copy(saved = it.id in savedIds) },
-                        empty = hasQueried && !isLoading && drinkList.isEmpty(),
+                        empty = hasQueried && !isLoading && error == null && drinkList.isEmpty(),
+                        errorRes = error,
                     )
                 },
                 mode,
                 listView,
                 repository.observeCatalog(FilterKind.INGREDIENT),
-            ) { ui, currentMode, isList, ingredients ->
+                recipes.recipes,
+            ) { ui, currentMode, isList, ingredients, myRecipes ->
                 val suggestions = if (
                     currentMode == SearchMode.INGREDIENT &&
                     !ui.loading &&
@@ -77,11 +96,13 @@ class SearchViewModel @Inject constructor(
                 } else {
                     emptyList()
                 }
+                val matchingRecipes = filterMyRecipes(myRecipes, ui.query, currentMode)
                 ui.copy(
                     mode = currentMode,
                     listView = isList,
-                    empty = ui.empty && suggestions.isEmpty(),
+                    empty = ui.empty && suggestions.isEmpty() && matchingRecipes.isEmpty(),
                     suggestions = suggestions,
+                    myRecipes = matchingRecipes,
                 )
             }.collect { newState -> setState { newState } }
         }
@@ -94,10 +115,20 @@ class SearchViewModel @Inject constructor(
                     searchJob?.cancel()
                     mode.value = intent.mode
                 }
-                catalogKind = intent.filterKind
+                // A catalog term ("Highball glass") stays a glass, category or alcohol
+                // filter through Retry and the keyboard's Search key; it only becomes
+                // a plain search once the text is changed.
+                val term = normalize(intent.query)
+                if (intent.filterKind != null) {
+                    catalogKind = intent.filterKind
+                    catalogTerm = term
+                } else if (term != catalogTerm) {
+                    catalogKind = null
+                    catalogTerm = null
+                }
                 search(
                     intent.query,
-                    immediate = intent.filterKind != null || intent.commit,
+                    immediate = catalogKind != null || intent.commit,
                 )
             }
             is SearchIntent.SetMode -> setMode(intent.mode)
@@ -115,6 +146,7 @@ class SearchViewModel @Inject constructor(
             mode.value = SearchMode.INGREDIENT
         }
         catalogKind = null
+        catalogTerm = null
         search(ingredient, immediate = true)
     }
 
@@ -123,16 +155,19 @@ class SearchViewModel @Inject constructor(
         searchJob?.cancel()
         mode.value = next
         catalogKind = null
+        catalogTerm = null
         search(query.value)
     }
 
     private fun search(rawQuery: String, immediate: Boolean = false) {
-        val adjusted = rawQuery.replace("%20", " ").trim()
+        val adjusted = normalize(rawQuery)
         searchJob?.cancel()
         query.value = adjusted
         drinks.value = emptyList()
         searchText(adjusted, immediate)
     }
+
+    private fun normalize(rawQuery: String): String = rawQuery.replace("%20", " ").trim()
 
     private fun searchText(adjusted: String, immediate: Boolean) {
         if (adjusted.length < SEARCH_MIN_CHARS) {
@@ -149,6 +184,7 @@ class SearchViewModel @Inject constructor(
         }
         queried.value = true
         loading.value = true
+        errorRes.value = null
         searchJob = viewModelScope.launch {
             if (!immediate) {
                 delay(SEARCH_DEBOUNCE_MS)
@@ -165,9 +201,9 @@ class SearchViewModel @Inject constructor(
                 throw e
             } catch (e: Exception) {
                 Log.e(TAG, "Search failed", e)
-                recordCrash(e)
+                if (networkMonitor.connectionError(e) == null) recordCrash(e)
                 drinks.value = emptyList()
-                sendEffect(SearchEffect.ShowMessageRes(R.string.network_error))
+                errorRes.value = networkMonitor.errorMessageRes(e, R.string.network_error)
             } finally {
                 if (isActive) {
                     loading.value = false

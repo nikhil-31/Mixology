@@ -4,8 +4,11 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,21 +19,26 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.PlayCircle
+import androidx.compose.material.icons.outlined.RemoveShoppingCart
+import androidx.compose.material.icons.outlined.ShoppingCart
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -48,24 +56,49 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.ui.components.DrinkHeroImage
-import com.capstone.nik.mixology.ui.components.DrinkHeroImageHeight
-import com.capstone.nik.mixology.ui.components.DrinkHeroViewportHeight
+import com.capstone.nik.mixology.ui.components.FullscreenImage
+import com.capstone.nik.mixology.ui.components.HeroActionButton
+import com.capstone.nik.mixology.ui.components.SourceLink
+import com.capstone.nik.mixology.ui.components.DrinkHeroOverlap
+import com.capstone.nik.mixology.ui.components.RecipeSkeleton
+import com.capstone.nik.mixology.ui.components.rememberDrinkHeroViewportHeight
+import androidx.compose.foundation.layout.offset
+import androidx.compose.material.icons.outlined.CloudOff
+import androidx.compose.ui.semantics.Role
 import com.capstone.nik.mixology.ui.components.DrinkImage
 import com.capstone.nik.mixology.ui.components.DrinkRecipeBody
+import com.capstone.nik.mixology.ui.components.RecipeSectionTitle
 import com.capstone.nik.mixology.ui.mvi.CollectMviEffects
 import com.capstone.nik.mixology.ui.theme.MixologyDetailsTitle
 import com.capstone.nik.mixology.ui.theme.PosterBadge
+import androidx.compose.ui.platform.testTag
+import java.util.Locale
+import com.capstone.nik.mixology.repository.DrinkRating
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.material.icons.outlined.StarBorder
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.material3.Button
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import kotlinx.coroutines.delay
 
 @Composable
 fun DrinkDetailsRoute(
     drink: Drink,
     showUpNavigation: Boolean,
     onBack: () -> Unit,
+    onEditRecipe: (String) -> Unit = {},
     viewModel: DrinkDetailsViewModel = hiltViewModel(),
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     wrapInScaffold: Boolean = true,
@@ -86,6 +119,7 @@ fun DrinkDetailsRoute(
             is DrinkDetailsEffect.OpenUrl ->
                 context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(effect.url)))
             DrinkDetailsEffect.NavigateBack -> onBack()
+            is DrinkDetailsEffect.OpenRecipeEditor -> onEditRecipe(effect.recipeId)
         }
     }
 
@@ -94,8 +128,12 @@ fun DrinkDetailsRoute(
             state = state,
             onToggleSaved = { viewModel.onIntent(DrinkDetailsIntent.ToggleSaved) },
             onNotesChanged = { viewModel.onIntent(DrinkDetailsIntent.UpdateNotes(it)) },
+            onSaveNotes = { viewModel.onIntent(DrinkDetailsIntent.SaveNotes) },
             onAddToShoppingList = { viewModel.onIntent(DrinkDetailsIntent.AddToShoppingList) },
+            onRemoveFromShoppingList = { viewModel.onIntent(DrinkDetailsIntent.RemoveFromShoppingList) },
             onOpenVideo = { viewModel.onIntent(DrinkDetailsIntent.OpenVideo(it)) },
+            onRate = { viewModel.onIntent(DrinkDetailsIntent.Rate(it)) },
+            onRetry = { viewModel.onIntent(DrinkDetailsIntent.Retry) },
         )
     }
 
@@ -105,6 +143,11 @@ fun DrinkDetailsRoute(
             edgeToEdge = false,
             onBack = { viewModel.onIntent(DrinkDetailsIntent.Back) },
             onShare = { viewModel.onIntent(DrinkDetailsIntent.Share) },
+            onEdit = if (state.isUserRecipe) {
+                { viewModel.onIntent(DrinkDetailsIntent.EditRecipe) }
+            } else {
+                null
+            },
             snackbarHostState = snackbarHostState,
             content = content,
         )
@@ -121,6 +164,8 @@ fun DrinkDetailsScaffold(
     snackbarHostState: SnackbarHostState,
     content: @Composable () -> Unit,
     edgeToEdge: Boolean = showUpNavigation,
+    /** Shown for the user's own recipes. */
+    onEdit: (() -> Unit)? = null,
 ) {
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -154,6 +199,13 @@ fun DrinkDetailsScaffold(
                     )
                 }
                 Box(Modifier.weight(1f))
+                if (onEdit != null) {
+                    HeroActionButton(
+                        onClick = onEdit,
+                        contentDescription = stringResource(R.string.recipe_editor_edit_title),
+                        imageVector = Icons.Outlined.Edit,
+                    )
+                }
                 HeroActionButton(
                     onClick = onShare,
                     contentDescription = stringResource(R.string.action_detail_share),
@@ -169,24 +221,30 @@ fun DrinkDetailsContent(
     state: DrinkDetailsUiState,
     onToggleSaved: () -> Unit,
     onNotesChanged: (String) -> Unit = {},
+    onSaveNotes: () -> Unit = {},
     onAddToShoppingList: () -> Unit = {},
+    onRemoveFromShoppingList: () -> Unit = {},
     onOpenVideo: (String) -> Unit = {},
+    onRate: (Int) -> Unit = {},
+    onRetry: () -> Unit = {},
 ) {
     val drink = state.drink
     var fullscreenImage by remember { mutableStateOf(false) }
+    val heroViewport = rememberDrinkHeroViewportHeight()
     Box(modifier = Modifier.fillMaxSize()) {
         if (drink != null) {
-            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+            // The app draws edge to edge, so the scroll area has to shrink above the keyboard itself.
+            Column(modifier = Modifier.imePadding().verticalScroll(rememberScrollState())) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(DrinkHeroViewportHeight),
+                        .height(heroViewport),
                 ) {
                     DrinkHeroImage(
                         url = drink.thumb,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(DrinkHeroImageHeight),
+                            .height(heroViewport + DrinkHeroOverlap),
                         onClick = { fullscreenImage = true },
                     )
                 }
@@ -201,114 +259,256 @@ fun DrinkDetailsContent(
                         ingredients = drink.ingredients,
                         saved = state.saved,
                         onToggleSaved = onToggleSaved,
+                        showSave = !state.isUserRecipe,
+                        inBar = state.inBar,
+                        actions = {
+                            DrinkActions(
+                                onShoppingList = state.onShoppingList,
+                                video = drink.video,
+                                onAddToShoppingList = onAddToShoppingList,
+                                onRemoveFromShoppingList = onRemoveFromShoppingList,
+                                onOpenVideo = onOpenVideo,
+                            )
+                        },
                         extraBottomContent = {
-                            val video = drink.video
-                            if (!video.isNullOrBlank()) {
-                                TextButton(onClick = { onOpenVideo(video) }) {
-                                    Text(stringResource(R.string.detail_watch_video))
-                                }
-                            }
-                            if (state.saved) {
-                                TextButton(onClick = onAddToShoppingList) {
-                                    Text(stringResource(R.string.shopping_add_ingredients))
-                                }
-                                OutlinedTextField(
-                                    value = drink.notes,
-                                    onValueChange = onNotesChanged,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 20.dp, vertical = 8.dp),
-                                    label = { Text(stringResource(R.string.detail_notes)) },
-                                    minLines = 2,
+                            drink.sourceUrl?.takeIf { state.isUserRecipe }?.let { url ->
+                                SourceLink(
+                                    sourceUrl = url,
+                                    source = drink.source,
+                                    modifier = Modifier.padding(horizontal = 12.dp),
                                 )
                             }
+                            state.rating?.let { rating ->
+                                DrinkRatingSection(rating = rating, onRate = onRate)
+                            }
+                            // Every drink and recipe has a note, saved or not.
+                            DrinkNotesSection(
+                                notes = drink.notes,
+                                unsaved = state.unsavedNote,
+                                onNotesChanged = onNotesChanged,
+                                onSave = onSaveNotes,
+                            )
                         },
                     )
                 } else {
-                    Text(
-                        text = drink.name,
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
                             .background(MaterialTheme.colorScheme.surface)
-                            .padding(start = 20.dp, end = 16.dp, top = 24.dp, bottom = 24.dp),
-                        style = MixologyDetailsTitle,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
+                            .padding(bottom = 32.dp),
+                    ) {
+                        Text(
+                            text = drink.name,
+                            modifier = Modifier.padding(start = 20.dp, end = 16.dp, top = 24.dp, bottom = 20.dp),
+                            style = MixologyDetailsTitle,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                        when {
+                            state.loading -> RecipeSkeleton()
+                            state.loadFailed -> RecipeLoadFailed(onRetry = onRetry)
+                        }
+                    }
                 }
             }
         }
-        if (state.loading) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-        }
     }
     if (fullscreenImage && drink != null) {
-        FullscreenDrinkImage(
-            url = drink.thumb,
+        FullscreenImage(
+            model = drink.thumb,
+            contentDescription = stringResource(R.string.content_desc_fullscreen_drink_image),
             onDismiss = { fullscreenImage = false },
         )
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun FullscreenDrinkImage(
-    url: String?,
-    onDismiss: () -> Unit,
+private fun DrinkActions(
+    onShoppingList: Boolean,
+    video: String?,
+    onAddToShoppingList: () -> Unit,
+    onRemoveFromShoppingList: () -> Unit,
+    onOpenVideo: (String) -> Unit,
 ) {
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(
-            usePlatformDefaultWidth = false,
-            decorFitsSystemWindows = false,
-        ),
+    FlowRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 20.dp, end = 20.dp, top = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
-            DrinkImage(
-                url = url,
-                contentScale = ContentScale.Fit,
-                contentDescription = stringResource(R.string.content_desc_fullscreen_drink_image),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clickable(onClick = onDismiss),
+        FilledTonalButton(
+            onClick = if (onShoppingList) onRemoveFromShoppingList else onAddToShoppingList,
+        ) {
+            Icon(
+                imageVector = if (onShoppingList) {
+                    Icons.Outlined.RemoveShoppingCart
+                } else {
+                    Icons.Outlined.ShoppingCart
+                },
+                contentDescription = null,
+                modifier = Modifier.padding(end = 8.dp).size(18.dp),
             )
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .statusBarsPadding()
-                    .padding(horizontal = 4.dp, vertical = 4.dp)
-                    .align(Alignment.TopStart),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                HeroActionButton(
-                    onClick = onDismiss,
-                    contentDescription = stringResource(R.string.content_desc_up_navigation),
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+            Text(
+                stringResource(
+                    if (onShoppingList) {
+                        R.string.shopping_remove_ingredients
+                    } else {
+                        R.string.shopping_add_ingredients
+                    },
+                ),
+            )
+        }
+        if (!video.isNullOrBlank()) {
+            OutlinedButton(onClick = { onOpenVideo(video) }) {
+                Icon(
+                    imageVector = Icons.Outlined.PlayCircle,
+                    contentDescription = null,
+                    modifier = Modifier.padding(end = 8.dp).size(18.dp),
                 )
+                Text(stringResource(R.string.detail_watch_video))
             }
         }
     }
 }
 
+/** Shown in place of the recipe when it couldn't be fetched and nothing is cached. */
 @Composable
-private fun HeroActionButton(
-    onClick: () -> Unit,
-    contentDescription: String,
-    imageVector: ImageVector,
-) {
-    IconButton(onClick = onClick) {
-        Box(
-            modifier = Modifier
-                .size(32.dp)
-                .clip(RoundedCornerShape(20.dp))
-                .background(PosterBadge),
-            contentAlignment = Alignment.Center,
+private fun RecipeLoadFailed(onRetry: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 24.dp)
+            .testTag("detail_load_failed"),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Icon(
+            imageVector = Icons.Outlined.CloudOff,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(40.dp),
+        )
+        Text(
+            text = stringResource(R.string.detail_load_failed),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(top = 12.dp, bottom = 16.dp),
+        )
+        FilledTonalButton(onClick = onRetry) {
+            Text(stringResource(R.string.action_retry))
+        }
+    }
+}
+
+/** Everyone's average plus five stars for the user's own 1–5 rating. */
+@Composable
+private fun DrinkRatingSection(rating: DrinkRating, onRate: (Int) -> Unit) {
+    val colors = MaterialTheme.colorScheme
+    RecipeSectionTitle(stringResource(R.string.detail_rating))
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp)
+            .testTag("detail_rating"),
+    ) {
+        Text(
+            text = rating.average?.let { average ->
+                stringResource(
+                    R.string.detail_rating_average,
+                    String.format(Locale.getDefault(), "%.1f", average),
+                    pluralStringResource(R.plurals.detail_rating_count, rating.count, rating.count),
+                )
+            } ?: stringResource(R.string.detail_rating_none),
+            style = MaterialTheme.typography.bodyLarge,
+            color = colors.onSurface,
+            modifier = Modifier.testTag("detail_rating_average"),
+        )
+        Text(
+            text = stringResource(R.string.detail_rating_yours),
+            style = MaterialTheme.typography.bodyMedium,
+            color = colors.onSurfaceVariant,
+            modifier = Modifier.padding(top = 12.dp),
+        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            // Pull the first star's touch area flush with the text above.
+            modifier = Modifier.offset(x = (-10).dp),
         ) {
-            Icon(
-                imageVector = imageVector,
-                contentDescription = contentDescription,
-                modifier = Modifier.size(20.dp),
-                tint = Color.White,
-            )
+            for (stars in 1..5) {
+                val filled = (rating.mine ?: 0) >= stars
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clip(CircleShape)
+                        .clickable(role = Role.Button) { onRate(stars) }
+                        .testTag("detail_rate_$stars"),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        imageVector = if (filled) Icons.Filled.Star else Icons.Outlined.StarBorder,
+                        contentDescription = pluralStringResource(R.plurals.detail_rate_stars, stars, stars),
+                        tint = if (filled) colors.primary else colors.onSurfaceVariant,
+                        modifier = Modifier.size(28.dp),
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * The note on this drink. While it's being edited the field scrolls above the
+ * keyboard and a Save button shows; Save sends the note and closes the keyboard.
+ */
+@OptIn(ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
+@Composable
+private fun DrinkNotesSection(
+    notes: String,
+    unsaved: Boolean,
+    onNotesChanged: (String) -> Unit,
+    onSave: () -> Unit,
+) {
+    val focusManager = LocalFocusManager.current
+    val keyboard = LocalSoftwareKeyboardController.current
+    val bringIntoView = remember { BringIntoViewRequester() }
+    var focused by remember { mutableStateOf(false) }
+    val keyboardOpen = WindowInsets.isImeVisible
+    LaunchedEffect(focused, keyboardOpen) {
+        // Once the keyboard has opened and the page has shrunk, lift the field and its Save button above it.
+        if (focused && keyboardOpen) {
+            delay(150)
+            bringIntoView.bringIntoView()
+        }
+    }
+    Column(modifier = Modifier.bringIntoViewRequester(bringIntoView)) {
+        RecipeSectionTitle(stringResource(R.string.detail_notes))
+        OutlinedTextField(
+            value = notes,
+            onValueChange = onNotesChanged,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .onFocusChanged { focused = it.isFocused }
+                .testTag("detail_notes"),
+            placeholder = { Text(stringResource(R.string.detail_notes_hint)) },
+            shape = RoundedCornerShape(12.dp),
+            minLines = 2,
+        )
+        if (focused || unsaved) {
+            Button(
+                onClick = {
+                    onSave()
+                    focusManager.clearFocus()
+                    keyboard?.hide()
+                },
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .padding(horizontal = 20.dp, vertical = 8.dp)
+                    .testTag("detail_notes_save"),
+            ) {
+                Text(stringResource(R.string.detail_notes_save))
+            }
         }
     }
 }

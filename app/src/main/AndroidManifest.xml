@@ -4,15 +4,20 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <queries>
         <package android:name="com.android.vending" />
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
+        </intent>
     </queries>
 
     <application
         android:name=".Network.MyApplication"
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup_descriptor"
+        android:dataExtractionRules="@xml/data_extraction_rules"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
@@ -44,7 +49,23 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="mixology" android:host="drink" />
             </intent-filter>
+            <!-- Shared posts and links from other apps, imported as recipes. -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
         </activity>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.photos"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
         <receiver
             android:name=".Widget.DrinkWidgetProvider"
@@ -52,12 +73,20 @@
             android:label="@string/widget_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="com.capstone.nik.mixology.action.DATABASE_UPDATED" />
             </intent-filter>
 
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/cocktail_app_widget_info" />
+        </receiver>
+
+        <!-- The app's own "saved drinks changed" signal; not exported, so only the app can send it. -->
+        <receiver
+            android:name=".Widget.WidgetRefreshReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.capstone.nik.mixology.action.DATABASE_UPDATED" />
+            </intent-filter>
         </receiver>
     </application>
 </manifest>

@@ -1,0 +1,197 @@
+package com.capstone.nik.mixology.repository
+
+import android.content.Context
+import com.capstone.nik.mixology.Network.ApiErrors
+import com.capstone.nik.mixology.Network.AuthService
+import com.capstone.nik.mixology.Network.ChatHttpException
+import com.capstone.nik.mixology.Network.ChatService
+import com.capstone.nik.mixology.Network.ChatStreamEvent
+import com.capstone.nik.mixology.Network.ChatStreamer
+import com.capstone.nik.mixology.Network.NetworkMonitor
+import com.capstone.nik.mixology.Network.connectionMessage
+import com.capstone.nik.mixology.Network.remoteModel.AuthTokenResponse
+import com.capstone.nik.mixology.Network.remoteModel.ProviderLoginRequest
+import com.capstone.nik.mixology.Network.remoteModel.LoginRequest
+import com.capstone.nik.mixology.Network.remoteModel.PasswordResetRequest
+import com.capstone.nik.mixology.Network.remoteModel.SignupRequest
+import com.capstone.nik.mixology.billing.SubscriptionRepository
+import com.capstone.nik.mixology.data.Session
+import com.capstone.nik.mixology.data.SessionStore
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onEach
+import retrofit2.HttpException
+import javax.inject.Inject
+import javax.inject.Singleton
+
+@Singleton
+class NetworkChatRepository @Inject constructor(
+    private val authService: AuthService,
+    private val chatService: ChatService,
+    private val streamer: ChatStreamer,
+    private val sessionStore: SessionStore,
+    private val subscriptions: SubscriptionRepository,
+    private val networkMonitor: NetworkMonitor,
+    @ApplicationContext private val context: Context,
+) : ChatRepository {
+
+    override fun currentSession(): Session? = sessionStore.current()
+
+    override suspend fun signIn(email: String, password: String): AuthResult {
+        return authenticate(email.trim(), null) {
+            authService.login(LoginRequest(email.trim(), password))
+        }
+    }
+
+    override suspend fun signUp(email: String, password: String, displayName: String): AuthResult {
+        val name = displayName.trim().takeIf { it.isNotEmpty() }
+        return authenticate(email.trim(), name) {
+            authService.signup(SignupRequest(email.trim(), password, name))
+        }
+    }
+
+    override suspend fun requestPasswordReset(email: String): String? {
+        return try {
+            val response = authService.passwordReset(PasswordResetRequest(email.trim()))
+            if (response.isSuccessful) null else authFailureDetail(HttpException(response))
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: Exception) {
+            authFailureDetail(error)
+        }
+    }
+
+    override suspend fun signInWithGoogle(firebaseIdToken: String): AuthResult {
+        return authenticate("", null) {
+            authService.google(ProviderLoginRequest(firebaseIdToken))
+        }
+    }
+
+    override suspend fun signInWithApple(firebaseIdToken: String, displayName: String?): AuthResult {
+        return authenticate("", displayName) {
+            authService.apple(ProviderLoginRequest(firebaseIdToken, displayName))
+        }
+    }
+
+    override suspend fun history(before: Long?): ChatPage {
+        return try {
+            val page = chatService.history(limit = CHAT_PAGE_SIZE, before = before)
+            ChatPage(
+                turns = page.messages.map { message ->
+                    ChatTurn(
+                        role = message.role,
+                        content = message.content,
+                        drinks = message.drinks.orEmpty().mapNotNull { it.toDrink() },
+                        serverId = message.id,
+                        hasMore = message.hasMore,
+                        recipe = message.recipe,
+                    )
+                },
+                hasMore = page.hasMore,
+            )
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: HttpException) {
+            throw chatFailure(error.code(), error.response()?.errorBody()?.string(), error.message())
+        }
+    }
+
+    override suspend fun matches(query: String, exclude: List<String>, offset: Int): DrinkMatchPage {
+        return try {
+            val page = chatService.matches(
+                q = query,
+                exclude = exclude.joinToString(",").takeIf { it.isNotEmpty() },
+                offset = offset,
+            )
+            DrinkMatchPage(
+                query = page.query.ifEmpty { query },
+                drinks = page.drinks.mapNotNull { it.toDrink() },
+                hasMore = page.hasMore,
+            )
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: HttpException) {
+            throw chatFailure(error.code(), error.response()?.errorBody()?.string(), error.message())
+        }
+    }
+
+    override fun send(message: String, recipeAction: String?, recipeId: String?): Flow<ChatStreamEvent> =
+        guarded { streamer.stream(message, recipeAction, recipeId) }
+
+    override fun sendPhoto(jpeg: ByteArray, message: String): Flow<ChatStreamEvent> =
+        guarded { streamer.streamPhoto(jpeg, message) }
+
+    /** Ada's reply stream, keeping the session, subscription and credits in step with it. */
+    private fun guarded(stream: () -> Flow<ChatStreamEvent>): Flow<ChatStreamEvent> {
+        if (sessionStore.current() == null) {
+            return flow {
+                throw ChatHttpException(401, "Not authenticated")
+            }
+        }
+        return stream().onEach { event ->
+            if (event is ChatStreamEvent.Done) subscriptions.updateChatCredits(event.credits)
+        }.catch { error ->
+            if (error is CancellationException) throw error
+            if (error is ChatHttpException && error.code == 401) {
+                sessionStore.expire()
+            }
+            if (error is ChatHttpException && error.code == 403) {
+                subscriptions.requireSubscription()
+            }
+            if (error is ChatHttpException && error.code == 402) {
+                subscriptions.markChatCreditsSpent()
+            }
+            throw error
+        }
+    }
+
+    private suspend fun authenticate(
+        email: String,
+        displayName: String?,
+        call: suspend () -> AuthTokenResponse,
+    ): AuthResult {
+        return try {
+            val response = call()
+            if (response.idToken.isBlank()) {
+                AuthResult.Failure("Not authenticated")
+            } else {
+                val session = sessionStore.save(
+                    idToken = response.idToken,
+                    expiresInSeconds = response.expiresIn,
+                    email = response.user.email ?: email,
+                    displayName = response.user.displayName ?: displayName.orEmpty(),
+                    uid = response.user.uid,
+                    access = response.user.access,
+                    refreshToken = response.refreshToken,
+                )
+                AuthResult.Success(session)
+            }
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: Exception) {
+            AuthResult.Failure(authFailureDetail(error))
+        }
+    }
+
+    /** No answer gets a localized message; otherwise the server's `detail` or the exception's. */
+    private fun authFailureDetail(error: Exception): String {
+        networkMonitor.connectionMessage(context, error)?.let { return it }
+        if (error is HttpException) {
+            return ApiErrors.detail(error.response()?.errorBody()?.string(), error.message())
+        }
+        return error.message.orEmpty()
+    }
+
+    private fun chatFailure(code: Int, body: String?, fallback: String): ChatHttpException {
+        if (code == 401) sessionStore.expire()
+        // 403 means the trial is over and there is no subscription.
+        if (code == 403) subscriptions.requireSubscription()
+        return ChatHttpException(code, ApiErrors.detail(body, fallback))
+    }
+}
+
+/** Messages per chat page; enough to fill a screen with some to scroll. */
+private const val CHAT_PAGE_SIZE = 20

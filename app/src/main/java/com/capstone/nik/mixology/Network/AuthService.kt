@@ -1,0 +1,35 @@
+package com.capstone.nik.mixology.Network
+
+import com.capstone.nik.mixology.Network.remoteModel.AuthTokenResponse
+import com.capstone.nik.mixology.Network.remoteModel.ProviderLoginRequest
+import com.capstone.nik.mixology.Network.remoteModel.RefreshRequest
+import com.capstone.nik.mixology.Network.remoteModel.LoginRequest
+import com.capstone.nik.mixology.Network.remoteModel.PasswordResetRequest
+import com.capstone.nik.mixology.Network.remoteModel.SignupRequest
+import retrofit2.Response
+import retrofit2.http.Body
+import retrofit2.http.POST
+
+interface AuthService {
+    @POST("auth/login")
+    suspend fun login(@Body body: LoginRequest): AuthTokenResponse
+
+    @POST("auth/signup")
+    suspend fun signup(@Body body: SignupRequest): AuthTokenResponse
+
+    /** Emails a reset link if the address has a password account. Always 204, so it never says who has one. */
+    @POST("auth/password-reset")
+    suspend fun passwordReset(@Body body: PasswordResetRequest): Response<Unit>
+
+    /** Exchanges a Firebase ID token from Google sign-in for a backend session. */
+    @POST("auth/google")
+    suspend fun google(@Body body: ProviderLoginRequest): AuthTokenResponse
+
+    /** Exchanges a Firebase ID token from Sign in with Apple for a backend session. */
+    @POST("auth/apple")
+    suspend fun apple(@Body body: ProviderLoginRequest): AuthTokenResponse
+
+    /** A new session for the account the refresh token belongs to; 401 when it is unknown or revoked. */
+    @POST("auth/refresh")
+    suspend fun refresh(@Body body: RefreshRequest): AuthTokenResponse
+}

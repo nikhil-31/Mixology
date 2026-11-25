@@ -2,8 +2,23 @@ package com.capstone.nik.mixology.di
 
 import android.content.Context
 import com.capstone.nik.mixology.BuildConfig
+import com.capstone.nik.mixology.Network.AccountService
+import com.capstone.nik.mixology.Network.AuthService
+import com.capstone.nik.mixology.Network.BillingService
+import com.capstone.nik.mixology.Network.RatingService
+import com.capstone.nik.mixology.Network.RecipeService
+import com.capstone.nik.mixology.Network.BarService
+import com.capstone.nik.mixology.Network.SavedService
+import com.capstone.nik.mixology.Network.ShoppingService
+import com.capstone.nik.mixology.Network.ShoppingTripService
+import com.capstone.nik.mixology.Network.ChatService
 import com.capstone.nik.mixology.Network.CocktailService
 import com.capstone.nik.mixology.Network.CocktailURLs
+import com.capstone.nik.mixology.Network.NetworkMonitor
+import com.capstone.nik.mixology.Network.ReachabilityInterceptor
+import com.capstone.nik.mixology.Network.SessionAuthInterceptor
+import com.capstone.nik.mixology.Network.TokenRefresher
+import com.capstone.nik.mixology.data.SessionStore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -24,19 +39,59 @@ object NetworkModule {
 
     private const val CACHE_SIZE_BYTES = 10L * 1024 * 1024
     private const val TIMEOUT_SECONDS = 15L
+    private const val CHAT_READ_TIMEOUT_MINUTES = 3L
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(@ApplicationContext context: Context): OkHttpClient {
+    fun provideOkHttpClient(
+        @ApplicationContext context: Context,
+        networkMonitor: NetworkMonitor,
+    ): OkHttpClient {
         val builder = OkHttpClient.Builder()
             .cache(Cache(File(context.cacheDir, "http_cache"), CACHE_SIZE_BYTES))
             .connectTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .readTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .writeTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .addInterceptor(ReachabilityInterceptor(networkMonitor))
         if (BuildConfig.DEBUG) {
-            builder.addInterceptor(
-                HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BASIC },
-            )
+            builder.addInterceptor(loggingInterceptor())
+        }
+        return builder.build()
+    }
+
+    /** For photos on other sites: no reachability reporting, since their faults say nothing about our server. */
+    @Provides
+    @Singleton
+    @ImageClient
+    fun provideImageClient(@ApplicationContext context: Context): OkHttpClient {
+        val builder = OkHttpClient.Builder()
+            .cache(Cache(File(context.cacheDir, "image_http_cache"), CACHE_SIZE_BYTES))
+            .connectTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .readTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .writeTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
+        if (BuildConfig.DEBUG) {
+            builder.addInterceptor(loggingInterceptor())
+        }
+        return builder.build()
+    }
+
+    @Provides
+    @Singleton
+    @AuthenticatedClient
+    fun provideAuthenticatedClient(
+        sessionStore: SessionStore,
+        networkMonitor: NetworkMonitor,
+        refresher: TokenRefresher,
+    ): OkHttpClient {
+        // ChatStreamer uses this client too, so the chat stream reports reachability.
+        val builder = OkHttpClient.Builder()
+            .connectTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .readTimeout(CHAT_READ_TIMEOUT_MINUTES, TimeUnit.MINUTES)
+            .writeTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .addInterceptor(ReachabilityInterceptor(networkMonitor))
+            .addInterceptor(SessionAuthInterceptor(sessionStore, refresher))
+        if (BuildConfig.DEBUG) {
+            builder.addInterceptor(loggingInterceptor())
         }
         return builder.build()
     }
@@ -44,11 +99,78 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideCocktailService(client: OkHttpClient): CocktailService {
+        return retrofit(client).create(CocktailService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAuthService(client: OkHttpClient): AuthService {
+        return retrofit(client).create(AuthService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideChatService(@AuthenticatedClient client: OkHttpClient): ChatService {
+        return retrofit(client).create(ChatService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideRatingService(@AuthenticatedClient client: OkHttpClient): RatingService {
+        return retrofit(client).create(RatingService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideRecipeService(@AuthenticatedClient client: OkHttpClient): RecipeService {
+        return retrofit(client).create(RecipeService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSavedService(@AuthenticatedClient client: OkHttpClient): SavedService {
+        return retrofit(client).create(SavedService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideBarService(@AuthenticatedClient client: OkHttpClient): BarService {
+        return retrofit(client).create(BarService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideShoppingService(@AuthenticatedClient client: OkHttpClient): ShoppingService {
+        return retrofit(client).create(ShoppingService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideShoppingTripService(@AuthenticatedClient client: OkHttpClient): ShoppingTripService {
+        return retrofit(client).create(ShoppingTripService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAccountService(@AuthenticatedClient client: OkHttpClient): AccountService {
+        return retrofit(client).create(AccountService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideBillingService(@AuthenticatedClient client: OkHttpClient): BillingService {
+        return retrofit(client).create(BillingService::class.java)
+    }
+
+    private fun retrofit(client: OkHttpClient): Retrofit {
         return Retrofit.Builder()
             .baseUrl(CocktailURLs.BASE_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(CocktailService::class.java)
+    }
+
+    private fun loggingInterceptor(): HttpLoggingInterceptor {
+        return HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BASIC }
     }
 }

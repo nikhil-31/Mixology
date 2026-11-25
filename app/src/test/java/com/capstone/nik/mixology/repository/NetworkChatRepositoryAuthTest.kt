@@ -1,0 +1,135 @@
+package com.capstone.nik.mixology.repository
+
+import android.app.Application
+import androidx.test.core.app.ApplicationProvider
+import com.capstone.nik.mixology.FakeRecipeService
+import com.capstone.nik.mixology.Network.AuthService
+import com.capstone.nik.mixology.Network.ChatService
+import com.capstone.nik.mixology.Network.ChatStreamer
+import com.capstone.nik.mixology.Network.NetworkMonitor
+import com.capstone.nik.mixology.Network.remoteModel.AuthTokenResponse
+import com.capstone.nik.mixology.Network.remoteModel.ChatHistoryResponse
+import com.capstone.nik.mixology.Network.remoteModel.ChatMatchesResponse
+import com.capstone.nik.mixology.Network.remoteModel.LoginRequest
+import com.capstone.nik.mixology.Network.remoteModel.ProviderLoginRequest
+import com.capstone.nik.mixology.Network.remoteModel.PasswordResetRequest
+import com.capstone.nik.mixology.Network.remoteModel.RefreshRequest
+import com.capstone.nik.mixology.Network.remoteModel.SignupRequest
+import com.capstone.nik.mixology.billing.FakeBillingService
+import com.capstone.nik.mixology.billing.FakeStoreBilling
+import com.capstone.nik.mixology.billing.SubscriptionRepository
+import com.capstone.nik.mixology.data.SessionStore
+import kotlinx.coroutines.test.runTest
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.ResponseBody.Companion.toResponseBody
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+import retrofit2.Response
+import java.net.ConnectException
+
+@RunWith(RobolectricTestRunner::class)
+@Config(application = Application::class, sdk = [34])
+class NetworkChatRepositoryAuthTest {
+
+    private val context = ApplicationProvider.getApplicationContext<Application>()
+    private val auth = FailingAuthService()
+
+    @Test
+    fun signIn_offline_isTheLocalizedOfflineMessage() = runTest {
+        auth.failure = ConnectException("Failed to connect to /10.0.2.2:8000")
+
+        val result = repository(online = false).signIn("ada@example.com", "secret")
+
+        assertEquals(AuthResult.Failure("You’re offline. Check your connection and try again."), result)
+    }
+
+    @Test
+    fun signIn_serverDown_isTheLocalizedUnreachableMessage() = runTest {
+        auth.failure = ConnectException("Failed to connect to /10.0.2.2:8000")
+
+        val result = repository(online = true).signIn("ada@example.com", "secret")
+
+        assertEquals(AuthResult.Failure("Can’t reach Mixology right now. Try again in a moment."), result)
+    }
+
+    @Test
+    fun signIn_serverRefusal_keepsTheServerDetail() = runTest {
+        auth.failure = FakeRecipeService.httpError(401, "Wrong email or password")
+
+        val result = repository(online = true).signIn("ada@example.com", "secret")
+
+        assertEquals(AuthResult.Failure("Wrong email or password"), result)
+    }
+
+    @Test
+    fun passwordReset_sendsTheTrimmedEmailAndReportsNothingWhenSent() = runTest {
+        auth.resetResponse = Response.success(Unit)
+
+        val error = repository(online = true).requestPasswordReset("  ada@example.com ")
+
+        assertNull(error)
+        assertEquals(listOf("ada@example.com"), auth.resetEmails)
+    }
+
+    @Test
+    fun passwordReset_refused_isTheServerDetail() = runTest {
+        auth.resetResponse = Response.error(
+            429,
+            """{"detail":"Too many requests. Try again later."}""".toResponseBody("application/json".toMediaType()),
+        )
+
+        val error = repository(online = true).requestPasswordReset("ada@example.com")
+
+        assertEquals("Too many requests. Try again later.", error)
+    }
+
+    @Test
+    fun passwordReset_offline_isTheLocalizedOfflineMessage() = runTest {
+        auth.failure = ConnectException("Failed to connect to /10.0.2.2:8000")
+
+        val error = repository(online = false).requestPasswordReset("ada@example.com")
+
+        assertEquals("You’re offline. Check your connection and try again.", error)
+    }
+
+    private fun repository(online: Boolean): NetworkChatRepository {
+        val sessions = SessionStore(context).also { it.clear() }
+        return NetworkChatRepository(
+            authService = auth,
+            chatService = UnusedChatService,
+            streamer = ChatStreamer(OkHttpClient()),
+            sessionStore = sessions,
+            subscriptions = SubscriptionRepository(FakeBillingService(), FakeStoreBilling(), sessions),
+            networkMonitor = NetworkMonitor.forTests(online = online),
+            context = context,
+        )
+    }
+}
+
+private class FailingAuthService : AuthService {
+    var failure: Exception = IllegalStateException("unset")
+    /** What a password reset answers; null makes it throw [failure] like the other calls. */
+    var resetResponse: Response<Unit>? = null
+    val resetEmails = mutableListOf<String>()
+
+    override suspend fun login(body: LoginRequest): AuthTokenResponse = throw failure
+    override suspend fun signup(body: SignupRequest): AuthTokenResponse = throw failure
+    override suspend fun google(body: ProviderLoginRequest): AuthTokenResponse = throw failure
+    override suspend fun apple(body: ProviderLoginRequest): AuthTokenResponse = throw failure
+    override suspend fun refresh(body: RefreshRequest): AuthTokenResponse = throw failure
+    override suspend fun passwordReset(body: PasswordResetRequest): Response<Unit> {
+        resetEmails += body.email
+        return resetResponse ?: throw failure
+    }
+}
+
+private object UnusedChatService : ChatService {
+    override suspend fun history(limit: Int?, before: Long?): ChatHistoryResponse = error("unused")
+    override suspend fun matches(q: String, exclude: String?, offset: Int, limit: Int?): ChatMatchesResponse =
+        error("unused")
+}

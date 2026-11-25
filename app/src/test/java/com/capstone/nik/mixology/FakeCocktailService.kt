@@ -1,47 +1,76 @@
 package com.capstone.nik.mixology
 
 import com.capstone.nik.mixology.Network.CocktailService
+import com.capstone.nik.mixology.Network.remoteModel.ApiBarAlmost
+import com.capstone.nik.mixology.Network.remoteModel.ApiBarRecommendations
+import com.capstone.nik.mixology.Network.remoteModel.ApiDrink
+import com.capstone.nik.mixology.Network.remoteModel.ApiIngredient
 import com.capstone.nik.mixology.Network.remoteModel.CatalogListItem
 import com.capstone.nik.mixology.Network.remoteModel.CatalogListResponse
 import com.capstone.nik.mixology.Network.remoteModel.CocktailDbDrink
 import com.capstone.nik.mixology.Network.remoteModel.CocktailDbResponse
+import com.capstone.nik.mixology.data.Drink
+import com.capstone.nik.mixology.repository.BarMatcher
+import java.net.ConnectException
 
 class FakeCocktailService : CocktailService {
     var alcohol = CocktailDbResponse()
     var glass = CocktailDbResponse()
     var ingredient = CocktailDbResponse()
     var drinkType = CocktailDbResponse()
+    var alcoholByQuery: Map<String, CocktailDbResponse> = emptyMap()
+    var glassByQuery: Map<String, CocktailDbResponse> = emptyMap()
+    var ingredientsByQuery: Map<String, CocktailDbResponse> = emptyMap()
     var drinkTypesByQuery: Map<String, CocktailDbResponse> = emptyMap()
     var search = CocktailDbResponse()
-    var random = CocktailDbResponse()
     var lookup = CocktailDbResponse()
+    var lookupsById: Map<String, CocktailDbResponse> = emptyMap()
     var letter = CocktailDbResponse()
     var categories = CatalogListResponse()
     var glasses = CatalogListResponse()
     var ingredients = CatalogListResponse()
     var alcoholic = CatalogListResponse()
+    /** `GET /ingredients`; empty, as from a server without it, leaves the picker on [ingredients]. */
+    var barIngredients: List<ApiIngredient> = emptyList()
+    var recommendationDrinks: List<Drink> = emptyList()
+    var failRecommendations = false
+    var recommendationCalls = 0
     var failLookup = false
-    var failRandom = false
+    /** Catalog lists and filters fail as if the server can't be reached while set. */
+    var failWithIo = false
+    val lookedUp = mutableListOf<String>()
 
-    override suspend fun getAlcoholFilter(filter: String) = alcohol
-    override suspend fun getGlassFilter(filter: String) = glass
-    override suspend fun getIngredientFilter(filter: String) = ingredient
-    override suspend fun getDrinkTypeFilter(filter: String) =
-        drinkTypesByQuery[filter] ?: drinkType
+    override suspend fun getAlcoholFilter(filter: String) = io { alcoholByQuery[filter] ?: alcohol }
+    override suspend fun getGlassFilter(filter: String) = io { glassByQuery[filter] ?: glass }
+    override suspend fun getIngredientFilter(filter: String) = io { ingredientsByQuery[filter] ?: ingredient }
+    override suspend fun getDrinkTypeFilter(filter: String) = io { drinkTypesByQuery[filter] ?: drinkType }
     override suspend fun getSearchResults(search: String) = this.search
-    override suspend fun getRandomixer(): CocktailDbResponse {
-        if (failRandom) error("should not hit random.php")
-        return random
-    }
     override suspend fun getDrinkById(id: String): CocktailDbResponse {
+        lookedUp += id
         if (failLookup) error("lookup failed")
-        return lookup
+        return lookupsById[id] ?: lookup
     }
     override suspend fun getSearchByLetter(letter: String) = this.letter
-    override suspend fun listCategories(list: String) = categories
-    override suspend fun listGlasses(list: String) = glasses
-    override suspend fun listIngredients(list: String) = ingredients
-    override suspend fun listAlcoholic(list: String) = alcoholic
+    override suspend fun listCategories(list: String) = io { categories }
+    override suspend fun listGlasses(list: String) = io { glasses }
+    override suspend fun listIngredients(list: String) = io { ingredients }
+    override suspend fun listAlcoholic(list: String) = io { alcoholic }
+    override suspend fun ingredients(): List<ApiIngredient> = io { barIngredients }
+    override suspend fun getBarRecommendations(ingredients: List<String>): ApiBarRecommendations {
+        recommendationCalls++
+        if (failRecommendations) error("recommendations failed")
+        val result = BarMatcher.recommend(recommendationDrinks, ingredients)
+        return ApiBarRecommendations(
+            ingredients = ingredients,
+            makeable = result.makeable.map { it.toApiDrink() },
+            almost = result.almost.map { ApiBarAlmost(it.drink.toApiDrink(), it.missing) },
+        )
+    }
+
+    private fun <T> io(value: () -> T): T {
+        if (failWithIo) throw ConnectException("Failed to connect to /10.0.2.2:8000")
+        return value()
+    }
 }
 
 fun cocktailDrink(
@@ -61,4 +90,17 @@ fun cocktailDrink(
 
 fun catalog(vararg names: String) = CatalogListResponse(
     drinks = names.map { CatalogListItem(strIngredient1 = it) },
+)
+
+private fun Drink.toApiDrink() = ApiDrink(
+    id = id,
+    name = name,
+    thumb = thumb,
+    alcoholic = alcoholic,
+    glass = glass,
+    category = category,
+    iba = iba,
+    instructions = instructions,
+    video = video,
+    ingredients = ingredients,
 )

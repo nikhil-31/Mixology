@@ -42,7 +42,7 @@ class DrinkGridScreenTest {
             }
         }
 
-        composeRule.onNodeWithText("Add a drink !!! Its lonely here.").assertIsDisplayed()
+        composeRule.onNodeWithText("No saved drinks yet").assertIsDisplayed()
     }
 
     @Test
@@ -58,7 +58,7 @@ class DrinkGridScreenTest {
             }
         }
 
-        composeRule.onNodeWithText("Add a drink !!! Its lonely here.").assertDoesNotExist()
+        composeRule.onNodeWithText("No saved drinks yet").assertDoesNotExist()
     }
 
     @Test

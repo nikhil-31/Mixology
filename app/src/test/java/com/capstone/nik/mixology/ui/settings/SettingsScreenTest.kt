@@ -2,13 +2,22 @@ package com.capstone.nik.mixology.ui.settings
 
 import android.app.Application
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import com.capstone.nik.mixology.billing.Access
+import com.capstone.nik.mixology.billing.ChatCredits
 import com.capstone.nik.mixology.ui.theme.MixologyTheme
 import com.capstone.nik.mixology.ui.theme.ThemeMode
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,32 +45,103 @@ class SettingsScreenTest {
             }
         }
 
-        composeRule.onNodeWithText("Appearance").assertIsDisplayed()
+        composeRule.onNodeWithText("APPEARANCE").assertIsDisplayed()
         composeRule.onNodeWithText("System default").assertIsDisplayed()
         composeRule.onNodeWithText("Light").assertIsDisplayed()
         composeRule.onNodeWithText("Dark").assertIsDisplayed()
         composeRule.onNodeWithTag("settings_theme_dark").performClick()
         composeRule.onNodeWithTag("settings_theme_light").performClick()
-        composeRule.onNodeWithText("Shopping list").assertIsDisplayed()
+        // The shopping list is a bottom tab now, not a Settings row.
+        composeRule.onNodeWithText("Shopping list").assertDoesNotExist()
 
         assertEquals(listOf(ThemeMode.DARK, ThemeMode.LIGHT), selected)
     }
 
     @Test
-    fun shoppingList_reportsClicks() {
-        var shopping = 0
+    fun chatCredits_showWhatIsLeftAndWhenTheyReset() {
         composeRule.setContent {
             MixologyTheme {
                 SettingsScreen(
                     themeMode = ThemeMode.SYSTEM,
                     onThemeModeSelected = {},
-                    onShoppingList = { shopping += 1 },
+                    access = Access.Trial(3),
+                    // 2026-11-01T00:00:00Z
+                    chatCredits = ChatCredits(488, 500, java.util.Date(1_793_491_200_000L)),
                 )
             }
         }
 
-        composeRule.onNodeWithTag("settings_shopping_list").performClick()
-        assertEquals(1, shopping)
+        composeRule.onNodeWithTag("settings_chat_credits").assertIsDisplayed()
+        composeRule.onNodeWithText("488 of 500 Ada credits left").assertIsDisplayed()
+        composeRule.onNodeWithText("Resets Nov 1").assertIsDisplayed()
+    }
+
+    @Test
+    fun chatCredits_hiddenWithoutPremiumOrCredits() {
+        var access by mutableStateOf<Access>(Access.Free)
+        var credits by mutableStateOf<ChatCredits?>(ChatCredits(488, 500, null))
+        composeRule.setContent {
+            MixologyTheme {
+                SettingsScreen(
+                    themeMode = ThemeMode.SYSTEM,
+                    onThemeModeSelected = {},
+                    access = access,
+                    chatCredits = credits,
+                )
+            }
+        }
+        composeRule.onNodeWithTag("settings_chat_credits").assertDoesNotExist()
+
+        access = Access.Subscribed(null, null)
+        credits = null
+        composeRule.onNodeWithTag("settings_chat_credits").assertDoesNotExist()
+    }
+
+    @Test
+    fun discover_reportsClicks() {
+        var discover = 0
+        composeRule.setContent {
+            MixologyTheme {
+                SettingsScreen(
+                    themeMode = ThemeMode.SYSTEM,
+                    onThemeModeSelected = {},
+                    onDiscover = { discover += 1 },
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("Discover").assertIsDisplayed()
+        composeRule.onNodeWithTag("settings_discover").performClick()
+        assertEquals(1, discover)
+    }
+
+    @Test
+    fun saved_reportsClicks() {
+        var saved = 0
+        composeRule.setContent {
+            MixologyTheme {
+                SettingsScreen(
+                    themeMode = ThemeMode.SYSTEM,
+                    onThemeModeSelected = {},
+                    onSaved = { saved += 1 },
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("Saved Cocktails").assertIsDisplayed()
+        composeRule.onNodeWithTag("settings_saved").performClick()
+        assertEquals(1, saved)
+    }
+
+    @Test
+    fun shoppingList_isATabNotASettingsRow() {
+        composeRule.setContent {
+            MixologyTheme {
+                SettingsScreen(themeMode = ThemeMode.SYSTEM, onThemeModeSelected = {})
+            }
+        }
+
+        composeRule.onNodeWithTag("settings_shopping_list").assertDoesNotExist()
     }
 
     @Test
@@ -79,10 +159,123 @@ class SettingsScreenTest {
             }
         }
 
-        composeRule.onNodeWithText("Google Play").assertIsDisplayed()
+        composeRule.onNodeWithText("GOOGLE PLAY").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithTag("settings_check_for_updates").performClick()
         composeRule.onNodeWithTag("settings_rate_app").performClick()
         assertEquals(1, updates)
         assertEquals(1, rate)
+    }
+
+    @Test
+    fun importRecipeRow_reportsClicks() {
+        var imports = 0
+        composeRule.setContent {
+            MixologyTheme {
+                SettingsScreen(
+                    themeMode = ThemeMode.SYSTEM,
+                    onThemeModeSelected = {},
+                    onImportRecipe = { imports += 1 },
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("settings_import_recipe").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Import recipe").assertIsDisplayed()
+        composeRule.onNodeWithTag("settings_import_recipe").performClick()
+        assertEquals(1, imports)
+    }
+
+    @Test
+    fun replayTourRow_reportsClicks() {
+        var replays = 0
+        composeRule.setContent {
+            MixologyTheme {
+                SettingsScreen(
+                    themeMode = ThemeMode.SYSTEM,
+                    onThemeModeSelected = {},
+                    onReplayTour = { replays += 1 },
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("settings_replay_tour").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Replay welcome tour").assertIsDisplayed()
+        composeRule.onNodeWithTag("settings_replay_tour").performClick()
+        assertEquals(1, replays)
+    }
+
+    @Test
+    fun signOut_asksFirstAndOnlySignsOutOnConfirm() {
+        var signedOut = false
+        composeRule.setContent {
+            MixologyTheme {
+                SettingsScreen(
+                    themeMode = ThemeMode.SYSTEM,
+                    onThemeModeSelected = {},
+                    accountEmail = "ada@example.com",
+                    onSignOut = { signedOut = true },
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("settings_sign_out").performClick()
+        composeRule.onNodeWithText("Sign out?").assertIsDisplayed()
+        composeRule.onNodeWithText("Cancel").performClick()
+        assertFalse(signedOut)
+        composeRule.onNodeWithText("Sign out?").assertDoesNotExist()
+
+        composeRule.onNodeWithTag("settings_sign_out").performClick()
+        composeRule.onNodeWithTag("settings_sign_out_confirm").performClick()
+        assertTrue(signedOut)
+    }
+
+    @Test
+    fun deleteAccount_warnsThenReportsConfirm() {
+        var deleted = false
+        composeRule.setContent {
+            MixologyTheme {
+                SettingsScreen(
+                    themeMode = ThemeMode.SYSTEM,
+                    onThemeModeSelected = {},
+                    accountEmail = "ada@example.com",
+                    onDeleteAccount = { deleted = true },
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("settings_delete_account").performScrollTo().performClick()
+        composeRule.onNodeWithText("Delete your account?").assertIsDisplayed()
+        assertFalse(deleted)
+        composeRule.onNodeWithTag("settings_delete_account_confirm").performClick()
+        assertTrue(deleted)
+        composeRule.onNodeWithText("Delete your account?").assertDoesNotExist()
+    }
+
+    @Test
+    fun exportData_reportsClick_andRowsLockWhileBusy() {
+        var exports = 0
+        var busy by mutableStateOf(false)
+        composeRule.setContent {
+            MixologyTheme {
+                SettingsScreen(
+                    themeMode = ThemeMode.SYSTEM,
+                    onThemeModeSelected = {},
+                    accountEmail = "ada@example.com",
+                    onExportData = { exports += 1 },
+                    accountBusy = busy,
+                    accountError = if (busy) null else "Couldn’t export your data. Try again in a moment.",
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("settings_export_data").performScrollTo().performClick()
+        assertEquals(1, exports)
+        composeRule.onNodeWithTag("settings_account_error").assertIsDisplayed()
+
+        busy = true
+        composeRule.onNodeWithTag("settings_account_progress").assertIsDisplayed()
+        composeRule.onNodeWithTag("settings_export_data").assertIsNotEnabled()
+        composeRule.onNodeWithTag("settings_delete_account").assertIsNotEnabled()
+        composeRule.onNodeWithTag("settings_account_error").assertDoesNotExist()
     }
 }

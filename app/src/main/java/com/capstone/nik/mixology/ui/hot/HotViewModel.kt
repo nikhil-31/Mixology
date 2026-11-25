@@ -6,10 +6,12 @@ import com.capstone.nik.mixology.recordCrash
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.Network.NetworkMonitor
+import com.capstone.nik.mixology.Network.connectionError
 import com.capstone.nik.mixology.repository.DrinkRepository
 import com.capstone.nik.mixology.repository.FilterKind
 import com.capstone.nik.mixology.ui.mvi.MviViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.combine
@@ -39,6 +41,10 @@ class HotViewModel @Inject constructor(
             is HotIntent.ToggleSaved -> toggleSaved(intent.item)
             is HotIntent.OpenDrink -> sendEffect(HotEffect.OpenDrink(intent.drink))
             is HotIntent.SeeAll -> sendEffect(HotEffect.OpenFilter(intent.filter))
+            HotIntent.Retry -> {
+                setState { copy(error = null) }
+                networkMonitor.retry()
+            }
         }
     }
 
@@ -80,9 +86,13 @@ class HotViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 repository.refreshCatalogs()
+                setState { copy(error = null) }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to refresh catalogs", e)
                 recordCrash(e)
+                onFailure(e)
             }
         }
         val filters = currentState.categories
@@ -97,12 +107,22 @@ class HotViewModel @Inject constructor(
             viewModelScope.launch {
                 try {
                     repository.fetchAndCache(filter)
+                    setState { copy(error = null) }
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to refresh ${filter.name}", e)
                     recordCrash(e)
+                    onFailure(e)
                 }
             }
         }
+    }
+
+    /** Keeps a connection error a sibling request already reported. */
+    private fun onFailure(error: Exception) {
+        val connection = networkMonitor.connectionError(error) ?: return
+        setState { copy(error = connection) }
     }
 
     private fun toggleSaved(item: Drink) {

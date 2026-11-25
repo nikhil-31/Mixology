@@ -27,6 +27,10 @@ class NetworkMonitor internal constructor(
     private val _online = MutableStateFlow(currentlyOnline())
     val online: StateFlow<Boolean> = _online.asStateFlow()
 
+    private val _serverReachable = MutableStateFlow(true)
+    /** False after a request got no answer from the server, until one does. */
+    val serverReachable: StateFlow<Boolean> = _serverReachable.asStateFlow()
+
     private val _retries = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     val retries: SharedFlow<Unit> = _retries.asSharedFlow()
 
@@ -56,6 +60,14 @@ class NetworkMonitor internal constructor(
     fun retry() {
         _online.value = currentlyOnline()
         _retries.tryEmit(Unit)
+    }
+
+    fun markReachable() {
+        _serverReachable.value = true
+    }
+
+    fun markUnreachable() {
+        _serverReachable.value = false
     }
 
     private fun currentlyOnline(): Boolean {

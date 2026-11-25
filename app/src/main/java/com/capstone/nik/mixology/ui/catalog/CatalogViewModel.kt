@@ -5,11 +5,14 @@ import androidx.lifecycle.viewModelScope
 import com.capstone.nik.mixology.data.DrinkFilter
 import com.capstone.nik.mixology.recordCrash
 import com.capstone.nik.mixology.Network.NetworkMonitor
+import com.capstone.nik.mixology.Network.connectionError
 import com.capstone.nik.mixology.repository.DrinkRepository
 import com.capstone.nik.mixology.repository.FilterKind
 import com.capstone.nik.mixology.ui.mvi.MviViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -51,32 +54,45 @@ class CatalogViewModel @Inject constructor(
             is CatalogIntent.OpenTerm -> sendEffect(
                 CatalogEffect.OpenFilter(DrinkFilter.dynamic(currentState.kind, intent.term)),
             )
+            CatalogIntent.Refresh -> refresh(fromUser = true)
+            CatalogIntent.Retry -> {
+                setState { copy(loading = true, error = null) }
+                networkMonitor.retry()
+            }
         }
     }
 
     private fun observe(kind: FilterKind) {
         observeJob?.cancel()
         observeJob = viewModelScope.launch {
-            repository.observeCatalog(kind).collect { terms ->
+            combine(repository.observeCatalog(kind), repository.observeBar()) { terms, bar ->
+                terms to bar.map { it.lowercase() }.toSet()
+            }.collect { (terms, bar) ->
                 setState {
                     if (this.kind != kind) {
                         this
                     } else {
-                        withCatalogTerms(terms)
+                        withCatalogTerms(terms).copy(bar = bar)
                     }
                 }
             }
         }
     }
 
-    private fun refresh() {
+    private fun refresh(fromUser: Boolean = false) {
         viewModelScope.launch {
+            if (fromUser) setState { copy(refreshing = true) }
             try {
                 repository.refreshCatalogs()
+                setState { copy(loading = false, error = null) }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to refresh catalogs", e)
                 recordCrash(e)
-                setState { copy(loading = false) }
+                setState { copy(loading = false, error = networkMonitor.connectionError(e)) }
+            } finally {
+                if (fromUser) setState { copy(refreshing = false) }
             }
         }
     }

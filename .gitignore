@@ -4,8 +4,12 @@
 /keystore.properties
 /keystore.mix.properties
 *.jks
-/.idea/workspace.xml
-/.idea/libraries
+# IDE: keep only shared code style, inspections, run configs and VCS mapping
+/.idea/*
+!/.idea/codeStyles/
+!/.idea/inspectionProfiles/
+!/.idea/runConfigurations.xml
+!/.idea/vcs.xml
 .DS_Store
 /build
 /captures
@@ -16,3 +20,8 @@ graphify-out/cache/
 graphify-out/cost.json
 graphify-out/.graphify_labels.json.sig
 graphify-out/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]/
+
+# Local tooling and crash logs
+/.claude/
+__pycache__/
+replay_pid*.log

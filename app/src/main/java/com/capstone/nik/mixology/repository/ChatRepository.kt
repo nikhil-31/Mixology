@@ -1,0 +1,70 @@
+package com.capstone.nik.mixology.repository
+
+import com.capstone.nik.mixology.Network.ChatStreamEvent
+import com.capstone.nik.mixology.Network.remoteModel.ChatRecipeDto
+import com.capstone.nik.mixology.data.Drink
+import com.capstone.nik.mixology.data.Session
+import kotlinx.coroutines.flow.Flow
+
+data class ChatTurn(
+    val role: String,
+    val content: String,
+    val drinks: List<Drink> = emptyList(),
+    /** Server message id, used to page backwards; 0 when unknown. */
+    val serverId: Long = 0,
+    /** More drinks match than this assistant reply shows. */
+    val hasMore: Boolean = false,
+    /** A recipe Ada read from a link or photo in this reply. */
+    val recipe: ChatRecipeDto? = null,
+)
+
+/** One page of chat, oldest first. [hasMore] means older messages remain. */
+data class ChatPage(
+    val turns: List<ChatTurn>,
+    val hasMore: Boolean,
+)
+
+/** One page of drinks for Ada's Show more list. [hasMore] means more follow. */
+data class DrinkMatchPage(
+    /** The search listed, which can differ from the request when it was "Show more". */
+    val query: String,
+    val drinks: List<Drink>,
+    val hasMore: Boolean,
+)
+
+sealed interface AuthResult {
+    data class Success(val session: Session) : AuthResult
+    data class Failure(val detail: String) : AuthResult
+}
+
+interface ChatRepository {
+    fun currentSession(): Session?
+
+    suspend fun signIn(email: String, password: String): AuthResult
+
+    suspend fun signUp(email: String, password: String, displayName: String): AuthResult
+
+    /** Emails a password-reset link to [email]. Returns why it couldn't, or null once the request was accepted. */
+    suspend fun requestPasswordReset(email: String): String?
+
+    /** Trades a Firebase ID token from Google sign-in for a backend session. */
+    suspend fun signInWithGoogle(firebaseIdToken: String): AuthResult
+
+    /** Trades a Firebase ID token from Sign in with Apple for a backend session. */
+    suspend fun signInWithApple(firebaseIdToken: String, displayName: String?): AuthResult
+
+    /** The newest page of chat, or the page just before message id [before]. */
+    suspend fun history(before: Long? = null): ChatPage
+
+    /** Drinks that fit [query], leaving out [exclude], starting at [offset]. */
+    suspend fun matches(query: String, exclude: List<String>, offset: Int): DrinkMatchPage
+
+    /**
+     * Sends [message]. With [recipeAction] (`save`, `drop`, `saved`) the server acts on the
+     * recipe it last read instead of reading the words; [recipeId] names what the editor saved it as.
+     */
+    fun send(message: String, recipeAction: String? = null, recipeId: String? = null): Flow<ChatStreamEvent>
+
+    /** A photo of recipe notes for Ada to read; [message] is what was typed with it. */
+    fun sendPhoto(jpeg: ByteArray, message: String): Flow<ChatStreamEvent>
+}

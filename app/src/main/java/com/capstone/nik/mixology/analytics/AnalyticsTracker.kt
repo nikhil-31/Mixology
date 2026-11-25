@@ -21,11 +21,18 @@ fun analyticsScreenName(route: String?): String? {
         path.startsWith("search") -> SCREEN_SEARCH
         path.startsWith("grid") -> SCREEN_DRINK_GRID
         path.startsWith("hot") -> SCREEN_HOME
-        path.startsWith("randomixer") -> SCREEN_RANDOMIXER
         path.startsWith("settings") -> SCREEN_SETTINGS
+        path.startsWith("ada_more") -> SCREEN_ADA_MORE
+        path.startsWith("ada") -> SCREEN_ADA
         path.startsWith("catalog") -> SCREEN_CATALOG
         path.startsWith("bar") -> SCREEN_MY_BAR
+        path.startsWith("shopping_history/") -> SCREEN_SHOPPING_TRIP
+        path.startsWith("shopping_history") -> SCREEN_SHOPPING_HISTORY
         path.startsWith("shopping") -> SCREEN_SHOPPING_LIST
+        path.startsWith("recipe_editor") -> SCREEN_RECIPE_EDITOR
+        path.startsWith("recipe_import") -> SCREEN_RECIPE_IMPORT
+        path.startsWith("recipes_home") -> SCREEN_RECIPES_HOME
+        path.startsWith("recipes") -> SCREEN_MY_RECIPES
         else -> path.substringBefore("/").takeIf { it.isNotBlank() }
     }
 }
@@ -34,17 +41,34 @@ const val SCREEN_HOME = "home"
 const val SCREEN_DRINK_GRID = "drink_grid"
 const val SCREEN_DRINK_DETAILS = "drink_details"
 const val SCREEN_SEARCH = "search"
-const val SCREEN_RANDOMIXER = "randomixer"
 const val SCREEN_SETTINGS = "settings"
+const val SCREEN_ADA = "ada"
+const val SCREEN_ADA_MORE = "ada_more"
 const val SCREEN_CATALOG = "catalog"
 const val SCREEN_MY_BAR = "my_bar"
 const val SCREEN_SHOPPING_LIST = "shopping_list"
+const val SCREEN_SHOPPING_HISTORY = "shopping_history"
+const val SCREEN_SHOPPING_TRIP = "shopping_trip"
+const val SCREEN_MY_RECIPES = "my_recipes"
+const val SCREEN_RECIPES_HOME = "recipes_home"
+const val SCREEN_RECIPE_EDITOR = "recipe_editor"
+const val SCREEN_RECIPE_IMPORT = "recipe_import"
 
-const val EVENT_RANDOMIXER_SKIP = "randomixer_skip"
 const val EVENT_REMOVE_FROM_WISHLIST = "remove_from_wishlist"
+const val EVENT_RECIPE_CREATED = "recipe_created"
+const val EVENT_RECIPE_UPDATED = "recipe_updated"
+const val EVENT_RECIPE_DELETED = "recipe_deleted"
+const val EVENT_ADA_VOICE_INPUT = "ada_voice_input"
 const val PARAM_SEARCH_MODE = "search_mode"
 const val PARAM_RESULT_COUNT = "result_count"
 const val PARAM_SAVED = "saved"
+const val PARAM_RESULT = "result"
+
+const val VOICE_STARTED = "started"
+const val VOICE_COMPLETED = "completed"
+const val VOICE_CANCELLED = "cancelled"
+const val VOICE_DENIED = "denied"
+const val VOICE_ERROR = "error"
 
 private const val MAX_PARAM_VALUE_LENGTH = 100
 private const val ITEM_CATEGORY_DRINK = "drink"
@@ -124,8 +148,20 @@ class AnalyticsTracker internal constructor(
         )
     }
 
-    fun logRandomixerSkip(id: String, name: String) {
-        log(EVENT_RANDOMIXER_SKIP, drinkParams(id, name))
+    fun logRecipeCreated(id: String, name: String) {
+        log(EVENT_RECIPE_CREATED, drinkParams(id, name))
+    }
+
+    fun logRecipeUpdated(id: String, name: String) {
+        log(EVENT_RECIPE_UPDATED, drinkParams(id, name))
+    }
+
+    fun logRecipeDeleted(id: String, name: String) {
+        log(EVENT_RECIPE_DELETED, drinkParams(id, name))
+    }
+
+    fun logAdaVoiceInput(result: String) {
+        log(EVENT_ADA_VOICE_INPUT, mapOf(PARAM_RESULT to result))
     }
 
     private fun drinkParams(id: String, name: String): Map<String, Any> = mapOf(

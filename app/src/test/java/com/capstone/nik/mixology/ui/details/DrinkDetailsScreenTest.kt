@@ -3,9 +3,10 @@ package com.capstone.nik.mixology.ui.details
 import android.app.Application
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.remember
-import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.hasProgressBarRangeInfo
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -93,7 +94,7 @@ class DrinkDetailsScreenTest {
     }
 
     @Test
-    fun loading_showsProgressIndicator() {
+    fun loading_showsSkeleton() {
         composeRule.setContent {
             MixologyTheme {
                 DrinkDetailsContent(
@@ -106,7 +107,74 @@ class DrinkDetailsScreenTest {
             }
         }
 
-        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
+        composeRule.onNodeWithText("Margarita").assertIsDisplayed()
+        composeRule.onNodeWithTag("detail_skeleton").assertExists()
+    }
+
+    @Test
+    fun loadFailed_showsRetry() {
+        var retried = false
+        composeRule.setContent {
+            MixologyTheme {
+                DrinkDetailsContent(
+                    state = DrinkDetailsUiState(
+                        loadFailed = true,
+                        drink = Drink("11007", "Margarita", ""),
+                    ),
+                    onToggleSaved = {},
+                    onRetry = { retried = true },
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("Couldn’t load this recipe.").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Retry").performScrollTo().performClick()
+        assertTrue(retried)
+    }
+
+    @Test
+    fun ingredientsInBar_areMarked() {
+        val drink = Drink(
+            id = "11007",
+            name = "Margarita",
+            thumb = "",
+            instructions = "Shake and strain.",
+            ingredients = listOf(
+                IngredientMeasure("Tequila", "1 1/2 oz"),
+                IngredientMeasure("Lime juice", "1 oz"),
+            ),
+        )
+        composeRule.setContent {
+            MixologyTheme {
+                DrinkDetailsContent(
+                    state = DrinkDetailsUiState(drink = drink, inBar = setOf("tequila")),
+                    onToggleSaved = {},
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("You have 1 of 2").performScrollTo().assertIsDisplayed()
+        composeRule.onAllNodesWithContentDescription("In your bar").assertCountEquals(1)
+    }
+
+    @Test
+    fun ingredients_comeBeforeInstructions() {
+        val drink = Drink(
+            id = "11007",
+            name = "Margarita",
+            thumb = "",
+            instructions = "Shake and strain.",
+            ingredients = listOf(IngredientMeasure("Tequila", "1 1/2 oz")),
+        )
+        composeRule.setContent {
+            MixologyTheme {
+                DrinkDetailsContent(state = DrinkDetailsUiState(drink = drink), onToggleSaved = {})
+            }
+        }
+
+        val ingredientsTop = composeRule.onNodeWithText("INGREDIENTS").fetchSemanticsNode().positionInRoot.y
+        val instructionsTop = composeRule.onNodeWithText("INSTRUCTIONS").fetchSemanticsNode().positionInRoot.y
+        assertTrue(ingredientsTop < instructionsTop)
     }
 
     @Test

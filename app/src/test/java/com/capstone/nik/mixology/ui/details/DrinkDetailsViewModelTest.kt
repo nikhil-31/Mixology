@@ -5,22 +5,32 @@ import android.content.Intent
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
+import com.capstone.nik.mixology.FakeCocktailService
 import com.capstone.nik.mixology.MainDispatcherRule
 import com.capstone.nik.mixology.Network.NetworkMonitor
+import com.capstone.nik.mixology.Network.remoteModel.CocktailDbResponse
 import com.capstone.nik.mixology.R
 import com.capstone.nik.mixology.analytics.AnalyticsTracker
 import com.capstone.nik.mixology.analytics.EVENT_REMOVE_FROM_WISHLIST
 import com.capstone.nik.mixology.analytics.PARAM_SAVED
 import com.capstone.nik.mixology.cocktailDrink
+import com.capstone.nik.mixology.data.BarIngredientEntity
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.MixologyDatabase
-import com.capstone.nik.mixology.data.toEntity
 import com.capstone.nik.mixology.repository.DrinkRepository
 import com.google.firebase.analytics.FirebaseAnalytics
+import androidx.lifecycle.ViewModelStore
+import com.capstone.nik.mixology.repository.SavedSync
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -29,6 +39,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
 @Config(application = Application::class, sdk = [34])
 class DrinkDetailsViewModelTest {
@@ -37,6 +48,7 @@ class DrinkDetailsViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private lateinit var database: MixologyDatabase
+    private val service = FakeCocktailService()
     private lateinit var repository: DrinkRepository
     private lateinit var analytics: AnalyticsTracker
     private lateinit var viewModel: DrinkDetailsViewModel
@@ -46,11 +58,16 @@ class DrinkDetailsViewModelTest {
         val context = ApplicationProvider.getApplicationContext<Application>()
         database = Room.inMemoryDatabaseBuilder(context, MixologyDatabase::class.java)
             .allowMainThreadQueries()
+            // Saves now flip in memory first, so a test can finish while Room is
+            // still writing; running Room inline keeps it from outliving the test.
+            .setQueryExecutor { it.run() }
+            .setTransactionExecutor { it.run() }
             .build()
         repository = DrinkRepository(
             database.drinkDao(),
             database.shoppingDao(),
             database.barDao(),
+            service,
             context,
         )
         analytics = AnalyticsTracker.forTests()
@@ -154,8 +171,138 @@ class DrinkDetailsViewModelTest {
         assertEquals("drink", event.params[FirebaseAnalytics.Param.CONTENT_TYPE])
     }
 
-    private suspend fun seedMargarita() {
-        database.drinkDao().upsertRecipe(cocktailDrink("11007", "Margarita").toDrink()!!.toEntity())
+    private class RecordingNotesSync : SavedSync {
+        override val savedIds: StateFlow<Set<String>> = MutableStateFlow(setOf("11007"))
+        val notesFlow = MutableStateFlow<Map<String, String>>(emptyMap())
+        override val notes: StateFlow<Map<String, String>> = notesFlow
+        val pushed = mutableListOf<Pair<String, String>>()
+        override fun push(id: String, saved: Boolean) = Unit
+        override fun pushNotes(id: String, notes: String) {
+            pushed += id to notes
+            notesFlow.value = notesFlow.value + (id to notes)
+        }
+        override suspend fun sync() = Unit
+    }
+
+    private fun notesViewModel(sync: SavedSync): DrinkDetailsViewModel {
+        val context = ApplicationProvider.getApplicationContext<Application>()
+        val repo = DrinkRepository(
+            database.drinkDao(),
+            database.shoppingDao(),
+            database.barDao(),
+            service,
+            context,
+            savedSync = sync,
+        )
+        return DrinkDetailsViewModel(repo, NetworkMonitor.forTests(), context, analytics)
+    }
+
+    @Test
+    fun notes_typingSendsNothingUntilSave() = runTest {
+        seedMargarita()
+        val sync = RecordingNotesSync()
+        val vm = notesViewModel(sync)
+        vm.onIntent(DrinkDetailsIntent.Load(Drink("11007", "Margarita", "")))
+        runCurrent()
+
+        listOf("S", "Sa", "Sal", "Salt").forEach { text ->
+            vm.onIntent(DrinkDetailsIntent.UpdateNotes(text))
+            assertEquals(text, vm.state.value.drink?.notes)
+            advanceTimeBy(1_000)
+        }
+        assertTrue(sync.pushed.isEmpty())
+        assertTrue(vm.state.value.unsavedNote)
+
+        vm.onIntent(DrinkDetailsIntent.SaveNotes)
+        assertEquals(listOf("11007" to "Salt"), sync.pushed)
+        assertEquals("Salt", vm.state.value.drink?.notes)
+        assertFalse(vm.state.value.unsavedNote)
+
+        // Saving again with nothing new typed sends nothing.
+        vm.onIntent(DrinkDetailsIntent.SaveNotes)
+        assertEquals(1, sync.pushed.size)
+    }
+
+    @Test
+    fun notes_leavingTheDrinkSendsTheUnsentEdit() = runTest {
+        seedMargarita()
+        val sync = RecordingNotesSync()
+        val vm = notesViewModel(sync)
+        vm.onIntent(DrinkDetailsIntent.Load(Drink("11007", "Margarita", "")))
+        runCurrent()
+        vm.onIntent(DrinkDetailsIntent.UpdateNotes("Salt"))
+
+        vm.onIntent(DrinkDetailsIntent.Load(Drink("11728", "Martini", "")))
+        assertEquals(listOf("11007" to "Salt"), sync.pushed)
+
+        vm.onIntent(DrinkDetailsIntent.UpdateNotes("Dry"))
+        ViewModelStore().apply { put("details", vm) }.clear()
+        assertEquals(listOf("11007" to "Salt", "11728" to "Dry"), sync.pushed)
+
+        advanceTimeBy(5_000)
+        assertEquals(2, sync.pushed.size)
+    }
+
+    @Test
+    fun notes_fromALaterPullShowUnlessMidEdit() = runTest {
+        seedMargarita()
+        val sync = RecordingNotesSync()
+        val vm = notesViewModel(sync)
+        vm.onIntent(DrinkDetailsIntent.Load(Drink("11007", "Margarita", "")))
+        runCurrent()
+        assertEquals("", vm.state.value.drink?.notes)
+
+        sync.notesFlow.value = mapOf("11007" to "From the server")
+        runCurrent()
+        assertEquals("From the server", vm.state.value.drink?.notes)
+
+        vm.onIntent(DrinkDetailsIntent.UpdateNotes("Typing"))
+        sync.notesFlow.value = mapOf("11007" to "Older pull")
+        runCurrent()
+        assertEquals("Typing", vm.state.value.drink?.notes)
+    }
+
+    @Test
+    fun lookupFails_withNothingCached_offersRetry_andRetryLoads() = runTest {
+        service.failLookup = true
+        viewModel.onIntent(DrinkDetailsIntent.Load(Drink("11007", "Margarita", "")))
+        viewModel.state.test {
+            val failed = awaitItemUntil { it.loadFailed }
+            assertFalse(failed.loading)
+
+            service.failLookup = false
+            seedMargarita()
+            viewModel.onIntent(DrinkDetailsIntent.Retry)
+            val loaded = awaitItemUntil { it.drink?.hasRecipe == true }
+            assertFalse(loaded.loadFailed)
+            assertFalse(loaded.loading)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun lookupFails_withRecipeShown_doesNotFlagFailure() = runTest {
+        service.failLookup = true
+        val full = Drink("11007", "Margarita", "", instructions = "Shake.")
+        viewModel.onIntent(DrinkDetailsIntent.Load(full))
+        runCurrent()
+        assertFalse(viewModel.state.value.loadFailed)
+    }
+
+    @Test
+    fun inBar_followsMyBar() = runTest {
+        database.barDao().insert(BarIngredientEntity("Gin"))
+        viewModel.state.test {
+            val withBar = awaitItemUntil { it.inBar.isNotEmpty() }
+            assertEquals(setOf("gin"), withBar.inBar)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    private fun seedMargarita() {
+        service.lookupsById = mapOf(
+            "11007" to CocktailDbResponse(listOf(cocktailDrink("11007", "Margarita"))),
+        )
     }
 }
 

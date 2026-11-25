@@ -21,14 +21,28 @@ interface DrinkDao {
     )
     fun observeByFilter(filterName: String): Flow<List<DrinkEntity>>
 
-    @Query("SELECT * FROM drinks WHERE saved = 1 ORDER BY name")
-    fun observeSaved(): Flow<List<DrinkEntity>>
+    @Query("SELECT * FROM drinks WHERE id IN (:ids) ORDER BY name")
+    fun observeByIds(ids: List<String>): Flow<List<DrinkEntity>>
 
+    @Query("SELECT * FROM drinks WHERE id IN (:ids) ORDER BY name")
+    suspend fun getByIds(ids: List<String>): List<DrinkEntity>
+
+    /** The device's copy of the account's saved list; SavedSync keeps it in step with the server. */
     @Query("SELECT id FROM drinks WHERE saved = 1")
-    fun observeSavedIds(): Flow<List<String>>
+    suspend fun getSavedIds(): List<String>
 
-    @Query("SELECT * FROM drinks WHERE saved = 1 ORDER BY name")
-    fun getSavedSync(): List<DrinkEntity>
+    @Query("UPDATE drinks SET saved = :saved WHERE id = :id")
+    suspend fun setSaved(id: String, saved: Boolean)
+
+    @Query("UPDATE drinks SET saved = 0 WHERE saved = 1")
+    suspend fun clearSavedFlags()
+
+    /** Flags exactly [ids] as saved. Ids with no cached drink are skipped. */
+    @Transaction
+    suspend fun replaceSaved(ids: List<String>) {
+        clearSavedFlags()
+        ids.forEach { setSaved(it, true) }
+    }
 
     @Query("SELECT * FROM drinks WHERE id = :id")
     suspend fun getById(id: String): DrinkEntity?
@@ -38,9 +52,6 @@ interface DrinkDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertMemberships(memberships: List<DrinkFilterCrossRef>)
-
-    @Query("UPDATE drinks SET saved = :saved WHERE id = :id")
-    suspend fun setSaved(id: String, saved: Boolean)
 
     @Query("UPDATE drinks SET name = :name, thumb = :thumb WHERE id = :id")
     suspend fun updateIdentity(id: String, name: String, thumb: String)
@@ -116,11 +127,12 @@ interface DrinkDao {
         }
     }
 
+    /** Caches a drink's details before it is flagged saved; the flag itself is set by SavedSync. */
     @Transaction
     suspend fun saveDrink(drink: DrinkEntity) {
         val existing = getById(drink.id)
         if (existing == null) {
-            insertDrinks(listOf(drink.copy(saved = true)))
+            insertDrinks(listOf(drink.copy(saved = false, notes = "")))
         } else {
             updateIdentity(
                 drink.id,
@@ -144,11 +156,7 @@ interface DrinkDao {
                 )
             }
         }
-        setSaved(drink.id, true)
     }
-
-    @Query("UPDATE drinks SET notes = :notes WHERE id = :id")
-    suspend fun updateNotes(id: String, notes: String)
 
     @Query(
         """

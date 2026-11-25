@@ -22,7 +22,27 @@ def localProperties = new Properties()
 if (localPropertiesFile.exists()) {
     localProperties.load(new FileInputStream(localPropertiesFile))
 }
-def cocktailDbApiKey = localProperties.getProperty('COCKTAIL_DB_API_KEY', '1')
+// Backend URL: local.properties, then the MIXOLOGY_API_BASE_URL environment variable (CI),
+// then the emulator's view of a server on the host. Debug only: release builds must set it.
+def mixologyApiBaseUrlSource = localProperties.getProperty('MIXOLOGY_API_BASE_URL')
+        ?: System.getenv('MIXOLOGY_API_BASE_URL')
+def mixologyApiBaseUrl = mixologyApiBaseUrlSource ?: 'http://10.0.2.2:8000/'
+if (!mixologyApiBaseUrl.endsWith('/')) {
+    mixologyApiBaseUrl += '/'
+}
+
+/** Stops a release or mix build that would ship pointing at a developer machine. */
+def checkReleaseApiBaseUrl = {
+    if (mixologyApiBaseUrlSource == null) {
+        throw new GradleException(
+            "MIXOLOGY_API_BASE_URL is not set. Release builds need the production backend URL in " +
+            "local.properties or the MIXOLOGY_API_BASE_URL environment variable.")
+    }
+    if (!mixologyApiBaseUrl.startsWith('https://')) {
+        throw new GradleException(
+            "MIXOLOGY_API_BASE_URL must use https:// for release builds, got '${mixologyApiBaseUrl}'.")
+    }
+}
 
 android {
     signingConfigs {
@@ -51,7 +71,7 @@ android {
         versionCode 21
         versionName "2.01"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField "String", "COCKTAIL_DB_API_KEY", "\"${cocktailDbApiKey}\""
+        buildConfigField "String", "MIXOLOGY_API_BASE_URL", "\"${mixologyApiBaseUrl}\""
         if (keystoreProperties != null) {
             signingConfig signingConfigs.config
         }
@@ -76,6 +96,8 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        // java.time on Android 6 and 7 (minSdk 23); without this the Recipes home crashes there.
+        coreLibraryDesugaringEnabled true
     }
     kotlinOptions {
         jvmTarget = "17"
@@ -97,6 +119,14 @@ android {
     }
 }
 
+android.applicationVariants.configureEach { variant ->
+    if (variant.buildType.name != 'debug') {
+        variant.preBuildProvider.configure {
+            doFirst { checkReleaseApiBaseUrl() }
+        }
+    }
+}
+
 kapt {
     correctErrorTypes true
     arguments {
@@ -105,7 +135,7 @@ kapt {
 }
 
 dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    coreLibraryDesugaring libs.desugar.jdk.libs
 
     implementation libs.appcompat
     implementation libs.material
@@ -119,6 +149,7 @@ dependencies {
     implementation libs.compose.material.icons.extended
     implementation libs.navigation.compose
     implementation libs.coil.compose
+    implementation libs.androidx.exifinterface
     implementation libs.glance.appwidget
     implementation libs.glance.material3
     debugImplementation libs.compose.ui.tooling
@@ -147,7 +178,14 @@ dependencies {
     implementation platform(libs.firebase.bom)
     implementation libs.firebase.crashlytics
     implementation libs.firebase.analytics
+    implementation libs.firebase.auth
+    implementation libs.androidx.credentials
+    implementation libs.androidx.credentials.play.services.auth
+    implementation libs.googleid
+    implementation libs.play.billing
+    implementation libs.kotlinx.coroutines.play.services
     implementation libs.play.services.ads
+    implementation libs.user.messaging.platform
     implementation libs.play.app.update
     implementation libs.play.app.update.ktx
     implementation libs.play.review

@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 11 and earlier read this; data_extraction_rules.xml is the same list for later versions.
+  Keep the login session and per-account sync state off cloud backup: a restored
+  token would sign a new device in, and the sync markers belong to this install.
+-->
 <full-backup-content>
-    <exclude
-        domain="database"
-        path="drinkDatabase.db" />
+    <exclude domain="database" path="mixology.db" />
+    <exclude domain="database" path="mixology.db-wal" />
+    <exclude domain="database" path="mixology.db-shm" />
+    <exclude domain="sharedpref" path="mixology_session.xml" />
+    <exclude domain="sharedpref" path="saved_sync.xml" />
+    <exclude domain="sharedpref" path="bar_sync.xml" />
+    <exclude domain="sharedpref" path="shopping_sync.xml" />
+    <exclude domain="sharedpref" path="shopping_trips.xml" />
 </full-backup-content>

@@ -20,6 +20,7 @@ import com.capstone.nik.mixology.Activities.ActivityMain
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.data.SessionStore
 import com.capstone.nik.mixology.ui.putDrinkExtra
+import com.capstone.nik.mixology.ui.tour.WelcomeTourPreferences
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -43,6 +44,8 @@ class ActivityMainEspressoTest {
             email = "espresso@mixology.test",
             displayName = "Espresso",
         )
+        // The first-run tour would cover everything these tests look at.
+        WelcomeTourPreferences.setSeen(ApplicationProvider.getApplicationContext(), true)
     }
 
     @Test

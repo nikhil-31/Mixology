@@ -186,6 +186,25 @@ class SettingsScreenTest {
     }
 
     @Test
+    fun replayTourRow_reportsClicks() {
+        var replays = 0
+        composeRule.setContent {
+            MixologyTheme {
+                SettingsScreen(
+                    themeMode = ThemeMode.SYSTEM,
+                    onThemeModeSelected = {},
+                    onReplayTour = { replays += 1 },
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("settings_replay_tour").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Replay welcome tour").assertIsDisplayed()
+        composeRule.onNodeWithTag("settings_replay_tour").performClick()
+        assertEquals(1, replays)
+    }
+
+    @Test
     fun signOut_asksFirstAndOnlySignsOutOnConfirm() {
         var signedOut = false
         composeRule.setContent {

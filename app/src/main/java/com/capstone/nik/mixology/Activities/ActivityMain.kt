@@ -9,10 +9,22 @@ import androidx.appcompat.app.AppCompatActivity
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.DialogWindowProvider
+import androidx.core.view.WindowCompat
+import com.capstone.nik.mixology.ui.tour.WelcomeTourPreferences
+import com.capstone.nik.mixology.ui.tour.WelcomeTourScreen
+import com.capstone.nik.mixology.ui.tour.rememberWelcomeTourSeen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.capstone.nik.mixology.data.Drink
 import com.capstone.nik.mixology.billing.trialEndingDays
@@ -70,6 +82,33 @@ class ActivityMain : AppCompatActivity() {
                         trialDaysLeft = trialEndingDays(access),
                         onSubscribe = subscriptionGate::openPaywall,
                     )
+                    // Over the app rather than instead of it, so a replay from Settings keeps
+                    // where you were, and a pending drink or import is there when it closes.
+                    if (!rememberWelcomeTourSeen()) {
+                        val context = LocalContext.current
+                        val finishTour = { WelcomeTourPreferences.setSeen(context, true) }
+                        Dialog(
+                            onDismissRequest = finishTour,
+                            properties = DialogProperties(
+                                usePlatformDefaultWidth = false,
+                                decorFitsSystemWindows = false,
+                            ),
+                        ) {
+                            // The dialog has its own window, whose bar icons don't follow the
+                            // activity's.
+                            val view = LocalView.current
+                            val lightBackground = MaterialTheme.colorScheme.background.luminance() > 0.5f
+                            SideEffect {
+                                (view.parent as? DialogWindowProvider)?.window?.let { window ->
+                                    WindowCompat.getInsetsController(window, view).apply {
+                                        isAppearanceLightStatusBars = lightBackground
+                                        isAppearanceLightNavigationBars = lightBackground
+                                    }
+                                }
+                            }
+                            WelcomeTourScreen(onDone = finishTour)
+                        }
+                    }
                 }
             }
         }

@@ -529,4 +529,14 @@
         <item quantity="one">%d artículo por comprar</item>
         <item quantity="other">%d artículos por comprar</item>
     </plurals>
+    <string name="settings_replay_tour">Repetir el recorrido de bienvenida</string>
+    <string name="tour_welcome_title">Te damos la bienvenida a Mixology</string>
+    <string name="tour_welcome_body">Tus recetas, tu bar y una bartender que conoce ambos.</string>
+    <string name="tour_home_body">Tus bebidas guardadas y tus propias recetas en un solo lugar. Importa una receta desde un enlace o un texto pegado.</string>
+    <string name="tour_bar_body">Añade las botellas que tienes y mira qué puedes preparar esta noche.</string>
+    <string name="tour_shopping_body">Añade lo que le falta a una bebida y compra por bebida o por ingrediente.</string>
+    <string name="tour_ada_body">Pídele a Ada ideas, sustituciones o una bebida que encaje con tu bar. También puede leer la foto de una receta.</string>
+    <string name="tour_skip">Omitir</string>
+    <string name="tour_next">Siguiente</string>
+    <string name="tour_done">Empezar</string>
 </resources>

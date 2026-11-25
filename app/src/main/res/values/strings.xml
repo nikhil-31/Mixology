@@ -542,4 +542,14 @@
         <item quantity="one">%d item to buy</item>
         <item quantity="other">%d items to buy</item>
     </plurals>
+    <string name="settings_replay_tour">Replay welcome tour</string>
+    <string name="tour_welcome_title">Welcome to Mixology</string>
+    <string name="tour_welcome_body">Your recipes, your bar and a bartender who knows both.</string>
+    <string name="tour_home_body">Your saved drinks and your own recipes in one place. Import a recipe from a link or pasted text.</string>
+    <string name="tour_bar_body">Add the bottles you own and see what you can make tonight.</string>
+    <string name="tour_shopping_body">Add what a drink is missing and shop by drink or by ingredient.</string>
+    <string name="tour_ada_body">Ask Ada for ideas, swaps or a drink that fits your bar. She can read a photo of a recipe too.</string>
+    <string name="tour_skip">Skip</string>
+    <string name="tour_next">Next</string>
+    <string name="tour_done">Get started</string>
 </resources>

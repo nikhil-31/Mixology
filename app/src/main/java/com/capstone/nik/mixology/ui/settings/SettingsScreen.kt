@@ -22,6 +22,7 @@ import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material.icons.outlined.Policy
 import androidx.compose.material.icons.outlined.PrivacyTip
+import androidx.compose.material.icons.outlined.Slideshow
 import androidx.compose.material.icons.outlined.StarRate
 import androidx.compose.material.icons.outlined.SystemUpdate
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -67,6 +68,7 @@ import com.capstone.nik.mixology.ui.theme.MixologySectionTitle
 import com.capstone.nik.mixology.ui.theme.ThemeMode
 import com.capstone.nik.mixology.ui.theme.ThemePreferences
 import com.capstone.nik.mixology.ui.theme.rememberThemeMode
+import com.capstone.nik.mixology.ui.tour.WelcomeTourPreferences
 import java.util.Locale
 
 const val PRIVACY_POLICY_URL = "https://nikhil-31.github.io/Mixology/privacy-policy"
@@ -126,6 +128,8 @@ fun SettingsRoute(
         onCatalog = onCatalog,
         onMyRecipes = onMyRecipes,
         onImportRecipe = onImportRecipe,
+        // The activity is listening for this flag and shows the tour over whatever is open.
+        onReplayTour = { WelcomeTourPreferences.setSeen(context, false) },
         onCheckForUpdates = onCheckForUpdates,
         onRateApp = onRateApp,
         privacyOptionsRequired = privacyOptionsRequired,
@@ -155,6 +159,7 @@ fun SettingsScreen(
     onCatalog: () -> Unit = {},
     onMyRecipes: () -> Unit = {},
     onImportRecipe: () -> Unit = {},
+    onReplayTour: () -> Unit = {},
     onCheckForUpdates: () -> Unit = {},
     onRateApp: () -> Unit = {},
     privacyOptionsRequired: Boolean = false,
@@ -375,6 +380,13 @@ fun SettingsScreen(
             title = stringResource(R.string.settings_import_recipe),
             onClick = onImportRecipe,
             tag = "settings_import_recipe",
+        )
+        SettingsRow(
+            icon = Icons.Outlined.Slideshow,
+            title = stringResource(R.string.settings_replay_tour),
+            onClick = onReplayTour,
+            tag = "settings_replay_tour",
+            chevron = false,
         )
 
         SettingsSectionTitle(stringResource(R.string.settings_privacy_header))
